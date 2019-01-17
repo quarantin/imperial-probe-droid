@@ -776,7 +776,8 @@ async def handle_update(author, channel, args):
 		await send_embed(channel, msg)
 		return
 
-	subprocess.call([ 'git', 'reset', '--hard'])
+	#subprocess.call([ 'git', 'reset', '--hard'])
+	subprocess.call([ 'git', 'stash' ])
 	subprocess.call([ 'git', 'fetch'])
 	subprocess.call([ 'git', 'pull', 'origin', 'master'])
 
