@@ -434,6 +434,7 @@ HELP_HELP = {
 	'color': 'blue',
 	'description': """------------------------------
 **Botmaster(s)**: %authors
+**Source Code**: %source
 ------------------------------
 **Help commands**
 **`help`**: This help menu
@@ -541,7 +542,7 @@ async def handle_help(author, channel, args):
 
 	msg = HELP_HELP
 	msg['title'] = msg['title'].replace('%prefix', ', '.join(ipd_config['prefix']))
-	msg['description'] = msg['description'].replace('%authors', ', '.join(ipd_config['authors']))
+	msg['description'] = msg['description'].replace('%authors', ', '.join(ipd_config['authors'])).replace('%source', ipd_config['source'])
 
 	if args:
 		command = args[0]
