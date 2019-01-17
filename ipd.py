@@ -775,16 +775,14 @@ async def handle_update(author, channel, args):
 		await send_embed(channel, msg)
 		return
 
-	"""
-	TODO
 	subprocess.call([ 'git', 'reset', '--hard'])
 	subprocess.call([ 'git', 'fetch'])
 	subprocess.call([ 'git', 'pull', 'origin', 'master'])
-	"""
+
 	bot.logout()
 	bot.close()
 
-	print('Updated!')
+	print('Restarting!')
 	sys.exit()
 
 def write_json_to_file(jsondata, filename):
