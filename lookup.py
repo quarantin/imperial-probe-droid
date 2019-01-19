@@ -1,5 +1,19 @@
 #!/usr/bin/python3
 
+PROBE_DIALOG = [
+	'bIp',
+	'bIp bIp',
+	'bEp',
+	'blEp',
+	'BVN'
+	'bOp',
+	'brZ',
+	'chInk',
+	'schlIk',
+	'stZS',
+	'wOm',
+]
+
 PERCENT_STATS = [
 	'armor',
 	'critical-damage',

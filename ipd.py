@@ -4,6 +4,8 @@ import sys
 import json
 import pytz
 import errno
+import string
+import random
 import discord
 import datetime
 import requests
@@ -971,9 +973,38 @@ def load_config():
 
 bot = discord.Client()
 
+def say_hello_helper(word):
+
+	for c in string.ascii_uppercase:
+
+		if c in word:
+			rand_count = random.randrange(2, 7)
+			word = word.replace(c, c.lower() * rand_count)
+
+	return word
+
+async def say_hello():
+
+	words = []
+	chan_id = '533305966632894505'
+	word_count = random.randrange(3, 10)
+	words_ref = list(PROBE_DIALOG)
+
+	for i in range(0, word_count):
+
+		rand_index = random.randrange(0, len(PROBE_DIALOG))
+		rand_word = PROBE_DIALOG[rand_index]
+
+		words.append(say_hello_helper(rand_word))
+
+	message = ' '.join(words)
+	channel = bot.get_channel(chan_id)
+	await bot.send_message(channel, message.capitalize())
+
 @bot.event
 async def on_ready():
 	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
+	await say_hello()
 
 @bot.event
 async def on_message(message):
