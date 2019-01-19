@@ -952,6 +952,8 @@ async def handle_stats(author, channel, args):
 
 				lines.append('%s `x %s%d mods = %s%d modsets%s`' % (emoji, pad1, count, pad2, modsets, remain))
 
+			lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
+
 			msg = {
 				'title': '%s Mods Statistics' % player,
 				'description': 'Equipped mods: **%d**\n%s' % (equipped_mods, '\n'.join(lines)),
