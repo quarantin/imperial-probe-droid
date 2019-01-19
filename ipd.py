@@ -9,6 +9,9 @@ import datetime
 import requests
 import subprocess
 
+from help import *
+from lookup import *
+
 SHEETS_ALIASES = {
 	'a': 'allies',
 	'r': 'recommendations',
@@ -19,185 +22,6 @@ ipd_config = {}
 ipd_config_json = 'config.json'
 
 BASE_URL = 'https://swgoh.gg/api'
-
-ACTIONS = {
-	'list-chars',
-	'list-ships',
-	'list-mods',
-}
-
-PERCENT_STATS = [
-	'armor',
-	'critical-damage',
-	'physical-critical-chance',
-	'potency',
-	'resistance',
-	'special-critical-chance',
-	'tenacity',
-]
-
-MODSETS = {
-	1: 'Health',
-	2: 'Offense',
-	3: 'Defense',
-	4: 'Speed',
-	5: 'Critical Chance',
-	6: 'Critical Damage',
-	7: 'Potency',
-	8: 'Tenacity',
-}
-
-SHORT_STATS = {
-	'Accuracy':           'Ac',
-	'Critical Avoidance': 'CA',
-	'Critical Chance':    'CC',
-	'Critical Damage':    'CD',
-	'Defense':            'De',
-	'Health':             'He',
-	'Offense':            'Of',
-	'Potency':            'Po',
-	'Protection':         'Pr',
-	'Speed':              'Sp',
-	'Tenacity':           'Te',
-}
-
-MODSETS_NEEDED = {
-	'Health': 2,
-	'Offense': 4,
-	'Defense': 2,
-	'Speed': 4,
-	'Critical Chance': 2,
-	'Critical Damage': 4,
-	'Potency': 2,
-	'Tenacity': 2,
-}
-
-MODSLOTS = {
-	1: 'Square',
-	2: 'Arrow',
-	3: 'Diamond',
-	4: 'Triangle',
-	5: 'Circle',
-	6: 'Cross',
-}
-
-EMOJIS = {
-	'':                  '<:spa:535808549264162816>',
-	'health':            '<:hea:535516510681301012>',
-	'offense':           '<:off:535540883207094283>',
-	'defense':           '<:def:535522549375959050>',
-	'speed':             '<:spe:535522604782714890>',
-	'cc':                '<:cc:535538316943294465>',
-	'criticalchance':    '<:cc:535538316943294465>',
-	'cd':                '<:cd:535538317132038164>',
-	'criticaldamage':    '<:cd:535538317132038164>',
-	'potency':           '<:pot:535522563414032405>',
-	'tenacity':          '<:ten:535522621731635207>',
-	'capitalgames':      '<:cg:535546505365422080>',
-	'crouchingrancor':   '<:cr:535545454214119434>',
-	'crimsondeathwatch': '<:cdw:535779958686089216>',
-	'square':            '<:square:535541049570099211>',
-	'arrow':             '<:arrow:535541036986925066>',
-	'diamond':           '<:diamond:535541023112298496>',
-	'triangle':          '<:triangle:535541010424660009>',
-	'circle':            '<:circle:535540977516150799>',
-	'cross':             '<:cross:535814108914909215>',
-}
-
-FORMAT_LUT = {
-	'gear':  'gear_level',
-	'id':    'base_id',
-	'level': 'level',
-	'name':  'name',
-	'power': 'power',
-	'stars': 'rarity',
-}
-
-STATS_LUT = {
-	'health':                      '1',
-	'strength':                    '2',
-	'agility':                     '3',
-	'tactics':                     '4',
-	'speed':                       '5',
-	'physical-damage':             '6',
-	'special-damage':              '7',
-	'armor':                       '8',
-	'resistance':                  '9',
-	'armor-penetration':           '10',
-	'resistance-penetration':      '11',
-	'dodge-chance':                '12',
-	'deflection-chance':           '13',
-	'physical-critical-chance':    '14',
-	'special-critical-chance':     '15',
-	'critical-damage':             '16',
-	'potency':                     '17',
-	'tenacity':                    '18',
-	'health-steal':                '27',
-	'protection':                  '28',
-	'physical-accuracy':           '37',
-	'special-accuracy':            '38',
-	'physical-critical-avoidance': '39',
-	'special-critical-avoidance':  '40',
-}
-
-COLORS = {
-	'blue':       0x268bd2,
-	'cyan':       0x2aa198,
-	'dark-gray':  0x586e75,
-	'green':      0x859900,
-	'light-gray': 0x839496,
-	'orange':     0xcb4b16,
-	'red':        0xdc322f,
-	'yellow':     0xb58900,
-}
-
-UNITS_SHORT_NAMES = {
-
-	'aa':    'Admiral Ackbar',
-	'bf':    'Boba Fett',
-	'cc':    'Chief Chirpa',
-	'chs':   'Captain Han Solo',
-	'cls':   'Commander Luke Skywalker',
-	'cup':   'Coruscant Underworld Police',
-	'cwc':   'Clone Wars Chewbacca',
-	'dk':    'Director Krennic',
-	'dn':    'Darth Nihilus',
-	'dv':    'Darth Vader',
-	'ee':    'Ewok Elder',
-	'ep':    'Emperor Palpatine',
-	'foe':   'First Order Executioner',
-	'fox':   'First Order Executioner',
-	'foo':   'First Order Officer',
-	'fostp': 'First Order SF TIE Pilot',
-	'fost':  'First Order Stormtrooper',
-	'fotp':  'First Order TIE Pilot',
-	'gk':    'General Kenobi',
-	'gat':   'Grand Admiral Thrawn',
-	'gmt':   'Grand Moff Tarkin',
-	'gmy':   'Grand Master Yoda',
-	'hy':    'Hermit Yoda',
-	'hoda':  'Hermit Yoda',
-	'hyoda': 'Hermit Yoda',
-	'hs':    'Han Solo',
-	'hst':   'Stormtrooper Han',
-	'ipd':   'Imperial Probe Droid',
-	'jf':    'Jango Fett',
-	'jka':   'Jedi Knight Anakin',
-	'jkg':   'Jedi Knight Guardian',
-	'jkr':   'Jedi Knight Revan',
-	'jtr':   'Rey (Jedi Training)',
-	'kr':    'Kylo Ren',
-	'kru':   'Kylo Ren (Unmasked)',
-	'mt':    'Mother Talzin',
-	'qgj':   'Qui-Gon Jinn',
-	'sth':   'Stormtrooper Han',
-	'rex':   'CT-7567',
-	'rolo':  'Rebel Officer Leia Organa',
-	'rp':    'Resistance Pilot',
-	'rjt':   'Rey (Jedi Training)',
-	'yhs':   'Young Han Solo',
-	'ylc':   'Young Lando Calrissian',
-}
 
 def now():
 	tz = pytz.timezone(ipd_config['timezone'])
@@ -640,115 +464,6 @@ async def parse_ally_codes(author, channel, args):
 
 	return args, ally_codes
 
-HELP_HELP = {
-	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
-	'color': 'blue',
-	'description': """------------------------------
-**Botmaster(s)**: %authors
-**Source Code**: %source
-------------------------------
-**Help commands**
-**`help`**: This help menu
-------------------------------
-**Player commands**
-**`arena`**: Show arena team for the supplied ally code.
-**`fleet-arena`**: Show fleet arena team for the supplied ally code.
-**`mods`**: Show stats about mods for the supplied ally code.
-**`sheets`**: Show spreadsheets.
-"""
-}
-
-HELP_ARENA = {
-	'title': 'Player info',
-	'color': 'blue',
-	'description': """Shows arena team for the supplied ally codes.
-
-**Syntax**
-```
-%prefixarena [ally codes] [l|s|v]
-%prefixarena [ally codes] c <format>```
-
-**Options**
-lite (l): lite display
-short (s): short display
-verbose (v): verbose display
-custom (c): custom display
-
-**Aliases**
-```
-a```
-
-**Format**
-The custom format can contain the following keywords:
-```
-%name (character name)
-%leader (leader of the group)
-%level (level of the character)
-%gear (level of gear of the character)
-%power (power of the character)
-%health (health of the character)
-%speed (speed of the character)
-...```
-Also spaces need to be replaced with %20 and newlines with %0A.
-
-**Example**
-```
-%prefixa
-%prefixa l
-%prefixa 123456789
-%prefixa 123456789 234567891
-%prefixa 123456789 lite
-%prefixa c %speed%20%name```"""
-}
-
-HELP_FLEET_ARENA = {
-	'title': 'Player info',
-	'color': 'blue',
-	'description': """Shows fleet arena team for the supplied ally codes.
-
-**Options**
-lite (l)
-short (s)
-verbose (v)
-custom (c)
-
-**Aliases**
-```
-f
-fa```
-
-**Example**
-```
-%prefixf
-%prefixf 123456789
-%prefixf 123456789 234567891
-%prefixf 123456788 verbose
-%prefixf c %speed%20%name```"""
-
-}
-
-HELP_MODS = {
-
-}
-
-HELP_SHEETS = {
-
-}
-
-HELP_MESSAGES = {
-	'a': HELP_ARENA,
-	'arena': HELP_ARENA,
-	'f': HELP_FLEET_ARENA,
-	'fa': HELP_FLEET_ARENA,
-	'fleet-arena': HELP_FLEET_ARENA,
-	'h': HELP_HELP,
-	'help': HELP_HELP,
-	'm': HELP_MODS,
-	'mods': HELP_MODS,
-	'sh': HELP_SHEETS,
-	'sheets': HELP_SHEETS,
-}
-
 def substitute_tokens(text):
 
 	tokens = [
@@ -1143,6 +858,71 @@ async def handle_sheets(author, channel, args):
 
 	await send_embed(channel, msg)
 
+def parse_mod_counts(mods):
+
+	count = {}
+	shapes = {}
+
+	for mod in mods:
+
+		modset = MODSETS[ mod['set'] ]
+		if modset not in count:
+			count[modset] = 0
+		count[modset] = count[modset] + 1
+
+		if modset not in shapes:
+			shapes[modset] = {}
+
+		shape = MODSLOTS[ mod['slot'] ]
+		if shape not in shapes[modset]:
+			shapes[modset][shape] = 0
+
+		shapes[modset][shape] = shapes[modset][shape] + 1
+
+	return count, shapes
+
+async def handle_stats(author, channel, args):
+
+	args, ally_codes = await parse_ally_codes(author, channel, args)
+	if args:
+		msg = {
+			'title': 'Unknown parameter(s)',
+			'color': 'red',
+			'description': 'I don\'t know what to do with the following parameter(s):\n - %s' % '\n - '.join(new_args),
+		}
+
+		await send_embed(channel, msg)
+		return
+
+	for ally_code in ally_codes:
+
+		info = api_units(ally_code)
+		mods = api_mods(ally_code)
+		units = parse_units(info)
+		parse_unit_mods(units, mods)
+
+		counts, shapes = parse_mod_counts(mods['mods'])
+
+		player = info['data']['name']
+		equipped_mods = len(mods['mods'])
+
+		lines = []
+		for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
+			count = counts[modset]
+			emoji = EMOJIS[modset.replace(' ', '').lower()]
+			modset_group = MODSETS_NEEDED[modset]
+			modsets, remainder = divmod(count, modset_group)
+			remain = remainder > 0 and ' + %d mod(s)' % remainder or ''
+
+			lines.append('%s `x    %d mods = %d modsets%s`' % (emoji, count, modsets, remain))
+
+		msg = {
+			'title': '%s Mods Statistics' % player,
+			'description': 'Equipped mods: **%d**\n%s' % (equipped_mods, '\n'.join(lines)),
+		}
+
+		await send_embed(channel, msg)
+
 async def handle_update(author, channel, args):
 
 	if author not in ipd_config['admins']:
@@ -1228,6 +1008,9 @@ async def on_message(message):
 
 	elif command in [ 'r', 'recommendations' ]:
 		await handle_mods_recommendations(author, channel, args)
+
+	elif command in [ 's', 'stats' ]:
+		await handle_stats(author, channel, args)
 
 	elif command in [ 'sh', 'sheets' ]:
 		await handle_sheets(author, channel, args)
