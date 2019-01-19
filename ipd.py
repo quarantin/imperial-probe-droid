@@ -13,6 +13,7 @@ import subprocess
 
 from help import *
 from lookup import *
+SEPARATOR = '`------------------------------`'
 
 SHEETS_ALIASES = {
 	'a': 'allies',
@@ -883,14 +884,35 @@ def parse_mod_counts(mods):
 
 	return count, shapes
 
+MODSET_ARGS = {
+	'health': 'Health',
+	'defense': 'Defense',
+	'potency': 'Potency',
+	'tenacity': 'Tenacity',
+	'cc':  'Critical Chance',
+	'cd':  'Critical Damage',
+	'offense': 'Offense',
+	'speed': 'Speed',
+}
+
 async def handle_stats(author, channel, args):
 
 	args, ally_codes = await parse_ally_codes(author, channel, args)
+
+	args_cpy = list(args)
+	selected_modsets = []
+
+	for arg in args_cpy:
+		if arg in MODSET_ARGS:
+			mset = MODSET_ARGS[arg]
+			args.remove(arg)
+			if mset not in selected_modsets:
+				selected_modsets.append(mset)
 	if args:
 		msg = {
 			'title': 'Unknown parameter(s)',
 			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter(s):\n - %s' % '\n - '.join(new_args),
+			'description': 'I don\'t know what to do with the following parameter(s):\n - %s' % '\n - '.join(args),
 		}
 
 		await send_embed(channel, msg)
@@ -908,30 +930,65 @@ async def handle_stats(author, channel, args):
 		player = info['data']['name']
 		equipped_mods = len(mods['mods'])
 
+		if not selected_modsets:
+			lines = []
+			for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
+				count = counts[modset]
+				emoji = EMOJIS[modset.replace(' ', '').lower()]
+				modset_group = MODSETS_NEEDED[modset]
+				modsets, remainder = divmod(count, modset_group)
+				remain = remainder > 0 and ' + %d mod(s)' % remainder or ''
+				pad1 = ''
+				if count < 100:
+					pad1 = u'\u202F\u202F'
+				if count < 10:
+					pad1 = pad1 * 2
+
+				pad2 = ''
+				if modsets < 100:
+					pad2 = u'\u202F\u202F'
+				if modsets < 10:
+					pad2 = pad2 * 2
+
+				lines.append('%s `x %s%d mods = %s%d modsets%s`' % (emoji, pad1, count, pad2, modsets, remain))
+
+			msg = {
+				'title': '%s Mods Statistics' % player,
+				'description': 'Equipped mods: **%d**\n%s' % (equipped_mods, '\n'.join(lines)),
+			}
+
+			await send_embed(channel, msg)
+			return
+
+	for modset in selected_modsets:
+
 		lines = []
-		for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
-			count = counts[modset]
-			emoji = EMOJIS[modset.replace(' ', '').lower()]
-			modset_group = MODSETS_NEEDED[modset]
-			modsets, remainder = divmod(count, modset_group)
-			remain = remainder > 0 and ' + %d mod(s)' % remainder or ''
-			pad1 = ''
-			if count < 100:
-				pad1 = u'\u202F\u202F'
-			if count < 10:
-				pad1 = pad1 * 2
+		total_for_modset = 0
+		for shape in [ 'Square', 'Arrow', 'Diamond', 'Triangle', 'Circle', 'Cross' ]:
+			if shape in shapes[modset]:
+				modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
+				modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
+				count = shapes[modset][shape]
+				pad = ''
+				if count < 100:
+					pad = u'\u202F\u202F'
+				if count < 10:
+					pad = pad * 2
 
-			pad2 = ''
-			if modsets < 100:
-				pad2 = u'\u202F\u202F'
-			if modsets < 10:
-				pad2 = pad2 * 2
+				#newline = ''
+				#if shape in [ 'Arrow', 'Triangle' ]:
+				#	newline = '\n'
 
-			lines.append('%s `x %s%d mods = %s%d modsets%s`' % (emoji, pad1, count, pad2, modsets, remain))
+				total_for_modset = total_for_modset + count
+
+				line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, shapes[modset][shape])
+				lines.append(line)
+
+		lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
 
 		msg = {
-			'title': '%s Mods Statistics' % player,
-			'description': 'Equipped mods: **%d**\n%s' % (equipped_mods, '\n'.join(lines)),
+			'title': '%s %s Mods Statistics' % (player, modset),
+			'description': 'Equipped %s mods: %d\n%s' % (modset.lower(), total_for_modset, '\n'.join(lines)),
 		}
 
 		await send_embed(channel, msg)
