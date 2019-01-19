@@ -915,8 +915,19 @@ async def handle_stats(author, channel, args):
 			modset_group = MODSETS_NEEDED[modset]
 			modsets, remainder = divmod(count, modset_group)
 			remain = remainder > 0 and ' + %d mod(s)' % remainder or ''
+			pad1 = ''
+			if count < 100:
+				pad1 = u'\u202F\u202F'
+			if count < 10:
+				pad1 = pad1 * 2
 
-			lines.append('%s `x    %d mods = %d modsets%s`' % (emoji, count, modsets, remain))
+			pad2 = ''
+			if modsets < 100:
+				pad2 = u'\u202F\u202F'
+			if modsets < 10:
+				pad2 = pad2 * 2
+
+			lines.append('%s `x %s%d mods = %s%d modsets%s`' % (emoji, pad1, count, pad2, modsets, remain))
 
 		msg = {
 			'title': '%s Mods Statistics' % player,
