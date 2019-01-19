@@ -47,6 +47,31 @@ MODSETS = {
 	8: 'Tenacity',
 }
 
+SHORT_STATS = {
+	'Accuracy':           'Ac',
+	'Critical Avoidance': 'CA',
+	'Critical Chance':    'CC',
+	'Critical Damage':    'CD',
+	'Defense':            'De',
+	'Health':             'He',
+	'Offense':            'Of',
+	'Potency':            'Po',
+	'Protection':         'Pr',
+	'Speed':              'Sp',
+	'Tenacity':           'Te',
+}
+
+MODSETS_NEEDED = {
+	'Health': 2,
+	'Offense': 4,
+	'Defense': 2,
+	'Speed': 4,
+	'Critical Chance': 2,
+	'Critical Damage': 4,
+	'Potency': 2,
+	'Tenacity': 2,
+}
+
 MODSLOTS = {
 	1: 'Square',
 	2: 'Arrow',
@@ -54,6 +79,29 @@ MODSLOTS = {
 	4: 'Triangle',
 	5: 'Circle',
 	6: 'Cross',
+}
+
+EMOJIS = {
+	'':                  '<:spa:535808549264162816>',
+	'health':            '<:hea:535516510681301012>',
+	'offense':           '<:off:535540883207094283>',
+	'defense':           '<:def:535522549375959050>',
+	'speed':             '<:spe:535522604782714890>',
+	'cc':                '<:cc:535538316943294465>',
+	'criticalchance':    '<:cc:535538316943294465>',
+	'cd':                '<:cd:535538317132038164>',
+	'criticaldamage':    '<:cd:535538317132038164>',
+	'potency':           '<:pot:535522563414032405>',
+	'tenacity':          '<:ten:535522621731635207>',
+	'capitalgames':      '<:cg:535546505365422080>',
+	'crouchingrancor':   '<:cr:535545454214119434>',
+	'crimsondeathwatch': '<:cdw:535779958686089216>',
+	'square':            '<:square:535541049570099211>',
+	'arrow':             '<:arrow:535541036986925066>',
+	'diamond':           '<:diamond:535541023112298496>',
+	'triangle':          '<:triangle:535541010424660009>',
+	'circle':            '<:circle:535540977516150799>',
+	'cross':             '<:cross:535814108914909215>',
 }
 
 FORMAT_LUT = {
@@ -103,6 +151,54 @@ COLORS = {
 	'yellow':     0xb58900,
 }
 
+UNITS_SHORT_NAMES = {
+
+	'aa':    'Admiral Ackbar',
+	'bf':    'Boba Fett',
+	'cc':    'Chief Chirpa',
+	'chs':   'Captain Han Solo',
+	'cls':   'Commander Luke Skywalker',
+	'cup':   'Coruscant Underworld Police',
+	'cwc':   'Clone Wars Chewbacca',
+	'dk':    'Director Krennic',
+	'dn':    'Darth Nihilus',
+	'dv':    'Darth Vader',
+	'ee':    'Ewok Elder',
+	'ep':    'Emperor Palpatine',
+	'foe':   'First Order Executioner',
+	'fox':   'First Order Executioner',
+	'foo':   'First Order Officer',
+	'fostp': 'First Order SF TIE Pilot',
+	'fost':  'First Order Stormtrooper',
+	'fotp':  'First Order TIE Pilot',
+	'gk':    'General Kenobi',
+	'gat':   'Grand Admiral Thrawn',
+	'gmt':   'Grand Moff Tarkin',
+	'gmy':   'Grand Master Yoda',
+	'hy':    'Hermit Yoda',
+	'hoda':  'Hermit Yoda',
+	'hyoda': 'Hermit Yoda',
+	'hs':    'Han Solo',
+	'hst':   'Stormtrooper Han',
+	'ipd':   'Imperial Probe Droid',
+	'jf':    'Jango Fett',
+	'jka':   'Jedi Knight Anakin',
+	'jkg':   'Jedi Knight Guardian',
+	'jkr':   'Jedi Knight Revan',
+	'jtr':   'Rey (Jedi Training)',
+	'kr':    'Kylo Ren',
+	'kru':   'Kylo Ren (Unmasked)',
+	'mt':    'Mother Talzin',
+	'qgj':   'Qui-Gon Jinn',
+	'sth':   'Stormtrooper Han',
+	'rex':   'CT-7567',
+	'rolo':  'Rebel Officer Leia Organa',
+	'rp':    'Resistance Pilot',
+	'rjt':   'Rey (Jedi Training)',
+	'yhs':   'Young Han Solo',
+	'ylc':   'Young Lando Calrissian',
+}
+
 def now():
 	tz = pytz.timezone(ipd_config['timezone'])
 	return tz.localize(datetime.datetime.now())
@@ -113,6 +209,27 @@ def color(colour):
 		raise Exception('Invalid color: %s' % colour)
 
 	return discord.Colour(COLORS[colour])
+
+def parse_avatars():
+
+	avatars = {}
+
+	filename = 'avatars.csv'
+	fin = open(filename, 'r')
+	next(fin)
+
+	for line in fin:
+
+		toks = line.strip().split(';')
+		if len(toks) != 2:
+			raise Exception('Invalid line: %s in file %s' % (line, filename))
+
+		unit_name  = toks[0]
+		avatar_url = toks[1]
+
+		avatars[unit_name] = avatar_url
+
+	return avatars
 
 def get_swgoh_profile_url(ally_code):
 
@@ -130,6 +247,7 @@ def download_spreadsheet(url, cols):
 
 	content = []
 	response = requests.get(url)
+	response.encoding = 'utf-8'
 
 	lines = response.text.split('\r\n')
 	for line in lines:
@@ -159,6 +277,30 @@ def parse_allies_db():
 		allies_db['by-discord-nick'][discord_nick] = ally
 
 	return allies_db
+
+def basicstrip(string):
+	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
+
+def parse_recommendations():
+
+	url = ipd_config['sheets']['recommendations']
+
+	recos_db = {}
+
+	recos = download_spreadsheet(url, 12)
+	next(recos)
+
+	for reco in recos:
+
+		name = basicstrip(reco[0])
+
+		if name not in recos_db:
+			recos_db[name] = []
+
+		recos_db[name].append(reco)
+
+
+	return recos_db
 
 def parse_units(db, combat_type=None):
 
@@ -212,6 +354,54 @@ def parse_mods(db):
 		mods[modset][modslot][modprimary] = mods[modset][modslot][modprimary] + 1
 
 	return mods, stats
+
+def parse_unit_mods(units, mods):
+
+	for mod in mods['mods']:
+
+		base_id = mod['character']
+		unit = units['by-id'][base_id]
+		if 'mods' not in unit:
+			unit['mods'] = []
+
+		unit['mods'].append(mod)
+
+	for base_id, unit in units['by-id'].items():
+
+		if 'mods' not in unit:
+			continue
+
+		mods = unit['mods']
+
+		modsets = {}
+		modslots = {}
+		for mod in mods:
+
+			modset = mod['modset'] = MODSETS[ mod['set'] ]
+			modslot = mod['modslot'] = MODSLOTS[ mod['slot'] ]
+
+			if modset not in modsets:
+				modsets[modset] = 0
+
+			modsets[modset] = modsets[modset] + 1
+			modslots[modslot] = mod
+
+		for modset, count in dict(modsets).items():
+			count = int(count / MODSETS_NEEDED[modset])
+			modsets[modset] = count
+
+		real_modsets = []
+		for modset, count in dict(modsets).items():
+			for i in range(0, count):
+				real_modsets.append(modset)
+
+		real_modsets = sorted(real_modsets)
+
+		while len(real_modsets) < 3:
+			real_modsets.append('')
+
+		unit['modsets'] = real_modsets
+		unit['modslots'] = modslots
 
 def api_units(ally_code):
 
@@ -361,19 +551,6 @@ def get_fleet_arena_team(ally_code, fmt):
 
 	return db['data']['name'], arena['rank'], arena_team
 
-def find_unit_by_keyword(units, keyword):
-
-	keyword = keyword.lower()
-
-	for base_id, unit in units.items():
-
-		name = unit['name'].lower()
-		index = name.find(keyword)
-		if index != -1:
-			return unit
-
-	return None
-
 fmt_lite = '**%name**%leader\n  **P**:%power **L**:%level **G**:%gear **H**:%health **P**:%protection **S**:%speed **T**:%tenacity **P**:%potency **CD**:%critical-damage\n'
 fmt_short = '**%name**%leader\n  **Power:**%power **Level:**%level **Gear:**%gear\n  **H:**%health **Pr:**%protection **S:**%speed\n  **T:**%tenacity **Po:**%potency **CD:**%critical-damage\n'
 
@@ -397,20 +574,54 @@ fmt_long = '\n'.join([
 
 async def send_embed(channel, msg, timestamp=None):
 
-	if not timestamp:
+	if timestamp is None:
 		timestamp = now()
 
+	if 'color' not in msg:
+		msg['color'] = 'blue'
+
+	if 'title' not in msg:
+		msg['title'] = ''
+
+	if 'description' not in msg:
+		msg['description'] = ''
+
 	embed = discord.Embed(title=msg['title'], colour=color(msg['color']), description=msg['description'], timestamp=timestamp)
+
+	if 'author' in msg:
+		embed.set_author(name=msg['author']['name'], icon_url=msg['author']['icon_url'])
+
+	if 'image' in msg:
+		embed.set_image(url=msg['image'])
+
+	if 'thumbnail' in msg:
+		embed.set_thumbnail(url=msg['thumbnail'])
+
+	if 'fields' in msg:
+		for field in msg['fields']:
+
+			if 'name' not in field:
+				field['name'] = ''
+
+			if 'value' not in field:
+				field['value'] = ''
+
+			if 'inline' not in field:
+				field['inline'] = False
+
+			embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
 
 	await bot.send_message(channel, embed=embed)
 
 async def parse_ally_codes(author, channel, args):
 
 	ally_codes = []
+	args_cpy = list(args)
 
-	for arg in args:
+	for arg in args_cpy:
 
 		if len(arg) >= 9 and arg.isdigit():
+			args.remove(arg)
 			ally_codes.append(arg)
 
 	if not ally_codes:
@@ -427,7 +638,7 @@ async def parse_ally_codes(author, channel, args):
 
 			await send_embed(channel, msg)
 
-	return ally_codes
+	return args, ally_codes
 
 HELP_HELP = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
@@ -538,16 +749,35 @@ HELP_MESSAGES = {
 	'sheets': HELP_SHEETS,
 }
 
+def substitute_tokens(text):
+
+	tokens = [
+		'authors',
+		'prefix',
+		'source',
+	]
+
+	for token in tokens:
+
+		value = ipd_config[token]
+		if type(value) is list:
+			value = ', '.join(value)
+
+		text = text.replace('%' + token, value)
+
+	return text
+
 async def handle_help(author, channel, args):
 
 	msg = HELP_HELP
-	msg['title'] = msg['title'].replace('%prefix', ', '.join(ipd_config['prefix']))
-	msg['description'] = msg['description'].replace('%authors', ', '.join(ipd_config['authors'])).replace('%source', ipd_config['source'])
 
 	if args:
 		command = args[0]
 		if command in HELP_MESSAGES:
 			msg = HELP_MESSAGES[command]
+
+	msg['title'] = substitute_tokens(msg['title'])
+	msg['description'] = substitute_tokens(msg['description'])
 
 	await send_embed(channel, msg)
 
@@ -555,7 +785,7 @@ async def handle_arena(author, channel, args):
 
 	fmt = fmt_short
 
-	ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_ally_codes(author, channel, args)
 	if not ally_codes:
 		return
 
@@ -599,7 +829,7 @@ async def handle_fleet_arena(author, channel, args):
 
 	fmt = fmt_short
 
-	ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_ally_codes(author, channel, args)
 	if not ally_codes:
 		return
 
@@ -635,7 +865,7 @@ async def handle_mods(author, channel, args):
 
 	action = ''
 
-	ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_ally_codes(author, channel, args)
 	if not ally_codes:
 		return
 
@@ -656,7 +886,7 @@ async def handle_mods(author, channel, args):
 		mods = api_mods(ally_code)
 
 		units = parse_units(info)
-	
+
 		player = info['data']['name']
 
 		if action == 'stats':
@@ -696,7 +926,7 @@ async def handle_mods(author, channel, args):
 			for base_id, unit in units['by-id'].items():
 
 				if 'mods' not in unit:
-			
+
 					#if unit['level'] >= 50:
 					#	output = '%s has no mods.' % unit['name']
 					#	lines.append(output)
@@ -735,6 +965,158 @@ async def handle_mods(author, channel, args):
 			}
 			await send_embed(channel, msg)
 
+def parse_unit_names(units, args, combat_type=1):
+
+	selected_units = []
+	new_args = list(args)
+
+	for arg in new_args:
+
+		if len(arg) < 2:
+			continue
+
+		larg = basicstrip(arg)
+		if larg in UNITS_SHORT_NAMES:
+			larg = basicstrip(UNITS_SHORT_NAMES[larg])
+
+		found = False
+		for base_id, unit in sorted(units['by-id'].items()):
+
+			if unit['combat_type'] != combat_type:
+				continue
+
+
+			name1 = basicstrip(unit['name'])
+			name2 = name1.replace('î', 'i').replace('Î', 'i')
+			name3 = name1.replace('-', '')
+			name4 = name1.replace('\'', '')
+
+			if larg in name1 or larg in name2 or larg in name3 or larg in name4:
+				selected_units.append(unit)
+				found = True
+
+		if found:
+			args.remove(arg)
+
+	return args, selected_units
+
+async def handle_mods_recommendations(author, channel, args):
+
+	max_modsets = 2
+
+	args, ally_codes = await parse_ally_codes(author, channel, args)
+	if not args:
+		msg = {
+			'title': 'Missing unit name',
+			'color': 'red',
+			'description': 'You have to provide at least one unit name.',
+		}
+		await send_embed(channel, msg)
+		return
+
+	for ally_code in ally_codes:
+
+		info = api_units(ally_code)
+		mods = api_mods(ally_code)
+		units = parse_units(info)
+		parse_unit_mods(units, mods)
+
+		new_args, selected_units = parse_unit_names(units, list(args))
+		if new_args:
+			msg = {
+				'title': 'Unknown parameter(s)',
+				'color': 'red',
+				'description': 'I don\'t know what to do with the following parameter(s):\n - %s' % '\n - '.join(new_args),
+			}
+			await send_embed(channel, msg)
+			return
+
+		player = info['data']['name']
+
+		for unit in selected_units:
+
+			name = basicstrip(unit['name'])
+			if name in RECOS_DB:
+				recos = RECOS_DB[name]
+				lines = []
+
+				for reco in recos:
+
+					source   = EMOJIS[ reco[1].replace(' ', '').lower() ]
+
+					info     = reco[2].strip()
+
+					set1     = EMOJIS[ reco[3].replace(' ', '').lower() ]
+					set2     = EMOJIS[ reco[4].replace(' ', '').lower() ]
+					set3     = EMOJIS[ reco[5].replace(' ', '').lower() ]
+
+					square   = SHORT_STATS[ reco[6].strip()  ]
+					arrow    = SHORT_STATS[ reco[7].strip()  ]
+					diamond  = SHORT_STATS[ reco[8].strip()  ]
+					triangle = SHORT_STATS[ reco[9].strip()  ]
+					circle   = SHORT_STATS[ reco[10].strip() ]
+					cross    = SHORT_STATS[ reco[11].strip() ]
+
+					info = info and ' (%s)' % info or ''
+
+					#line = '%s%s%s%s%s|%s|%s|%s|%s|%s%s' % (source, set1, set2, set3, square, arrow, diamond, triangle, circle, cross, info)
+					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
+					lines.append(line)
+
+				lines.append('------------------------------')
+
+				if 'modsets' in unit and len(unit['modsets']) > 0:
+					source   = EMOJIS['crimsondeathwatch']
+
+					info     = ' (%s)' % ally_code
+
+					set1     = EMOJIS[ unit['modsets'][0].replace(' ', '').lower() ]
+					set2     = EMOJIS[ unit['modsets'][1].replace(' ', '').lower() ]
+					set3     = EMOJIS[ unit['modsets'][2].replace(' ', '').lower() ]
+
+					square   = 'Square'   in unit['modslots'] and SHORT_STATS[ unit['modslots']['Square']['primary_stat']['name'] ] or 'MISS.'
+					arrow    = 'Arrow'    in unit['modslots'] and SHORT_STATS[ unit['modslots']['Arrow']['primary_stat']['name'] ] or 'MISS.'
+					diamond  = 'Diamond'  in unit['modslots'] and SHORT_STATS[ unit['modslots']['Diamond']['primary_stat']['name'] ] or 'MISS.'
+					triangle = 'Triangle' in unit['modslots'] and SHORT_STATS[ unit['modslots']['Triangle']['primary_stat']['name'] ] or 'MISS.'
+					circle   = 'Circle'   in unit['modslots'] and SHORT_STATS[ unit['modslots']['Circle']['primary_stat']['name'] ] or 'MISS.'
+					cross    = 'Cross'    in unit['modslots'] and SHORT_STATS[ unit['modslots']['Cross']['primary_stat']['name'] ] or 'MISS.'
+
+					#line = '%s%s%s%s%s|%s|%s|%s|%s|%s%s' % (source, set1, set2, set3, square, arrow, diamond, triangle, circle, cross, info)
+					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
+
+				else:
+					line = 'No mods for %s' % unit['name']
+
+				lines.append(line)
+				lines.append('------------------------------')
+
+				spacer = EMOJIS[''] * 4
+
+				line = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
+				lines =  [ line ] + lines
+
+				avatar_url = AVATARS_DB[ unit['name'] ]
+
+				msg = {
+					'title': 'Recommended mods',
+					'author': {
+						'name': unit['name'],
+						'icon_url': avatar_url,
+					},
+					#'image': avatar_url,
+					'thumbnail': avatar_url,
+					'color': 'blue',
+					'description': '\n'.join(lines),
+				}
+				await send_embed(channel, msg)
+			else:
+				msg = {
+					'title': 'No recommended mods',
+					'color': 'red',
+					'description': '%s is missing from the recommendation spreadsheet' % unit['name'],
+				}
+				await send_embed(channel, msg)
+
 async def handle_sheets(author, channel, args):
 
 	sheets = {}
@@ -764,8 +1146,6 @@ async def handle_sheets(author, channel, args):
 async def handle_update(author, channel, args):
 
 	if author not in ipd_config['admins']:
-
-		print('%s is not an admin and therefore is not allowed to use update.' % author)
 
 		msg = {
 			'title': 'Unauthorized Command',
@@ -813,24 +1193,7 @@ bot = discord.Client()
 
 @bot.event
 async def on_ready():
-	print('Logged in as %s (ID:%s, TOKEN:%s)' % (bot.user.name, bot.user.id, ipd_config['token']))
-	print('\nTimezone: %s' % ipd_config['timezone'])
-
-	print('\nAdmins:')
-	for admin in ipd_config['admins']:
-		print(' - %s' % admin)
-
-	print('\nAliases:')
-	for item in ipd_config['aliases'].items():
-		print(' - %s: %s' % item)
-
-	print('\nAuthors:')
-	for author in ipd_config['authors']:
-		print(' - %s' % author)
-
-	print('\nSpreadsheets:')
-	for item in ipd_config['sheets'].items():
-		print(' - %s: %s' % item)
+	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
 
 @bot.event
 async def on_message(message):
@@ -841,13 +1204,15 @@ async def on_message(message):
 	channel = message.channel
 	nick = message.author.nick or message.author.id
 	author = '@%s' % nick
-	args = message.content.split(' ')
+	args = message.content.strip().split(' ')
 	command = args[0][1:]
 	if command in ipd_config['aliases']:
 		args = message.content.replace(command, ipd_config['aliases'][command]).split(' ')
 		command = args[0][1:]
 
 	args = args[1:]
+
+	args = [ x for x in args if x ]
 
 	if command in [ 'h', 'help' ]:
 		await handle_help(author, channel, args)
@@ -860,6 +1225,9 @@ async def on_message(message):
 
 	elif command in [ 'f', 'fa', 'fleet-arena' ]:
 		await handle_fleet_arena(author, channel, args)
+
+	elif command in [ 'r', 'recommendations' ]:
+		await handle_mods_recommendations(author, channel, args)
 
 	elif command in [ 'sh', 'sheets' ]:
 		await handle_sheets(author, channel, args)
@@ -879,7 +1247,8 @@ async def on_message(message):
 load_config()
 
 ALLIES_DB = parse_allies_db()
+AVATARS_DB = parse_avatars()
+RECOS_DB = parse_recommendations()
 
-print("TOKEN: %s" % ipd_config['token'])
 bot.run(ipd_config['token'])
 bot.close()
