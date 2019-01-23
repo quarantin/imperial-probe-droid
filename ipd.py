@@ -26,16 +26,18 @@ ipd_config_json = 'config.json'
 
 BASE_URL = 'https://swgoh.gg/api'
 
+BASE_IMG_URL = 'https://swgoh.gg/static/img/assets/'
+
 def now():
 	tz = pytz.timezone(ipd_config['timezone'])
 	return tz.localize(datetime.datetime.now())
 
+def basicstrip(string):
+	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
+
 def color(colour):
-
-	if colour not in COLORS:
-		raise Exception('Invalid color: %s' % colour)
-
-	return discord.Colour(COLORS[colour])
+	color_code = colour in COLORS and COLORS[colour] or COLORS['red']
+	return discord.Colour(color_code)
 
 def parse_avatars():
 
@@ -54,7 +56,7 @@ def parse_avatars():
 		unit_name  = toks[0]
 		avatar_url = toks[1]
 
-		avatars[unit_name] = avatar_url
+		avatars[unit_name] = '%s%s' % (BASE_IMG_URL, avatar_url)
 
 	return avatars
 
@@ -104,9 +106,6 @@ def parse_allies_db():
 		allies_db['by-discord-nick'][discord_nick] = ally
 
 	return allies_db
-
-def basicstrip(string):
-	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
 
 def parse_recommendations():
 
