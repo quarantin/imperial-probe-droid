@@ -440,7 +440,7 @@ async def send_embed(channel, msg, timestamp=None):
 
 	await bot.send_message(channel, embed=embed)
 
-async def parse_ally_codes(author, channel, args):
+async def parse_opts_ally_codes(author, channel, args):
 
 	ally_codes = []
 	args_cpy = list(args)
@@ -503,7 +503,7 @@ async def handle_arena(author, channel, args):
 
 	fmt = fmt_short
 
-	args, ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_opts_ally_codes(author, channel, args)
 	if not ally_codes:
 		return
 
@@ -547,7 +547,7 @@ async def handle_fleet_arena(author, channel, args):
 
 	fmt = fmt_short
 
-	args, ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_opts_ally_codes(author, channel, args)
 	if not ally_codes:
 		return
 
@@ -583,7 +583,7 @@ async def handle_mods(author, channel, args):
 
 	action = ''
 
-	args, ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_opts_ally_codes(author, channel, args)
 	if not ally_codes:
 		return
 
@@ -607,29 +607,7 @@ async def handle_mods(author, channel, args):
 
 		player = info['data']['name']
 
-		if action == 'stats':
-
-			mods, stats = parse_mods(mods)
-
-			output = '%s has the following equipped mods:\n' % player
-			await bot.send_message(channel, output)
-
-			for modset_id, modset_name in MODSETS.items():
-
-				modset = mods[modset_name]
-
-				output = '%s (%d)\n' % (modset_name, stats[modset_name])
-				for modslot_name, modslot in modset.items():
-					key = '%s-%s' % (modset_name, modslot_name)
-					output = output + '\t%s (%d)\n' % (modslot_name, stats[key])
-					for stat, count in modslot.items():
-
-						line = '\t\t %s: %d\n' % (stat, count)
-						output = output + line
-
-				await bot.send_message(channel, output)
-
-		elif action == 'missing':
+		if action == 'missing':
 
 			for mod in mods['mods']:
 
@@ -683,7 +661,7 @@ async def handle_mods(author, channel, args):
 			}
 			await send_embed(channel, msg)
 
-def parse_unit_names(units, args, combat_type=1):
+def parse_opts_unit_names(units, args, combat_type=1):
 
 	selected_units = []
 	new_args = list(args)
@@ -722,7 +700,7 @@ async def handle_mods_recommendations(author, channel, args):
 
 	max_modsets = 2
 
-	args, ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_opts_ally_codes(author, channel, args)
 	if not args:
 		msg = {
 			'title': 'Missing unit name',
@@ -739,7 +717,7 @@ async def handle_mods_recommendations(author, channel, args):
 		units = parse_units(info)
 		parse_unit_mods(units, mods)
 
-		new_args, selected_units = parse_unit_names(units, list(args))
+		new_args, selected_units = parse_opts_unit_names(units, list(args))
 		if new_args:
 			msg = {
 				'title': 'Unknown parameter(s)',
@@ -861,53 +839,102 @@ async def handle_sheets(author, channel, args):
 
 	await send_embed(channel, msg)
 
+MODSET_OPTS = {
+	'he':              'Health',
+	'health':          'Health',
+	'de':              'Defense',
+	'defense':         'Defense',
+	'po':              'Potency',
+	'potency':         'Potency',
+	'te':              'Tenacity',
+	'tenacity':        'Tenacity',
+	'cc':              'Critical Chance',
+	'critical-chance': 'Critical Chance',
+	'cd':              'Critical Damage',
+	'critical-damage': 'Critical Damage',
+	'of':              'Offense',
+	'offense':         'Offense',
+	'sp':              'Speed',
+	'speed':           'Speed',
+}
+
+MODSHAPE_OPTS = {
+	'sq':       'Square',
+	'square':   'Square',
+	'ar':       'Arrow',
+	'arrow':    'Arrow',
+	'di':       'Diamond',
+	'diamond':  'Diamond',
+	'tr':       'Triangle',
+	'triangle': 'Triangle',
+	'ci':       'Circle',
+	'circle':   'Circle',
+	'cr':       'Cross',
+	'cross':    'Cross',
+}
+
 def parse_mod_counts(mods):
 
 	count = {}
 	shapes = {}
+	primaries = {}
 
 	for mod in mods:
 
 		modset = MODSETS[ mod['set'] ]
 		if modset not in count:
 			count[modset] = 0
-		count[modset] = count[modset] + 1
-
-		if modset not in shapes:
 			shapes[modset] = {}
+			primaries[modset] = {}
+		count[modset] = count[modset] + 1
 
 		shape = MODSLOTS[ mod['slot'] ]
 		if shape not in shapes[modset]:
 			shapes[modset][shape] = 0
-
+			primaries[modset][shape] = {}
 		shapes[modset][shape] = shapes[modset][shape] + 1
 
-	return count, shapes
+		primary = mod['primary_stat']['name']
+		if primary not in primaries[modset][shape]:
+			primaries[modset][shape][primary] = 0
+		primaries[modset][shape][primary] = primaries[modset][shape][primary] + 1
 
-MODSET_ARGS = {
-	'health': 'Health',
-	'defense': 'Defense',
-	'potency': 'Potency',
-	'tenacity': 'Tenacity',
-	'cc':  'Critical Chance',
-	'cd':  'Critical Damage',
-	'offense': 'Offense',
-	'speed': 'Speed',
-}
+	return count, shapes, primaries
+
+def parse_opts_modsets(args):
+
+	selected_modsets = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+		if arg in MODSET_OPTS:
+			args.remove(arg)
+			modset = MODSET_OPTS[arg]
+			if modset not in selected_modsets:
+				selected_modsets.append(modset)
+
+	return args, selected_modsets
+
+def parse_opts_modshapes(args):
+
+	selected_modshapes = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+		if arg in MODSHAPE_OPTS:
+			args.remove(arg)
+			modshape = MODSHAPE_OPTS[arg]
+			if modshape not in selected_modshapes:
+				selected_modshapes.append(modshape)
+
+	return args, selected_modshapes
 
 async def handle_stats(author, channel, args):
 
-	args, ally_codes = await parse_ally_codes(author, channel, args)
+	args, ally_codes = await parse_opts_ally_codes(author, channel, args)
 
-	args_cpy = list(args)
-	selected_modsets = []
+	args, selected_modsets = parse_opts_modsets(args)
 
-	for arg in args_cpy:
-		if arg in MODSET_ARGS:
-			mset = MODSET_ARGS[arg]
-			args.remove(arg)
-			if mset not in selected_modsets:
-				selected_modsets.append(mset)
+	args, selected_modshapes = parse_opts_modshapes(args)
+
 	if args:
 		msg = {
 			'title': 'Unknown parameter(s)',
@@ -925,12 +952,12 @@ async def handle_stats(author, channel, args):
 		units = parse_units(info)
 		parse_unit_mods(units, mods)
 
-		counts, shapes = parse_mod_counts(mods['mods'])
+		counts, shapes, primaries = parse_mod_counts(mods['mods'])
 
 		player = info['data']['name']
 		equipped_mods = len(mods['mods'])
 
-		if not selected_modsets:
+		if not selected_modsets and not selected_modshapes:
 			lines = []
 			for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
 				count = counts[modset]
@@ -962,37 +989,92 @@ async def handle_stats(author, channel, args):
 			await send_embed(channel, msg)
 			return
 
-	for modset in selected_modsets:
+		if selected_modsets and not selected_modshapes:
+
+			for modset in selected_modsets:
+
+				lines = []
+				total_for_modset = 0
+				for shape in [ 'Square', 'Arrow', 'Diamond', 'Triangle', 'Circle', 'Cross' ]:
+					if shape in shapes[modset]:
+						modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
+						modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
+						count = shapes[modset][shape]
+						pad = ''
+						if count < 100:
+							pad = u'\u202F\u202F'
+						if count < 10:
+							pad = pad * 2
+
+						total_for_modset = total_for_modset + count
+
+						line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, shapes[modset][shape])
+						lines.append(line)
+
+				lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
+
+				msg = {
+					'title': '%s %s Mods Statistics' % (player, modset),
+					'description': 'Equipped %s mods: %d\n%s' % (modset.lower(), total_for_modset, '\n'.join(lines)),
+				}
+
+				await send_embed(channel, msg)
+			return
+
+		if not selected_modsets and selected_modshapes:
+
+			lines = []
+			pad = '\u202f' * 4
+			for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
+				for shape in selected_modshapes:
+					modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
+					modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
+
+					sublines = []
+					total_for_shape = 0
+					desc = 'Equipped %s %s mods' % (modset_emoji, modshape_emoji)
+					for primary, count in primaries[modset][shape].items():
+						total_for_shape = total_for_shape + count
+						sublines.append('%s`%d x %s`' % (pad, count, primary))
+
+					desc = '%s %s x %d' % (modset_emoji, modshape_emoji, total_for_shape)
+
+					lines.append(desc)
+					lines = lines + sublines
+
+			lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
+
+			msg = {
+				'title': '%s Mods Statistics' % player,
+				'description': '\n'.join(lines),
+			}
+
+			await send_embed(channel, msg)
+			return
 
 		lines = []
-		total_for_modset = 0
-		for shape in [ 'Square', 'Arrow', 'Diamond', 'Triangle', 'Circle', 'Cross' ]:
-			if shape in shapes[modset]:
+		total_for_shape = 0
+		for modset in selected_modsets:
+			for shape in selected_modshapes:
 				modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
 				modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
-				count = shapes[modset][shape]
-				pad = ''
-				if count < 100:
-					pad = u'\u202F\u202F'
-				if count < 10:
-					pad = pad * 2
+				for primary, count in primaries[modset][shape].items():
+					pad = ''
+					if count < 100:
+						pad = u'\u202F\u202F'
+					if count < 10:
+						pad = pad * 2
 
-				#newline = ''
-				#if shape in [ 'Arrow', 'Triangle' ]:
-				#	newline = '\n'
-
-				total_for_modset = total_for_modset + count
-
-				line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, shapes[modset][shape])
-				lines.append(line)
+					total_for_shape = total_for_shape + count
+					line = '%s%s%s `x %s%d`' % (modset_emoji, modshape_emoji, primary, pad, count)
+					lines.append(line)
 
 		lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
 
 		msg = {
-			'title': '%s %s Mods Statistics' % (player, modset),
-			'description': 'Equipped %s mods: %d\n%s' % (modset.lower(), total_for_modset, '\n'.join(lines)),
+			'title': '%s %s %s Mods Primaries' % (player, modset, shape),
+			'description': 'Equipped %s %s mods: %d\n%s' % (modset.lower(), shape.lower(), total_for_shape, '\n'.join(lines)),
 		}
-
 		await send_embed(channel, msg)
 
 async def handle_update(author, channel, args):

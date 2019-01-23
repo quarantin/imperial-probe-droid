@@ -2,7 +2,6 @@
 
 HELP_HELP = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
-	'color': 'blue',
 	'description': """------------------------------
 **Botmaster(s)**: %authors
 **Source Code**: %source
@@ -13,14 +12,14 @@ HELP_HELP = {
 **Player commands**
 **`arena`**: Show arena team for the supplied ally code.
 **`fleet-arena`**: Show fleet arena team for the supplied ally code.
-**`mods`**: Show stats about mods for the supplied ally code.
-**`sheets`**: Show spreadsheets.
+**`mods`**: Show information about mods for the supplied ally code.
+**`sheets`**: Show available spreadsheets.
+**`stats`**: Show statistics about equipped mods.
 """
 }
 
 HELP_ARENA = {
 	'title': 'Player info',
-	'color': 'blue',
 	'description': """Shows arena team for the supplied ally codes.
 
 **Syntax**
@@ -63,7 +62,6 @@ Also spaces need to be replaced with %20 and newlines with %0A.
 
 HELP_FLEET_ARENA = {
 	'title': 'Player info',
-	'color': 'blue',
 	'description': """Shows fleet arena team for the supplied ally codes.
 
 **Options**
@@ -88,11 +86,58 @@ fa```
 }
 
 HELP_MODS = {
-
+	'title': 'Player info',
+	'description': 'TODO',
 }
 
 HELP_SHEETS = {
+	'title': 'Player info',
+	'description': 'TODO',
+}
 
+HELP_STATS = {
+	'title': 'Player info',
+	'description': """Shows statistics about equipped mods for the supplied ally codes.
+
+**Syntax**
+```
+%prefixstats [ally codes]
+%prefixstats [ally codes] [shapes]
+%prefixstats [ally codes] [modsets]
+%prefixstats [ally codes] [modsets] [shapes]```
+
+**Aliases**
+```
+s```
+
+Modsets parameters can be any of:
+```
+health (or he)
+defense (or de)
+potency (or po)
+tenacity (or te)
+critical-chance (or cc)
+critical-damage (or cd)
+offense (or of)
+speed (or sp)```
+
+Mod shapes parameters can be any of:
+```
+square (or sq)
+arrow (or ar)
+diamond (or di)
+triangle (or tr)
+circle (or ci)
+cross (or cr)```
+
+**Example**
+```
+%prefixs
+%prefixs 123456789
+%prefixs speed
+%prefixs cd tr
+%prefixs speed arrow
+%prefixs 123456789 speed arrow```"""
 }
 
 HELP_MESSAGES = {
@@ -105,6 +150,8 @@ HELP_MESSAGES = {
 	'help': HELP_HELP,
 	'm': HELP_MODS,
 	'mods': HELP_MODS,
+	's': HELP_STATS,
+	'stats': HELP_STATS,
 	'sh': HELP_SHEETS,
 	'sheets': HELP_SHEETS,
 }
