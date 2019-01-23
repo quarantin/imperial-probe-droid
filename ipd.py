@@ -873,6 +873,19 @@ MODSHAPE_OPTS = {
 	'cross':    'Cross',
 }
 
+def count_mods_per_shape(mod_shapes):
+
+	shape_count = {}
+
+	for modset, shapes in mod_shapes.items():
+		for shape, count in shapes.items():
+			if shape not in shape_count:
+				shape_count[shape] = 0
+
+			shape_count[shape] = shape_count[shape] + count
+
+	return shape_count
+
 def parse_mod_counts(mods):
 
 	count = {}
@@ -958,7 +971,17 @@ async def handle_stats(author, channel, args):
 		equipped_mods = len(mods['mods'])
 
 		if not selected_modsets and not selected_modshapes:
+
 			lines = []
+
+			shape_count = count_mods_per_shape(shapes)
+			for shape in [ 'Square', 'Arrow', 'Diamond', 'Triangle', 'Circle', 'Cross' ]:
+				count = shape_count[shape]
+				emoji = EMOJIS[shape.replace(' ', '').lower()]
+				lines.append('%s x %d mods' % (emoji, count))
+
+			lines.append(SEPARATOR)
+
 			for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
 				count = counts[modset]
 				emoji = EMOJIS[modset.replace(' ', '').lower()]
@@ -1033,7 +1056,7 @@ async def handle_stats(author, channel, args):
 					sublines = []
 					total_for_shape = 0
 					desc = 'Equipped %s %s mods' % (modset_emoji, modshape_emoji)
-					for primary, count in primaries[modset][shape].items():
+					for primary, count in sorted(primaries[modset][shape].items()):
 						total_for_shape = total_for_shape + count
 						sublines.append('%s`%d x %s`' % (pad, count, primary))
 
