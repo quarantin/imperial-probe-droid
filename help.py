@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+PREFIX = '------------------------------'
+
 HELP_HELP = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
 	'description': """------------------------------
@@ -9,13 +11,39 @@ HELP_HELP = {
 **Help commands**
 **`help`**: This help menu
 ------------------------------
+**Internal commands**
+**`alias`**: Manage command aliases.
+------------------------------
 **Player commands**
 **`arena`**: Show arena team for the supplied ally code.
 **`fleet-arena`**: Show fleet arena team for the supplied ally code.
 **`mods`**: Show information about mods for the supplied ally code.
 **`sheets`**: Show available spreadsheets.
 **`stats`**: Show statistics about equipped mods.
-"""
+------------------------------"""
+}
+
+HELP_ALIAS = {
+	'title': 'Alias Help',
+	'description': """Manages command aliases.
+
+**Syntax**
+```
+%prefixalias
+%prefixalias add [alias name] [command]
+%prefixalias del [alias name or alias ID]```
+
+**Aliases**
+```
+al```
+
+**Examples**
+```
+%prefixalias
+%prefixalias add mm mods missing
+%prefixalias add myalias arena custom %speed%20%name
+%prefixalias del myalias
+%prefixalias del 1```"""
 }
 
 HELP_ARENA = {
@@ -141,6 +169,8 @@ cross (or cr)```
 }
 
 HELP_MESSAGES = {
+	'al': HELP_ALIAS,
+	'alias': HELP_ALIAS,
 	'a': HELP_ARENA,
 	'arena': HELP_ARENA,
 	'f': HELP_FLEET_ARENA,

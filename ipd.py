@@ -484,7 +484,7 @@ def substitute_tokens(text):
 
 	return text
 
-async def handle_help(author, channel, args):
+async def cmd_help(author, channel, args):
 
 	msg = HELP_HELP
 
@@ -498,7 +498,7 @@ async def handle_help(author, channel, args):
 
 	await send_embed(channel, msg)
 
-async def handle_arena(author, channel, args):
+async def cmd_arena(author, channel, args):
 
 	fmt = fmt_short
 
@@ -542,7 +542,87 @@ async def handle_arena(author, channel, args):
 
 		await send_embed(channel, msg)
 
-async def handle_fleet_arena(author, channel, args):
+async def cmd_alias(author, channel, args):
+
+	lines = []
+	prefix = ipd_config['prefix']
+
+	if not args:
+
+		i = 1
+		for alias, command in sorted(ipd_config['aliases'].items()):
+			lines.append('[%d] %s%s %s' % (i, prefix, alias, command))
+			i = i + 1
+
+		await send_embed(channel, {
+			'title': 'Alias List',
+			'description': '\n'.join(lines),
+		})
+		return
+
+	action = args[0]
+
+	if action == 'del':
+
+		if len(args) < 2:
+			await send_embed(channel, {
+				'title': 'Missing Parameters',
+				'color': 'red',
+				'description': 'Please see !help alias.',
+			})
+			return
+
+		alias_name = args[1]
+		if alias_name.isdigit():
+			alias_name = int(alias_name)
+
+			i = 1
+			for alias, command in sorted(ipd_config['aliases'].items()):
+				if i == alias_name:
+					del ipd_config['aliases'][alias]
+					break
+
+				i = i + 1
+		elif alias_name in ipd_config['aliases']:
+			del ipd_config['aliases'][alias_name]
+
+		save_config()
+		await send_embed(channel, {
+			'title': 'Delete alias',
+			'description': 'The alias was deleted!',
+		})
+		return
+
+	elif action == 'add':
+
+		if len(args) < 3:
+			await send_embed(channel, {
+				'title': 'Missing Parameters',
+				'color': 'red',
+				'description': 'Please see !help alias.',
+			})
+			return
+
+		alias_name = args[1]
+		alias_command = ' '.join(args[2:])
+		if alias_command.startswith(ipd_config['prefix']):
+			alias_command = alias_command[1:]
+
+		ipd_config['aliases'][alias_name] = alias_command
+
+		save_config()
+		await send_embed(channel, {
+			'title': 'Add alias',
+			'description': 'The alias was added!',
+		})
+		return
+
+	msg = {
+		"TODO": "TODO",
+	}
+	await send_embed(channel, msg)
+
+async def cmd_fleet_arena(author, channel, args):
 
 	fmt = fmt_short
 
@@ -578,7 +658,7 @@ async def handle_fleet_arena(author, channel, args):
 
 		await send_embed(channel, msg)
 
-async def handle_mods(author, channel, args):
+async def cmd_mods(author, channel, args):
 
 	action = ''
 
@@ -695,7 +775,7 @@ def parse_opts_unit_names(units, args, combat_type=1):
 
 	return args, selected_units
 
-async def handle_mods_recommendations(author, channel, args):
+async def cmd_mods_recommendations(author, channel, args):
 
 	max_modsets = 2
 
@@ -812,7 +892,7 @@ async def handle_mods_recommendations(author, channel, args):
 				}
 				await send_embed(channel, msg)
 
-async def handle_sheets(author, channel, args):
+async def cmd_sheets(author, channel, args):
 
 	sheets = {}
 	for arg in args:
@@ -939,7 +1019,7 @@ def parse_opts_modshapes(args):
 
 	return args, selected_modshapes
 
-async def handle_stats(author, channel, args):
+async def cmd_stats(author, channel, args):
 
 	args, ally_codes = await parse_opts_ally_codes(author, channel, args)
 
@@ -1099,7 +1179,22 @@ async def handle_stats(author, channel, args):
 		}
 		await send_embed(channel, msg)
 
-async def handle_update(author, channel, args):
+def update_source_code():
+
+	#subprocess.call([ 'git', 'reset', '--hard'])
+	subprocess.call([ 'git', 'stash' ])
+	subprocess.call([ 'git', 'fetch'])
+	subprocess.call([ 'git', 'pull', 'origin', 'master'])
+
+def exit_bot():
+
+	bot.logout()
+	bot.close()
+
+	print('Restarting!')
+	sys.exit()
+
+async def cmd_update(author, channel, args):
 
 	if author not in ipd_config['admins']:
 
@@ -1112,16 +1207,23 @@ async def handle_update(author, channel, args):
 		await send_embed(channel, msg)
 		return
 
-	#subprocess.call([ 'git', 'reset', '--hard'])
-	subprocess.call([ 'git', 'stash' ])
-	subprocess.call([ 'git', 'fetch'])
-	subprocess.call([ 'git', 'pull', 'origin', 'master'])
+	update_source_code()
+	exit_bot()
 
-	bot.logout()
-	bot.close()
+async def cmd_restart(author, channel, args):
 
-	print('Restarting!')
-	sys.exit()
+	if author not in ipd_config['admins']:
+
+		msg = {
+			'title': 'Unauthorized Command',
+			'color': 'red',
+			'description': 'You are not allowed to run this command because you are not an administrator.',
+		}
+
+		await send_embed(channel, msg)
+		return
+
+	exit_bot()
 
 def write_json_to_file(jsondata, filename):
 
@@ -1200,28 +1302,37 @@ async def on_message(message):
 	args = [ x for x in args if x ]
 
 	if command in [ 'h', 'help' ]:
-		await handle_help(author, channel, args)
+		await cmd_help(author, channel, args)
+
+	elif command in [ 'al', 'alias' ]:
+		await cmd_alias(author, channel, args)
 
 	elif command in [ 'm', 'mods' ]:
-		await handle_mods(author, channel, args)
+		await cmd_mods(author, channel, args)
 
 	elif command in [ 'a', 'arena' ]:
-		await handle_arena(author, channel, args)
+		await cmd_arena(author, channel, args)
 
 	elif command in [ 'f', 'fa', 'fleet-arena' ]:
-		await handle_fleet_arena(author, channel, args)
+		await cmd_fleet_arena(author, channel, args)
 
 	elif command in [ 'r', 'recommendations' ]:
-		await handle_mods_recommendations(author, channel, args)
+		await cmd_mods_recommendations(author, channel, args)
 
 	elif command in [ 's', 'stats' ]:
-		await handle_stats(author, channel, args)
+		await cmd_stats(author, channel, args)
 
 	elif command in [ 'sh', 'sheets' ]:
-		await handle_sheets(author, channel, args)
+		await cmd_sheets(author, channel, args)
+
+	elif command in [ 're', 'restart' ]:
+		await cmd_restart(author, channel, args)
+
+	elif command in [ 're', 'restart' ]:
+		await cmd_restart(author, channel, args)
 
 	elif command in [ 'u', 'update' ]:
-		await handle_update(author, channel, args)
+		await cmd_update(author, channel, args)
 
 	else:
 		msg = {
