@@ -792,6 +792,10 @@ async def cmd_mods_recommendations(author, channel, args):
 
 	for ally_code in ally_codes:
 
+		discord_id = None
+		if ally_code in ALLIES_DB['by-ally-code']:
+			discord_id = ALLIES_DB['by-ally-code'][ally_code][1]
+
 		info = api_units(ally_code)
 		mods = api_mods(ally_code)
 		units = parse_units(info)
@@ -844,7 +848,7 @@ async def cmd_mods_recommendations(author, channel, args):
 				if 'modsets' in unit and len(unit['modsets']) > 0:
 					source   = EMOJIS['crimsondeathwatch']
 
-					info     = ' (%s)' % ally_code
+					info     = ' %s' % (discord_id or ally_code)
 
 					set1     = EMOJIS[ unit['modsets'][0].replace(' ', '').lower() ]
 					set2     = EMOJIS[ unit['modsets'][1].replace(' ', '').lower() ]
@@ -861,7 +865,7 @@ async def cmd_mods_recommendations(author, channel, args):
 					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
 
 				else:
-					line = 'No mods for %s' % unit['name']
+					line = '%s has no mods (%s)' % (unit['name'], discord_id or ally_code)
 
 				lines.append(line)
 				lines.append('------------------------------')
