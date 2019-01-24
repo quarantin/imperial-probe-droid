@@ -953,8 +953,8 @@ async def cmd_mods_recommendations(author, channel, args):
 						'name': unit['name'],
 						'icon_url': avatar_url,
 					},
-					#'image': avatar_url,
-					'thumbnail': avatar_url,
+					'image': avatar_url,
+					#'thumbnail': avatar_url,
 					'color': 'blue',
 					'description': '\n'.join(lines),
 				}
