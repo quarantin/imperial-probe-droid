@@ -924,12 +924,12 @@ async def cmd_mods_recommendations(author, channel, args):
 					set2     = EMOJIS[ unit['modsets'][1].replace(' ', '').lower() ]
 					set3     = EMOJIS[ unit['modsets'][2].replace(' ', '').lower() ]
 
-					square   = 'Square'   in unit['modslots'] and SHORT_STATS[ unit['modslots']['Square']['primary_stat']['name'] ] or 'MISS.'
-					arrow    = 'Arrow'    in unit['modslots'] and SHORT_STATS[ unit['modslots']['Arrow']['primary_stat']['name'] ] or 'MISS.'
-					diamond  = 'Diamond'  in unit['modslots'] and SHORT_STATS[ unit['modslots']['Diamond']['primary_stat']['name'] ] or 'MISS.'
-					triangle = 'Triangle' in unit['modslots'] and SHORT_STATS[ unit['modslots']['Triangle']['primary_stat']['name'] ] or 'MISS.'
-					circle   = 'Circle'   in unit['modslots'] and SHORT_STATS[ unit['modslots']['Circle']['primary_stat']['name'] ] or 'MISS.'
-					cross    = 'Cross'    in unit['modslots'] and SHORT_STATS[ unit['modslots']['Cross']['primary_stat']['name'] ] or 'MISS.'
+					square   = 'Square'   in unit['modslots'] and SHORT_STATS[ unit['modslots']['Square']['primary_stat']['name'] ]   or '??'
+					arrow    = 'Arrow'    in unit['modslots'] and SHORT_STATS[ unit['modslots']['Arrow']['primary_stat']['name'] ]    or '??'
+					diamond  = 'Diamond'  in unit['modslots'] and SHORT_STATS[ unit['modslots']['Diamond']['primary_stat']['name'] ]  or '??'
+					triangle = 'Triangle' in unit['modslots'] and SHORT_STATS[ unit['modslots']['Triangle']['primary_stat']['name'] ] or '??'
+					circle   = 'Circle'   in unit['modslots'] and SHORT_STATS[ unit['modslots']['Circle']['primary_stat']['name'] ]   or '??'
+					cross    = 'Cross'    in unit['modslots'] and SHORT_STATS[ unit['modslots']['Cross']['primary_stat']['name'] ]    or '??'
 
 					#line = '%s%s%s%s%s|%s|%s|%s|%s|%s%s' % (source, set1, set2, set3, square, arrow, diamond, triangle, circle, cross, info)
 					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
