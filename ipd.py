@@ -660,7 +660,7 @@ async def cmd_fleet_arena(author, channel, args):
 		player, rank, team = get_fleet_arena_team(ally_code, fmt)
 
 		msg = {
-			'title': 'Fleet arena team of %s (Rank: %d)\n%s' % (player, rank, get_swgoh_profile_url(ally_Code)),
+			'title': 'Fleet arena team of %s (Rank: %d)\n%s' % (player, rank, get_swgoh_profile_url(ally_code)),
 			'color': 'blue',
 			'description': '\n'.join(team),
 		}
@@ -731,10 +731,13 @@ async def cmd_mods(author, channel, args):
 				await send_embed(channel, msg)
 
 			else:
+				missing = len(lines)
+				lines = [ SEPARATOR ] + sorted(lines) + [ SEPARATOR ]
+
 				msg = {
 					'title': 'Mods info',
 					'color': 'blue',
-					'description': '%s has %d characters with missing mods:\n%s' % (info['data']['name'], len(lines), '\n'.join(sorted(lines))),
+					'description': '%s has %d characters with missing mods:\n%s' % (info['data']['name'], missing, '\n'.join(lines)),
 				}
 				await send_embed(channel, msg)
 
