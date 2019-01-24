@@ -1,5 +1,16 @@
 #!/usr/bin/python3
 
+MODSET_LIST = [
+	'Health',
+	'Defense',
+	'Potency',
+	'Tenacity',
+	'Critical Chance',
+	'Critical Damage',
+	'Offense',
+	'Speed',
+]
+
 PROBE_DIALOG = [
 	'bIp',
 	'bIp bIp',

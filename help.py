@@ -18,6 +18,7 @@ HELP_HELP = {
 **`arena`**: Show arena team for the supplied ally code.
 **`fleet-arena`**: Show fleet arena team for the supplied ally code.
 **`mods`**: Show information about mods for the supplied ally code.
+**`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
 **`sheets`**: Show available spreadsheets.
 **`stats`**: Show statistics about equipped mods.
@@ -114,6 +115,24 @@ fa```
 
 }
 
+HELP_NEEDED = {
+	'title': '',
+	'description': """Shows needed modsets according to recommendations.
+
+**Syntax**
+```
+%prefixneeded [ally code]```
+
+**Aliases**
+```
+n```
+
+**Examples**
+```
+%prefixn
+%prefixn 123456789```"""
+}
+
 HELP_MODS = {
 	'title': 'Player info',
 	'description': 'TODO',
@@ -201,6 +220,8 @@ HELP_MESSAGES = {
 	'help': HELP_HELP,
 	'm': HELP_MODS,
 	'mods': HELP_MODS,
+	'n': HELP_NEEDED,
+	'needed': HELP_NEEDED,
 	'r': HELP_RECOS,
 	'recos': HELP_RECOS,
 	's': HELP_STATS,

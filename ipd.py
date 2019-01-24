@@ -112,6 +112,7 @@ def parse_recommendations():
 	url = ipd_config['sheets']['recommendations']['view']
 
 	recos_db = {}
+	recos_db['by-source'] = {}
 
 	recos = download_spreadsheet(url, 12)
 	next(recos)
@@ -119,12 +120,19 @@ def parse_recommendations():
 	for reco in recos:
 
 		name = basicstrip(reco[0])
+		source = reco[1]
+
+		if source not in recos_db['by-source']:
+			recos_db['by-source'][source] = {}
 
 		if name not in recos_db:
 			recos_db[name] = []
 
-		recos_db[name].append(reco)
+		if name not in recos_db['by-source'][source]:
+			recos_db['by-source'][source][name] = []
 
+		recos_db[name].append(reco)
+		recos_db['by-source'][source][name].append(reco)
 
 	return recos_db
 
@@ -741,6 +749,68 @@ async def cmd_mods(author, channel, args):
 			}
 			await send_embed(channel, msg)
 
+async def cmd_mods_needed(author, channel, args):
+
+	modsets = {}
+
+	for source, names in RECOS_DB['by-source'].items():
+
+		new_modsets = {}
+		for name, recos in names.items():
+			amount = len(recos)
+			for reco in recos:
+
+				sets = []
+
+				sets.append(reco[3])
+				sets.append(reco[4])
+				if reco[5]:
+					sets.append(reco[5])
+
+				for aset in sets:
+					if aset not in new_modsets:
+						new_modsets[aset] = 0.0
+					new_modsets[aset] = new_modsets[aset] + 1.0 / amount
+
+		for aset, count in new_modsets.items():
+
+			if aset not in modsets:
+				modsets[aset] = {}
+
+			if source not in modsets[aset]:
+				modsets[aset][source] = 0.0
+
+			modsets[aset][source] = modsets[aset][source] + count
+
+	lines = []
+	for aset in MODSET_LIST:
+		sources = modsets[aset]
+		counts = []
+		for source, count in sorted(sources.items()):
+			modset_emoji = EMOJIS[ aset.replace(' ', '').lower() ]
+			#source_emoji = EMOJIS[ source.replace(' ', '').lower() ]
+			counts.append('x %.3g' % count)
+
+		lines.append('%s `%s`' % (modset_emoji, ' | '.join(counts)))
+
+	sources = sorted(list(RECOS_DB['by-source']))
+	src_emojis = []
+	spacer = EMOJIS['']
+	for source in sources:
+		emoji = EMOJIS[ source.replace(' ', '').lower() ]
+		src_emojis.append(spacer)
+		src_emojis.append(emoji)
+
+	emojis = ''.join(src_emojis)
+	lines = [ emojis ] + lines
+
+	lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
+
+	await send_embed(channel, {
+		'title': 'Modsets needed',
+		'description': '\n'.join(lines),
+	})
+
 def parse_opts_unit_names(units, args, combat_type=1):
 
 	selected_units = []
@@ -1066,7 +1136,7 @@ async def cmd_stats(author, channel, args):
 
 			lines.append(SEPARATOR)
 
-			for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
+			for modset in MODSET_LIST:
 				count = counts[modset]
 				emoji = EMOJIS[modset.replace(' ', '').lower()]
 				modset_group = MODSETS_NEEDED[modset]
@@ -1132,7 +1202,7 @@ async def cmd_stats(author, channel, args):
 
 			lines = []
 			pad = '\u202f' * 4
-			for modset in [ 'Health', 'Defense', 'Potency', 'Tenacity', 'Critical Chance', 'Critical Damage', 'Offense', 'Speed' ]:
+			for modset in MODSET_LIST:
 				for shape in selected_modshapes:
 					modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
 					modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
@@ -1320,6 +1390,9 @@ async def on_message(message):
 
 	elif command in [ 'f', 'fa', 'fleet-arena' ]:
 		await cmd_fleet_arena(author, channel, args)
+
+	elif command in [ 'n', 'needed' ]:
+		await cmd_mods_needed(author, channel, args)
 
 	elif command in [ 'r', 'recos' ]:
 		await cmd_mods_recommendations(author, channel, args)
