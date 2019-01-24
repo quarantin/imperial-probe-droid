@@ -87,7 +87,7 @@ def download_spreadsheet(url, cols):
 
 def parse_allies_db():
 
-	url = ipd_config['sheets']['allies']
+	url = ipd_config['sheets']['allies']['view']
 
 	allies_db = {}
 	allies_db['by-ally-code'] = {}
@@ -109,7 +109,7 @@ def parse_allies_db():
 
 def parse_recommendations():
 
-	url = ipd_config['sheets']['recommendations']
+	url = ipd_config['sheets']['recommendations']['view']
 
 	recos_db = {}
 
@@ -827,8 +827,8 @@ async def handle_sheets(author, channel, args):
 		sheets = ipd_config['sheets']
 
 	lines = []
-	for name, url in sorted(sheets.items()):
-		lines.append('**`%s`**: %s' % (name, url))
+	for name, urls in sorted(sheets.items()):
+		lines.append('**`%s`**: %s' % (name, urls['edit']))
 
 	msg = {
 		'title': '',
