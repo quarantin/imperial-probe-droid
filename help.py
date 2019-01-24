@@ -13,6 +13,7 @@ HELP_HELP = {
 ------------------------------
 **Internal commands**
 **`alias`**: Manage command aliases.
+**`sheets`**: Show available spreadsheets.
 ------------------------------
 **Player commands**
 **`arena`**: Show arena team for the supplied ally code.
@@ -20,7 +21,6 @@ HELP_HELP = {
 **`mods`**: Show information about mods for the supplied ally code.
 **`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
-**`sheets`**: Show available spreadsheets.
 **`stats`**: Show statistics about equipped mods.
 ------------------------------"""
 }
