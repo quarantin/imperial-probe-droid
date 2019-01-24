@@ -18,6 +18,7 @@ HELP_HELP = {
 **`arena`**: Show arena team for the supplied ally code.
 **`fleet-arena`**: Show fleet arena team for the supplied ally code.
 **`mods`**: Show information about mods for the supplied ally code.
+**`recos`**: Show information about recommended mods.
 **`sheets`**: Show available spreadsheets.
 **`stats`**: Show statistics about equipped mods.
 ------------------------------"""
@@ -118,6 +119,26 @@ HELP_MODS = {
 	'description': 'TODO',
 }
 
+HELP_RECOS = {
+	'title': 'Recommendations',
+	'description': """Shows recommended mods from Capital Games and Crouching Rancor.
+
+**Syntax**
+```
+%prefixrecos [ally codes] [characters]```
+
+**Aliases**
+```
+r```
+
+**Examples**
+```
+%prefixr ep
+%prefixr gat gmy qgj gk traya
+%prefixr deathtrooper
+%prefixr 123456789 234567891 nih```"""
+}
+
 HELP_SHEETS = {
 	'title': 'Player info',
 	'description': 'TODO',
@@ -180,6 +201,8 @@ HELP_MESSAGES = {
 	'help': HELP_HELP,
 	'm': HELP_MODS,
 	'mods': HELP_MODS,
+	'r': HELP_RECOS,
+	'recos': HELP_RECOS,
 	's': HELP_STATS,
 	'stats': HELP_STATS,
 	'sh': HELP_SHEETS,

@@ -551,9 +551,10 @@ async def cmd_alias(author, channel, args):
 
 		i = 1
 		for alias, command in sorted(ipd_config['aliases'].items()):
-			lines.append('[%d] %s%s %s' % (i, prefix, alias, command))
+			lines.append('**[%d]** **%s%s** `%s`' % (i, prefix, alias, command))
 			i = i + 1
 
+		lines = [ SEPARATOR ] + lines + [ SEPARATOR ]
 		await send_embed(channel, {
 			'title': 'Alias List',
 			'description': '\n'.join(lines),
@@ -1245,7 +1246,7 @@ def load_config():
 
 	ipd_config.clear()
 	ipd_config.update(jsondata)
-	json.dumps(ipd_config, indent=4, sort_keys=True)
+	print(json.dumps(ipd_config, indent=4, sort_keys=True))
 
 bot = discord.Client()
 
@@ -1316,7 +1317,7 @@ async def on_message(message):
 	elif command in [ 'f', 'fa', 'fleet-arena' ]:
 		await cmd_fleet_arena(author, channel, args)
 
-	elif command in [ 'r', 'recommendations' ]:
+	elif command in [ 'r', 'recos' ]:
 		await cmd_mods_recommendations(author, channel, args)
 
 	elif command in [ 's', 'stats' ]:
