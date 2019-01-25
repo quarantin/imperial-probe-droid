@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+!/usr/bin/python3
 
 import sys
 import json
@@ -1367,7 +1367,7 @@ async def on_message(message):
 		return
 
 	channel = message.channel
-	nick = message.author.nick or message.author.id
+	nick = message.author.display_name or message.author.nick or message.author.name
 	author = '@%s' % nick
 	args = message.content.strip().split(' ')
 	command = args[0][1:]
