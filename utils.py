@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import pytz
+import subprocess
 from datetime import datetime
 
 PERCENT_STATS = [

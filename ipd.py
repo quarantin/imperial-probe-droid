@@ -4,7 +4,6 @@ import sys
 import string
 import random
 import discord
-import subprocess
 
 from config import load_config
 
