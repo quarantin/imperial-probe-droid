@@ -132,7 +132,7 @@ def cmd_recos(config, author, channel, args):
 				lines =  [ line ] + lines
 
 				msgs.append({
-					'title': 'Recommended mods',
+					'title': 'Recommended Modsets and Primary Stats',
 					'author': {
 						'name': unit['name'],
 						'icon_url': get_avatar_url(unit['base_id']),
