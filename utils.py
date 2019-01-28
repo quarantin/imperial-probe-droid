@@ -92,6 +92,7 @@ def update_source_code():
 	subprocess.call([ 'git', 'pull', 'origin', 'master'])
 
 def exit_bot():
+	from ipd import bot
 	bot.logout()
 	bot.close()
 	print('Restarting!')
