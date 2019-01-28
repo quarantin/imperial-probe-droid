@@ -9,10 +9,10 @@ from cairosvg import svg2png
 
 import io, os, requests
 
-IMAGES = './images/'
 
 def download_image(image_name):
 
+	IMAGES = './images/'
 	image_path = '%s%s' % (IMAGES, image_name)
 
 	if not os.path.exists(image_path) or os.path.getsize(image_path) == 0:
@@ -47,22 +47,28 @@ def get_gear(gear):
 	return Image.open(image_png)
 
 def get_level(level):
-	pass
+
+	image_name = 'level.png'
+	image_path = download_image(image_name)
+
+	return Image.open(image_path)
 
 def get_rarity(rarity):
 	pass
 
-def format_image(image):
-
-	size = (128, 128)
+def format_image(image, radius):
+	size = (radius, radius)
 	mask = Image.new('L', size, 0)
 	draw = ImageDraw.Draw(mask)
 	draw.ellipse((0, 0) + size, fill=255)
 	data = ImageOps.fit(image, mask.size, centering=(0.5, 0.5))
 	data.putalpha(mask)
+	return data
+
+def img2png(image):
 
 	with io.BytesIO() as output:
-		data.save(output, format='PNG')
+		image.save(output, format='PNG')
 		return output.getvalue()
 
 	return None
@@ -75,5 +81,11 @@ def avatar(request, character, level, gear, rarity):
 	rarity_image = get_rarity(rarity)
 
 	portrait_image.paste(gear_image, (0, 0), gear_image)
+	portrait_image = format_image(portrait_image, 128)
 
-	return HttpResponse(format_image(portrait_image), content_type='image/png')
+	full_image = Image.new('RGBA', (138, 138), 0)
+	full_image.paste(portrait_image, (5, 5), portrait_image)
+	full_image.paste(level_image, (5, 10), level_image)
+	full_image = format_image(full_image, 138)
+
+	return HttpResponse(img2png(full_image), content_type='image/png')
