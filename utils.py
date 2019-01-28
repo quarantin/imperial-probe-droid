@@ -88,9 +88,8 @@ def format_char_stats(unit, fmt):
 	return fmt
 
 def update_source_code():
-	subprocess.call([ 'git', 'stash' ])
 	subprocess.call([ 'git', 'fetch'])
-	subprocess.call([ 'git', 'pull', 'origin', 'master'])
+	subprocess.call([ 'git', 'pull' ])
 
 def exit_bot():
 	from ipd import bot
