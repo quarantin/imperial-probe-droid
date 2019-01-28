@@ -106,7 +106,7 @@ def avatar(request, character, level, gear, rarity, zetas):
 	full_image.paste(portrait_image, (5, 5), portrait_image)
 	if zetas > 0:
 		zeta_image = get_zetas(zetas)
-		full_image.paste(zeta_image, (-5, 60), zeta_image)
+		full_image.paste(zeta_image, (-8, 63), zeta_image)
 	full_image.paste(level_image, (5, 10), level_image)
 
 	full_image = format_image(full_image, 138)
