@@ -48,13 +48,17 @@ def get_gear(gear):
 
 def get_level(level):
 
+	offset = 0
+	if level < 10:
+		offset = 5
+
 	image_name = 'level.png'
 	image_path = download_image(image_name)
 
 	level_image = Image.open(image_path)
 	draw = ImageDraw.Draw(level_image)
 	font = ImageFont.truetype('arial.ttf', 24)
-	draw.text((51, 93), "%d" % level, (255, 255, 255), font=font)
+	draw.text((51 + offset, 93), "%d" % level, (255, 255, 255), font=font)
 	return level_image
 
 def get_rarity(rarity):
