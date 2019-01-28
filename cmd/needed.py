@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from constants import EMOJIS, MODSETS_LIST
+from constants import EMOJIS, MODSETS, MODSETS_LIST
 
 help_needed = {
 	'title': '',
@@ -41,7 +41,7 @@ def cmd_needed(config, author, channel, args):
 				for aset in sets:
 					if aset not in new_modsets:
 						new_modsets[aset] = 0.0
-					new_modsets[aset] = new_modsets[aset] + 1.0 / amount
+					new_modsets[aset] += 1.0 / amount
 
 		for aset, count in new_modsets.items():
 
@@ -51,10 +51,10 @@ def cmd_needed(config, author, channel, args):
 			if source not in modsets[aset]:
 				modsets[aset][source] = 0.0
 
-			modsets[aset][source] = modsets[aset][source] + count
+			modsets[aset][source] += count
 
 	lines = []
-	for aset in MODSETS_LIST:
+	for aset in MODSETS.values():
 		sources = modsets[aset]
 		counts = []
 		for source, count in sorted(sources.items()):
@@ -77,5 +77,5 @@ def cmd_needed(config, author, channel, args):
 
 	return [{
 		'title': 'Modsets needed',
-		'description': '\n'.join(lines),
+		'description': '%s\n%s' % (config['separator'], '\n'.join(lines)),
 	}]
