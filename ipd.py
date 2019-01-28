@@ -133,17 +133,6 @@ CMDS = [
 	},
 ]
 
-def update_source_code():
-	subprocess.call([ 'git', 'stash' ])
-	subprocess.call([ 'git', 'fetch'])
-	subprocess.call([ 'git', 'pull', 'origin', 'master'])
-
-def exit_bot():
-	bot.logout()
-	bot.close()
-	print('Restarting!')
-	sys.exit()
-
 bot = discord.Client()
 
 def expand_word(word):

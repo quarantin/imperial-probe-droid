@@ -84,3 +84,14 @@ def format_char_stats(unit, fmt):
 			fmt = fmt.replace(pattern, str(data)).replace('%20', ' ').replace('%0a', '\n').replace('%0A', '\n')
 
 	return fmt
+
+def update_source_code():
+	subprocess.call([ 'git', 'stash' ])
+	subprocess.call([ 'git', 'fetch'])
+	subprocess.call([ 'git', 'pull', 'origin', 'master'])
+
+def exit_bot():
+	bot.logout()
+	bot.close()
+	print('Restarting!')
+	sys.exit()

@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from utils import exit_bot, update_source_code
+
 help_update = {
 	'title': 'Update Help',
 	'description': """Update the source code and restart this bot.

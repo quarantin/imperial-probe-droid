@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from utils import exit_bot
+
 help_restart = {
 	'title': 'Restart Help',
 	'description': """Restart this bot.
