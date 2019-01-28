@@ -17,6 +17,7 @@ from cmd.arena import *
 from cmd.fleet import *
 from cmd.format import *
 from cmd.help import *
+from cmd.locked import *
 from cmd.mods import *
 from cmd.needed import *
 from cmd.recos import *
@@ -74,6 +75,12 @@ CMDS = [
 		'aliases': [ 'h', 'help' ],
 		'function': cmd_help,
 		'help': help_help,
+	},
+	{
+		'command': 'locked',
+		'aliases': [ 'l', 'locked' ],
+		'function': cmd_locked,
+		'help': help_locked,
 	},
 	{
 		'command': 'mods',

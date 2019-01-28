@@ -16,6 +16,7 @@ help_help = {
 **Player commands**
 **`arena`**: Show arena team for the supplied ally code.
 **`fleet-arena`**: Show fleet arena team for the supplied ally code.
+**`locked`**: Show locked units or ships for the supplied ally code.
 **`mods`**: Show information about mods for the supplied ally code.
 **`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
