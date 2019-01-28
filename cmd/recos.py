@@ -129,7 +129,7 @@ def cmd_recos(config, author, channel, args):
 				spacer = EMOJIS[''] * 4
 
 				line = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-				lines =  [ line ] + lines
+				lines =  [ config['separator'], line ] + lines
 
 				msgs.append({
 					'title': 'Recommended Modsets and Primary Stats',
