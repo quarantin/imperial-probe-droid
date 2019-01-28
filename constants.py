@@ -11,24 +11,32 @@ MODSLOTS = {
 
 MODSETS = {
 	1: 'Health',
-	2: 'Offense',
 	3: 'Defense',
-	4: 'Speed',
-	5: 'Critical Chance',
-	6: 'Critical Damage',
 	7: 'Potency',
 	8: 'Tenacity',
+	5: 'Critical Chance',
+	6: 'Critical Damage',
+	2: 'Offense',
+	4: 'Speed',
 }
 
 MODSETS_LIST = [
-	'Health',
-	'Defense',
-	'Potency',
-	'Tenacity',
-	'Critical Chance',
-	'Critical Damage',
-	'Offense',
-	'Speed',
+	1,
+	3,
+	7,
+	8,
+	5,
+	6,
+	2,
+	4,
+	#'Health',
+	#'Defense',
+	#'Potency',
+	#'Tenacity',
+	#'Critical Chance',
+	#'Critical Damage',
+	#'Offense',
+	#'Speed',
 ]
 
 MODSETS_NEEDED = {

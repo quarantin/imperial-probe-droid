@@ -135,6 +135,7 @@ def get_my_mods(ally_code):
 	all_mods = response.json()
 
 	db[ally_code]['mods'] = all_mods['mods']
+	db[ally_code]['mods-slots'] = {}
 	db[ally_code]['mods-count'] = all_mods['count']
 
 	for mod in all_mods['mods']:
@@ -146,7 +147,11 @@ def get_my_mods(ally_code):
 		if modset not in unit['modsets']:
 			unit['modsets'][modset] = 0
 
-		unit['modsets'][modset] = unit['modsets'][modset] + 1
+		if slot not in db[ally_code]['mods-slots']:
+			db[ally_code]['mods-slots'][slot] = 0
+
+		db[ally_code]['mods-slots'][slot] += 1
+		unit['modsets'][modset] += 1
 
 	for base_id, unit in db[ally_code]['units'].items():
 

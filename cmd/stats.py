@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import re
+
 from opts import *
 from swgoh import get_my_mods, get_player_name
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSETS_NEEDED, MODSLOTS
@@ -51,6 +53,17 @@ cross (or cr)```
 %prefixs 123456789 speed arrow```"""
 }
 
+def atoi(text):
+	return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+	'''
+	alist.sort(key=natural_keys) sorts in human order
+	http://nedbatchelder.com/blog/200712/human_sorting.html
+	(See Toothy's implementation in the comments)
+	'''
+	return [ atoi(c) for c in re.split('(\d+)', text) ]
+
 def count_mods_per_shape(mod_shapes):
 
 	shape_count = {}
@@ -73,23 +86,24 @@ def parse_mod_counts(mods):
 	for mod in mods:
 
 		modset_id = mod['set']
-		modset = MODSETS[ modset_id ]
-		if modset not in count:
+		modset = MODSETS[modset_id]
+		if modset_id not in count:
 			count[modset_id] = 0
 			shapes[modset_id] = {}
 			primaries[modset_id] = {}
-		count[modset_id] = count[modset_id] + 1
+		count[modset_id] += 1
 
-		shape = MODSLOTS[ mod['slot'] ]
-		if shape not in shapes[modset_id]:
-			shapes[modset_id][shape] = 0
-			primaries[modset_id][shape] = {}
-		shapes[modset_id][shape] = shapes[modset_id][shape] + 1
+		shape_id = mod['slot']
+		shape_name = MODSLOTS[shape_id]
+		if shape_id not in shapes[modset_id]:
+			shapes[modset_id][shape_id] = 0
+			primaries[modset_id][shape_id] = {}
+		shapes[modset_id][shape_id] += 1
 
 		primary = mod['primary_stat']['name']
-		if primary not in primaries[modset_id][shape]:
-			primaries[modset_id][shape][primary] = 0
-		primaries[modset_id][shape][primary] = primaries[modset_id][shape][primary] + 1
+		if primary not in primaries[modset_id][shape_id]:
+			primaries[modset_id][shape_id][primary] = 0
+		primaries[modset_id][shape_id][primary] += 1
 
 	return count, shapes, primaries
 
@@ -122,17 +136,17 @@ def cmd_stats(config, author, channel, args):
 
 			lines = []
 
-			shape_count = count_mods_per_shape(shapes)
-			for shape in [ 'Square', 'Arrow', 'Diamond', 'Triangle', 'Circle', 'Cross' ]:
-				if shape in shape_count:
-					print(shape_count)
-					count = shape_count[shape]
-					emoji = EMOJIS[shape.replace(' ', '').lower()]
+			shape_count = ally_db['mods-slots']
+			for shape_id, shape_name in MODSLOTS.items():
+				if shape_id in shape_count:
+					count = shape_count[shape_id]
+					emoji = EMOJIS[shape_name.replace(' ', '').lower()]
 					lines.append('%s x %d mods' % (emoji, count))
 
 			lines.append(config['separator'])
 
-			for modset_id, modset_name in MODSETS.items():
+			for modset_id in MODSETS_LIST:
+				modset_name = MODSETS[modset_id]
 				count = counts[modset_id]
 				emoji = EMOJIS[modset_name.replace(' ', '').lower()]
 				modset_group = MODSETS_NEEDED[modset_id]
@@ -154,20 +168,22 @@ def cmd_stats(config, author, channel, args):
 
 			msgs.append({
 				'title': '%s Mods Statistics' % player,
-				'description': 'Equipped mods: **%d**\n%s' % (equipped_mods, '\n'.join(lines)),
+				'description': 'Equipped mods: **%d**\n%s\n%s' % (equipped_mods, config['separator'], '\n'.join(lines)),
 			})
 
-		if selected_modsets and not selected_modshapes:
+		elif selected_modsets and not selected_modshapes:
 
-			for modset in selected_modsets:
+			for modset_id in selected_modsets:
 
 				lines = []
 				total_for_modset = 0
-				for shape in [ 'Square', 'Arrow', 'Diamond', 'Triangle', 'Circle', 'Cross' ]:
-					if modset in shapes and shape in shapes[modset]:
-						modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
-						modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
-						count = shapes[modset][shape]
+				for shape_id, shape_name in MODSLOTS.items():
+					if modset_id in shapes and shape_id in shapes[modset_id]:
+						modset_name = MODSETS[modset_id]
+						shape_name = MODSLOTS[shape_id]
+						modset_emoji = EMOJIS[modset_name.replace(' ', '').lower()]
+						modshape_emoji = EMOJIS[shape_name.replace(' ', '').lower()]
+						count = shapes[modset_id][shape_id]
 						pad = ''
 						if count < 100:
 							pad = u'\u202F\u202F'
@@ -176,61 +192,83 @@ def cmd_stats(config, author, channel, args):
 
 						total_for_modset = total_for_modset + count
 
-						line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, shapes[modset][shape])
+						line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, shapes[modset_id][shape_id])
 						lines.append(line)
 
+				modset_name = MODSETS[modset_id]
 				msgs.append({
-					'title': '%s %s Mods Statistics' % (player, modset),
-					'description': 'Equipped %s mods: %d\n%s' % (modset.lower(), total_for_modset, '\n'.join(lines)),
+					'title': '%s %s Mods Statistics' % (player, modset_name),
+					'description': 'Equipped %s mods: **%d**\n%s\n%s' % (modset_name.lower(), total_for_modset, config['separator'], '\n'.join(lines)),
 				})
 
-		if not selected_modsets and selected_modshapes:
+		elif not selected_modsets and selected_modshapes:
 
-			lines = []
 			pad = '\u202f' * 4
-			for modset_id, modset_name in MODSETS.items():
-				for shape in selected_modshapes:
+			lines = []
+			total_for_modset = 0
+			for modset_id in MODSETS_LIST:
+				modset_name = MODSETS[modset_id]
+				for shape_id in selected_modshapes:
+
+					total_for_slot = 0
+					shape_name = MODSLOTS[shape_id]
 					modset_emoji = EMOJIS[modset_name.replace(' ', '').lower()]
-					modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
+					modshape_emoji = EMOJIS[shape_name.replace(' ', '').lower()]
 
 					sublines = []
-					total_for_shape = 0
 					desc = 'Equipped %s %s mods' % (modset_emoji, modshape_emoji)
-					for primary, count in sorted(primaries[modset_id][shape].items()):
-						total_for_shape = total_for_shape + count
+					for primary, count in sorted(primaries[modset_id][shape_id].items()):
+						total_for_slot += count
+						total_for_modset += count
 						sublines.append('%s`%d x %s`' % (pad, count, primary))
 
-					desc = '%s %s x %d' % (modset_emoji, modshape_emoji, total_for_shape)
+					sublines.sort(key=natural_keys)
+
+					desc = '%s %s x %d' % (modset_emoji, modshape_emoji, total_for_modset)
 
 					lines.append(desc)
-					lines = lines + sublines
+					lines = lines + [ x for x in reversed(sublines) ]
 
-			msg.append({
-				'title': '%s Mods Statistics' % player,
-				'description': '\n'.join(lines),
-			})
 
-		lines = []
-		total_for_shape = 0
-		for modset in selected_modsets:
-			for shape in selected_modshapes:
-				modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
-				modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
-				for primary, count in primaries[modset][shape].items():
-					pad = ''
-					if count < 100:
-						pad = u'\u202F\u202F'
-					if count < 10:
-						pad = pad * 2
-
-					total_for_shape = total_for_shape + count
-					line = '%s%s%s `x %s%d`' % (modset_emoji, modshape_emoji, primary, pad, count)
-					lines.append(line)
-
-			modset_name = MODSETS[modset]
 			msgs.append({
-				'title': '%s %s %s Mods Primaries' % (player, modset_name, shape),
-				'description': 'Equipped %s %s mods: %d\n%s' % (modset_name.lower(), shape.lower(), total_for_shape, '\n'.join(lines)),
+				'title': '%s Mods Statistics' % player,
+				'description': 'Equipped %s mods: **%d**\n%s\n%s' % (shape_name.lower(), total_for_modset, config['separator'], '\n'.join(lines)),
 			})
+
+		else:
+
+			total_for_shape = 0
+			for modset_id in selected_modsets:
+				modset = MODSETS[modset_id]
+				for shape_id in selected_modshapes:
+					shape = MODSLOTS[shape_id]
+
+					lines = []
+
+					modset_emoji = EMOJIS[modset.replace(' ', '').lower()]
+					modshape_emoji = EMOJIS[shape.replace(' ', '').lower()]
+					for primary, count in primaries[modset_id][shape_id].items():
+						pad = ''
+						if count < 100:
+							pad = u'\u202F\u202F'
+						if count < 10:
+							pad = pad * 2
+
+						total_for_shape = total_for_shape + count
+						line = '`%d x %s`' % (count, primary)
+						lines.append(line)
+
+					modset_name = MODSETS[modset_id]
+					shape_name = MODSLOTS[shape_id]
+
+					modset_emoji = EMOJIS[modset_name.replace(' ', '').lower()]
+					shape_emoji = EMOJIS[shape_name.replace(' ', '').lower()]
+
+					lines.sort(key=natural_keys)
+
+					msgs.append({
+						'title': '%s %s %s Mods Primaries' % (player, modset_name, shape_name),
+						'description': 'Equipped %s %s mods: **%d**\n%s\n%s' % (modset_emoji, shape_emoji, total_for_shape, config['separator'], '\n'.join(reversed(lines))),
+					})
 
 	return msgs
