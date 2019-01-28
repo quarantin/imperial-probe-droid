@@ -20,5 +20,5 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-	path('avatar/<str:character>/<int:level>/<int:gear>/<int:rarity>/', views.avatar),
+	path('avatar/<str:character>/<int:level>/<int:gear>/<int:rarity>/<int:zetas>/', views.avatar),
 ]

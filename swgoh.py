@@ -89,8 +89,9 @@ def get_full_avatar_url(ally_code, base_id):
 	level = 'level' in unit and unit['level'] or 1
 	gear = 'gear_level' in unit and unit['gear_level'] or 1
 	stars = 'rarity' in unit and unit['rarity'] or 0
+	zetas = 'zeta_abilities' in unit and len(unit['zeta_abilities']) or 0
 
-	return 'http://%s/avatar/%s/%s/%s/%s/' % (socket.gethostname(), image_name, level, gear, stars)
+	return 'http://%s/avatar/%s/%s/%s/%s/%s/' % (socket.gethostname(), image_name, level, gear, stars, zetas)
 
 def get_my_units_and_ships(ally_code):
 

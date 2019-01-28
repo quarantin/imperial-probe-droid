@@ -64,6 +64,17 @@ def get_level(level):
 def get_rarity(rarity):
 	pass
 
+def get_zetas(zetas):
+
+	image_name = 'zeta.png'
+	image_path = download_image(image_name)
+
+	zeta_image = Image.open(image_path)
+	draw = ImageDraw.Draw(zeta_image)
+	font = ImageFont.truetype('arial.ttf', 16)
+	draw.text((27, 18), '%d' % zetas, (255, 255, 255), font=font)
+	return zeta_image
+
 def format_image(image, radius):
 	size = (radius, radius)
 	mask = Image.new('L', size, 0)
@@ -81,7 +92,7 @@ def img2png(image):
 
 	return None
 
-def avatar(request, character, level, gear, rarity):
+def avatar(request, character, level, gear, rarity, zetas):
 
 	portrait_image = get_portrait(character)
 	level_image = get_level(level)
@@ -93,7 +104,11 @@ def avatar(request, character, level, gear, rarity):
 
 	full_image = Image.new('RGBA', (138, 138), 0)
 	full_image.paste(portrait_image, (5, 5), portrait_image)
+	if zetas > 0:
+		zeta_image = get_zetas(zetas)
+		full_image.paste(zeta_image, (-5, 60), zeta_image)
 	full_image.paste(level_image, (5, 10), level_image)
+
 	full_image = format_image(full_image, 138)
 
 	return HttpResponse(img2png(full_image), content_type='image/png')
