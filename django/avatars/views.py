@@ -3,7 +3,7 @@
 
 from django.http import HttpResponse
 
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from cairosvg import svg2png
 
@@ -51,7 +51,11 @@ def get_level(level):
 	image_name = 'level.png'
 	image_path = download_image(image_name)
 
-	return Image.open(image_path)
+	level_image = Image.open(image_path)
+	draw = ImageDraw.Draw(level_image)
+	font = ImageFont.truetype('arial.ttf', 24)
+	draw.text((51, 93), "%d" % level, (255, 255, 255), font=font)
+	return level_image
 
 def get_rarity(rarity):
 	pass
