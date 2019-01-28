@@ -4,7 +4,7 @@ import os, json, requests
 
 from utils import basicstrip
 
-UNITS_SHORT_NAMES = {
+NICKS = {
 	'aa':    'Admiral Ackbar',
 	'bf':    'Boba Fett',
 	'cb':    'Chewbacca',
@@ -164,7 +164,7 @@ def load_config(config_file='config.json'):
 	fin.close()
 
 	config = json.loads(jsonstr)
-	config['units-short-names'] = UNITS_SHORT_NAMES
+	#config['nicks'] = NICKS
 	print(json.dumps(config, indent=4, sort_keys=True))
 
 	config['allies'] = parse_allies_db(config)

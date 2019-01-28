@@ -19,6 +19,7 @@ from cmd.format import *
 from cmd.help import *
 from cmd.locked import *
 from cmd.mods import *
+from cmd.nicks import *
 from cmd.needed import *
 from cmd.recos import *
 from cmd.restart import *
@@ -87,6 +88,12 @@ CMDS = [
 		'aliases': [ 'm', 'mods' ],
 		'function': cmd_mods,
 		'help': help_mods,
+	},
+	{
+		'command': 'nicks',
+		'aliases': [ 'N', 'nicks' ],
+		'function': cmd_nicks,
+		'help': help_nicks,
 	},
 	{
 		'command': 'needed',

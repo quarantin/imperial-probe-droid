@@ -65,7 +65,7 @@ def cmd_alias(config, author, channel, args):
 		elif alias_name in config['aliases']:
 			del config['aliases'][alias_name]
 
-		save_config(config)
+		config['save'](config)
 		return [{
 			'title': 'Delete alias',
 			'description': 'The alias was successfully deleted.',
@@ -87,7 +87,7 @@ def cmd_alias(config, author, channel, args):
 
 		config['aliases'][alias_name] = alias_command
 
-		save_config()
+		config['save'](config)
 		return [{
 			'title': 'Add alias',
 			'description': 'The alias was successfully added.',

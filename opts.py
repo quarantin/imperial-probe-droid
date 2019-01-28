@@ -77,8 +77,8 @@ def parse_opts_unit_names(config, args, combat_type=1):
 			continue
 
 		larg = basicstrip(arg)
-		if larg in config['units-short-names']:
-			larg = basicstrip(config['units-short-names'][larg])
+		if larg in config['nicks']:
+			larg = basicstrip(config['nicks'][larg])
 
 		found = False
 		units = get_all_units()

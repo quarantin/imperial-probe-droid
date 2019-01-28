@@ -11,6 +11,7 @@ help_help = {
 **Internal commands**
 **`alias`**: Manage command aliases.
 **`format`**: Manage output formats.
+**`nicks`**: Manage nicknames for units and ships.
 **`sheets`**: Show available spreadsheets.
 %separator
 **Player commands**
