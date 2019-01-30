@@ -57,7 +57,7 @@ def cmd_arena(config, author, channel, args):
 		plural = len(args) > 1 and 's' or ''
 		return [{
 			'title': 'Unknown Parameter%s' % plural,
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(new_args)),
+			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
 	msgs = []
