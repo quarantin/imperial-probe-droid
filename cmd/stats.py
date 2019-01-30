@@ -113,7 +113,7 @@ def cmd_stats(config, author, channel, args):
 
 	args, selected_modsets = parse_opts_modsets(args)
 
-	args, selected_modshapes = parse_opts_modshapes(args)
+	args, selected_modshapes = parse_opts_modslots(args)
 
 	if args:
 		return [{

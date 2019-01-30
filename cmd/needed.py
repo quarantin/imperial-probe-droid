@@ -24,6 +24,13 @@ def cmd_needed(config, author, channel, args):
 
 	modsets = {}
 
+	args, selected_slots = parse_opts_modslots(args)
+	if args:
+		plural = len(args) > 1 and 's' or ''
+		return [{
+			'title': 'Unknown Parameter%s' % plural,
+			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % '\n - '.join(args),
+		}]
 	for source, names in config['recos']['by-source'].items():
 
 		new_modsets = {}

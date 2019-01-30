@@ -24,7 +24,7 @@ MODSET_OPTS = {
 	'speed':           4,
 }
 
-MODSHAPE_OPTS = {
+MODSLOTS_OPTS = {
 	'sq':       1,
 	'square':   1,
 	'ar':       2,
@@ -117,15 +117,28 @@ def parse_opts_modsets(args):
 
 	return args, selected_modsets
 
-def parse_opts_modshapes(args):
+def parse_opts_modslots(args):
 
-	selected_modshapes = []
+	selected_modslots = []
 	args_cpy = list(args)
 	for arg in args_cpy:
-		if arg in MODSHAPE_OPTS:
+		if arg in MODSLOTS_OPTS:
 			args.remove(arg)
-			modshape = MODSHAPE_OPTS[arg]
-			if modshape not in selected_modshapes:
-				selected_modshapes.append(modshape)
+			modslot = MODSLOTS_OPTS[arg]
+			if modslot not in selected_modslots:
+				selected_modslots.append(modslot)
 
-	return args, selected_modshapes
+	return args, selected_modslots
+
+def parse_opts_modprimaries(args):
+
+	selected_primaries = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+		if arg in MODPRIMARIES_OPTS:
+			args.remove(arg)
+			modprimary = MODPRIMARIES_OPTS[arg]
+			if modprimary not in selected_primaries:
+				selected_primaries.append(modprimary)
+
+	return args, selected_primaries
