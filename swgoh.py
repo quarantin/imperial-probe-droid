@@ -171,8 +171,8 @@ def get_my_mods(ally_code):
 		unit['missing-mods'] = []
 		for i in range(1, 7):
 			if i not in unit['mods']:
-				shape = MODSLOTS[ i ]
-				unit['missing-mods'].append(shape)
+				modslot = MODSLOTS[ i ]
+				unit['missing-mods'].append(modslot)
 
 		unit['no-mods'] = len(unit['missing-mods']) == 6
 
