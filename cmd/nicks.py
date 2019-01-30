@@ -38,7 +38,7 @@ def cmd_nicks(config, author, channel, args):
 			i = i + 1
 
 		return [{
-			'title': 'Nick List',
+			'title': 'Character Nick List',
 			'description': '\n'.join(lines),
 		}]
 
