@@ -72,7 +72,7 @@ def cmd_fleet(config, author, channel, args):
 		if player:
 			msgs.append({
 				'title': 'Fleet Arena Team of %s (Rank: %s)\n%s' % (player, rank, profile_url),
-				'description': '%s\n%s' % (config['separator'], '\n'.join(team)),
+				'description': '%s\n%s' % (config['separator'], ('\n'.join(team)).strip()),
 			})
 		else:
 			url = 'https://swgoh.gg/p/%s/' % ally_code
