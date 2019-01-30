@@ -4,56 +4,6 @@ import os, json, requests
 
 from utils import basicstrip
 
-NICKS = {
-	'aa':    'Admiral Ackbar',
-	'bf':    'Boba Fett',
-	'cb':    'Chewbacca',
-	'cc':    'Chief Chirpa',
-	'chs':   'Captain Han Solo',
-	'cls':   'Commander Luke Skywalker',
-	'cup':   'Coruscant Underworld Police',
-	'cwc':   'Clone Wars Chewbacca',
-	'dk':    'Director Krennic',
-	'dn':    'Darth Nihilus',
-	'dv':    'Darth Vader',
-	'ee':    'Ewok Elder',
-	'ep':    'Emperor Palpatine',
-	'foe':   'First Order Executioner',
-	'fox':   'First Order Executioner',
-	'foo':   'First Order Officer',
-	'fostp': 'First Order SF TIE Pilot',
-	'fost':  'First Order Stormtrooper',
-	'fotp':  'First Order TIE Pilot',
-	'gk':    'General Kenobi',
-	'gat':   'Grand Admiral Thrawn',
-	'gmt':   'Grand Moff Tarkin',
-	'gmy':   'Grand Master Yoda',
-	'hy':    'Hermit Yoda',
-	'hoda':  'Hermit Yoda',
-	'hyoda': 'Hermit Yoda',
-	'hs':    'Han Solo',
-	'hst':   'Stormtrooper Han',
-	'ipd':   'Imperial Probe Droid',
-	'jf':    'Jango Fett',
-	'jka':   'Jedi Knight Anakin',
-	'jkg':   'Jedi Knight Guardian',
-	'jkr':   'Jedi Knight Revan',
-	'jtr':   'Rey (Jedi Training)',
-	'kr':    'Kylo Ren',
-	'kru':   'Kylo Ren (Unmasked)',
-	'mt':    'Mother Talzin',
-	'qgj':   'Qui-Gon Jinn',
-	'sth':   'Stormtrooper Han',
-	'rex':   'CT-7567',
-	'rolo':  'Rebel Officer Leia Organa',
-	'rp':    'Resistance Pilot',
-	'rjt':   'Rey (Jedi Training)',
-	'vsc':   'Veteran Smuggler Chewbacca',
-	'vshs':  'Veteran Smuggler Han Solo',
-	'yhs':   'Young Han Solo',
-	'ylc':   'Young Lando Calrissian',
-}
-
 def load_help():
 	from ipd import CMDS
 
@@ -164,7 +114,6 @@ def load_config(config_file='config.json'):
 	fin.close()
 
 	config = json.loads(jsonstr)
-	#config['nicks'] = NICKS
 	print(json.dumps(config, indent=4, sort_keys=True))
 
 	config['allies'] = parse_allies_db(config)
