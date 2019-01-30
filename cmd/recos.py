@@ -25,7 +25,7 @@ help_recos = {
 
 **Syntax**
 ```
-%prefixrecos [ally codes] [characters]```
+%prefixrecos [ally codes or mentions] [characters]```
 
 **Aliases**
 ```
@@ -36,6 +36,7 @@ help_recos = {
 %prefixr ep
 %prefixr gat gmy qgj gk traya
 %prefixr deathtrooper
+%prefixr @Someone traya
 %prefixr 123456789 234567891 nih```"""
 }
 

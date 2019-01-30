@@ -12,10 +12,10 @@ help_stats = {
 
 **Syntax**
 ```
-%prefixstats [ally codes]
-%prefixstats [ally codes] [shapes]
-%prefixstats [ally codes] [modsets]
-%prefixstats [ally codes] [modsets] [shapes]```
+%prefixstats [ally codes or mentions]
+%prefixstats [ally codes or mentions] [shapes]
+%prefixstats [ally codes or mentions] [modsets]
+%prefixstats [ally codes or mentions] [modsets] [shapes]```
 
 **Aliases**
 ```
@@ -46,6 +46,7 @@ cross (or cr)```
 **Examples**
 ```
 %prefixs
+%prefixs @Someone
 %prefixs 123456789
 %prefixs speed
 %prefixs cd tr

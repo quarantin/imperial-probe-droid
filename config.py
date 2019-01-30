@@ -2,19 +2,21 @@
 
 import os, json, requests
 
+from commands import *
 from utils import basicstrip
 
+config = {}
+
 def load_help():
-	from ipd import CMDS
 
 	help_msgs = {}
-	for cmd in CMDS:
+	for cmd in COMMANDS:
 		for alias in cmd['aliases']: 
 			help_msgs[alias] = cmd['help']
 
 	return help_msgs
 
-def write_config_to_file(config, config_file):
+def write_config_to_file(config_file):
 
 	backup = '%s.bak' % config_file
 	os.rename(config_file, backup)
@@ -38,11 +40,12 @@ def download_spreadsheet(url, cols):
 
 	return iter(content)
 
-def parse_allies_db(config):
+def parse_allies_db(members):
 
 	url = config['sheets']['allies']['view']
 
 	allies_db = {}
+	allies_db['by-mention'] = {}
 	allies_db['by-ally-code'] = {}
 	allies_db['by-game-nick'] = {}
 	allies_db['by-discord-nick'] = {}
@@ -56,11 +59,33 @@ def parse_allies_db(config):
 
 		allies_db['by-ally-code'][ally_code] = ally
 		allies_db['by-game-nick'][game_nick] = ally
-		allies_db['by-discord-nick'][discord_nick] = ally
+
+		if discord_nick:
+			allies_db['by-discord-nick'][discord_nick] = ally
+
+	for member in members:
+
+		raw_nick = member.display_name or member.nick or member.name
+		nick = '@%s' % raw_nick
+		if nick not in allies_db['by-discord-nick']:
+			continue
+
+		mention1 = '<@%s>' % member.id
+		mention2 = '<@!%s>' % member.id
+		ally_code = allies_db['by-discord-nick'][nick]
+
+		if raw_nick not in allies_db['by-mention']:
+			allies_db['by-mention'][raw_nick] = ally_code
+
+		if mention1 not in allies_db['by-mention']:
+			allies_db['by-mention'][mention1] = ally_code
+
+		if mention2 not in allies_db['by-mention']:
+			allies_db['by-mention'][mention2] = ally_code
 
 	return allies_db
 
-def parse_recommendations(config):
+def parse_recommendations():
 
 	url = config['sheets']['recommendations']['view']
 
@@ -89,7 +114,7 @@ def parse_recommendations(config):
 
 	return recos_db
 
-def save_config(config, config_file='config.json'):
+def save_config(config_file='config.json'):
 
 	config_cpy = dict(config)
 
@@ -107,19 +132,20 @@ def save_config(config, config_file='config.json'):
 
 	write_config_to_file(config_cpy, config_file)
 
-def load_config(config_file='config.json'):
+def load_config(bot=None, config_file='config.json'):
 
-	fin = open(config_file, 'r')
-	jsonstr = fin.read()
-	fin.close()
+	if not config:
+		fin = open(config_file, 'r')
+		jsonstr = fin.read()
+		fin.close()
+		config.update(json.loads(jsonstr))
 
-	config = json.loads(jsonstr)
-	print(json.dumps(config, indent=4, sort_keys=True))
-
-	config['allies'] = parse_allies_db(config)
-	config['help'] = load_help()
-	config['recos'] = parse_recommendations(config)
-	config['save'] = save_config
-	config['separator'] = '`%s`' % ('-' * 30)
+	if bot:
+		print(json.dumps(config, indent=4, sort_keys=True))
+		config['allies'] = parse_allies_db(bot.get_all_members())
+		config['help'] = load_help()
+		config['recos'] = parse_recommendations()
+		config['save'] = save_config
+		config['separator'] = '`%s`' % ('-' * 30)
 
 	return config

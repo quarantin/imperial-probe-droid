@@ -5,12 +5,12 @@ from swgoh import *
 
 help_fleet = {
 	'title': 'Player info',
-	'description': """Shows fleet arena team for the supplied ally codes.
+	'description': """Shows fleet arena team for the supplied ally codes according to the supplied output format.
 
 **Syntax**
 ```
-%prefixfleet [ally codes] [output format]
-%prefixfleet [ally codes] custom [custom format]```
+%prefixfleet [ally codes or mentions] [output format]
+%prefixfleet [ally codes or mentions] custom [format]```
 
 **Aliases**
 ```
@@ -35,11 +35,12 @@ Also spaces need to be replaced with %20 and newlines with %0A.
 **Examples**
 ```
 %prefixf
-%prefixf l
+%prefixf lite
+%prefixf @Someone
 %prefixf 123456789
 %prefixf 123456789 234567891 verbose
 %prefixf 123456788 lite
-%prefixf c %speed%20%name```"""
+%prefixf custom %speed%20%name```"""
 }
 
 def cmd_fleet(config, author, channel, args):

@@ -9,7 +9,7 @@ help_mods = {
 
 **Syntax**
 ```
-%prefixmods [ally_codes] [option]```
+%prefixmods [ally_codes or mentions] [option]```
 
 **Options**
 ```
@@ -24,6 +24,7 @@ incomplete (or i): To show units with incomplete modsets.```
 **Examples**
 ```
 %prefixm
+%prefixm @Someone
 %prefixm 123456789
 %prefixm 123456789 missing
 %prefixm nomods

@@ -5,12 +5,12 @@ from swgoh import *
 
 help_arena = {
 	'title': 'Player info',
-	'description': """Shows arena team for the supplied ally codes.
+	'description': """Shows arena team for the supplied ally codes according to the supplied output format.
 
 **Syntax**
 ```
-%prefixarena [ally codes] [output format]
-%prefixarena [ally codes] custom [custom format]```
+%prefixarena [ally codes or mentions] [output format]
+%prefixarena [ally codes or mentions] custom [format]```
 
 **Aliases**
 ```
@@ -35,11 +35,12 @@ Also spaces need to be replaced with %20 and newlines with %0A.
 **Examples**
 ```
 %prefixa
-%prefixa l
+%prefixa lite
+%prefixa @Someone
 %prefixa 123456789
 %prefixa 123456789 234567891 verbose
 %prefixa 123456789 lite
-%prefixa c %speed%20%name```"""
+%prefixa custom %speed%20%name```"""
 }
 
 def cmd_arena(config, author, channel, args):

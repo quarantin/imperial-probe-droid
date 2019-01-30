@@ -67,7 +67,7 @@ def cmd_nicks(config, author, channel, args):
 		elif target_nick in config['nicks']:
 			del config['nicks'][target_nick]
 
-		config['save'](config)
+		config['save']()
 		return [{
 			'title': 'Delete Nick',
 			'description': 'The nickname was successfully deleted.',
@@ -105,7 +105,7 @@ def cmd_nicks(config, author, channel, args):
 
 		config['nicks'][target_nick] = selected_units.pop(0)['name']
 
-		config['save'](config)
+		config['save']()
 		return [{
 			'title': 'Add Nick',
 			'description': 'The nickname was successfully added.',

@@ -73,7 +73,7 @@ def cmd_format(config, author, channel, args):
 			success = True
 
 		if success:
-			config['save'](config)
+			config['save']()
 			return [{
 				'title': 'Delete Format',
 				'description': 'The format was successfully deleted.',
@@ -101,7 +101,7 @@ def cmd_format(config, author, channel, args):
 
 		config['formats'][format_name] = custom_format
 
-		config['save'](config)
+		config['save']()
 		return [{
 			'title': 'Add Format',
 			'description': 'The format was successfully added.',

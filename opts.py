@@ -61,6 +61,10 @@ def parse_opts_ally_codes(config, author, args):
 			args.remove(arg)
 			ally_codes.append(arg)
 
+		if arg in config['allies']['by-mention']:
+			args.remove(arg)
+			ally_codes.append(config['allies']['by-mention'][arg][2])
+
 	if not ally_codes and author in config['allies']['by-discord-nick']:
 		ally_codes.append(config['allies']['by-discord-nick'][author][2])
 

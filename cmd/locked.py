@@ -9,8 +9,8 @@ help_locked = {
 
 **Syntax**
 ```
-%prefixlocked [ally codes]
-%prefixlocked [ally codes] [options]```
+%prefixlocked [ally codes or mentions]
+%prefixlocked [ally codes or mentions] [options]```
 
 **Aliases**
 ```
@@ -26,6 +26,7 @@ ships (or s)```
 %prefixl
 %prefixl u
 %prefixl ships
+%prefixl @Someone
 %prefixl 123456789 units
 %prefixl 123456789 234567891```"""
 }

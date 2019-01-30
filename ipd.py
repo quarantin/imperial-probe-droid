@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import shlex
 import string
 import random
 import discord
@@ -9,21 +10,7 @@ from config import load_config
 from utils import *
 from embed import *
 from swgoh import *
-
-from cmd.alias import *
-from cmd.arena import *
-from cmd.fleet import *
-from cmd.format import *
-from cmd.help import *
-from cmd.locked import *
-from cmd.mods import *
-from cmd.nicks import *
-from cmd.needed import *
-from cmd.recos import *
-from cmd.restart import *
-from cmd.sheets import *
-from cmd.stats import *
-from cmd.update import *
+from commands import *
 
 SHEETS_ALIASES = {
 	'a': 'allies',
@@ -42,93 +29,6 @@ PROBE_DIALOG = [
 	'schlIk',
 	'stZS',
 	'wOm',
-]
-
-CMDS = [
-	{
-		'command': 'alias',
-		'aliases': [ 'A', 'alias' ],
-		'function': cmd_alias,
-		'help': help_alias,
-	},
-	{
-		'command': 'arena',
-		'aliases': [ 'a', 'arena' ],
-		'function': cmd_arena,
-		'help': help_arena,
-	},
-	{
-		'command': 'fleet',
-		'aliases': [ 'f', 'fa', 'fleet' ],
-		'function': cmd_fleet,
-		'help': help_fleet,
-	},
-	{
-		'command': 'format',
-		'aliases': [ 'F', 'format' ],
-		'function': cmd_format,
-		'help': help_format,
-	},
-	{
-		'command': 'help',
-		'aliases': [ 'h', 'help' ],
-		'function': cmd_help,
-		'help': help_help,
-	},
-	{
-		'command': 'locked',
-		'aliases': [ 'l', 'locked' ],
-		'function': cmd_locked,
-		'help': help_locked,
-	},
-	{
-		'command': 'mods',
-		'aliases': [ 'm', 'mods' ],
-		'function': cmd_mods,
-		'help': help_mods,
-	},
-	{
-		'command': 'nicks',
-		'aliases': [ 'N', 'nicks' ],
-		'function': cmd_nicks,
-		'help': help_nicks,
-	},
-	{
-		'command': 'needed',
-		'aliases': [ 'n', 'needed' ],
-		'function': cmd_needed,
-		'help': help_needed,
-	},
-	{
-		'command': 'recos',
-		'aliases': [ 'r', 'recos' ],
-		'function': cmd_recos,
-		'help': help_recos,
-	},
-	{
-		'command': 'restart',
-		'aliases': [ 'R', 'restart' ],
-		'function': cmd_restart,
-		'help': help_restart,
-	},
-	{
-		'command': 'sheets',
-		'aliases': [ 'S', 'sheets' ],
-		'function': cmd_sheets,
-		'help': help_sheets,
-	},
-	{
-		'command': 'stats',
-		'aliases': [ 's', 'stats' ],
-		'function': cmd_stats,
-		'help': help_stats,
-	},
-	{
-		'command': 'update',
-		'aliases': [ 'U', 'update' ],
-		'function': cmd_update,
-		'help': help_update,
-	},
 ]
 
 bot = discord.Client()
@@ -160,6 +60,7 @@ def compute_hello_msg():
 @bot.event
 async def on_ready():
 	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
+	load_config(bot)
 	message = compute_hello_msg()
 	for chan_id in config['hello']:
 		channel = bot.get_channel(chan_id)
@@ -174,10 +75,10 @@ async def on_message(message):
 	channel = message.channel
 	nick = message.author.display_name or message.author.nick or message.author.name
 	author = '@%s' % nick
-	args = message.content.strip().split(' ')
+	args = shlex.split(message.content.strip())
 	command = args[0][1:]
 	if command in config['aliases']:
-		args = message.content.replace(command, config['aliases'][command]).split(' ')
+		args = shlex.split(message.content.replace(command, config['aliases'][command]))
 		command = args[0][1:]
 
 	args = args[1:]
@@ -188,7 +89,7 @@ async def on_message(message):
 		args = [ command ]
 		command = 'help'
 
-	for cmd in CMDS:
+	for cmd in COMMANDS:
 		if command in cmd['aliases']:
 			msgs = cmd['function'](config, author, channel, args)
 			for msg in msgs:
@@ -206,4 +107,5 @@ async def on_message(message):
 config = load_config()
 
 bot.run(config['token'])
+
 bot.close()

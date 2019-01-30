@@ -8,7 +8,7 @@ help_needed = {
 
 **Syntax**
 ```
-%prefixneeded [ally code]```
+%prefixneeded [ally code or mention]```
 
 **Aliases**
 ```
@@ -17,6 +17,7 @@ help_needed = {
 **Examples**
 ```
 %prefixn
+%prefixn @Someone
 %prefixn 123456789```"""
 }
 
