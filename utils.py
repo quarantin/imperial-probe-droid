@@ -92,6 +92,8 @@ def update_source_code():
 	subprocess.call([ 'git', 'pull' ])
 
 def exit_bot():
+	# TODO send message on quit, like animated an
+	# gif of an explosion or something like that.
 	from ipd import bot
 	bot.logout()
 	bot.close()
