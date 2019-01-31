@@ -6,22 +6,22 @@ from swgoh import get_all_units
 DEFAULT_FORMAT = '**%name**%leader%reinforcement\n  P:%power H:%health Pr:%protection\n  S:%speed Po:%potency T:%tenacity\n'
 
 MODSET_OPTS = {
-	'he':              1,
-	'health':          1,
-	'de':              3,
-	'defense':         3,
-	'po':              7,
-	'potency':         7,
-	'te':              8,
-	'tenacity':        8,
-	'cc':              5,
-	'critical-chance': 5,
-	'cd':              6,
-	'critical-damage': 6,
-	'of':              2,
-	'offense':         2,
-	'sp':              4,
-	'speed':           4,
+	'he':             1,
+	'health':         1,
+	'de':             3,
+	'defense':        3,
+	'po':             7,
+	'potency':        7,
+	'te':             8,
+	'tenacity':       8,
+	'cc':             5,
+	'criticalchance': 5,
+	'cd':             6,
+	'criticaldamage': 6,
+	'of':             2,
+	'offense':        2,
+	'sp':             4,
+	'speed':          4,
 }
 
 MODSLOTS_OPTS = {
@@ -39,14 +39,46 @@ MODSLOTS_OPTS = {
 	'cross':    6,
 }
 
+MODPRIMARIES_OPTS = {
+	'ac':                'Accuracy',
+	'accuracy':          'Accuracy',
+	'ca':                'Critical Avoidance',
+	'criticalavoidance': 'Critical Avoidance',
+	'cc':                'Critical Chance',
+	'criticalchance':    'Critical Chance',
+	'cd':                'Critical Damage',
+	'criticaldamange':   'Critical Damage',
+	'de':                'Defense',
+	'defense':           'Defense',
+	'he':                'Health',
+	'health':            'Health',
+	'of':                'Offense',
+	'offense':           'Offense',
+	'po':                'Potency',
+	'potency':           'Potency',
+	'pr':                'Protection',
+	'protection':        'Protection',
+	'sp':                'Speed',
+	'speed':             'Speed',
+	'te':                'Tenacity',
+	'tenacity':          'Tenacity',
+}
+
 def parse_opts_format(config, args):
 
-	args_cpy = list(args)
+	args_cpy = iter(list(args))
 
 	for arg in args_cpy:
+
 		if arg in config['formats']:
 			args.remove(arg)
 			return args, config['formats'][arg]
+
+		elif arg in [ 'c', 'custom' ]:
+			args.remove(arg)
+			fmt = next(args_cpy)
+			args.remove(fmt)
+			return args, fmt
 
 	return args, DEFAULT_FORMAT
 
