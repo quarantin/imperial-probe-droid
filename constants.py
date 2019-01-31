@@ -32,22 +32,27 @@ MODSETS_LIST = [
 ]
 
 MODSETS_NEEDED = {
-	# Health
-	1: 2, 
-	# Offense
-	2: 4,
-	# Defense
-	3: 2,
-	# Speed
-	4: 4,
-	# Critical Chance
-	5: 2,
-	# Critical Damage
-	6: 4,
-	# Potency
-	7: 2,
-	# Tenacity
-	8: 2,
+	1: 2, # Health
+	2: 4, # Offense
+	3: 2, # Defense
+	4: 4, # Speed
+	5: 2, # Critical Chance
+	6: 4, # Critical Damage
+	7: 2, # Potency
+	8: 2, # Tenacity
+}
+
+MODSPRIMARIES = {
+	'Accuracy',
+	'Critical Avoidance',
+	'Critical Chance',
+	'Critical Damage',
+	'Defense',
+	'Health',
+	'Offense',
+	'Protection',
+	'Tenacity',
+	'Speed',
 }
 
 EMOJIS = {
@@ -66,9 +71,15 @@ EMOJIS = {
 	'crouchingrancor':   '<:cr:535545454214119434>',
 	'crimsondeathwatch': '<:cdw:535779958686089216>',
 	'square':            '<:square:535541049570099211>',
+	1:                   '<:square:535541049570099211>',
 	'arrow':             '<:arrow:535541036986925066>',
+	2:                   '<:arrow:535541036986925066>',
 	'diamond':           '<:diamond:535541023112298496>',
+	3:                   '<:diamond:535541023112298496>',
 	'triangle':          '<:triangle:535541010424660009>',
+	4:                   '<:triangle:535541010424660009>',
 	'circle':            '<:circle:535540977516150799>',
+	5:                   '<:circle:535540977516150799>',
 	'cross':             '<:cross:535814108914909215>',
+	6:                   '<:cross:535814108914909215>',
 }
