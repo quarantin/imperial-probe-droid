@@ -85,11 +85,45 @@ def parse_allies_db(members):
 
 	return allies_db
 
+def count_recos_per_source(source, recos):
+
+	count = 0
+	for reco in recos:
+		if reco[1] == source:
+			count += 1
+
+	return count
+
+def extract_modstats(stats, recos):
+
+	for reco in recos:
+
+		source = reco[1]
+		count = count_recos_per_source(source, recos)
+
+		for i in range(6, 12):
+
+			slot = i - 5
+			primary = reco[i]
+
+			if slot not in stats:
+				stats[slot] = {}
+
+			if primary not in stats[slot]:
+				stats[slot][primary] = {}
+
+			if source not in stats[slot][primary]:
+				stats[slot][primary][source] = 0.0
+			stats[slot][primary][source] += 1.0 / count
+
 def parse_recommendations():
 
 	url = config['sheets']['recommendations']['view']
 
+	stats = {}
+
 	recos_db = {}
+	recos_db['by-name'] = {}
 	recos_db['by-source'] = {}
 
 	recos = download_spreadsheet(url, 12)
@@ -100,18 +134,22 @@ def parse_recommendations():
 		name = basicstrip(reco[0])
 		source = reco[1]
 
+		if name not in recos_db['by-name']:
+			recos_db['by-name'][name] = []
+
 		if source not in recos_db['by-source']:
 			recos_db['by-source'][source] = {}
-
-		if name not in recos_db:
-			recos_db[name] = []
 
 		if name not in recos_db['by-source'][source]:
 			recos_db['by-source'][source][name] = []
 
-		recos_db[name].append(reco)
+		recos_db['by-name'][name].append(reco)
 		recos_db['by-source'][source][name].append(reco)
 
+	for unit, recos in recos_db['by-name'].items():
+		extract_modstats(stats, recos)
+
+	recos_db['stats'] = stats
 	return recos_db
 
 def save_config(config_file='config.json'):
