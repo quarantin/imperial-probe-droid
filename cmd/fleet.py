@@ -10,7 +10,7 @@ help_fleet = {
 **Syntax**
 ```
 %prefixfleet [ally codes or mentions] [output format]
-%prefixfleet [ally codes or mentions] custom [format]```
+%prefixfleet [ally codes or mentions] custom "format"```
 
 **Aliases**
 ```
@@ -30,7 +30,6 @@ The custom format can contain the following keywords:
 %health (health of the character)
 %speed (speed of the character)
 ...```
-Also spaces need to be replaced with %20 and newlines with %0A.
 
 **Examples**
 ```
