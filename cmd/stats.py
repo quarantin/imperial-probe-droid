@@ -12,17 +12,14 @@ help_stats = {
 
 **Syntax**
 ```
-%prefixstats [ally codes or mentions]
-%prefixstats [ally codes or mentions] [shapes]
-%prefixstats [ally codes or mentions] [modsets]
-%prefixstats [ally codes or mentions] [modsets] [shapes]```
+%prefixstats [ally codes or mentions] [mod sets] [mod slots]```
 
 **Aliases**
 ```
 %prefixs```
 
-**Modsets**
-Modset parameters can be any of:
+**Mod Sets**
+Mod sets parameters can be any of:
 ```
 health (or he)
 defense (or de)
@@ -33,8 +30,8 @@ critical-damage (or cd)
 offense (or of)
 speed (or sp)```
 
-**Mod shapes**
-Mod shape parameters can be any of:
+**Mod Slots**
+Mod slots parameters can be any of:
 ```
 square (or sq)
 arrow (or ar)
@@ -65,12 +62,12 @@ def natural_keys(text):
 	'''
 	return [ atoi(c) for c in re.split('(\d+)', text) ]
 
-def count_mods_per_shape(mod_shapes):
+def count_mods_per_shape(mod_slots):
 
 	shape_count = {}
 
-	for modset, shapes in mod_shapes.items():
-		for shape, count in shapes.items():
+	for modset, slots in mod_slots.items():
+		for shape, count in slots.items():
 			if shape not in shape_count:
 				shape_count[shape] = 0
 
@@ -81,7 +78,7 @@ def count_mods_per_shape(mod_shapes):
 def parse_mod_counts(mods):
 
 	count = {}
-	shapes = {}
+	slots = {}
 	primaries = {}
 
 	for mod in mods:
@@ -90,23 +87,23 @@ def parse_mod_counts(mods):
 		modset = MODSETS[modset_id]
 		if modset_id not in count:
 			count[modset_id] = 0
-			shapes[modset_id] = {}
+			slots[modset_id] = {}
 			primaries[modset_id] = {}
 		count[modset_id] += 1
 
 		shape_id = mod['slot']
 		shape_name = MODSLOTS[shape_id]
-		if shape_id not in shapes[modset_id]:
-			shapes[modset_id][shape_id] = 0
+		if shape_id not in slots[modset_id]:
+			slots[modset_id][shape_id] = 0
 			primaries[modset_id][shape_id] = {}
-		shapes[modset_id][shape_id] += 1
+		slots[modset_id][shape_id] += 1
 
 		primary = mod['primary_stat']['name']
 		if primary not in primaries[modset_id][shape_id]:
 			primaries[modset_id][shape_id][primary] = 0
 		primaries[modset_id][shape_id][primary] += 1
 
-	return count, shapes, primaries
+	return count, slots, primaries
 
 def cmd_stats(config, author, channel, args):
 
@@ -114,7 +111,9 @@ def cmd_stats(config, author, channel, args):
 
 	args, selected_modsets = parse_opts_modsets(args)
 
-	args, selected_modshapes = parse_opts_modslots(args)
+	args, selected_modslots = parse_opts_modslots(args)
+
+	args, selected_modprimaries = parse_opts_modprimaries(args)
 
 	if args:
 		return [{
@@ -128,12 +127,12 @@ def cmd_stats(config, author, channel, args):
 
 		ally_db = get_my_mods(ally_code)
 
-		counts, shapes, primaries = parse_mod_counts(ally_db['mods'])
+		counts, slots, primaries = parse_mod_counts(ally_db['mods'])
 
 		player = get_player_name(ally_code)
 		equipped_mods = ally_db['mods-count']
 
-		if not selected_modsets and not selected_modshapes:
+		if not selected_modsets and not selected_modslots:
 
 			lines = []
 
@@ -172,19 +171,19 @@ def cmd_stats(config, author, channel, args):
 				'description': 'Equipped mods: **%d**\n%s\n%s' % (equipped_mods, config['separator'], '\n'.join(lines)),
 			})
 
-		elif selected_modsets and not selected_modshapes:
+		elif selected_modsets and not selected_modslots:
 
 			for modset_id in selected_modsets:
 
 				lines = []
 				total_for_modset = 0
 				for shape_id, shape_name in MODSLOTS.items():
-					if modset_id in shapes and shape_id in shapes[modset_id]:
+					if modset_id in slots and shape_id in slots[modset_id]:
 						modset_name = MODSETS[modset_id]
 						shape_name = MODSLOTS[shape_id]
 						modset_emoji = EMOJIS[modset_name.replace(' ', '').lower()]
 						modshape_emoji = EMOJIS[shape_name.replace(' ', '').lower()]
-						count = shapes[modset_id][shape_id]
+						count = slots[modset_id][shape_id]
 						pad = ''
 						if count < 100:
 							pad = u'\u202F\u202F'
@@ -193,7 +192,7 @@ def cmd_stats(config, author, channel, args):
 
 						total_for_modset = total_for_modset + count
 
-						line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, shapes[modset_id][shape_id])
+						line = '%s%s `x %s%d`' % (modset_emoji, modshape_emoji, pad, slots[modset_id][shape_id])
 						lines.append(line)
 
 				modset_name = MODSETS[modset_id]
@@ -202,14 +201,14 @@ def cmd_stats(config, author, channel, args):
 					'description': 'Equipped %s mods: **%d**\n%s\n%s' % (modset_name.lower(), total_for_modset, config['separator'], '\n'.join(lines)),
 				})
 
-		elif not selected_modsets and selected_modshapes:
+		elif not selected_modsets and selected_modslots:
 
 			pad = '\u202f' * 4
 			lines = []
 			total_for_modset = 0
 			for modset_id in MODSETS_LIST:
 				modset_name = MODSETS[modset_id]
-				for shape_id in selected_modshapes:
+				for shape_id in selected_modslots:
 
 					total_for_slot = 0
 					shape_name = MODSLOTS[shape_id]
@@ -241,7 +240,7 @@ def cmd_stats(config, author, channel, args):
 			total_for_shape = 0
 			for modset_id in selected_modsets:
 				modset = MODSETS[modset_id]
-				for shape_id in selected_modshapes:
+				for shape_id in selected_modslots:
 					shape = MODSLOTS[shape_id]
 
 					lines = []

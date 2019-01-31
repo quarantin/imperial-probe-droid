@@ -77,8 +77,8 @@ def cmd_recos(config, author, channel, args):
 
 			unit = get_my_unit_by_id(ally_code, unit['base_id'])
 			name = basicstrip(unit['name'])
-			if name in config['recos']:
-				recos = config['recos'][name]
+			if name in config['recos']['by-name']:
+				recos = config['recos']['by-name'][name]
 				lines = []
 
 				for reco in recos:
