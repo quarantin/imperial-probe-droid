@@ -199,7 +199,7 @@ def get_my_mods(ally_code):
 
 def get_mod_stats(ally_code):
 
-	if ally_code not in db:
+	if ally_code not in db or 'mod-stats' not in db[ally_code]:
 		get_my_mods(ally_code)
 
 	ally_db = db[ally_code]
