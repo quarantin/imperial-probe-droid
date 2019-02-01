@@ -184,6 +184,6 @@ def load_config(bot=None, config_file='config.json'):
 		config['help'] = load_help()
 		config['recos'] = parse_recommendations()
 		config['save'] = save_config
-		config['separator'] = '`%s`' % ('-' * 30)
+		config['separator'] = '`%s`' % ('-' * 24)
 
 	return config
