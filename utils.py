@@ -5,6 +5,7 @@ import sys
 import pytz
 import subprocess
 from datetime import datetime
+from decimal import Decimal, ROUND_HALF_UP
 
 PERCENT_STATS = [
 	'%armor',
@@ -103,3 +104,6 @@ def exit_bot():
 
 def ensure_parents(filepath):
 	os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+def roundup(number):
+	return Decimal(number).quantize(0, ROUND_HALF_UP)
