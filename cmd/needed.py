@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
-from opts import parse_opts_modslots, parse_opts_modprimaries
-from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES
+from swgoh import get_mod_stats
+from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprimaries
+from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES, SHORT_STATS
 
 help_needed = {
 	'title': '',
@@ -64,12 +65,25 @@ Show how many triangle mods are recommended with critical damage as primary stat
 %prefixn tr cd```"""
 }
 
+def pad_numbers(number):
+
+	pad = '\u202F'
+
+	if number < 10:
+		return pad * 4
+
+	if number < 100:
+		return pad * 2
+
+	return ''
+
 def cmd_needed(config, author, channel, args):
 
 	msgs = []
 	modsets = {}
 	option = None
 
+	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	args, selected_slots = parse_opts_modslots(args)
 	args, selected_primaries = parse_opts_modprimaries(args)
 
@@ -149,43 +163,59 @@ def cmd_needed(config, author, channel, args):
 	if not selected_primaries:
 		selected_primaries = MODSPRIMARIES
 
-	lines = []
-	stats = config['recos']['stats']
-	for slot in selected_slots:
-		slot_emoji = EMOJIS[slot]
-		if slot not in stats:
-			continue
+	for ally_code in ally_codes:
 
-		sublines = []
-		for primary in sorted(selected_primaries):
-			if primary in stats[slot]:
-				cg_count = 0.0
-				print(stats[slot][primary])
-				if 'Capital Games' in stats[slot][primary]:
-					cg_count = stats[slot][primary]['Capital Games']
+		ally_stats = get_mod_stats(ally_code)
 
-				cr_count = 0.0
-				if 'Crouching Rancor' in stats[slot][primary]:
-					cr_count = stats[slot][primary]['Crouching Rancor']
+		lines = []
+		stats = config['recos']['stats']
+		for slot in selected_slots:
+			slot_emoji = EMOJIS[slot]
+			if slot not in stats:
+				continue
 
-				sublines.append('%s %s `x %.3g | x %.3g`' % (slot_emoji, primary, cg_count, cr_count))
+			sublines = []
+			for primary in sorted(selected_primaries):
+				if primary in stats[slot]:
+					cg_count = 0.0
+					if 'Capital Games' in stats[slot][primary]:
+						cg_count = stats[slot][primary]['Capital Games']
 
-		if sublines:
-			lines += [ config['separator'] ] + sublines
+					cr_count = 0.0
+					if 'Crouching Rancor' in stats[slot][primary]:
+						cr_count = stats[slot][primary]['Crouching Rancor']
 
-	sources = sorted(list(config['recos']['by-source']))
-	src_emojis = []
-	spacer = EMOJIS['']
-	for source in sources:
-		emoji = EMOJIS[ source.replace(' ', '').lower() ]
-		src_emojis.append(spacer)
-		src_emojis.append(emoji)
+					ally_count = 0.0
+					if slot in ally_stats and primary in ally_stats[slot]:
+						ally_count = ally_stats[slot][primary]
 
-	emojis = ''.join(src_emojis)
+					pad1 = pad_numbers(ally_count)
+					pad2 = pad_numbers(cg_count)
+					pad3 = pad_numbers(cr_count)
 
-	msgs.append({
-		'title': 'Recommended Mods Primaries',
-		'description': '\n'.join([ emojis ] + lines),
-	})
+					short_primary = SHORT_STATS[primary]
+
+					sublines.append('%s `%s | x %s%.3g | x %s%.3g | x %s%.3g`' % (slot_emoji, short_primary, pad1, ally_count, pad2, cg_count, pad3, cr_count))
+
+			if sublines:
+				lines += [ config['separator'] ] + sublines
+
+		sources = [ 'crimsondeathwatch' ] + sorted(list(config['recos']['by-source']))
+		emojis = []
+		for source in sources:
+			emoji = EMOJIS[ source.replace(' ', '').lower() ]
+			emojis.append(emoji)
+
+		print(len(emojis))
+		print(emojis)
+		lines = [
+			'`ModSlot|`',
+			'`PriStat|`\u202F\u202F\u202F\u202F\u202F%s' % '\u202F\u202F\u202F\u202F|\u202F\u202F\u202F\u202F\u202F'.join(emojis),
+		] + lines
+
+		msgs.append({
+			'title': 'Recommended Mod Primaries',
+			'description': '\n'.join(lines),
+		})
 
 	return msgs
