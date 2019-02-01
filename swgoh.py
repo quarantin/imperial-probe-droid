@@ -25,11 +25,16 @@ def parse_units_or_ships(units):
 
 	return db
 
-def get_all_units_or_ships(url):
+def get_all_units_or_ships(db_file, url):
 
 	try:
 		response = requests.get(url)
 		units = response.json()
+
+		fout = open(db_file, 'w+')
+		fout.write(json.dumps(units))
+		fout.close()
+
 		return parse_units_or_ships(units)
 
 	except:
@@ -41,7 +46,7 @@ def get_all_units():
 		return db['units']
 
 	url = '%s/characters/' % BASE_URL
-	db['units'] = get_all_units_or_ships(url)
+	db['units'] = get_all_units_or_ships(DEFAULT_UNITS_DB, url)
 	if not db['units']:
 		fin = open(DEFAULT_UNITS_DB, 'r')
 		data = fin.read()
@@ -56,7 +61,7 @@ def get_all_ships():
 		return db['ships']
 
 	url = '%s/ships/' % BASE_URL
-	db['ships'] = get_all_units_or_ships(url)
+	db['ships'] = get_all_units_or_ships(DEFAULT_SHIPS_DB, url)
 	if not db['ships']:
 		fin = open(DEFAULT_SHIPS_DB, 'r')
 		data = fin.read()
