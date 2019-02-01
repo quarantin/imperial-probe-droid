@@ -145,6 +145,7 @@ def get_my_mods(ally_code):
 	db[ally_code]['mods-slots'] = {}
 	db[ally_code]['mods-count'] = all_mods['count']
 
+	stats = {}
 	for mod in all_mods['mods']:
 		slot = mod['slot']
 		modset = mod['set']
@@ -159,6 +160,17 @@ def get_my_mods(ally_code):
 
 		db[ally_code]['mods-slots'][slot] += 1
 		unit['modsets'][modset] += 1
+
+		if slot not in stats:
+			stats[slot] = {}
+
+		primary = mod['primary_stat']['name']
+		if primary not in stats[slot]:
+			stats[slot][primary] = 0
+
+		stats[slot][primary] += 1
+
+	db[ally_code]['mod-stats'] = stats
 
 	for base_id, unit in db[ally_code]['units'].items():
 
@@ -184,6 +196,15 @@ def get_my_mods(ally_code):
 		unit['no-mods'] = len(unit['missing-mods']) == 6
 
 	return db[ally_code]
+
+def get_mod_stats(ally_code):
+
+	if ally_code not in db:
+		get_my_mods(ally_code)
+
+	ally_db = db[ally_code]
+
+	return ally_db['mod-stats']
 
 def get_mods_count(ally_code):
 
