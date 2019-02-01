@@ -31,6 +31,8 @@ def get_all_units_or_ships(db_file, url):
 		response = requests.get(url)
 		units = response.json()
 
+		ensure_parents(db_file)
+
 		fout = open(db_file, 'w+')
 		fout.write(json.dumps(units))
 		fout.close()
