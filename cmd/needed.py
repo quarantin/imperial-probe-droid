@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from utils import roundup
 from swgoh import get_mod_stats
 from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprimaries
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES, SHORT_STATS
@@ -179,38 +180,33 @@ def cmd_needed(config, author, channel, args):
 				if primary in stats[slot]:
 					cg_count = 0.0
 					if 'Capital Games' in stats[slot][primary]:
-						cg_count = stats[slot][primary]['Capital Games']
+						cg_count = roundup(stats[slot][primary]['Capital Games'])
 
 					cr_count = 0.0
 					if 'Crouching Rancor' in stats[slot][primary]:
-						cr_count = stats[slot][primary]['Crouching Rancor']
+						cr_count = roundup(stats[slot][primary]['Crouching Rancor'])
 
 					ally_count = 0.0
 					if slot in ally_stats and primary in ally_stats[slot]:
-						ally_count = ally_stats[slot][primary]
+						ally_count = roundup(ally_stats[slot][primary])
 
-					pad1 = pad_numbers(ally_count)
-					pad2 = pad_numbers(cg_count)
-					pad3 = pad_numbers(cr_count)
+					pad1 = pad_numbers(cg_count)
+					pad2 = pad_numbers(cr_count)
+					pad3 = pad_numbers(ally_count)
 
-					short_primary = SHORT_STATS[primary]
-
-					sublines.append('%s `%s | x %s%.3g | x %s%.3g | x %s%.3g`' % (slot_emoji, short_primary, pad1, ally_count, pad2, cg_count, pad3, cr_count))
+					sublines.append('%s `| %s%.3g | %s%.3g | %s%.3g |%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, ally_count, primary))
 
 			if sublines:
 				lines += [ config['separator'] ] + sublines
 
-		sources = [ 'crimsondeathwatch' ] + sorted(list(config['recos']['by-source']))
+		sources = sorted(list(config['recos']['by-source'])) + [ 'crimsondeathwatch' ]
 		emojis = []
 		for source in sources:
 			emoji = EMOJIS[ source.replace(' ', '').lower() ]
 			emojis.append(emoji)
 
-		print(len(emojis))
-		print(emojis)
 		lines = [
-			'`ModSlot|`',
-			'`PriStat|`\u202F\u202F\u202F\u202F\u202F%s' % '\u202F\u202F\u202F\u202F|\u202F\u202F\u202F\u202F\u202F'.join(emojis),
+			'`Slot|`\u202F\u202F%s\u202F\u202F`|Primary Stats`\u202F\u202F\u202F\u202F' % '\u202F\u202F|\u202F\u202F'.join(emojis),
 		] + lines
 
 		msgs.append({
