@@ -16,7 +16,7 @@ def load_help():
 
 	return help_msgs
 
-def write_config_to_file(config_file):
+def write_config_to_file(config, config_file):
 
 	backup = '%s.bak' % config_file
 	os.rename(config_file, backup)
