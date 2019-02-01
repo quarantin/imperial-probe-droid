@@ -3,21 +3,7 @@
 from opts import *
 from swgoh import *
 from utils import basicstrip
-from constants import EMOJIS
-
-SHORT_STATS = {
-	'Accuracy':           'Ac',
-	'Critical Avoidance': 'CA',
-	'Critical Chance':    'CC',
-	'Critical Damage':    'CD',
-	'Defense':            'De',
-	'Health':             'He',
-	'Offense':            'Of',
-	'Potency':            'Po',
-	'Protection':         'Pr',
-	'Speed':              'Sp',
-	'Tenacity':           'Te',
-}
+from constants import EMOJIS, SHORT_STATS
 
 help_recos = {
 	'title': 'Recommendations',

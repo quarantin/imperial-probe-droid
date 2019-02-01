@@ -55,6 +55,20 @@ MODSPRIMARIES = {
 	'Speed',
 }
 
+SHORT_STATS = {
+	'Accuracy':           'Ac',
+	'Critical Avoidance': 'CA',
+	'Critical Chance':    'CC',
+	'Critical Damage':    'CD',
+	'Defense':            'De',
+	'Health':             'He',
+	'Offense':            'Of',
+	'Potency':            'Po',
+	'Protection':         'Pr',
+	'Speed':              'Sp',
+	'Tenacity':           'Te',
+}
+
 EMOJIS = {
 	'':                  '<:spa:535808549264162816>',
 	'health':            '<:hea:535516510681301012>',
