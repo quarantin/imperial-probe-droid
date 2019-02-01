@@ -133,6 +133,7 @@ def parse_opts_unit_names(config, args, combat_type=1):
 				found = True
 				selected_units.append(unit)
 				if larg == name1:
+					selected_units = [ unit ]
 					break
 
 		if found:
