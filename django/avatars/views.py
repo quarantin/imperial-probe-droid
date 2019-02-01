@@ -92,12 +92,18 @@ def img2png(image):
 
 	return None
 
-def avatar(request, character, level, gear, rarity, zetas):
+def avatar(request, portrait):
 
-	portrait_image = get_portrait(character)
+	level = 'level' in request.GET and int(request.GET['level']) or 1
+	gear = 'gear' in request.GET and int(request.GET['gear']) or 1
+	rarity = 'rarity' in request.GET and int(request.GET['rarity']) or 0
+	zetas = 'zetas' in request.GET and int(request.GET['zetas']) or 0
+
+	portrait_image = get_portrait(portrait)
 	level_image = get_level(level)
 	gear_image = get_gear(gear)
 	rarity_image = get_rarity(rarity)
+	zeta_image = get_zetas(zetas)
 
 	portrait_image.paste(gear_image, (0, 0), gear_image)
 	portrait_image = format_image(portrait_image, 128)
@@ -105,7 +111,6 @@ def avatar(request, character, level, gear, rarity, zetas):
 	full_image = Image.new('RGBA', (138, 138), 0)
 	full_image.paste(portrait_image, (5, 5), portrait_image)
 	if zetas > 0:
-		zeta_image = get_zetas(zetas)
 		full_image.paste(zeta_image, (-8, 63), zeta_image)
 	full_image.paste(level_image, (5, 10), level_image)
 
