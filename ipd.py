@@ -4,6 +4,7 @@ import shlex
 import string
 import random
 import discord
+from discord.ext import commands
 
 from config import load_config
 
@@ -31,14 +32,12 @@ PROBE_DIALOG = [
 	'wOm',
 ]
 
-bot = discord.Client()
-
 def expand_word(word):
 
-	for c in string.ascii_uppercase:
-		if c in word:
+	for c in word:
+		if c in string.ascii_uppercase:
 			rand_count = random.randrange(2, 7)
-			word = word.replace(c, c.lower() * rand_count)
+			word = word.replace(c, c.lower() * rand_count, 1)
 
 	return word
 
@@ -59,6 +58,9 @@ def compute_hello_msg():
 
 def get_game():
 	return discord.Game(name='%shelp' % config['prefix'], type=2)
+
+config = load_config()
+bot = commands.Bot(command_prefix=config['prefix'])
 
 @bot.event
 async def on_ready():
@@ -107,8 +109,6 @@ async def on_message(message):
 			'description': 'No such command: %s' % command,
 		})
 		await bot.send_message(channel, embed=embed)
-
-config = load_config()
 
 bot.run(config['token'])
 
