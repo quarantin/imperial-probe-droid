@@ -12,8 +12,7 @@ import io, os, requests
 
 def download_image(image_name):
 
-	IMAGES = './images/'
-	image_path = '%s%s' % (IMAGES, image_name)
+	image_path = './images/%s' % image_name
 
 	if not os.path.exists(image_path) or os.path.getsize(image_path) == 0:
 
