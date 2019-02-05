@@ -3,7 +3,7 @@
 import os, json, requests
 
 from commands import *
-from utils import basicstrip
+from utils import basicstrip, get_short_url
 
 config = {}
 
@@ -177,6 +177,29 @@ def load_config(bot=None, config_file='config.json'):
 		jsonstr = fin.read()
 		fin.close()
 		config.update(json.loads(jsonstr))
+		if 'short-urls' not in config:
+			config['short-urls'] = {}
+
+		if 'source' in config:
+			source_url = config['source']
+			if source_url not in config['short-urls']:
+				config['short-urls'][source_url] = get_short_url(source_url)
+
+		if 'sheets' in config:
+
+			for sheet in [ 'allies', 'recommendations' ]:
+				if sheet not in config['sheets']:
+					continue
+
+				if 'edit' in config['sheets'][sheet]:
+					edit_url = config['sheets'][sheet]['edit']
+					if edit_url not in config['short-urls']:
+						config['short-urls'][edit_url] = get_short_url(edit_url)
+
+				if 'view' in config['sheets'][sheet]:
+					view_url = config['sheets'][sheet]['view']
+					if view_url not in config['short-urls']:
+						config['short-urls'][view_url] = get_short_url(view_url)
 
 	if bot:
 		print(json.dumps(config, indent=4, sort_keys=True))
