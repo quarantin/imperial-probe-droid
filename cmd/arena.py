@@ -14,7 +14,6 @@ help_arena = {
 **Aliases**
 ```
 %prefixa```
-
 **Output Formats**
 See **`!format`** to list available formats, and **`!help format`** to see how to define new formats.
 
