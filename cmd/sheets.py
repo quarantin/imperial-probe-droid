@@ -7,14 +7,15 @@ help_sheets = {
 **Syntax**
 ```
 %prefixsheets [name]```
-
 **Aliases**
 ```
 %prefixS```
-
 **Examples**
+List available spreadsheets:
 ```
-%prefixS
+%prefixS```
+Show allies spreadsheet:
+```
 %prefixS allies```""",
 }
 
