@@ -9,18 +9,16 @@ help_update = {
 **Syntax**
 ```
 %prefixupdate```
-
 **Aliases**
 ```
 %prefixU```
-
 **Restrictions**
 Only administrators of this bot can use this command.
 
 **Examples**
+Update the bot:
 ```
-%prefixu
-%prefixupdate```""",
+%prefixu```"""
 }
 
 def cmd_update(config, author, channel, args):
