@@ -11,13 +11,11 @@ help_fleet = {
 ```
 %prefixfleet [ally codes or mentions] [output format]
 %prefixfleet [ally codes or mentions] custom "format"```
-
 **Aliases**
 ```
 %prefixf```
-
 **Output Formats**
-See `!format` to list available formats, and `!help format` to see how to define new formats.
+See **`!format`** to list available formats, and **`!help format`** to see how to define new formats.
 
 **Custom Format**
 The custom format can contain the following keywords:
@@ -30,16 +28,28 @@ The custom format can contain the following keywords:
 %health (health of the character)
 %speed (speed of the character)
 ...```
-
 **Examples**
+Show your fleet arena team:
 ```
-%prefixf
-%prefixf lite
-%prefixf @Someone
-%prefixf 123456789
-%prefixf 123456789 234567891 verbose
-%prefixf 123456788 lite
-%prefixf custom %speed%20%name```"""
+%prefixf```
+Show your fleet arena team using the output format **`lite`**:
+```
+%prefixf lite```
+Show fleet arena team of someone by mention:
+```
+%prefixf @Someone```
+Show fleet arena team of someone by discord nick (no hilight):
+```
+%prefixf "Someone"```
+Show fleet arena team of someone by ally code:
+```
+%prefixf 123456789```
+Show fleet arena team of two players using the output format **`verbose`**
+```
+%prefixf 123456789 234567891 verbose```
+Show your fleet arena team using a custom format:
+```
+%prefixf custom "SPEED: %speed UNIT: %name%leader"```"""
 }
 
 def cmd_fleet(config, author, channel, args):
