@@ -9,18 +9,25 @@ help_alias = {
 %prefixalias
 %prefixalias add [alias name] [command]
 %prefixalias del [alias name or alias ID]```
-
 **Aliases**
 ```
 %prefixA```
-
 **Examples**
+List all alias defined:
 ```
-%prefixalias
-%prefixalias add mm mods missing
-%prefixalias add myalias arena custom %speed%20%name
-%prefixalias del myalias
-%prefixalias del 1```"""
+%prefixA```
+Add a new alias **`mm`** for **`%prefixmods missing`**:
+```
+%prefixA add mm mods missing```
+Add a new alias **`myalias`** for **`%prefixarena custom "SPEED: %speed UNIT: %name"`**
+```
+%prefixA add myalias arena custom %speed%20%name```
+Delete alias **`myalias`**:
+```
+%prefixA del myalias```
+Delete first alias by its ID (**`mm`**):
+```
+%prefixA del 1```"""
 }
 
 def cmd_alias(config, author, channel, args):
