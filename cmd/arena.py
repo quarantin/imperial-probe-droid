@@ -11,13 +11,12 @@ help_arena = {
 ```
 %prefixarena [ally codes or mentions] [output format]
 %prefixarena [ally codes or mentions] custom "format"```
-
 **Aliases**
 ```
 %prefixa```
 
 **Output Formats**
-See `!format` to list available formats, and `!help format` to see how to define new formats.
+See **`!format`** to list available formats, and **`!help format`** to see how to define new formats.
 
 **Custom Format**
 The custom format can contain the following keywords:
@@ -30,16 +29,28 @@ The custom format can contain the following keywords:
 %health (health of the character)
 %speed (speed of the character)
 ...```
-
 **Examples**
+Show your arena team:
 ```
-%prefixa
-%prefixa lite
-%prefixa @Someone
-%prefixa 123456789
-%prefixa 123456789 234567891 verbose
-%prefixa 123456789 lite
-%prefixa custom %speed%20%name```"""
+%prefixa```
+Show your arena team using the output format **`lite`**:
+```
+%prefixa lite```
+Show arena team of someone by mention:
+```
+%prefixa @Someone```
+Show arena team of someone by discord nick (no hilight):
+```
+%prefixa "Someone"```
+Show arena team of someone by ally code:
+```
+%prefixa 123456789```
+Show arena team of two players using the output format **`verbose`**
+```
+%prefixa 123456789 234567891 verbose```
+Show your arena team using a custom format:
+```
+%prefixa custom "SPEED: %speed UNIT: %name%leader"```"""
 }
 
 def cmd_arena(config, author, channel, args):
