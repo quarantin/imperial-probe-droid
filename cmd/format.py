@@ -59,7 +59,7 @@ def cmd_format(config, author, channel, args):
 			return [{
 				'title': 'Missing Parameters',
 				'color': 'red',
-				'description': 'Please see !help format.',
+				'description': 'Please see %shelp format.' % config['prefix'],
 			}]
 
 		success = False
@@ -98,7 +98,7 @@ def cmd_format(config, author, channel, args):
 			return [{
 				'title': 'Add Format',
 				'color': 'red',
-				'description': 'Missing parameters. Please see !help format.',
+				'description': 'Missing parameters. Please see %shelp format.' % config['prefix'],
 			}]
 
 		format_name = args[1]
