@@ -36,6 +36,10 @@ def substitute_tokens(config, text):
 	for token in tokens:
 
 		value = config[token]
+		if token == 'source':
+			if value in config['short-urls']:
+				value = config['short-urls'][value]
+
 		if type(value) is list:
 			value = ', '.join(value)
 
