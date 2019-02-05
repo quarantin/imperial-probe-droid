@@ -3,9 +3,12 @@
 import os
 import sys
 import pytz
+import requests
 import subprocess
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
+
+SHORTENER_URL = 'http://thelink.la/api-shorten.php?url='
 
 PERCENT_STATS = [
 	'%armor',
@@ -107,3 +110,8 @@ def ensure_parents(filepath):
 
 def roundup(number):
 	return Decimal(number).quantize(0, ROUND_HALF_UP)
+
+def get_short_url(url):
+	full_url = '%s%s' % (SHORTENER_URL, url)
+	response = requests.get(full_url)
+	return response.content.decode('utf-8')
