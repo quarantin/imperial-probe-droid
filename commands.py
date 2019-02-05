@@ -2,6 +2,7 @@
 
 from cmd.alias import *
 from cmd.arena import *
+from cmd.fight import *
 from cmd.fleet import *
 from cmd.format import *
 from cmd.help import *
@@ -27,6 +28,12 @@ COMMANDS = [
 		'aliases': [ 'a', 'arena' ],
 		'function': cmd_arena,
 		'help': help_arena,
+	},
+	{
+		'command': 'fight',
+		'aliases': [ 'c', 'fight' ],
+		'function': cmd_fight,
+		'help': help_fight,
 	},
 	{
 		'command': 'fleet',

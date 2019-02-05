@@ -82,6 +82,16 @@ def parse_opts_format(config, args):
 
 	return args, DEFAULT_FORMAT
 
+def parse_opts_ally_code(config, author, arg):
+
+	if len(arg) >= 9 and arg.isdigit():
+		return arg
+
+	if arg in config['allies']['by-mention']:
+		return config['allies']['by-mention'][arg][2]
+
+	return None
+
 def parse_opts_ally_codes(config, author, args):
 
 	ally_codes = []
@@ -133,7 +143,6 @@ def parse_opts_unit_names(config, args, combat_type=1):
 				found = True
 				selected_units.append(unit)
 				if larg == name1:
-					selected_units = [ unit ]
 					break
 
 		if found:
