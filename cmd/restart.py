@@ -9,18 +9,16 @@ help_restart = {
 **Syntax**
 ```
 %prefixrestart```
-
 **Aliases**
 ```
 %prefixR```
-
 **Restrictions**
 Only administrators of this bot can use this command.
 
 **Examples**
+Restart the bot:
 ```
-%prefixR
-%prefixrestart```""",
+%prefixR```""",
 }
 
 def cmd_restart(config, author, channel, args):
