@@ -9,17 +9,24 @@ help_format = {
 %prefixformat
 %prefixformat add [format name] [format]
 %prefixformat del [format name or format ID]```
-
 **Aliases**
 ```
 %prefixF```
-
 **Examples**
+Show all output format defined:
 ```
-%prefixF
-%prefixF add fmt-info "%name%leader"
-%prefixF add fmt-short "SPD:%speed%20HP:%health%20PR:%protection%20%name"
-%prefixF del fmt-short
+%prefixF```
+Add new output format **`fmt-info`** for **`%name%leader`**
+```
+%prefixF add fmt-info "%name%leader"```
+Add new output format **`fmt-short`** for **`"SPD:%speed%20HP:%health%20PR:%protection%20%name"`**
+```
+%prefixF add fmt-short "SPD:%speed%20HP:%health%20PR:%protection%20%name"```
+Delete output format **`fmt-short`**
+```
+%prefixF del fmt-short```
+Delete first output format by its ID (**`fmt-info`**):
+```
 %prefixF del 1```"""
 }
 
