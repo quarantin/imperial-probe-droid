@@ -12,17 +12,30 @@ help_recos = {
 **Syntax**
 ```
 %prefixrecos [ally codes or mentions] [characters]```
-
 **Aliases**
 ```
 %prefixr```
-
 **Examples**
+Show recommended mods for **Emperor Palpatine**:
 ```
-%prefixr ep
-%prefixr gat gmy qgj gk traya
-%prefixr deathtrooper
-%prefixr @Someone traya
+%prefixr ep```
+or:
+```
+%prefixr "emperor palpatine"```
+Show recommended mods for **Grand Admiral Thrawn**, **Grand Master Yoda**, **Qui-Gon Jinn**, **General Kenobi**, and **Darth Traya**:
+```
+%prefixr gat gmy qgj gk traya```
+Show recommended mods for **Death Trooper**:
+```
+%prefixr deathtrooper```
+or:
+```
+%prefixr "death trooper"```
+Show recommended mods for **Darth Traya** on someone by mention:
+```
+%prefixr @Someone traya```
+Show recommended mods for **Darth Nihilus** on two players by ally code:
+```
 %prefixr 123456789 234567891 nih```"""
 }
 
