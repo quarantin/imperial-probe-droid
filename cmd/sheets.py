@@ -34,7 +34,11 @@ def cmd_sheets(config, author, channel, args):
 
 	lines = []
 	for name, urls in sorted(sheets.items()):
-		lines.append('**`%s`**: %s' % (name, urls['edit']))
+		edit_url = urls['edit']
+		if edit_url in config['short-urls']:
+			edit_url = config['short-urls'][edit_url]
+
+		lines.append('**`%s`**: %s' % (name, edit_url))
 
 	return [{
 		'title': 'Sheets',
