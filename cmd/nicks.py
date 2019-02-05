@@ -11,17 +11,24 @@ help_nicks = {
 %prefixnicks
 %prefixnicks add [nick] [unit or ship]
 %prefixnicks del [nick or nick ID]```
-
 **Aliases**
 ```
 %prefixN```
-
 **Examples**
+To list all registered character nicks:
 ```
-%prefixN
-%prefixN add ep palpatine
-%prefixN add gat thrawn
-%prefixN del gat
+%prefixN```
+Add nick **ep** for **Emperor Palpatine**:
+```
+%prefixN add ep palpatine```
+Add nick **gat** for **Grand Admiral Thrawn**:
+```
+%prefixN add gat thrawn```
+Delete nick **gat**:
+```
+%prefixN del gat```
+Delete first nick (**ep**) using its ID:
+```
 %prefixN del 1```"""
 }
 
