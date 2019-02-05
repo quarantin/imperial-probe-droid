@@ -11,7 +11,6 @@ help_locked = {
 ```
 %prefixlocked [ally codes or mentions]
 %prefixlocked [ally codes or mentions] [options]```
-
 **Aliases**
 ```
 %prefixl```
@@ -20,14 +19,27 @@ help_locked = {
 ```
 units (or u)
 ships (or s)```
-
 **Examples**
+Show your locked units and ships:
 ```
-%prefixl
-%prefixl u
-%prefixl ships
-%prefixl @Someone
-%prefixl 123456789 units
+%prefixl```
+Show only your locked units:
+```
+%prefixl u```
+Show only your locked ships:
+```
+%prefixl ships```
+Show locked units and ships for someone by mention:
+```
+%prefixl @Someone```
+Show locked units and ships for someone by discord-nick (no hilight):
+```
+%prefixl "Someone"```
+Show locked units for someone by ally code:
+```
+%prefixl 123456789 units```
+Show locked units and ships for two different ally codes:
+```
 %prefixl 123456789 234567891```"""
 }
 
