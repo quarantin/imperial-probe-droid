@@ -77,11 +77,12 @@ def cmd_fleet(config, author, channel, args):
 		rank = get_fleet_rank(ally_code)
 		profile_url = get_swgoh_profile_url(ally_code)
 		team = get_fleet_team(ally_code, selected_format)
+		last_sync = get_last_sync(ally_code)
 
 		if player:
 			msgs.append({
 				'title': 'Fleet Arena Team of %s (Rank: %s)\n%s' % (player, rank, profile_url),
-				'description': '%s\n%s' % (config['separator'], ('\n'.join(team)).strip()),
+				'description': 'Last Sync: %s\n%s\n%s' % (last_sync, config['separator'], ('\n'.join(team)).strip()),
 			})
 		else:
 			url = 'https://swgoh.gg/p/%s/' % ally_code
