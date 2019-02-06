@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os, json, requests, socket
+from datetime import datetime
 
 from utils import *
 from constants import *
@@ -323,6 +324,17 @@ def get_player_name(ally_code):
 	ally_db = db[ally_code]
 
 	return ally_db['name']
+
+def get_last_sync(ally_code):
+
+	if ally_code not in db:
+		get_my_units_and_ships(ally_code)
+
+	ally_db = db[ally_code]
+
+	date = datetime.strptime(ally_db['last_updated'], '%Y-%m-%dT%H:%M:%S.%f')
+
+	return date.strftime('%a %d %b %Y at %H:%M')
 
 def get_arena_rank(ally_code):
 
