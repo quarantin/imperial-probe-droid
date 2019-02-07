@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import os
-import sys
 import pytz
 import requests
 import subprocess
@@ -97,13 +96,16 @@ def update_source_code():
 	subprocess.call([ 'git', 'pull' ])
 
 def exit_bot():
+
 	# TODO send message on quit, like animated an
 	# gif of an explosion or something like that.
-	from ipd import bot
+
+	from bot import bot
+	bot.loop.stop()
 	bot.logout()
 	bot.close()
-	print('Restarting!')
-	sys.exit()
+
+	print('User initiated restart!')
 
 def ensure_parents(filepath):
 	os.makedirs(os.path.dirname(filepath), exist_ok=True)
