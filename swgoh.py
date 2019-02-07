@@ -166,10 +166,10 @@ def get_guild(guild_code):
 		for unit in player['units']:
 			cumul_unit(units, unit['data'])
 
-	cumul['level']      /= float(guild['member_count'])
+	cumul['level']      /= float(guild['profile_count'])
 	cumul['level']       = int(round(cumul['level']))
 
-	cumul['arena_rank'] /= float(guild['member_count'])
+	cumul['arena_rank'] /= float(guild['profile_count'])
 	cumul['arena_rank']  = int(round(cumul['arena_rank']))
 
 	guild['stats'] = cumul
