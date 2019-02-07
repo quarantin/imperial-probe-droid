@@ -30,18 +30,13 @@ def dotify(number):
 
 def unit_to_embedfield(guild, unit):
 
-	lines = [
-		'TODO'
-	]
+	lines = []
 
 	name = unit['name']
 	if name in guild['units']:
 		stats = guild['units'][name]
-		print("WTF")
-		print(stats['gears'])
+		lines.append('Count: %d' % stats['count'])
 		lines.append('Locked: %d' % (guild['member_count'] - stats['count']))
-
-		lines.append('Unlocked: %d' % stats['count'])
 		lines.append('Level 85: %d' % stats['levels'][85])
 
 		for gear in [ 12, 11, 10 ]:
@@ -54,16 +49,15 @@ def unit_to_embedfield(guild, unit):
 
 		for ability in sorted(stats['abilities']):
 
-			lines.append('**%s**' % ability)
+			lines.append('**%s** ' % ability)
 
 			sublines = []
-			for key in [ 'zetas', 'omegas' ]:
+			#del(stats['abilities'][ability]['others'])
+			for key in sorted(stats['abilities'][ability]):
+				count = stats['abilities'][ability][key]
+				sublines.append('%s: %s' % (key.title(), count))
 
-				if key in stats['abilities'][ability]:
-					count = stats['abilities'][ability][key]
-					sublines.append('%s: %s' % (key.title(), count))
-
-			lines.append('- %s' % ' | '.join(sublines))
+			lines.append('- %s' % '\n - '.join(sublines))
 
 	else:
 		lines.append('No one unlocked this unit yet.')

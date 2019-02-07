@@ -109,15 +109,15 @@ def cumul_unit(units, unit):
 		ability_name = ability['name']
 		if ability_name not in units[name]['abilities']:
 			units[name]['abilities'][ability_name] = {
-				'omegas': 0,
-				'others': 0,
+				'omega': 0,
+				#'others': 0,
 			}
 
 			if ability['is_zeta']:
-				units[name]['abilities'][ability_name]['zetas'] = 0
+				units[name]['abilities'][ability_name]['zeta'] = 0
 
 		if ability['id'] in unit['zeta_abilities']:
-			units[name]['abilities'][ability_name]['zetas'] += 1
+			units[name]['abilities'][ability_name]['zeta'] += 1
 
 			if ability_name not in units[name]['zetas']:
 				units[name]['zetas'][ability_name] = 0
@@ -125,10 +125,10 @@ def cumul_unit(units, unit):
 
 
 		elif ability['ability_tier'] > 6:
-			units[name]['abilities'][ability_name]['omegas'] += 1
+			units[name]['abilities'][ability_name]['omega'] += 1
 
-		else:
-			units[name]['abilities'][ability_name]['others'] += 1
+		#else:
+		#	units[name]['abilities'][ability_name]['others'] += 1
 
 def get_guild(guild_code):
 
