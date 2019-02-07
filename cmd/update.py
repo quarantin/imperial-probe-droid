@@ -26,6 +26,7 @@ def cmd_update(config, author, channel, args):
 	if 'admins' in config and author in config['admins']:
 		update_source_code()
 		exit_bot()
+		return []
 
 	return [{
 		'title': 'Unauthorized Command',

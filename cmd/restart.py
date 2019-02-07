@@ -25,6 +25,7 @@ def cmd_restart(config, author, channel, args):
 
 	if 'admins' in config and author in config['admins']:
 		exit_bot()
+		return []
 
 	return [{
 		'title': 'Unauthorized Command',
