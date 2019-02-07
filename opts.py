@@ -158,6 +158,7 @@ def parse_opts_unit_names(config, args, combat_type=1):
 		found = False
 		units = get_all_units()
 
+		new_units = []
 		for base_id, unit in units.items():
 
 			if unit['combat_type'] != combat_type:
@@ -170,12 +171,14 @@ def parse_opts_unit_names(config, args, combat_type=1):
 
 			if larg in name1 or larg in name2 or larg in name3 or larg in name4:
 				found = True
-				selected_units.append(unit)
+				new_units.append(unit)
 				if larg == name1:
+					new_units = [ unit ]
 					break
 
 		if found:
 			args.remove(arg)
+			selected_units.extend(new_units)
 
 	return args, selected_units
 
