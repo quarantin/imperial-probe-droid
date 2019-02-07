@@ -73,6 +73,109 @@ def get_all_ships():
 
 	return db['ships']
 
+def cumul_unit(units, unit):
+
+	name = unit['name']
+	if name not in units:
+		units[name] = {
+			'count': 0,
+			'levels': {},
+			'rarity': {},
+			'gears': {},
+			'zetas': {},
+			'abilities': {},
+			# TODO
+			# '>200spd': {},
+		}
+	units[name]['count'] += 1
+
+	level = unit['level']
+	if level not in units[name]['levels']:
+		units[name]['levels'][level] = 0
+	units[name]['levels'][level] += 1
+
+	rarity = unit['rarity']
+	if rarity not in units[name]['rarity']:
+		units[name]['rarity'][rarity] = 0
+	units[name]['rarity'][rarity] += 1
+
+	gear = unit['gear_level']
+	if gear not in units[name]['gears']:
+		units[name]['gears'][gear] = 0
+	units[name]['gears'][gear] += 1
+
+	for ability in unit['ability_data']:
+
+		ability_name = ability['name']
+		if ability_name not in units[name]['abilities']:
+			units[name]['abilities'][ability_name] = {
+				'omegas': 0,
+				'others': 0,
+			}
+
+			if ability['is_zeta']:
+				units[name]['abilities'][ability_name]['zetas'] = 0
+
+		if ability['id'] in unit['zeta_abilities']:
+			units[name]['abilities'][ability_name]['zetas'] += 1
+
+			if ability_name not in units[name]['zetas']:
+				units[name]['zetas'][ability_name] = 0
+			units[name]['zetas'][ability_name] += 1
+
+
+		elif ability['ability_tier'] > 6:
+			units[name]['abilities'][ability_name]['omegas'] += 1
+
+		else:
+			units[name]['abilities'][ability_name]['others'] += 1
+
+def get_guild(guild_code):
+
+	if 'guilds' not in db:
+		db['guilds'] = {}
+
+	if guild_code in db['guilds']:
+		return db['guilds'][guild_code]
+
+	url = '%s/guild/%s' % (BASE_URL, guild_code)
+	response = requests.get(url)
+	jsondata = response.json()
+
+	cumul = {}
+	units = {}
+	guild = jsondata['data']
+
+	for player in jsondata['players']:
+
+		del(player['data']['name'])
+		del(player['data']['arena'])
+		del(player['data']['arena_leader_base_id'])
+		del(player['data']['ally_code'])
+		del(player['data']['fleet_arena'])
+		del(player['data']['url'])
+		del(player['data']['last_updated'])
+
+		if not cumul:
+			cumul.update(player['data'])
+
+		else:
+			for key in cumul:
+				cumul[key] += player['data'][key]
+
+		for unit in player['units']:
+			cumul_unit(units, unit['data'])
+
+	cumul['level']      /= float(guild['member_count'])
+	cumul['level']       = int(round(cumul['level']))
+
+	cumul['arena_rank'] /= float(guild['member_count'])
+	cumul['arena_rank']  = int(round(cumul['arena_rank']))
+
+	guild['stats'] = cumul
+	guild['units'] = units
+	return guild
+
 def get_avatar_url(base_id):
 
 	units = get_all_units()
