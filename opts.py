@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from utils import basicstrip
-from swgoh import get_all_units
+from swgoh import get_all_units, get_my_units_and_ships
 
 DEFAULT_FORMAT = '**%name**%leader%reinforcement\n  P:%power H:%health Pr:%protection\n  S:%speed Po:%potency T:%tenacity\n'
 
@@ -92,6 +92,7 @@ def parse_opts_ally_code(config, author, arg):
 
 	return None
 
+
 def parse_opts_ally_codes(config, author, args):
 
 	ally_codes = []
@@ -111,6 +112,34 @@ def parse_opts_ally_codes(config, author, args):
 		ally_codes.append(config['allies']['by-discord-nick'][author][2])
 
 	return args, ally_codes
+
+def parse_opts_guild_code(config, author, arg):
+
+	if len(arg) < 9 and arg.isdigit():
+		return arg
+
+	# TODO: Handle guild nicks/names
+
+	return None
+
+def parse_opts_guild_codes(config, author, args):
+
+	guild_codes = []
+	args_cpy = list(args)
+
+	for arg in args_cpy:
+
+		if len(arg) < 9 and arg.isdigit():
+			args.remove(arg)
+			guild_codes.append(arg)
+
+	if len(guild_codes) < 2 and author in config['allies']['by-discord-nick']:
+
+		ally_code = config['allies']['by-discord-nick'][author][2]
+		ally_db = get_my_units_and_ships(ally_code)
+		guild_codes.insert(0, ally_db['guild_id'])
+
+	return args, guild_codes
 
 def parse_opts_unit_names(config, args, combat_type=1):
 
