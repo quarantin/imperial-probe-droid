@@ -2,6 +2,7 @@
 
 from cmd.alias import *
 from cmd.arena import *
+from cmd.gcompare import *
 from cmd.fight import *
 from cmd.fleet import *
 from cmd.format import *
@@ -28,6 +29,12 @@ COMMANDS = [
 		'aliases': [ 'a', 'arena' ],
 		'function': cmd_arena,
 		'help': help_arena,
+	},
+	{
+		'command': 'gcompare',
+		'aliases': [ 'gc', 'gcompare' ],
+		'function': cmd_guild_compare,
+		'help': help_guild_compare,
 	},
 	{
 		'command': 'fight',
