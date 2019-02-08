@@ -43,7 +43,7 @@ Show top 3 fleet reinforcements:
 %prefixM r 3"```"""
 }
 
-opts = {
+opts_meta = {
 	'a':             'arena',
 	'arena':         'arena',
 	'f':             'fleet',
@@ -59,7 +59,7 @@ opts = {
 
 }
 
-def opts_meta(args):
+def parse_opts_meta(args):
 
 	top_n = 5
 	selected_opts = []
@@ -67,8 +67,8 @@ def opts_meta(args):
 
 	for arg in args_cpy:
 
-		if arg in opts:
-			opt = opts[arg]
+		if arg in opts_meta:
+			opt = opts_meta[arg]
 			args.remove(arg)
 			selected_opts.append(opt)
 
@@ -87,7 +87,7 @@ def opts_meta(args):
 def cmd_meta(config, author, channel, args):
 
 	msgs = []
-	args, selected_opts, top_n = opts_meta(args)
+	args, selected_opts, top_n = parse_opts_meta(args)
 	if args:
 		plural = len(args) > 1 and 's' or ''
 		return [{
@@ -144,33 +144,6 @@ def cmd_meta(config, author, channel, args):
 			'description': compact and compact_desc or full_desc,
 		})
 
-	if 'commander' in selected_opts:
-		top_commanders = get_top_rank1_fleet_commanders(top_n)
-		lines = []
-
-		for commander in top_commanders:
-			unit, count, percent = commander
-			if compact:
-				lines.append(sep)
-				lines.append(percent)
-				lines.append(count)
-				lines.append(unit)
-			else:
-				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), unit))
-
-		desc = 'You can find the full meta report for top fleet commanders at this address:\n%s#leeaders' % META_SHIPS_URL
-		full_desc = '%s\n```\n| %% |Count|Unit\n|---|-----|---------------------------\n%s```' % (desc, '\n'.join(lines))
-		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
-
-		msgs.append({
-			'title': 'Top %d - Fleet Arena Commanders' % top_n,
-			'author': {
-				'name': 'Imperial Probe Droid',
-				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
-			},
-			'description': compact and compact_desc or full_desc,
-		})
-
 	if 'arena' in selected_opts:
 		top_squads = get_top_rank1_arena_squads(top_n)
 		lines = []
@@ -218,6 +191,33 @@ def cmd_meta(config, author, channel, args):
 
 		msgs.append({
 			'title': 'Top %d - Arena Squads ' % top_n,
+			'author': {
+				'name': 'Imperial Probe Droid',
+				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
+			},
+			'description': compact and compact_desc or full_desc,
+		})
+
+	if 'commander' in selected_opts:
+		top_commanders = get_top_rank1_fleet_commanders(top_n)
+		lines = []
+
+		for commander in top_commanders:
+			unit, count, percent = commander
+			if compact:
+				lines.append(sep)
+				lines.append(percent)
+				lines.append(count)
+				lines.append(unit)
+			else:
+				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), unit))
+
+		desc = 'You can find the full meta report for top fleet commanders at this address:\n%s#leeaders' % META_SHIPS_URL
+		full_desc = '%s\n```\n| %% |Count|Unit\n|---|-----|---------------------------\n%s```' % (desc, '\n'.join(lines))
+		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
+
+		msgs.append({
+			'title': 'Top %d - Fleet Arena Commanders' % top_n,
 			'author': {
 				'name': 'Imperial Probe Droid',
 				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
