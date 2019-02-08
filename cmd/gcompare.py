@@ -36,8 +36,15 @@ def unit_to_embedfield(guild, unit):
 	if name in guild['units']:
 		stats = guild['units'][name]
 		lines.append('Count: %d' % stats['count'])
-		lines.append('Locked: %d' % (guild['member_count'] - stats['count']))
 		lines.append('Level 85: %d' % stats['levels'][85])
+
+		for rarity in [ 7, 6, 5 ]:
+
+			count = 0
+			if rarity in stats['rarities']:
+				count = stats['rarities'][rarity]
+
+			lines.append('Rarity %d\*: %d' % (rarity, count))
 
 		for gear in [ 12, 11, 10 ]:
 
@@ -46,6 +53,8 @@ def unit_to_embedfield(guild, unit):
 				count = stats['gears'][gear]
 
 			lines.append('Gear %d: %d' % (gear, count))
+
+		lines.append('Locked: %d' % (guild['member_count'] - stats['count']))
 
 		for ability in sorted(stats['abilities']):
 
