@@ -2,6 +2,7 @@ beautifulsoup4
 cairosvg
 discord.py
 django
+lxml
 pillow
 pytz
 requests
