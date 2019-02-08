@@ -117,3 +117,20 @@ def get_short_url(url):
 	full_url = '%s%s' % (SHORTENER_URL, url)
 	response = requests.get(full_url)
 	return response.content.decode('utf-8')
+
+def lpad(number, limit=1000):
+
+	pads = []
+
+	copy = int(number.replace('%', '').strip())
+
+	limits = []
+	while limit > 1:
+		limits.insert(0, limit)
+		limit = limit / 10
+
+	for limit in limits:
+		if copy < limit:
+			pads.append('\u202F\u202F')
+
+	return '%s%s' % (''.join(pads), number)
