@@ -20,6 +20,7 @@ You have to supply one or more options:
 **`reinforcements`** or **`r`**: To show top reinforcements from meta reports.
 **`compact`** or **`C`**: (Optional) For compact display.
 **`n`**: (Optional) A number. Get the top **`n`** squads (default is 10).
+
 **Aliases**
 ```
 %prefixM```
@@ -97,9 +98,9 @@ def cmd_meta(config, author, channel, args):
 
 	if not selected_opts:
 		return [{
-			'title': 'Missing Option' % plural,
+			'title': 'Missing Option',
 			'color': 'red',
-			'description': 'I need at least one option. Please see `%shelp meta` to see available options.',
+			'description': 'I need at least one option. Please see `%shelp meta` to see available options.' % config['prefix'],
 		}]
 
 
