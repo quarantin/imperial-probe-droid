@@ -80,7 +80,7 @@ def cumul_unit(units, unit):
 		units[name] = {
 			'count': 0,
 			'levels': {},
-			'rarity': {},
+			'rarities': {},
 			'gears': {},
 			'zetas': {},
 			'abilities': {},
@@ -95,9 +95,9 @@ def cumul_unit(units, unit):
 	units[name]['levels'][level] += 1
 
 	rarity = unit['rarity']
-	if rarity not in units[name]['rarity']:
-		units[name]['rarity'][rarity] = 0
-	units[name]['rarity'][rarity] += 1
+	if rarity not in units[name]['rarities']:
+		units[name]['rarities'][rarity] = 0
+	units[name]['rarities'][rarity] += 1
 
 	gear = unit['gear_level']
 	if gear not in units[name]['gears']:
