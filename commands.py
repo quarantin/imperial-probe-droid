@@ -8,6 +8,7 @@ from cmd.fleet import *
 from cmd.format import *
 from cmd.help import *
 from cmd.locked import *
+from cmd.meta import *
 from cmd.mods import *
 from cmd.nicks import *
 from cmd.needed import *
@@ -65,6 +66,12 @@ COMMANDS = [
 		'aliases': [ 'l', 'locked' ],
 		'function': cmd_locked,
 		'help': help_locked,
+	},
+	{
+		'command': 'meta',
+		'aliases': [ 'M', 'meta' ],
+		'function': cmd_meta,
+		'help': help_meta,
 	},
 	{
 		'command': 'mods',
