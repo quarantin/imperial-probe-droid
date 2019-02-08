@@ -92,8 +92,9 @@ def format_char_stats(unit, fmt):
 	return fmt
 
 def update_source_code():
-	subprocess.call([ 'git', 'fetch'])
-	subprocess.call([ 'git', 'pull' ])
+	script = 'scripts/update.sh'
+	if os.path.exists(script):
+		subprocess.call([ script ])
 
 def exit_bot():
 
