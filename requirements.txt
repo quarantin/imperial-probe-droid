@@ -1,6 +1,7 @@
+beautifulsoup4
+cairosvg
 discord.py
-pytz
-requests
 django
 pillow
-cairosvg
+pytz
+requests
