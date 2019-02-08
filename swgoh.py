@@ -2,6 +2,7 @@
 
 import os, json, requests, socket
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 from utils import *
 from constants import *
@@ -15,6 +16,11 @@ db = {}
 
 DEFAULT_UNITS_DB = 'cache/units.json'
 DEFAULT_SHIPS_DB = 'cache/ships.json'
+
+META_UNITS_URL = 'https://swgoh.gg/meta-report/'
+META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
+META_MODS_URL = 'https://swgoh.gg/mod-meta-report/'
+META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
 
 def parse_units_or_ships(units):
 
@@ -498,3 +504,79 @@ def get_units_with_incomplete_modsets(ally_code):
 			matching_units.append(unit)
 
 	return matching_units
+
+def get_top_rank1_leaders(top_n, html_id, url):
+
+	top_leaders = []
+
+	response = requests.get(url)
+	soup = BeautifulSoup(response.text, 'lxml')
+	trs = soup.select('li#%s tr' % html_id)
+
+	i = 1
+	for tr in trs:
+
+		if i > top_n:
+			break
+
+		tds = tr.find_all('td')
+		if not tds:
+			continue
+
+		unit = tds[0].text.strip()
+		count = tds[1].text.strip()
+		stat = tds[2].text.strip()
+
+		top_leaders.append((unit, count, stat))
+
+		i += 1
+
+	return top_leaders
+
+def get_top_rank1_squads(top_n, html_id, url):
+
+	top_squads = []
+
+	response = requests.get(url)
+	soup = BeautifulSoup(response.text, 'lxml')
+	trs = soup.select('li#%s tr' % html_id)
+
+	i = 1
+	for tr in trs:
+
+		if i > top_n:
+			break
+
+		tds = tr.find_all('td')
+		if not tds:
+			continue
+
+		squad = tds[0]
+		count = tds[1].text.strip()
+		percent = tds[2].text.strip()
+
+		imgs = squad.find_all('img', alt=True)
+		squad = []
+		for img in imgs:
+			squad.append(img['alt'])
+
+		top_squads.append((squad, count, percent))
+
+		i += 1
+
+	return top_squads
+
+def get_top_rank1_squad_leaders(top_n):
+	return get_top_rank1_leaders(top_n, 'leaders', META_UNITS_URL)
+
+def get_top_rank1_fleet_commanders(top_n):
+	return get_top_rank1_leaders(top_n, 'leaders', META_SHIPS_URL)
+
+def get_top_rank1_arena_squads(top_n):
+	return get_top_rank1_squads(top_n, 'squads', META_UNITS_URL)
+
+def get_top_rank1_fleet_squads(top_n):
+	return get_top_rank1_squads(top_n, 'squads', META_SHIPS_URL)
+
+def get_top_rank1_reinforcements(top_n):
+	return get_top_rank1_squads(top_n, 'reinforcements', META_SHIPS_URL)
