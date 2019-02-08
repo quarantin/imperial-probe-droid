@@ -5,16 +5,19 @@ help_help = {
 	'description': """**Botmaster(s)**: %authors
 **Source Code**: %source
 %separator
-**Help commands**
+**Help Commands**
 **`help`**: This help menu
 %separator
-**Internal commands**
+**Internal Commands**
 **`alias`**: Manage command aliases.
 **`format`**: Manage output formats.
 **`nicks`**: Manage nicknames for units and ships.
 **`sheets`**: Show available spreadsheets.
 %separator
-**Player commands**
+**Guild Commands**
+**`gc`**: Compare one (or more) guilds.
+%separator
+**Player Commands**
 **`arena`**: Show arena team for the supplied ally code.
 **`fleet`**: Show fleet arena team for the supplied ally code.
 **`locked`**: Show locked units or ships for the supplied ally code.
