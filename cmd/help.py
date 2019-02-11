@@ -8,9 +8,10 @@ help_help = {
 **Help Commands**
 **`help`**: This help menu
 %separator
-**Internal Commands**
+**Management Commands**
 **`alias`**: Manage command aliases.
 **`format`**: Manage output formats.
+**`links`**: Manage URL list.
 **`nicks`**: Manage nicknames for units and ships.
 **`sheets`**: Show available spreadsheets.
 %separator

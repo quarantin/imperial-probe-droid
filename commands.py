@@ -7,6 +7,7 @@ from cmd.fight import *
 from cmd.fleet import *
 from cmd.format import *
 from cmd.help import *
+from cmd.links import *
 from cmd.locked import *
 from cmd.meta import *
 from cmd.mods import *
@@ -60,6 +61,12 @@ COMMANDS = [
 		'aliases': [ 'h', 'help' ],
 		'function': cmd_help,
 		'help': help_help,
+	},
+	{
+		'command': 'links',
+		'aliases': [ 'L', 'links' ],
+		'function': cmd_links,
+		'help': help_links,
 	},
 	{
 		'command': 'locked',
