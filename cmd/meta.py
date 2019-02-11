@@ -212,7 +212,7 @@ def cmd_meta(config, author, channel, args):
 			else:
 				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), unit))
 
-		desc = 'You can find the full meta report for top fleet commanders at this address:\n%s#leeaders' % META_SHIPS_URL
+		desc = 'You can find the full meta report for top fleet commanders at this address:\n%s#leaders' % META_SHIPS_URL
 		full_desc = '%s\n```\n| %% |Count|Unit\n|---|-----|---------------------------\n%s```' % (desc, '\n'.join(lines))
 		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
 
