@@ -40,7 +40,7 @@ Show top 3 fleet arena commanders:
 %prefixM c 3```
 Show top 3 fleet reinforcements:
 ```
-%prefixM r 3"```"""
+%prefixM r 3```"""
 }
 
 opts_meta = {
