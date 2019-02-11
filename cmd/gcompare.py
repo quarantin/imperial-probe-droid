@@ -130,6 +130,13 @@ def cmd_guild_compare(config, author, channel, args):
 	for guild_code in guild_codes:
 
 		guilds[guild_code] = get_guild(guild_code)
+		if not guilds[guild_code]:
+			url = 'https://swgoh.gg/g/%s/' % guild_code
+			return [{
+				'title': 'Invalid Guild Code',
+				'color': 'red',
+				'description': 'Are you sure `%s` is a valid guild code and at least one player of this guild is registered on swgoh.gg? Please check this URL to verify: %s' % (guild_code, url),
+			}]
 
 		guild = guilds[guild_code]
 		fields.append(guild_to_embedfield(guild))

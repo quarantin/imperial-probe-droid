@@ -147,6 +147,8 @@ def get_guild(guild_code):
 	url = '%s/guild/%s' % (BASE_URL, guild_code)
 	response = requests.get(url)
 	jsondata = response.json()
+	if not jsondata or 'data' not in jsondata:
+		return None
 
 	cumul = {}
 	units = {}
