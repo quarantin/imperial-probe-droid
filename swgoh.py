@@ -321,7 +321,8 @@ def get_mod_stats(ally_code):
 def get_mods_count(ally_code):
 
 	if ally_code not in db:
-		get_my_units_and_ships(ally_code)
+		get_my_mods(ally_code)
+		#get_my_units_and_ships(ally_code)
 
 	ally_db = db[ally_code]
 
