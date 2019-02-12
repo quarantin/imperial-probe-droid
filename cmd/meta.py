@@ -68,8 +68,8 @@ def parse_opts_meta(args):
 	for arg in args_cpy:
 
 		if arg in opts_meta:
-			opt = opts_meta[arg]
 			args.remove(arg)
+			opt = opts_meta[arg]
 			selected_opts.append(opt)
 
 		elif arg.isdigit():
