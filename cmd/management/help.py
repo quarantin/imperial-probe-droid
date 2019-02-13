@@ -19,11 +19,10 @@ help_help = {
 **`gc`**: Compare one (or more) guilds.
 %separator
 **Player Commands**
-**`arena`**: Show arena team for the supplied ally code.
-**`fleet`**: Show fleet arena team for the supplied ally code.
-**`locked`**: Show locked units or ships for the supplied ally code.
+**`arena`**: Show arena squads details.
+**`locked`**: Show locked characters or ships
 **`meta`**: Show information about best arena and fleet squads.
-**`mods`**: Show information about mods for the supplied ally code.
+**`mods`**: Show information about mods.
 **`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
 **`stats`**: Show statistics about equipped mods."""
