@@ -51,20 +51,55 @@ def cmd_recos(config, author, channel, args):
 			'description': 'No ally code specified, or found registered to <%s>' % author,
 		}]
 
+	args, selected_sets = parse_opts_modsets(args, MODSET_OPTS_2)
+	args, selected_filters = parse_opts_mod_filters(args)
 	args, selected_units = parse_opts_unit_names(config, args)
-	if not selected_units:
-		return [{
-			'title': 'No Units Selected',
-			'color': 'red',
-			'description': 'You have to provide at least one unit name.',
-		}]
 
 	if args:
 		plural = len(args) > 1
 		return [{
-			'title': 'Unknown parameter%s' % plural,
+			'title': 'Unknown Parameter%s' % plural,
 			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
+		}]
+
+	if not selected_units:
+
+		if not selected_filters:
+			return [{
+				'title': 'No Units Selected',
+				'color': 'red',
+				'description': 'You have to provide at least one unit name or a mod filter.\nPlease check %shelp recos for more information.' % config['prefix'],
+			}]
+
+		matching_recos = []
+		for modset, slot, prim in selected_filters:
+			for name, recos in sorted(config['recos']['by-name'].items()):
+				for reco in recos:
+
+					alist = [ reco[x] for x in range(3, 6) ]
+					if modset not in [ reco[x] for x in range(3, 6) ]:
+						continue
+
+					print(reco)
+					print('slot: %s, prim: %s, reco[6 + slot] = %s' % (slot, prim, reco[5 + slot]))
+					if prim != reco[5 + slot]:
+						continue
+
+					matching_recos.append(reco)
+
+		if not matching_recos:
+			desc = 'No matching recommendation for the supplied filters.'
+		else:
+			lines = []
+			for recos in matching_recos:
+				lines.append('%s' % recos[0])
+			modset, modslot, primary = 'blah', 'blah', 'blah'
+			desc = '%s%s %s\nHere is the list of characters who need this type of mod:\n - %s' % (modslot, modset, primary, '\n - '.join(lines))
+
+		return [{
+			'title': 'Who Needs This Mod',
+			'description': desc,
 		}]
 
 	ref_units = get_char_list()
