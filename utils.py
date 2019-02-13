@@ -68,6 +68,9 @@ def now(timezone):
 def basicstrip(string):
 	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
 
+def emojistrip(string):
+	return string.replace(' ', '').lower()
+
 def add_stats(stats):
 
 	if 'base' not in stats:
