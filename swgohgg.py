@@ -6,6 +6,7 @@ from swgohhelp import fetch_players
 
 import os
 import json
+import socket
 import requests
 from bs4 import BeautifulSoup
 
