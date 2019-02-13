@@ -1,23 +1,25 @@
 #!/usr/bin/python3
 
-from cmd.alias import *
-from cmd.arena import *
-from cmd.gcompare import *
-from cmd.fight import *
-from cmd.fleet import *
-from cmd.format import *
-from cmd.help import *
-from cmd.links import *
-from cmd.locked import *
-from cmd.meta import *
-from cmd.mods import *
-from cmd.nicks import *
-from cmd.needed import *
-from cmd.recos import *
-from cmd.restart import *
-from cmd.sheets import *
-from cmd.stats import *
-from cmd.update import *
+from cmd.management.alias import *
+from cmd.management.format import *
+from cmd.management.help import *
+from cmd.management.links import *
+from cmd.management.nicks import *
+from cmd.management.restart import *
+from cmd.management.sheets import *
+from cmd.management.update import *
+
+from cmd.player.arena import *
+from cmd.player.fight import *
+from cmd.player.locked import *
+from cmd.player.mods import *
+from cmd.player.needed import *
+from cmd.player.recos import *
+from cmd.player.stats import *
+
+from cmd.guild.gcompare import *
+
+from cmd.misc.meta import *
 
 COMMANDS = [
 	{
@@ -43,12 +45,6 @@ COMMANDS = [
 		'aliases': [ 'c', 'fight' ],
 		'function': cmd_fight,
 		'help': help_fight,
-	},
-	{
-		'command': 'fleet',
-		'aliases': [ 'f', 'fa', 'fleet' ],
-		'function': cmd_fleet,
-		'help': help_fleet,
 	},
 	{
 		'command': 'format',
