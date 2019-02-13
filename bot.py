@@ -10,7 +10,6 @@ from config import config, load_config
 
 from utils import *
 from embed import *
-from swgoh import *
 from commands import *
 
 SHEETS_ALIASES = {
