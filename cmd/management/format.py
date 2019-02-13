@@ -39,7 +39,8 @@ def cmd_format(config, author, channel, args):
 
 		i = 1
 		for fmt, command in sorted(config['formats'].items()):
-			lines.append('**[%d]** **%s** `%s`' % (i, fmt, command))
+			lines.append('**[%d]** **%s** "%s"' % (i, fmt, command))
+			lines.append('')
 			i = i + 1
 
 		description = 'No formats available.'
