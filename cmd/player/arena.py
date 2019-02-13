@@ -22,7 +22,8 @@ help_arena = {
 **Options**
 Valid options can be:
 **`chars`** (or **`c`**): To show arena squad.
-**`ships`** (or **`s`**): To show fleet arena squad.
+**`fleet`** (or **`f`**): To show fleet arena squad.
+**`ships`** (or **`s`**): An alias for **`fleet`**
 Display both arena and fleet arena squads by default.
 
 **Output Formats**
@@ -67,6 +68,8 @@ Showing only your arena squad using a custom format:
 opts_arena = {
 	'c':     'chars',
 	'chars': 'chars',
+	'f':     'ships',
+	'fleet': 'ships',
 	's':     'ships',
 	'ships': 'ships',
 }
