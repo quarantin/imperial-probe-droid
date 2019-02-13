@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
 from opts import *
-from swgoh import *
 from utils import basicstrip
 from constants import EMOJIS, SHORT_STATS
+
+from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
+from swgohhelp import fetch_players
 
 help_recos = {
 	'title': 'Recommendations',
@@ -65,6 +67,9 @@ def cmd_recos(config, author, channel, args):
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
+	ref_units = get_char_list()
+	players = fetch_players(config, ally_codes)
+
 	msgs = []
 	for ally_code in ally_codes:
 
@@ -74,7 +79,8 @@ def cmd_recos(config, author, channel, args):
 
 		for unit in selected_units:
 
-			unit = get_my_unit_by_id(ally_code, unit['base_id'])
+			# TODO
+			unit = ref_units[ unit['base_id'] ]
 			name = basicstrip(unit['name'])
 			if name in config['recos']['by-name']:
 				recos = config['recos']['by-name'][name]
@@ -137,7 +143,7 @@ def cmd_recos(config, author, channel, args):
 						'name': unit['name'],
 						'icon_url': get_avatar_url(unit['base_id']),
 					},
-					'image': get_full_avatar_url(ally_code, unit['base_id']),
+					'image': get_full_avatar_url(config, ally_code, unit['base_id']),
 					#'thumbnail': get_full_avatar_url(ally_code, unit['base_id']),
 					'description': '\n'.join(lines),
 				})
