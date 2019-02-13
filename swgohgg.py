@@ -96,7 +96,8 @@ def get_full_avatar_url(config, ally_code, base_id):
 	zetas = 'zeta_abilities' in unit and len(unit['zeta_abilities']) or 0
 
 	#return 'https://api.swgoh.help/image/char/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (base_id, level, gear, rarity, zetas)
-	return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image_name, level, gear, rarity, zetas)
+	url = 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image_name, level, gear, rarity, zetas)
+	return url
 
 def get_full_ship_avatar_url(ally_code, base_id):
 	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),
