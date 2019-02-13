@@ -7,52 +7,58 @@ import subprocess
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
+SQUAD_ROLES = {
+	1: 'Member',
+	2: 'Leader',
+	3: 'Commander',
+	5: 'Reinforcement',
+}
+
 SHORTENER_URL = 'http://thelink.la/api-shorten.php?url='
 
 PERCENT_STATS = [
 	'%armor',
-	'%critical-damage',
-	'%physical-critical-chance',
-	'%potency',
 	'%resistance',
+	'%physical-critical-chance',
 	'%special-critical-chance',
+	'%critical-damage',
+	'%potency',
 	'%tenacity',
 ]
 
 FORMAT_LUT = {
-	'%gear':  'gear_level',
-	'%id':    'base_id',
-	'%level': 'level',
-	'%name':  'name',
-	'%power': 'power',
-	'%stars': 'rarity',
+	'%gear':   'gearLevel',
+	'%gp':     'gp',
+	'%level':  'level',
+	'%rarity': 'starLevel',
+	'%zetas':  'zetas',
 }
 
 STATS_LUT = {
-    '%health':                      '1',
-    '%strength':                    '2',
-    '%agility':                     '3',
-    '%tactics':                     '4',
-    '%speed':                       '5',
-    '%physical-damage':             '6',
-    '%special-damage':              '7',
-    '%armor':                       '8',
-    '%resistance':                  '9',
-    '%armor-penetration':           '10',
-    '%resistance-penetration':      '11',
-    '%dodge-chance':                '12',
-    '%deflection-chance':           '13',
-    '%physical-critical-chance':    '14',
-    '%special-critical-chance':     '15',
-    '%critical-damage':             '16',
-    '%potency':                     '17',
-    '%tenacity':                    '18',
-    '%health-steal':                '27',
-    '%protection':                  '28',
-    '%physical-accuracy':           '37',
-    '%special-accuracy':            '38',
-    '%physical-critical-avoidance': '39',
-    '%special-critical-avoidance':  '40',
+    '%health':                      'Health',
+    '%strength':                    'Strength',
+    '%agility':                     'Agility',
+    '%tactics':                     'Tactics',
+    '%speed':                       'Speed',
+    '%physical-damage':             'Physical Damage',
+    '%special-damage':              'Special Damange',
+    '%armor':                       'Armor',
+    '%resistance':                  'Resistance',
+    '%armor-penetration':           'Armor Penetration',
+    '%resistance-penetration':      'Resistance Penetration',
+    '%dodge-chance':                'Dodge Chance',
+    '%deflection-chance':           'Delfection Chance',
+    '%physical-critical-chance':    'Physical Critical Chance',
+    '%special-critical-chance':     'Special Critical Chance',
+    '%critical-damage':             'Critical Damage',
+    '%potency':                     'Potency',
+    '%tenacity':                    'Tenacity',
+    '%health-steal':                'Health Steal',
+    '%protection':                  'Protection',
+    '%physical-accuracy':           'Physical Accuracy',
+    '%special-accuracy':            'Special Accuracy',
+    '%physical-critical-avoidance': 'Physical Critical Avoidance',
+    '%special-critical-avoidance':  'Special Critical Avoidance',
 }
 
 def now(timezone):
@@ -62,23 +68,61 @@ def now(timezone):
 def basicstrip(string):
 	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
 
+def add_stats(stats):
+
+	if 'base' not in stats:
+		res = stats
+
+	else:
+		res = stats['base']
+
+		for substat in [ 'gear', 'mods' ]:
+
+			for key in stats[substat]:
+				val = stats[substat][key]
+				if key not in res:
+					res[key] = val
+				else:
+					res[key] += val
+
+	stats['full'] = res
+	return stats
+
 def format_char_details(unit, fmt):
+
+	if '%name' in fmt:
+		from swgohgg import get_unit_list
+		base_id = unit['defId']
+		units = get_unit_list()
+		fmt = fmt.replace('%name', units[base_id]['name'])
+
+	if '%role' in fmt:
+
+		role = unit['squadUnitType']
+		fmt = fmt.replace('%role', SQUAD_ROLES[role])
 
 	for pattern, json_key in FORMAT_LUT.items():
 		if pattern in fmt:
-			fmt = fmt.replace(pattern, str(unit[json_key]))
+			if json_key in unit:
+				fmt = fmt.replace(pattern, str(unit[json_key]))
+			else:
+				fmt = fmt.replace(pattern, str(0))
 
 	return fmt
 
-def format_char_stats(unit, fmt):
+def format_char_stats(stats, fmt):
 
-	stats = unit['stats']
+	add_stats(stats)
 
 	for pattern, key in STATS_LUT.items():
 
 		if pattern in fmt:
 
-			data = stats[key]
+			if key not in stats['full']:
+				data = 0
+			else:
+				data = stats['full'][key]
+
 			if pattern in [ '%critical-damage', '%potency', '%tenacity' ]:
 				data = 100 * data
 
@@ -87,7 +131,7 @@ def format_char_stats(unit, fmt):
 			if pattern in PERCENT_STATS:
 				data = '%d%%' % data
 
-			fmt = fmt.replace(pattern, str(data)).replace('%20', ' ').replace('%0a', '\n').replace('%0A', '\n')
+			fmt = fmt.replace(pattern, str(data))
 
 	return fmt
 
@@ -142,3 +186,13 @@ def lpad(number, limit=1000):
 			pads.append('\u202F\u202F')
 
 	return '%s%s' % (''.join(pads), number)
+
+def get_units_dict(units, base_id_key):
+
+	d = {}
+
+	for unit in units:
+		base_id = unit[base_id_key]
+		d[base_id] = unit
+
+	return d
