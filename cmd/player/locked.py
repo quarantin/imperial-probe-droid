@@ -2,7 +2,7 @@
 
 from opts import *
 from swgohgg import get_char_list, get_ship_list
-from swgohhelp import fetch_players, fetch_units, get_arena_rank, get_player_name
+from swgohhelp import fetch_players, fetch_units, get_player_name
 
 help_locked = {
 	'title': 'Player Command',
