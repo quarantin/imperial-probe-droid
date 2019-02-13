@@ -89,7 +89,7 @@ def api_swgoh_data(config, project):
 # Fetch functions
 #
 
-def fetch_players(config, ally_codes, key):
+def fetch_players(config, ally_codes, key='name'):
 
 	# Remove ally codes for which we already have fetched the data
 	needed = list(ally_codes)
