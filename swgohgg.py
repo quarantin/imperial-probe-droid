@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import cache_expired, ensure_parents
+from utils import cache_expired, ensure_parents, get_units_dict
 
 import os
 import json
@@ -15,13 +15,14 @@ META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
 META_MODS_URL = 'https://swgoh.gg/mod-meta-report/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
 
-def get_unit_list(key, url):
+def download_unit_list(key, url):
 
+	by_id = '%s-by-id' % key
 	cache = 'cache/%s.json' % key
 	ensure_parents(cache)
 
 	if key in db:
-		return db[key]
+		return db[by_id]
 
 	elif os.path.exists(cache) and os.path.getsize(cache) > 0 and not cache_expired(cache):
 		fin = open(cache, 'r')
@@ -36,13 +37,32 @@ def get_unit_list(key, url):
 		fout.close()
 
 	db[key] = unit_list
-	return unit_list
+	db[by_id] = get_units_dict(unit_list, 'base_id')
+	return db[by_id]
 
 def get_char_list():
-	return get_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL)
+	return download_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL)
 
 def get_ship_list():
-	return get_unit_list('ships', '%s/ships/' % SWGOH_GG_API_URL)
+	return download_unit_list('ships', '%s/ships/' % SWGOH_GG_API_URL)
+
+def get_unit_list():
+	units = get_char_list()
+	units.update(get_ship_list())
+	return units
+
+def get_swgohgg_profile_url(ally_code):
+
+	url = 'https://swgoh.gg/p/%s/' % ally_code
+
+	try:
+		response = requests.head(url)
+		if response.status_code == 200:
+			return url
+	except:
+		pass
+
+	return 'No profile found on swgoh.gg for ally code: %s' % ally_code
 
 def get_avatar_url(base_id):
 
@@ -67,11 +87,15 @@ def get_full_avatar_url(ally_code, base_id):
 
 	level = 'level' in unit and unit['level'] or 1
 	gear = 'gear_level' in unit and unit['gear_level'] or 1
-	stars = 'rarity' in unit and unit['rarity'] or 0
+	rarity = 'rarity' in unit and unit['rarity'] or 0
 	zetas = 'zeta_abilities' in unit and len(unit['zeta_abilities']) or 0
 
-	return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image_name, level, gear, stars, zetas)
+	return 'https://api.swgoh.help/image/char/?level=%s&gear=%s&rarity=%s&zetas=%s' % (level, gear, rarity, zetas)
+	#return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image_name, level, gear, rarity, zetas)
 
+def get_full_ship_avatar_url(ally_code, base_id):
+	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),
+	pass
 #
 # Meta Reports
 #
