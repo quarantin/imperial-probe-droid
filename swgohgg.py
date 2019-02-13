@@ -2,9 +2,12 @@
 
 from utils import cache_expired, ensure_parents, get_units_dict
 
+from swgohhelp import fetch_players
+
 import os
 import json
 import requests
+from bs4 import BeautifulSoup
 
 db = {}
 
@@ -78,20 +81,21 @@ def get_avatar_url(base_id):
 	chars[base_id]['image'] = image_url
 	return image_url
 
-def get_full_avatar_url(ally_code, base_id):
+def get_full_avatar_url(config, ally_code, base_id):
 
-	chars = get_all_chars()
+	chars = get_char_list()
 	unit = chars[base_id]
 	image_name = os.path.basename(unit['image'])
-	unit = get_my_unit_by_id(ally_code, base_id)
+	players = fetch_players(config, [ ally_code ])
+	unit = players[int(ally_code)]['roster-by-id'][base_id]
 
 	level = 'level' in unit and unit['level'] or 1
 	gear = 'gear_level' in unit and unit['gear_level'] or 1
 	rarity = 'rarity' in unit and unit['rarity'] or 0
 	zetas = 'zeta_abilities' in unit and len(unit['zeta_abilities']) or 0
 
-	return 'https://api.swgoh.help/image/char/?level=%s&gear=%s&rarity=%s&zetas=%s' % (level, gear, rarity, zetas)
-	#return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image_name, level, gear, rarity, zetas)
+	#return 'https://api.swgoh.help/image/char/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (base_id, level, gear, rarity, zetas)
+	return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image_name, level, gear, rarity, zetas)
 
 def get_full_ship_avatar_url(ally_code, base_id):
 	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),
