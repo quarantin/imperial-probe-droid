@@ -4,7 +4,7 @@ import os
 import pytz
 import requests
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 SHORTENER_URL = 'http://thelink.la/api-shorten.php?url='
@@ -118,6 +118,13 @@ def get_short_url(url):
 	full_url = '%s%s' % (SHORTENER_URL, url)
 	response = requests.get(full_url)
 	return response.content.decode('utf-8')
+
+def cache_expired(filepath):
+
+	modified = datetime.fromtimestamp(os.path.getmtime(filepath))
+	oldest = datetime.now() - timedelta(days=1)
+
+	return modified < oldest
 
 def lpad(number, limit=1000):
 
