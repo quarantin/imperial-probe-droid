@@ -3,7 +3,7 @@
 from utils import basicstrip
 from swgohgg import get_unit_list
 
-DEFAULT_FORMAT = '**%name**%leader%reinforcement\n  P:%power H:%health Pr:%protection\n  S:%speed Po:%potency T:%tenacity\n'
+DEFAULT_FORMAT = '**%name** (%role)\n GP:%gp H:%health Pr:%protection\n  S:%speed Po:%potency T:%tenacity\n'
 
 MODSET_OPTS = {
 	'he':             1,
