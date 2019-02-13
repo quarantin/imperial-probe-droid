@@ -38,6 +38,13 @@ def new_embed(config, msg, timestamp=None):
 	embed = discord.Embed(title=msg['title'], colour=color(msg['color']), description=msg['description'], timestamp=timestamp)
 
 	if 'author' in msg:
+
+		if 'name' not in msg['author']:
+			msg['author']['name'] = ''
+
+		if 'icon_url' not in msg['author']:
+			msg['author']['icon_url'] = ''
+
 		embed.set_author(name=msg['author']['name'], icon_url=msg['author']['icon_url'])
 
 	if 'image' in msg:
