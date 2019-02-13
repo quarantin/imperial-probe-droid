@@ -92,7 +92,7 @@ def cmd_locked(config, author, channel, args):
 
 	all_ships = get_ship_list()
 
-	players = fetch_players(config, ally_codes, 'name')
+	players = fetch_players(config, ally_codes)
 	units = fetch_units(config, ally_codes)
 
 	msgs = []
