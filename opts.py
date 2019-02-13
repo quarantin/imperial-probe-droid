@@ -24,6 +24,25 @@ MODSET_OPTS = {
 	'speed':          4,
 }
 
+MODSET_OPTS_2 = {
+	'he':             'Health',
+	'health':         'Health',
+	'de':             'Defense',
+	'defense':        'Defense',
+	'po':             'Potency',
+	'potency':        'Potency',
+	'te':             'Tenacity',
+	'tenacity':       'Tenacity',
+	'cc':             'Critical Chance',
+	'criticalchance': 'Critical Chance',
+	'cd':             'critical Damage',
+	'criticaldamage': 'Critical Damage',
+	'of':             'Offense',
+	'offense':        'Offense',
+	'sp':             'Speed',
+	'speed':          'Speed',
+}
+
 MODSLOTS_OPTS = {
 	'sq':       1,
 	'square':   1,
@@ -154,14 +173,14 @@ def parse_opts_unit_names(config, args, combat_type=1):
 
 	return args, selected_units
 
-def parse_opts_modsets(args):
+def parse_opts_modsets(args, ref_table):
 
 	selected_modsets = []
 	args_cpy = list(args)
 	for arg in args_cpy:
-		if arg in MODSET_OPTS:
+		if arg in ref_table:
 			args.remove(arg)
-			modset = MODSET_OPTS[arg]
+			modset = ref_table[arg]
 			if modset not in selected_modsets:
 				selected_modsets.append(modset)
 
@@ -192,3 +211,21 @@ def parse_opts_modprimaries(args):
 				selected_primaries.append(modprimary)
 
 	return args, selected_primaries
+
+def parse_opts_mod_filters(args):
+
+	selected_filters = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+		toks = arg.split('/')
+		if len(toks) == 3:
+			_, modsets = parse_opts_modsets([ toks[0] ], MODSET_OPTS_2)
+			_, slots   = parse_opts_modslots([ toks[1] ])
+			_, prims   = parse_opts_modprimaries([ toks[2] ])
+			if modsets and slots and prims:
+				tupl = (modsets[0], slots[0], prims[0])
+				if tupl not in selected_filters:
+					args.remove(arg)
+					selected_filters.append(tupl)
+
+	return args, selected_filters
