@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from opts import *
-from swgoh import *
 
 help_guild_compare = {
 	'title': 'Compare Two Guilds',
@@ -33,8 +32,8 @@ def unit_to_embedfield(guild, unit):
 	lines = []
 
 	name = unit['name']
-	if name in guild['units']:
-		stats = guild['units'][name]
+	if name in guild['chars']:
+		stats = guild['chars'][name]
 		lines.append('Count: %d' % stats['count'])
 		lines.append('Level 85: %d' % stats['levels'][85])
 
@@ -85,7 +84,6 @@ def guild_to_embedfield(guild):
 		'**Profiles:** %s' % guild['profile_count'],
 		'**Avg.Levl:** %s' % guild['stats']['level'],
 		'**Avg.Rank:** %s' % guild['stats']['arena_rank'],
-		'**Profiles:** %s' % guild['profile_count'],
 		'**Guild GP:** %s' % dotify(guild['galactic_power']),
 		'**Units GP:** %s' % dotify(guild['stats']['character_galactic_power']),
 		'**Ships GP:** %s' % dotify(guild['stats']['ship_galactic_power']),
@@ -109,10 +107,9 @@ def guild_to_embedfield(guild):
 def cmd_guild_compare(config, author, channel, args):
 
 	msgs = []
-	guilds = {}
 
-	args, guild_codes = parse_opts_guild_codes(config, author, args)
-	if not guild_codes:
+	args, ally_codes = parse_opts_ally_codes(config, author, args)
+	if not ally_codes:
 		return [{
 			'title': 'Missing Guild Code',
 			'description': 'I need at least one guild code.',
@@ -126,19 +123,13 @@ def cmd_guild_compare(config, author, channel, args):
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
+	guilds = {}
 	fields = []
-	for guild_code in guild_codes:
+	guild_list = get_guilds(config, ally_codes)
 
-		guilds[guild_code] = get_guild(guild_code)
-		if not guilds[guild_code]:
-			url = 'https://swgoh.gg/g/%s/' % guild_code
-			return [{
-				'title': 'Invalid Guild Code',
-				'color': 'red',
-				'description': 'Are you sure `%s` is a valid guild code and at least one player of this guild is registered on swgoh.gg? Please check this URL to verify: %s' % (guild_code, url),
-			}]
-
-		guild = guilds[guild_code]
+	for guild in guild_list:
+		guild_name = guild['name']
+		guilds[guild_name] = guild
 		fields.append(guild_to_embedfield(guild))
 
 	msgs.append({
@@ -146,11 +137,12 @@ def cmd_guild_compare(config, author, channel, args):
 		'fields': fields,
 	})
 
+	"""
 	for unit in selected_units:
 		fields = []
-		for guild_code in guild_codes:
+		for ally_code in ally_codes:
 
-			guild = guilds[guild_code]
+			guild = guilds[ally_code]
 			fields.append(unit_to_embedfield(guild, unit))
 
 		msgs.append({
@@ -161,5 +153,5 @@ def cmd_guild_compare(config, author, channel, args):
 			},
 			'fields': fields,
 		})
-
+	"""
 	return msgs
