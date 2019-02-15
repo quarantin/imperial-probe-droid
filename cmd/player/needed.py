@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from utils import roundup
-from swgoh import get_mod_stats
 from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprimaries
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES, SHORT_STATS
 

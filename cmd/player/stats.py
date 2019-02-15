@@ -3,7 +3,6 @@
 import re
 
 from opts import *
-from swgoh import get_my_mods, get_player_name
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSETS_NEEDED, MODSLOTS
 
 help_stats = {

@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from opts import *
-from swgoh import *
 
 help_fight = {
 	'title': 'Combat Statistics',
