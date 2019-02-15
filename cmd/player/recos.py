@@ -92,6 +92,9 @@ def cmd_recos(config, author, channel, args):
 			'description': 'No ally code specified, or found registered to <%s>' % author,
 		}]
 
+	emoji_cg = EMOJIS['capitalgames']
+	emoji_cr = EMOJIS['crouchingrancor']
+
 	args, selected_sets = parse_opts_modsets(args, MODSET_OPTS_2)
 	args, selected_filters = parse_opts_mod_filters(args)
 	args, selected_units = parse_opts_unit_names(config, args)
@@ -125,25 +128,50 @@ def cmd_recos(config, author, channel, args):
 					if prim != reco[5 + slot]:
 						continue
 
-					if 'capital games' == reco[1].strip().lower():
-						continue
-
 					matching_recos.append(reco)
 
+		modset = EMOJIS[ modset.replace(' ', '').lower() ]
+		slot = EMOJIS[ slot ]
+
+		lines = []
 		if not matching_recos:
-			desc = 'No matching recommendation for the supplied filters.'
+			lines.append('No matching recommendation for the supplied filters.')
 		else:
-			lines = []
+			chars = {}
 			for recos in matching_recos:
 				char_name = recos[0]
-				if char_name not in lines:
-					lines.append(char_name)
-			modset, modslot, primary = '', '', ''
-			desc = '%s%s %s\nHere is the list of characters who need this type of mod:\n - %s' % (modslot, modset, primary, '\n - '.join(lines))
+				source = recos[1].replace(' ', '').lower()
+				source_emoji = EMOJIS[source]
+				if char_name not in chars:
+					chars[char_name] = []
+
+				if source_emoji not in chars[char_name]:
+					chars[char_name].append(source_emoji)
+
+			spacer = EMOJIS['']
+			for charac, sources in chars.items():
+				if len(sources) < 2:
+					if sources[0].startswith('<:cg:'):
+						sources.append(spacer)
+					else:
+						sources.insert(0, spacer)
+
+				lines.append('%s %s' % (''.join(sources), charac))
 
 		return [{
 			'title': 'Who Needs This Mod',
-			'description': desc,
+			'fields': [
+				{
+					'name': '== %s%s %s ==' % (modset, slot, prim),
+					'value': '%s\n%s' % ('\n'.join(lines), config['separator']),
+					'inline': True,
+				},
+				{
+					'name': '== Legend ==',
+					'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
+					'inline': True,
+				},
+			]
 		}]
 
 	ref_units = get_char_list()
@@ -231,6 +259,11 @@ def cmd_recos(config, author, channel, args):
 					},
 					'image': get_full_avatar_url(ref_unit['image'], units[int(ally_code)][base_id]),
 					'description': '\n'.join(lines),
+					'fields': [{
+							'name': '== Legend ==',
+							'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
+							'inline': True,
+						}]
 				})
 			else:
 				msgs.append({
