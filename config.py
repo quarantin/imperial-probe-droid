@@ -11,7 +11,7 @@ def load_help():
 
 	help_msgs = {}
 	for cmd in COMMANDS:
-		for alias in cmd['aliases']: 
+		for alias in cmd['aliases']:
 			help_msgs[alias] = cmd['help']
 
 	return help_msgs
@@ -84,6 +84,14 @@ def parse_allies_db(members):
 			allies_db['by-mention'][mention2] = ally_code
 
 	return allies_db
+
+def parse_mod_primaries(filename='mod-primaries.json'):
+
+	fin = open(filename, 'r')
+	data = fin.read()
+	fin.close()
+	data = json.loads(data)
+	config['mod-primaries'] = { int(x): data[x] for x in data }
 
 def count_recos_per_source(source, recos):
 
@@ -177,6 +185,7 @@ def load_config(bot=None, config_file='config.json'):
 		jsonstr = fin.read()
 		fin.close()
 		config.update(json.loads(jsonstr))
+		parse_mod_primaries()
 		if 'short-urls' not in config:
 			config['short-urls'] = {}
 
