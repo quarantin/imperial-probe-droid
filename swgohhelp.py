@@ -153,19 +153,21 @@ def fetch_units(config, ally_codes):
 		if ally_code in db['units']:
 			needed.remove(ally_code)
 
-	# Perform API call to retrieve newly needed units info
-	units = api_swgoh_units(config, {
-		'allycodes': needed,
-	})
+	if needed:
 
-	# Store newly needed units in db
-	for base_id, units in units.items():
-		for unit in units:
-			ally_code = unit['allyCode']
-			if ally_code not in db['units']:
-				db['units'][ally_code] = {}
+		# Perform API call to retrieve newly needed units info
+		units = api_swgoh_units(config, {
+			'allycodes': needed,
+		})
 
-			db['units'][ally_code][base_id] = unit
+		# Store newly needed units in db
+		for base_id, units in units.items():
+			for unit in units:
+				ally_code = unit['allyCode']
+				if ally_code not in db['units']:
+					db['units'][ally_code] = {}
+
+				db['units'][ally_code][base_id] = unit
 
 	return db['units']
 
@@ -260,7 +262,6 @@ def get_arena_squads(config, ally_codes, arena_type):
 
 def get_arena_squad(config, ally_code, arena_type):
 	data = get_arena_squads(config, [ ally_code ], arena_type)
-	print(data[int(ally_code)])
 	return data[int(ally_code)]
 
 def get_stats(config, ally_code):
