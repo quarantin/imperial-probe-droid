@@ -125,6 +125,9 @@ def cmd_recos(config, author, channel, args):
 					if prim != reco[5 + slot]:
 						continue
 
+					if 'capital games' == reco[1].strip().lower():
+						continue
+
 					matching_recos.append(reco)
 
 		if not matching_recos:
