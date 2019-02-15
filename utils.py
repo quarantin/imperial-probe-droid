@@ -199,3 +199,53 @@ def get_units_dict(units, base_id_key):
 		d[base_id] = unit
 
 	return d
+
+def get_mod_sets(config, mods):
+
+	modsets = {}
+
+	for mod in mods:
+
+		modset = mod['set']
+		if modset not in modsets:
+			modsets[modset] = 0
+		modsets[modset] += 1
+
+	from constants import MODSETS_NEEDED
+	for modset in MODSETS_NEEDED:
+		needed = MODSETS_NEEDED[modset]
+		if modset in modsets:
+			modsets[modset] /= needed
+
+	for modset in list(modsets):
+		if modset == 0:
+			del(modsets[modset])
+
+	return modsets
+
+def get_mod_sets_emojis(config, mods):
+	from constants import MODSETS, EMOJIS
+
+	emojis = []
+	spacer = EMOJIS['']
+	modsets = get_mod_sets(config, mods)
+	for modset in MODSETS:
+		if modset in modsets:
+			set_name = MODSETS[modset]
+			emoji = EMOJIS[ set_name.replace(' ', '').lower() ]
+			emojis += [ emoji ] * int(modsets[modset])
+
+	return emojis + [ spacer ] * (3 - len(emojis))
+
+def get_mod_primaries(config, mods):
+
+	res = {}
+	primaries = config['mod-primaries']
+
+	for mod in mods:
+		slot = mod['slot']
+		prim_id = mod['primaryStat']['unitStat']
+		primary = primaries[prim_id]
+		res[slot] = primary
+
+	return res
