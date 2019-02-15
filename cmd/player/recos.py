@@ -249,21 +249,21 @@ def cmd_recos(config, author, channel, args):
 				spacer = EMOJIS[''] * 4
 
 				line = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-				lines = [ config['separator'], line ] + lines
+				lines = [ line ] + lines
 
 				msgs.append({
-					'title': 'Recommended Mod Sets and Primary Stats',
+					'title': '== Recommended Mod Sets and Primary Stats ==',
+					'description': '\n'.join(lines),
 					'author': {
 						'name': ref_unit['name'],
 						'icon_url': get_avatar_url(ref_unit['base_id']),
 					},
 					'image': get_full_avatar_url(ref_unit['image'], units[int(ally_code)][base_id]),
-					'description': '\n'.join(lines),
 					'fields': [{
-							'name': '== Legend ==',
-							'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
-							'inline': True,
-						}]
+						'name': '== Legend ==',
+						'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
+						'inline': True,
+					}]
 				})
 			else:
 				msgs.append({
