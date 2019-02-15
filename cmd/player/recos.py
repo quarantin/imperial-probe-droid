@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
 from opts import *
-from utils import basicstrip
+from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries
 from constants import EMOJIS, SHORT_STATS
 
 from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
-from swgohhelp import fetch_players
+from swgohhelp import fetch_players, fetch_units
 
 help_recos = {
 	'title': 'Recommendations',
@@ -81,8 +81,6 @@ def cmd_recos(config, author, channel, args):
 					if modset not in [ reco[x] for x in range(3, 6) ]:
 						continue
 
-					print(reco)
-					print('slot: %s, prim: %s, reco[6 + slot] = %s' % (slot, prim, reco[5 + slot]))
 					if prim != reco[5 + slot]:
 						continue
 
@@ -104,6 +102,7 @@ def cmd_recos(config, author, channel, args):
 
 	ref_units = get_char_list()
 	players = fetch_players(config, ally_codes)
+	units = fetch_units(config, ally_codes)
 
 	msgs = []
 	for ally_code in ally_codes:
@@ -112,13 +111,14 @@ def cmd_recos(config, author, channel, args):
 		if ally_code in config['allies']['by-ally-code']:
 			discord_id = config['allies']['by-ally-code'][ally_code][1]
 
-		for unit in selected_units:
+		for ref_unit in selected_units:
 
 			# TODO
-			unit = ref_units[ unit['base_id'] ]
-			name = basicstrip(unit['name'])
-			if name in config['recos']['by-name']:
-				recos = config['recos']['by-name'][name]
+			base_id = ref_unit['base_id']
+			unit = players[int(ally_code)]['roster-by-id'][base_id]
+			unit_name = basicstrip(ref_unit['name'])
+			if unit_name in config['recos']['by-name']:
+				recos = config['recos']['by-name'][unit_name]
 				lines = []
 
 				for reco in recos:
@@ -138,31 +138,37 @@ def cmd_recos(config, author, channel, args):
 					circle   = SHORT_STATS[ reco[10].strip() ]
 					cross    = SHORT_STATS[ reco[11].strip() ]
 
-					info = info and ' (%s)' % info or ''
+					info = info and ' %s' % info or ''
 
 					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
 					lines.append(line)
 
-				if 'modsets' in unit and len(unit['modsets']) > 0:
+				if 'mods' in unit:
+					spacer = EMOJIS['']
+					modsets = get_mod_sets_emojis(config, unit['mods'])
+					primaries = get_mod_primaries(config, unit['mods'])
+					del(primaries[1])
+					del(primaries[3])
+					primaries = [ primaries[x] for x in primaries ]
+
 					source   = EMOJIS['crimsondeathwatch']
 
 					info     = ' %s' % (discord_id or ally_code)
 
-					set1     = EMOJIS[ unit['modsets'][0].replace(' ', '').lower() ]
-					set2     = EMOJIS[ unit['modsets'][1].replace(' ', '').lower() ]
-					set3     = EMOJIS[ unit['modsets'][2].replace(' ', '').lower() ]
+					set1     = modsets[0]
+					set2     = modsets[1]
+					set3     = modsets[2]
 
-					square   = 1 in unit['mods'] and SHORT_STATS[ unit['mods'][1]['primary_stat']['name'] ] or '??'
-					arrow    = 2 in unit['mods'] and SHORT_STATS[ unit['mods'][2]['primary_stat']['name'] ] or '??'
-					diamond  = 3 in unit['mods'] and SHORT_STATS[ unit['mods'][3]['primary_stat']['name'] ] or '??'
-					triangle = 4 in unit['mods'] and SHORT_STATS[ unit['mods'][4]['primary_stat']['name'] ] or '??'
-					circle   = 5 in unit['mods'] and SHORT_STATS[ unit['mods'][5]['primary_stat']['name'] ] or '??'
-					cross    = 6 in unit['mods'] and SHORT_STATS[ unit['mods'][6]['primary_stat']['name'] ] or '??'
+					short_primaries = []
+					for primary in primaries:
+						short_primaries.append(SHORT_STATS[primary])
 
-					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
+					primaries = '|'.join(short_primaries)
+
+					line = '%s%s%s%s`%s`%s' % (source, set1, set2, set3, primaries, info)
 
 				else:
-					line = '%s has no mods (%s)' % (unit['name'], discord_id or ally_code)
+					line = '%s has no mods (%s)' % (ref_unit['name'], discord_id or ally_code)
 
 				lines.append(config['separator'])
 				lines.append(line)
@@ -170,23 +176,22 @@ def cmd_recos(config, author, channel, args):
 				spacer = EMOJIS[''] * 4
 
 				line = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-				lines =  [ config['separator'], line ] + lines
+				lines = [ config['separator'], line ] + lines
 
 				msgs.append({
-					'title': 'Recommended Modsets and Primary Stats',
+					'title': 'Recommended Mod Sets and Primary Stats',
 					'author': {
-						'name': unit['name'],
-						'icon_url': get_avatar_url(unit['base_id']),
+						'name': ref_unit['name'],
+						'icon_url': get_avatar_url(ref_unit['base_id']),
 					},
-					'image': get_full_avatar_url(config, ally_code, unit['base_id']),
-					#'thumbnail': get_full_avatar_url(ally_code, unit['base_id']),
+					'image': get_full_avatar_url(ref_unit['image'], units[int(ally_code)][base_id]),
 					'description': '\n'.join(lines),
 				})
 			else:
 				msgs.append({
-					'title': 'No recommended mods',
+					'title': 'No Recommended Mod Sets',
 					'color': 'red',
-					'description': '%s is missing from the recommendation spreadsheet' % unit['name'],
+					'description': '%s is missing from the recommendation spreadsheet' % ref_unit['name'],
 				})
 
 	return msgs
