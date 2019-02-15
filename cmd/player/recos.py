@@ -91,8 +91,10 @@ def cmd_recos(config, author, channel, args):
 		else:
 			lines = []
 			for recos in matching_recos:
-				lines.append('%s' % recos[0])
-			modset, modslot, primary = 'blah', 'blah', 'blah'
+				char_name = recos[0]
+				if char_name not in lines:
+					lines.append(char_name)
+			modset, modslot, primary = '', '', ''
 			desc = '%s%s %s\nHere is the list of characters who need this type of mod:\n - %s' % (modslot, modset, primary, '\n - '.join(lines))
 
 		return [{
