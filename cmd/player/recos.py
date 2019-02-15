@@ -6,6 +6,28 @@ from constants import EMOJIS, SHORT_STATS
 
 from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
 from swgohhelp import fetch_players, fetch_units
+    'ac':                'Accuracy',
+    'accuracy':          'Accuracy',
+    'ca':                'Critical Avoidance',
+    'criticalavoidance': 'Critical Avoidance',
+    'cc':                'Critical Chance',
+    'criticalchance':    'Critical Chance',
+    'cd':                'Critical Damage',
+    'criticaldamange':   'Critical Damage',
+    'de':                'Defense',
+    'defense':           'Defense',
+    'he':                'Health',
+    'health':            'Health',
+    'of':                'Offense',
+    'offense':           'Offense',
+    'po':                'Potency',
+    'potency':           'Potency',
+    'pr':                'Protection',
+    'protection':        'Protection',
+    'sp':                'Speed',
+    'speed':             'Speed',
+    'te':                'Tenacity',
+    'tenacity':          'Tenacity',
 
 help_recos = {
 	'title': 'Recommendations',
@@ -13,15 +35,56 @@ help_recos = {
 
 **Syntax**
 ```
-%prefixrecos [ally codes or mentions] [characters]```
+%prefixrecos [players] [characters]
+%prefixrecos [players] [mod filter]```
 **Aliases**
 ```
 %prefixr```
+**Options**
+The **`mod filter`** parameter should be of the form **`mod-set/mod-slot/primary-stat`**.
+
+Here is the list of valid mod sets:
+**`health`** (or **`he`**)
+**`defense`** (or **`de`**)
+**`potency`** (or **`po`**)
+**`tenacity`** (or **`te`**)
+**`criticalchance`** (or **`cc`**)
+**`criticaldamange`** (or **`cd`**)
+**`offense`** (or **`of`**)
+**`speed`** (or **`sp`**)
+
+Here is the list of valid mod slots:
+**`square`** (or **`sq`**)
+**`arrow`** (or **`ar`**)
+**`diamond`** (or **`di`**)
+**`triangle`** (or **`tr`**)
+**`circle`** (or **`ci`**)
+**`cross`** (or **`cr`**)
+
+Here is the list of valid mod primary stats:
+**`accuracy`** (or **`ac`**)
+**`criticalavoidance`** (or **`ca`**)
+**`criticalchance`** (or **`cc`**)
+**`criticaldamange`** (or **`cd`**)
+**`defense`** (or **`de`**)
+**`health`** (or **`he`**)
+**`offense`** (or **`of`**)
+**`potency`** (or **`po`**)
+**`protection`** (or **`pr`**)
+**`speed`** (or **`sp`**)
+**`tenacity`** (or **`te`**)
+
 **Examples**
+Show which characters needs a `tenacity` `arrow` with `speed` as primary stat:
+```
+%prefixr tenacity/arrow/speed```
+Or the shorter form:
+```
+%prefixr te/ar/sp```
 Show recommended mods for **Emperor Palpatine**:
 ```
 %prefixr ep```
-or:
+Or:
 ```
 %prefixr "emperor palpatine"```
 Show recommended mods for **Grand Admiral Thrawn**, **Grand Master Yoda**, **Qui-Gon Jinn**, **General Kenobi**, and **Darth Traya**:
@@ -30,7 +93,7 @@ Show recommended mods for **Grand Admiral Thrawn**, **Grand Master Yoda**, **Qui
 Show recommended mods for **Death Trooper**:
 ```
 %prefixr deathtrooper```
-or:
+Or:
 ```
 %prefixr "death trooper"```
 Show recommended mods for **Darth Traya** on someone by mention:
@@ -115,7 +178,6 @@ def cmd_recos(config, author, channel, args):
 
 		for ref_unit in selected_units:
 
-			# TODO
 			base_id = ref_unit['base_id']
 			unit = players[int(ally_code)]['roster-by-id'][base_id]
 			unit_name = basicstrip(ref_unit['name'])
