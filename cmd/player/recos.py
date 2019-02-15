@@ -6,28 +6,6 @@ from constants import EMOJIS, SHORT_STATS
 
 from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
 from swgohhelp import fetch_players, fetch_units
-    'ac':                'Accuracy',
-    'accuracy':          'Accuracy',
-    'ca':                'Critical Avoidance',
-    'criticalavoidance': 'Critical Avoidance',
-    'cc':                'Critical Chance',
-    'criticalchance':    'Critical Chance',
-    'cd':                'Critical Damage',
-    'criticaldamange':   'Critical Damage',
-    'de':                'Defense',
-    'defense':           'Defense',
-    'he':                'Health',
-    'health':            'Health',
-    'of':                'Offense',
-    'offense':           'Offense',
-    'po':                'Potency',
-    'potency':           'Potency',
-    'pr':                'Protection',
-    'protection':        'Protection',
-    'sp':                'Speed',
-    'speed':             'Speed',
-    'te':                'Tenacity',
-    'tenacity':          'Tenacity',
 
 help_recos = {
 	'title': 'Recommendations',
