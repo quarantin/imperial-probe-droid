@@ -85,7 +85,7 @@ def parse_allies_db(members):
 
 	return allies_db
 
-def parse_mod_primaries(filename='mod-primaries.json'):
+def parse_mod_primaries(filename='cache/mod-primaries.json'):
 
 	fin = open(filename, 'r')
 	data = fin.read()
