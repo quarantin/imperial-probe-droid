@@ -3,7 +3,7 @@
 from opts import *
 
 help_fight = {
-	'title': 'Combat Statistics',
+	'title': 'Fight Help',
 	'description': """Record statistics submitted by players about combat outcomes.
 
 **Syntax**

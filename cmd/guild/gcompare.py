@@ -3,8 +3,8 @@
 from opts import *
 
 help_guild_compare = {
-	'title': 'Compare Two Guilds',
-	'description': """Show statistics about two different guilds
+	'title': 'Guild Compare Help',
+	'description': """Show statistics about one or more guilds, optionally comparing their respective units.
 
 **Syntax**
 ```

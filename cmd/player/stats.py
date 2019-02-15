@@ -6,7 +6,7 @@ from opts import *
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSETS_NEEDED, MODSLOTS
 
 help_stats = {
-	'title': 'Player info',
+	'title': 'Stats Help',
 	'description': """Shows statistics about equipped mods for the supplied ally codes.
 
 **Syntax**

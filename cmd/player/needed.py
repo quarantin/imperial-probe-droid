@@ -5,8 +5,8 @@ from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprima
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES, SHORT_STATS
 
 help_needed = {
-	'title': '',
-	'description': """Shows recommended mod sets and mod primaries according to Capital Games and Crouching Rancor.
+	'title': 'Needed Help',
+	'description': """Shows statistics about recommended mod sets and mod primaries according to Capital Games and Crouching Rancor.
 
 **Syntax**
 ```

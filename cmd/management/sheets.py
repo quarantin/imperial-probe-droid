@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 help_sheets = {
-	'title': 'List Spreadsheets',
+	'title': 'Spreadsheets Help',
 	'description': """Shows list of spreadsheets to share among your team.
 
 **Syntax**

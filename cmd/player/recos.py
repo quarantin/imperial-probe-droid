@@ -8,7 +8,7 @@ from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
 from swgohhelp import fetch_players, fetch_units
 
 help_recos = {
-	'title': 'Recommendations',
+	'title': 'Recommendations Help',
 	'description': """Shows recommended mods from Capital Games and Crouching Rancor.
 
 **Syntax**

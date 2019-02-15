@@ -6,7 +6,7 @@ from utils import lpad
 from swgohgg import get_top_rank1_squad_leaders, get_top_rank1_arena_squads, get_top_rank1_fleet_commanders, get_top_rank1_reinforcements, META_UNITS_URL, META_SHIPS_URL
 
 help_meta = {
-	'title': 'Meta Info',
+	'title': 'Meta Help',
 	'description': """Shows top squads from meta reports.
 
 **Syntax**

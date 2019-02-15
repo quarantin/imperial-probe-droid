@@ -5,7 +5,7 @@ from swgohgg import get_char_list, get_ship_list
 from swgohhelp import fetch_players, fetch_units, get_player_name
 
 help_locked = {
-	'title': 'Player Command',
+	'title': 'Locked Help',
 	'description': """Shows characters and ships that are still locked for the supplied players.
 
 **Syntax**

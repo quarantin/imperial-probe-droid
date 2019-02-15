@@ -7,7 +7,7 @@ from swgohhelp import fetch_players, fetch_units, get_player_name, get_last_sync
 from swgohgg import get_swgohgg_profile_url
 
 help_arena = {
-	'title': 'Player info',
+	'title': 'Arena Help',
 	'description': """Shows arena squads for the supplied players according to the supplied output format.
 
 **Syntax**

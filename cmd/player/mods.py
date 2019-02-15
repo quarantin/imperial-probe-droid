@@ -3,7 +3,7 @@
 from opts import *
 
 help_mods = {
-	'title': 'Player info',
+	'title': 'Mods Help',
 	'description': """Shows statistics about mods for the supplied ally codes.
 
 **Syntax**
