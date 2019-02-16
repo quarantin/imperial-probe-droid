@@ -114,8 +114,7 @@ def cmd_locked(config, author, channel, args):
 		if opts in [ 'chars', 'all' ]:
 
 			locked_chars = []
-			for char in get_char_list():
-				base_id = char['base_id']
+			for base_id, char in get_char_list().items():
 				if base_id not in ally_units:
 					locked_chars.append(char['name'])
 
@@ -127,14 +126,13 @@ def cmd_locked(config, author, channel, args):
 				'author': {
 					'name': '%s' % player,
 				},
-				'description': '%s\n%s' % (config['separator'], '\n'.join(locked_chars)),
+				'description': '%s\n%s' % (config['separator'], '\n'.join(sorted(locked_chars))),
 				})
 
 		if opts in [ 'ships', 'all' ]:
 
 			locked_ships = []
-			for ship in all_ships:
-				base_id = ship['base_id']
+			for base_id, ship in all_ships.items():
 				if base_id not in ally_units:
 					locked_ships.append(ship['name'])
 
@@ -146,7 +144,7 @@ def cmd_locked(config, author, channel, args):
 				'author': {
 					'name': '%s' % player,
 				},
-				'description': '%s\n%s' % (config['separator'], '\n'.join(locked_ships)),
+				'description': '%s\n%s' % (config['separator'], '\n'.join(sorted(locked_ships))),
 				})
 
 	return msgs
