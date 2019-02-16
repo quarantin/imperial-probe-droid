@@ -134,13 +134,15 @@ def parse_recommendations():
 	recos_db['by-name'] = {}
 	recos_db['by-source'] = {}
 
-	recos = download_spreadsheet(url, 12)
+	recos = download_spreadsheet(url, 16)
 	next(recos)
 
 	for reco in recos:
 
 		name = basicstrip(reco[0])
 		source = reco[1]
+		if not name or not source:
+			continue
 
 		if name not in recos_db['by-name']:
 			recos_db['by-name'][name] = []
