@@ -23,7 +23,7 @@ NOT WORKING **`gc`**: Compare one (or more) guilds.
 **`locked`**: Show locked characters or ships
 **`meta`**: Show information about best arena and fleet squads.
 NOT WORKING **`mods`**: Show information about mods.
-NOT WORKING **`needed`**: Show information about needed modsets globally.
+**`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
 NOT WORKING **`stats`**: Show statistics about equipped mods.
 **`wntm`**: List characters who needs mods with specific criteria."""

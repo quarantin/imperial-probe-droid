@@ -129,11 +129,14 @@ def cmd_needed(config, author, channel, args):
 			modsets[aset][source] += count
 
 		lines = []
-		for aset in MODSETS.values():
-			sources = modsets[aset]
+		for aset_name in MODSETS.values():
+			if aset_name not in modsets:
+				continue
+
+			sources = modsets[aset_name]
 			counts = []
 			for source, count in sorted(sources.items()):
-				modset_emoji = EMOJIS[ aset.replace(' ', '').lower() ]
+				modset_emoji = EMOJIS[ aset_name.replace(' ', '').lower() ]
 				#source_emoji = EMOJIS[ source.replace(' ', '').lower() ]
 				counts.append('x %.3g' % count)
 
@@ -165,7 +168,7 @@ def cmd_needed(config, author, channel, args):
 
 	for ally_code in ally_codes:
 
-		ally_stats = get_mod_stats(ally_code)
+		#ally_stats = get_mod_stats(ally_code)
 
 		lines = []
 		stats = config['recos']['stats']
@@ -186,8 +189,8 @@ def cmd_needed(config, author, channel, args):
 						cr_count = roundup(stats[slot][primary]['Crouching Rancor'])
 
 					ally_count = 0.0
-					if slot in ally_stats and primary in ally_stats[slot]:
-						ally_count = roundup(ally_stats[slot][primary])
+					#if slot in ally_stats and primary in ally_stats[slot]:
+					#	ally_count = roundup(ally_stats[slot][primary])
 
 					pad1 = pad_numbers(cg_count)
 					pad2 = pad_numbers(cr_count)
