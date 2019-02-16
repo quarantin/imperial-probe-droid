@@ -84,7 +84,7 @@ EMOJIS = {
 	'criticaldamage':    '<:cd:535538317132038164>',
 	'potency':           '<:pot:535522563414032405>',
 	'tenacity':          '<:ten:535522621731635207>',
-	'capitalgames':      '<:cg:535546505365422080>',
+	'capitalgames':      '<:ea:546234326191308801>',
 	'crouchingrancor':   '<:cr:535545454214119434>',
 	'swgoh.gg':          '<:gg:546166559123701770>',
 	'crimsondeathwatch': '<:cdw:535779958686089216>',
