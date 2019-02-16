@@ -67,6 +67,7 @@ SHORT_STATS = {
 	'Protection':         'Pr',
 	'Speed':              'Sp',
 	'Tenacity':           'Te',
+	'NA':                 'NA',
 }
 
 EMOJIS = {
