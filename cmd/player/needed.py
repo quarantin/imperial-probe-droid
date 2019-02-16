@@ -213,7 +213,7 @@ def cmd_needed(config, author, channel, args):
 			emojis.append(emoji)
 
 		lines = [
-			'`Slot|`%s`|Primary Stats`\u202F\u202F\u202F\u202F' % '|'.join(emojis),
+			'`Slot|`%s`|Primary Stats`' % '|'.join(emojis),
 		] + lines
 
 		msgs.append({
