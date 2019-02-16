@@ -85,7 +85,7 @@ def cmd_recos(config, author, channel, args):
 		for ref_unit in selected_units:
 
 			base_id = ref_unit['base_id']
-			unit = players[int(ally_code)]['roster-by-id'][base_id]
+			roster = players[int(ally_code)]['roster-by-id']
 			unit_name = basicstrip(ref_unit['name'])
 			if unit_name in config['recos']['by-name']:
 				recos = config['recos']['by-name'][unit_name]
@@ -113,7 +113,8 @@ def cmd_recos(config, author, channel, args):
 					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
 					lines.append(line)
 
-				if 'mods' in unit:
+				if base_id in roster and 'mods' in roster[base_id]:
+					unit = roster[base_id]
 					spacer = EMOJIS['']
 					modsets = get_mod_sets_emojis(config, unit['mods'])
 					primaries = get_mod_primaries(config, unit['mods'])
@@ -138,8 +139,13 @@ def cmd_recos(config, author, channel, args):
 
 					line = '%s%s%s%s`%s`%s' % (source, set1, set2, set3, primaries, info)
 
+				elif base_id not in roster:
+					unit = None
+					line = '%s is still locked for %s' % (ref_unit['name'], discord_id or ally_code)
+
 				else:
-					line = '%s has no mods (%s)' % (ref_unit['name'], discord_id or ally_code)
+					unit = roster[base_id]
+					line = '%s has no mods for %s' % (ref_unit['name'], discord_id or ally_code)
 
 				lines.append(config['separator'])
 				lines.append(line)
@@ -156,7 +162,7 @@ def cmd_recos(config, author, channel, args):
 						'name': ref_unit['name'],
 						'icon_url': get_avatar_url(ref_unit['base_id']),
 					},
-					'image': get_full_avatar_url(ref_unit['image'], units[int(ally_code)][base_id]),
+					'image': get_full_avatar_url(ref_unit['image'], unit),
 					'fields': [{
 						'name': '== Legend ==',
 						'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_cg, emoji_cr, emoji_gg, config['separator']),
