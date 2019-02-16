@@ -18,7 +18,6 @@ META_UNITS_URL = 'https://swgoh.gg/meta-report/'
 META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
 META_MODS_URL = 'https://swgoh.gg/mod-meta-report/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
-
 def download_unit_list(key, url):
 
 	by_id = '%s-by-id' % key
@@ -177,3 +176,41 @@ def get_top_rank1_fleet_squads(top_n):
 
 def get_top_rank1_reinforcements(top_n):
 	return get_top_rank1_squads(top_n, 'reinforcements', META_SHIPS_URL)
+
+def parse_modsets(td):
+
+	modsets = sorted([ div['data-title'] for div in td.find_all('div') ])
+
+	modsets += [''] * (3 - len(modsets))
+
+	return modsets
+
+def get_top_rank1_mods():
+
+	top_mods = []
+
+	response = requests.get(META_MODS_URL)
+	soup = BeautifulSoup(response.text, 'lxml')
+	trs = soup.select('li tr')
+
+	for tr in trs:
+
+		tds = tr.find_all('td')
+		if not tds:
+			continue
+
+		char_name = tds[0].text.strip()
+		modsets = parse_modsets(tds[1])
+		prim_sq = tds[2].text.strip().split('/')
+		prim_tr = tds[3].text.strip().split('/')
+		prim_ci = tds[4].text.strip().split('/')
+		prim_cr = tds[5].text.strip().split('/')
+
+		for _sq in prim_sq:
+			for _tr in prim_tr:
+				for _ci in prim_ci:
+					for _cr in prim_cr:
+						top_mods.append([ char_name, 'swgoh.gg', 'Meta Report', modsets[0], modsets[1], modsets[2], 'Offense', _sq.strip(), 'Defense', _tr.strip(), _ci.strip(), _cr.strip()])
+						#print("%s;swgoh.gg;Meta Report;Offense;%s;Defense;%s;%s;%s;%s" % (char_name, ';'.join(modsets), _sq.strip(), _tr.strip(), _ci.strip(), _cr.strip()))
+
+	return top_mods
