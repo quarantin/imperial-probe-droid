@@ -242,6 +242,9 @@ def get_mod_primaries(config, mods):
 	res = {}
 	primaries = config['mod-primaries']
 
+	for i in range(1, 7):
+		res[i] = 'NA'
+
 	for mod in mods:
 		slot = mod['slot']
 		prim_id = mod['primaryStat']['unitStat']
