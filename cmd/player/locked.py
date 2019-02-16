@@ -96,6 +96,7 @@ def cmd_locked(config, author, channel, args):
 	units = fetch_units(config, ally_codes)
 
 	msgs = []
+	lines = []
 	for ally_code in ally_codes:
 
 		ally_code = int(ally_code)
@@ -121,13 +122,9 @@ def cmd_locked(config, author, channel, args):
 			if not locked_chars:
 				locked_chars.append('All units unlocked!')
 
-			msgs.append({
-				'title': 'Locked Characters',
-				'author': {
-					'name': '%s' % player,
-				},
-				'description': '%s\n%s' % (config['separator'], '\n'.join(sorted(locked_chars))),
-				})
+			lines.append('**Locked Characters**')
+			lines += sorted(locked_chars)
+			lines.append('')
 
 		if opts in [ 'ships', 'all' ]:
 
@@ -139,12 +136,16 @@ def cmd_locked(config, author, channel, args):
 			if not locked_ships:
 				locked_ships.append('All ships unlocked!')
 
-			msgs.append({
-				'title': 'Locked Ships',
-				'author': {
-					'name': '%s' % player,
-				},
-				'description': '%s\n%s' % (config['separator'], '\n'.join(sorted(locked_ships))),
-				})
+			lines.append('**Locked Ships**')
+			lines += sorted(locked_ships)
+			lines.append('')
+
+		msgs.append({
+			'author': {
+				'name': '%s\'s Locked Units' % player,
+			},
+			'title': '',
+			'description': '\n'.join(lines),
+		})
 
 	return msgs
