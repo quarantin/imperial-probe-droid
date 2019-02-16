@@ -73,6 +73,9 @@ def emojistrip(string):
 
 def add_stats(stats):
 
+	if 'full' in stats:
+		return stats
+
 	if 'base' not in stats:
 		res = stats
 
