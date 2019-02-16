@@ -108,8 +108,9 @@ async def on_message(message):
 		if command in cmd['aliases']:
 			msgs = cmd['function'](config, author, channel, args)
 			for msg in msgs:
-				embed = new_embed(config, msg)
-				await bot.send_message(channel, embed=embed)
+				embeds = new_embeds(config, msg)
+				for embed in embeds:
+					await bot.send_message(channel, embed=embed)
 			break
 	else:
 		embed = new_embed(config, {
