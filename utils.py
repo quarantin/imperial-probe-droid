@@ -238,7 +238,7 @@ def get_mod_sets_emojis(config, mods):
 			emoji = EMOJIS[ set_name.replace(' ', '').lower() ]
 			emojis += [ emoji ] * int(modsets[modset])
 
-	return emojis + [ spacer ] * (3 - len(emojis))
+	return sorted(emojis) + [ spacer ] * (3 - len(emojis))
 
 def get_mod_primaries(config, mods):
 
