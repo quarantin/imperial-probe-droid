@@ -28,7 +28,6 @@ def split_message(message):
 	if rest > 0:
 		count += 1
 
-	print("len(DESC) = %d, COUNT = %d" % (len(desc), count))
 	message['description'] = ''
 
 	msgs = [ dict(message) for i in range(0, count) ]
@@ -41,7 +40,6 @@ def split_message(message):
 			break
 
 		if len(new_desc) + len(line) + 1 > 2048:
-			print("WTF %d: %s" % (index, new_desc))
 			msgs[index]['description'] = new_desc
 			new_desc = ''
 			index += 1
