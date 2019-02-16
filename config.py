@@ -167,6 +167,7 @@ def save_config(config_file='config.json'):
 	to_remove = [
 		'allies',
 		'help',
+		'mod-primaries',
 		'recos',
 		'save',
 		'separator',
