@@ -16,16 +16,17 @@ help_help = {
 **`sheets`**: Show available spreadsheets.
 %separator
 **Guild Commands**
-**`gc`**: Compare one (or more) guilds.
+NOT WORKING **`gc`**: Compare one (or more) guilds.
 %separator
 **Player Commands**
 **`arena`**: Show arena squads details.
 **`locked`**: Show locked characters or ships
 **`meta`**: Show information about best arena and fleet squads.
-**`mods`**: Show information about mods.
-**`needed`**: Show information about needed modsets globally.
+NOT WORKING **`mods`**: Show information about mods.
+NOT WORKING **`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
-**`stats`**: Show statistics about equipped mods."""
+NOT WORKING **`stats`**: Show statistics about equipped mods.
+**`wntm`**: List characters who needs mods with specific criteria."""
 }
 
 def substitute_tokens(config, text):

@@ -16,6 +16,7 @@ from cmd.player.mods import *
 from cmd.player.needed import *
 from cmd.player.recos import *
 from cmd.player.stats import *
+from cmd.player.wntm import *
 
 from cmd.guild.gcompare import *
 
@@ -124,4 +125,10 @@ COMMANDS = [
 		'function': cmd_update,
 		'help': help_update,
 	},
+	{
+		'command': 'wntm',
+		'aliases': [ 'w', 'wntm' ],
+		'function': cmd_wntm,
+		'help': help_wntm,
+	}
 ]
