@@ -13,52 +13,11 @@ help_recos = {
 
 **Syntax**
 ```
-%prefixrecos [players] [characters]
-%prefixrecos [players] [mod filter]```
+%prefixrecos [players] [characters]```
 **Aliases**
 ```
 %prefixr```
-**Options**
-The **`mod filter`** parameter should be of the form **`mod-set/mod-slot/primary-stat`**.
-
-Here is the list of valid mod sets:
-**`health`** (or **`he`**)
-**`defense`** (or **`de`**)
-**`potency`** (or **`po`**)
-**`tenacity`** (or **`te`**)
-**`criticalchance`** (or **`cc`**)
-**`criticaldamange`** (or **`cd`**)
-**`offense`** (or **`of`**)
-**`speed`** (or **`sp`**)
-
-Here is the list of valid mod slots:
-**`square`** (or **`sq`**)
-**`arrow`** (or **`ar`**)
-**`diamond`** (or **`di`**)
-**`triangle`** (or **`tr`**)
-**`circle`** (or **`ci`**)
-**`cross`** (or **`cr`**)
-
-Here is the list of valid mod primary stats:
-**`accuracy`** (or **`ac`**)
-**`criticalavoidance`** (or **`ca`**)
-**`criticalchance`** (or **`cc`**)
-**`criticaldamange`** (or **`cd`**)
-**`defense`** (or **`de`**)
-**`health`** (or **`he`**)
-**`offense`** (or **`of`**)
-**`potency`** (or **`po`**)
-**`protection`** (or **`pr`**)
-**`speed`** (or **`sp`**)
-**`tenacity`** (or **`te`**)
-
 **Examples**
-Show which characters needs a `tenacity` `arrow` with `speed` as primary stat:
-```
-%prefixr tenacity/arrow/speed```
-Or the shorter form:
-```
-%prefixr te/ar/sp```
 Show recommended mods for **Emperor Palpatine**:
 ```
 %prefixr ep```
@@ -84,20 +43,24 @@ Show recommended mods for **Darth Nihilus** on two players by ally code:
 
 def cmd_recos(config, author, channel, args):
 
+	emoji_cg = EMOJIS['capitalgames']
+	emoji_cr = EMOJIS['crouchingrancor']
+
 	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	if not ally_codes:
 		return [{
 			'title': 'Not Found',
 			'color': 'red',
-			'description': 'No ally code specified, or found registered to <%s>' % author,
+			'description': 'No ally code specified or found registered to %s' % author,
 		}]
 
-	emoji_cg = EMOJIS['capitalgames']
-	emoji_cr = EMOJIS['crouchingrancor']
-
-	args, selected_sets = parse_opts_modsets(args, MODSET_OPTS_2)
-	args, selected_filters = parse_opts_mod_filters(args)
 	args, selected_units = parse_opts_unit_names(config, args)
+	if not selected_units:
+		return [{
+			'title': 'No Units Selected',
+			'color': 'red',
+			'description': 'You have to provide at least one unit name or a mod filter.\nPlease check %shelp recos for more information.' % config['prefix'],
+		}]
 
 	if args:
 		plural = len(args) > 1
@@ -105,73 +68,6 @@ def cmd_recos(config, author, channel, args):
 			'title': 'Unknown Parameter%s' % plural,
 			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
-
-	if not selected_units:
-
-		if not selected_filters:
-			return [{
-				'title': 'No Units Selected',
-				'color': 'red',
-				'description': 'You have to provide at least one unit name or a mod filter.\nPlease check %shelp recos for more information.' % config['prefix'],
-			}]
-
-		matching_recos = []
-		for modset, slot, prim in selected_filters:
-			for name, recos in sorted(config['recos']['by-name'].items()):
-				for reco in recos:
-
-					alist = [ reco[x] for x in range(3, 6) ]
-					if modset not in [ reco[x] for x in range(3, 6) ]:
-						continue
-
-					if prim != reco[5 + slot]:
-						continue
-
-					matching_recos.append(reco)
-
-		modset = EMOJIS[ modset.replace(' ', '').lower() ]
-		slot = EMOJIS[ slot ]
-
-		lines = []
-		if not matching_recos:
-			lines.append('No matching recommendation for the supplied filters.')
-		else:
-			chars = {}
-			for recos in matching_recos:
-				char_name = recos[0]
-				source = recos[1].replace(' ', '').lower()
-				source_emoji = EMOJIS[source]
-				if char_name not in chars:
-					chars[char_name] = []
-
-				if source_emoji not in chars[char_name]:
-					chars[char_name].append(source_emoji)
-
-			spacer = EMOJIS['']
-			for charac, sources in chars.items():
-				if len(sources) < 2:
-					if sources[0].startswith('<:cg:'):
-						sources.append(spacer)
-					else:
-						sources.insert(0, spacer)
-
-				lines.append('%s %s' % (''.join(sources), charac))
-
-		return [{
-			'title': 'Who Needs This Mod',
-			'fields': [
-				{
-					'name': '== %s%s %s ==' % (modset, slot, prim),
-					'value': '%s\n%s' % ('\n'.join(lines), config['separator']),
-					'inline': True,
-				},
-				{
-					'name': '== Legend ==',
-					'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
-					'inline': True,
-				},
-			]
 		}]
 
 	ref_units = get_char_list()
@@ -222,6 +118,7 @@ def cmd_recos(config, author, channel, args):
 					primaries = get_mod_primaries(config, unit['mods'])
 					del(primaries[1])
 					del(primaries[3])
+
 					primaries = [ primaries[x] for x in primaries ]
 
 					source   = EMOJIS['crimsondeathwatch']
