@@ -150,7 +150,7 @@ def fetch_units(config, ally_codes):
 	# Remove ally codes for which we already have fetched the data
 	needed = list(ally_codes)
 	for ally_code in ally_codes:
-		if ally_code in db['units']:
+		if int(ally_code) in db['units']:
 			needed.remove(ally_code)
 
 	if needed:
