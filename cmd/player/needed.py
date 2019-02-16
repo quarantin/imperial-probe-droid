@@ -188,15 +188,20 @@ def cmd_needed(config, author, channel, args):
 					if 'Crouching Rancor' in stats[slot][primary]:
 						cr_count = roundup(stats[slot][primary]['Crouching Rancor'])
 
+					gg_count = 0.0
+					if 'swgoh.gg' in stats[slot][primary]:
+						gg_count = roundup(stats[slot][primary]['swgoh.gg'])
+
 					ally_count = 0.0
 					#if slot in ally_stats and primary in ally_stats[slot]:
 					#	ally_count = roundup(ally_stats[slot][primary])
 
 					pad1 = pad_numbers(cg_count)
 					pad2 = pad_numbers(cr_count)
-					pad3 = pad_numbers(ally_count)
+					pad3 = pad_numbers(gg_count)
+					pad4 = pad_numbers(ally_count)
 
-					sublines.append('%s `| %s%.3g | %s%.3g | %s%.3g |%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, ally_count, primary))
+					sublines.append('%s `|%s%.3g|%s%.3g|%s%.3g|%s%.3g|%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, gg_count, pad4, ally_count, primary))
 
 			if sublines:
 				lines += [ config['separator'] ] + sublines
