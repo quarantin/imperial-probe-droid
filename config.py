@@ -124,18 +124,23 @@ def extract_modstats(stats, recos):
 				stats[slot][primary][source] = 0.0
 			stats[slot][primary][source] += 1.0 / count
 
-def parse_recommendations():
+def parse_recommendations(recos=None, recos_db={}):
 
+	from swgohgg import get_top_rank1_mods
+	get_top_rank1_mods()
 	url = config['sheets']['recommendations']['view']
 
 	stats = {}
 
-	recos_db = {}
-	recos_db['by-name'] = {}
-	recos_db['by-source'] = {}
+	if 'by-name' not in recos_db:
+		recos_db['by-name'] = {}
 
-	recos = download_spreadsheet(url, 16)
-	next(recos)
+	if 'by-source' not in recos_db:
+		recos_db['by-source'] = {}
+
+	if not recos:
+		recos = download_spreadsheet(url, 16)
+		next(recos)
 
 	for reco in recos:
 
@@ -215,9 +220,13 @@ def load_config(bot=None, config_file='config.json'):
 
 	if bot:
 		print(json.dumps(config, indent=4, sort_keys=True))
+		from swgohgg import get_top_rank1_mods
+		recos_db = parse_recommendations()
+		swgohgg_recos = get_top_rank1_mods()
+		parse_recommendations(swgohgg_recos, recos_db)
 		config['allies'] = parse_allies_db(bot.get_all_members())
 		config['help'] = load_help()
-		config['recos'] = parse_recommendations()
+		config['recos'] = recos_db
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
 
