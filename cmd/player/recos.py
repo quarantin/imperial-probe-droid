@@ -45,6 +45,7 @@ def cmd_recos(config, author, channel, args):
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
+	emoji_gg = EMOJIS['swgoh.gg']
 
 	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	if not ally_codes:
@@ -158,7 +159,7 @@ def cmd_recos(config, author, channel, args):
 					'image': get_full_avatar_url(ref_unit['image'], units[int(ally_code)][base_id]),
 					'fields': [{
 						'name': '== Legend ==',
-						'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
+						'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_cg, emoji_cr, emoji_gg, config['separator']),
 						'inline': True,
 					}]
 				})
