@@ -16,8 +16,9 @@ SWGOH_GG_API_URL = 'https://swgoh.gg/api'
 
 META_UNITS_URL = 'https://swgoh.gg/meta-report/'
 META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
-META_MODS_URL = 'https://swgoh.gg/mod-meta-report/'
+META_MODS_URL = 'https://swgoh.gg/mod-meta-report/rank_10/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
+
 def download_unit_list(key, url):
 
 	by_id = '%s-by-id' % key
