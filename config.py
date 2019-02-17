@@ -167,17 +167,60 @@ def parse_recommendations(recos=None, recos_db={}):
 	recos_db['stats'] = stats
 	return recos_db
 
+def parse_json(filename):
+	filepath = os.path.join('cache', filename)
+	fin = open(filepath, 'r')
+	data = fin.read()
+	fin.close()
+	return json.loads(data)
+
+def parse_skills(filename='skillList.en.json', lang='en'):
+
+	skills = {}
+	skill_list = parse_json(filename)
+
+	for skill in skill_list:
+
+		skill_id          = skill['id']
+		skill_ability_ref = skill['abilityReference']
+
+		skills[skill_id] = skill_ability_ref
+
+	if 'skills' not in config:
+		config['skills'] = {}
+
+	config['skills'][lang] = skills
+
+def parse_abilities(filename='abilityList.en.json', lang='en'):
+
+	abilities = {}
+	ability_list = parse_json(filename)
+
+	for ability in ability_list:
+
+		ability_id   = ability['id']
+		ability_name = ability['nameKey']
+
+		abilities[ability_id] = ability_name
+
+	if 'abilities' not in config:
+		config['abilities'] = {}
+
+	config['abilities'][lang] = abilities
+
 def save_config(config_file='config.json'):
 
 	config_cpy = dict(config)
 
 	to_remove = [
+		'abilities',
 		'allies',
 		'help',
 		'mod-primaries',
 		'recos',
 		'save',
 		'separator',
+		'skills',
 	]
 
 	for key in to_remove:
@@ -229,5 +272,10 @@ def load_config(bot=None, config_file='config.json'):
 		config['recos'] = recos_db
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
+
+		parse_skills('skillList.en.json', 'en')
+		parse_skills('skillList.fr.json', 'fr')
+		parse_abilities('abilityList.en.json', 'en')
+		parse_abilities('abilityList.fr.json', 'fr')
 
 	return config
