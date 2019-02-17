@@ -229,3 +229,18 @@ def parse_opts_mod_filters(args):
 					selected_filters.append(tupl)
 
 	return args, selected_filters
+
+def parse_opts_lang(args):
+
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		if arg in [ 'en', 'EN', 'english' ]:
+			args.remove(arg)
+			return args, 'en'
+
+		if arg in [ 'fr', 'FR', 'french' ]:
+			args.remove(arg)
+			return args, 'fr'
+
+	return args, 'en'
