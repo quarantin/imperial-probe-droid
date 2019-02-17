@@ -130,20 +130,24 @@ def fetch_guilds(config, ally_codes):
 	# Remove ally codes for which we already have fetched the guild data
 	needed = list(ally_codes)
 	for ally_code in ally_codes:
-		for guild in db['guilds']:
+		for guild_name, guild in db['guilds'].items():
 			for player in guild['roster']:
-				if ally_code == player['allyCode']:
+				if int(ally_code) == player['allyCode']:
 					needed.remove(ally_code)
 
-	# Perform API call to retrieve newly needed guild info
-	guilds = api_swgoh_guilds(config, {
-		'allycodes': needed,
-	})
+	if needed:
 
-	# Store newly needed guilds in db
-	for guild in guilds:
-		guild_name = guild['name']
-		db['guilds'][name] = guild
+		# Perform API call to retrieve newly needed guild info
+		guilds = api_swgoh_guilds(config, {
+			'allycodes': needed,
+		})
+
+		# Store newly needed guilds in db
+		for guild in guilds:
+			guild_name = guild['name']
+			db['guilds'][guild_name] = guild
+
+	return db['guilds']
 
 def fetch_units(config, ally_codes):
 
@@ -176,27 +180,42 @@ def fetch_roster(config, ally_codes):
 	# Remove ally codes for which we already have fetched the data
 	needed = list(ally_codes)
 	for ally_code in ally_codes:
-		if ally_code in db['roster']:
+		if int(ally_code) in db['roster']:
 			needed.remove(ally_code)
 
-	# Perform API call to retrieve newly needed units info
-	rosters = api_swgoh_roster(config, {
-		'allycodes': needed,
-	})
+	if needed:
 
-	# Store newly needed rosters in db
-	for roster in rosters:
-		for base_id, unit_list in units.items():
-			for unit in unit_roster:
-				ally_code = unit['allyCode']
-				if ally_code not in db['units']:
-					db['units'][ally_code] = {}
+		# Perform API call to retrieve newly needed units info
+		rosters = api_swgoh_roster(config, {
+			'allycodes': needed,
+		})
 
-				db['units'][ally_code][base_id] = unit
+		# Store newly needed rosters in db
+		for roster in rosters:
+			print(roster)
+			for base_id, unit_roster in roster.items():
+				for unit in unit_roster:
+					ally_code = unit['allyCode']
+					if ally_code not in db['roster']:
+						db['roster'][ally_code] = {}
 
+					db['roster'][ally_code][base_id] = unit
+
+	return db['roster']
 #
 # Utility functions
 #
+
+def get_guilds_ally_codes(guilds):
+
+	ally_codes = {}
+
+	for guild_name, guild in guilds.items():
+		for ally in guild['roster']:
+			ally_code = ally['allyCode']
+			ally_codes[ally_code] = ally
+
+	return ally_codes
 
 def get_player_names(config, ally_codes):
 
@@ -282,3 +301,16 @@ def get_stats(config, ally_code):
 
 	db['players'][ally_code]['char_stats'] = stats
 	return stats
+
+def get_ability_name(config, skill_id, lang):
+
+	name = 'Not found'
+	if lang not in config['skills']:
+		lang = 'en'
+
+	if skill_id in config['skills'][lang]:
+		ability_id = config['skills'][lang][skill_id]
+		if ability_id in config['abilities'][lang]:
+			name = config['abilities'][lang][ability_id]
+
+	return name
