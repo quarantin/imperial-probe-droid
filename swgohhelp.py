@@ -271,7 +271,6 @@ def fetch_crinolo_stats(config, ally_codes):
 		for base_id, unit_roster in stats.items():
 			for unit in unit_roster:
 
-				print(json.dumps(unit, indent=4))
 				stats = unit['stats']
 				unit = unit['unit']
 				#TODO print(unit, file=sys.stderr)
