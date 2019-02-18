@@ -74,7 +74,8 @@ def get_game():
 @bot.event
 async def on_ready():
 	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
-	await bot.change_presence(game=get_game())
+	if 'env' in config and config['env'] is 'prod':
+		await bot.change_presence(game=get_game())
 	load_config(bot=bot)
 	message = compute_hello_msg()
 	for chan_id in config['hello']:
