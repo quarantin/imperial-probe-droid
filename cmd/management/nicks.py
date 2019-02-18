@@ -67,17 +67,20 @@ def cmd_nicks(config, author, channel, args):
 			i = 1
 			for nick, name in sorted(config['nicks'].items()):
 				if i == target_nick:
+					old_nick = nick
+					old_unit = name
 					del config['nicks'][nick]
 					break
 
 				i = i + 1
 		elif target_nick in config['nicks']:
+			old_unit = config['nicks'][target_nick]
 			del config['nicks'][target_nick]
 
 		config['save']()
 		return [{
 			'title': 'Delete Nick',
-			'description': 'The nickname was successfully deleted.',
+			'description': 'The nickname was successfully deleted:\n`%s`: %s' % (old_nick, old_unit),
 		}]
 
 	elif action == 'add':
@@ -115,7 +118,7 @@ def cmd_nicks(config, author, channel, args):
 		config['save']()
 		return [{
 			'title': 'Add Nick',
-			'description': 'The nickname was successfully added.',
+			'description': 'The nickname was successfully added:\n`%s`: %s' % (target_nick, config['nicks'][target_nick]),
 		}]
 
 	return [{
