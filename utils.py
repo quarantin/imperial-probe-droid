@@ -258,3 +258,12 @@ def get_mod_primaries(config, mods):
 		res[slot] = primary
 
 	return res
+
+def get_stars_as_emojis(rarity):
+
+	stars = ''
+
+	for i in range(1, 8):
+		stars += i <= rarity and EMOJIS['star'] or EMOJIS['no-star']
+
+	return stars
