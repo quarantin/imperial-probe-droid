@@ -263,7 +263,6 @@ def load_config(bot=None, config_file='config.json'):
 						config['short-urls'][view_url] = get_short_url(view_url)
 
 	if bot:
-		print(json.dumps(config, indent=4, sort_keys=True))
 		from swgohgg import get_top_rank1_mods
 		recos_db = parse_recommendations()
 		swgohgg_recos = get_top_rank1_mods()
