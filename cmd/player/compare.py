@@ -110,7 +110,7 @@ def get_stat_detail(name, stats, percent=False, label=None):
 		'%d%s' % (gear_stat, percent_sign),
 	])
 
-	return '%s: `%d%s (%s)`' % (label, round(full_stat), percent_sign, string_stat)
+	return '%s: **`%d%s`** (`%s`)' % (label, round(full_stat), percent_sign, string_stat)
 
 def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
