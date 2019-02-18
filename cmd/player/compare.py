@@ -118,13 +118,16 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
 	if base_id in roster:
 		unit = roster[base_id]
-		lines.append(get_stars_as_emojis(unit['starLevel']))
 
 		sublines = []
-		sublines.append('G%d' % unit['gearLevel'])
-		sublines.append('L%d' % unit['level'])
-		sublines.append('GP%d'  % unit['gp'])
-		lines.append(' '.join(sublines))
+		sublines.append('**G%d**' % unit['gearLevel'])
+		sublines.append('**L%d**' % unit['level'])
+		sublines.append('**GP%d**'  % unit['gp'])
+
+		info = '|'.join(sublines)
+		stars = get_stars_as_emojis(unit['starLevel'])
+
+		lines.append('%s %s' % (stars, info))
 
 		stat = stats[base_id]
 		add_stats(stat)
