@@ -221,6 +221,7 @@ def save_config(config_file='config.json'):
 		'save',
 		'separator',
 		'skills',
+		'stats',
 	]
 
 	for key in to_remove:
@@ -272,6 +273,7 @@ def load_config(bot=None, config_file='config.json'):
 		config['recos'] = recos_db
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
+		config['stats'] = {}
 
 		parse_skills('skillList.en.json', 'en')
 		parse_skills('skillList.fr.json', 'fr')
