@@ -13,20 +13,17 @@ help_player_compare = {
 
 **Syntax**
 ```
-%prefixcompare [players] [units]
-**Aliases**
-```
-%prefixc```
+%prefixpc [players] [units]```
 **Examples**
 Compare your profile to another by ally code:
 ```
-%prefixc 123456789```
+%prefixpc 123456789```
 Compare two different players:
 ```
-%prefixc 123456789 234567890```
+%prefixpc 123456789 234567890```
 Compare your profile to another and show stats about Revan and Darth Traya:
 ```
-%prefixc 123456789 revan traya```"""
+%prefixpc 123456789 revan traya```"""
 }
 
 def get_player_stats(config, roster, lang):
