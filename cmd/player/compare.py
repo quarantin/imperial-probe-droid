@@ -89,17 +89,28 @@ def get_player_stats(config, roster, lang):
 
 def get_stat_detail(name, stats, percent=False, label=None):
 
+	coef = 1.0
+	percent_sign = ''
+	if percent is True:
+		coef = 100.0
+		percent_sign = '%'
+
 	if label is None:
 		label = name
 
-	full_stat = name in stats['full'] and stats['full'][name] or 0
-	mods_stat = name in stats['mods'] and stats['mods'][name] or 0
-	gear_stat = name in stats['gear'] and stats['gear'][name] or 0
+	full_stat = name in stats['full'] and stats['full'][name] * coef or 0
+	mods_stat = name in stats['mods'] and stats['mods'][name] * coef or 0
+	gear_stat = name in stats['gear'] and stats['gear'][name] * coef or 0
+
 	base_stat = full_stat - mods_stat - gear_stat
 
-	string_stat = '+'.join([ str(base_stat), str(mods_stat), str(gear_stat) ])
+	string_stat = '+'.join([
+		'%d%s' % (base_stat, percent_sign),
+		'%d%s' % (mods_stat, percent_sign),
+		'%d%s' % (gear_stat, percent_sign),
+	])
 
-	return '%s: `%d (%s)`' % (label, full_stat, string_stat)
+	return '%s: `%d%s (%s)`' % (label, full_stat, percent_sign, string_stat)
 
 def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
@@ -125,18 +136,18 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 		lines.append(get_stat_detail('Resistance', stat))
 
 		# Speed
-		lines.append(get_stat_detail('Speed',      stat))
+		lines.append(get_stat_detail('Speed', stat))
 
 		# Potency, Tenacity
-		lines.append(get_stat_detail('Potency',    stat))
-		lines.append(get_stat_detail('Tenacity',   stat))
+		lines.append(get_stat_detail('Potency',  stat, percent=True))
+		lines.append(get_stat_detail('Tenacity', stat, percent=True))
 
 		# CD, CC, Damage
-		lines.append(get_stat_detail('Critical Damange', stat, label='CD'))
-		lines.append(get_stat_detail('Physical Critical Chance', stat, label='CC.Phys'))
-		lines.append(get_stat_detail('Special Critical Chance', stat, label='CC.Spec'))
-		lines.append(get_stat_detail('Physical Damage', stat, label='Phys.Damage'))
-		lines.append(get_stat_detail('Special Damage', stat, label='Spec.Damage'))
+		lines.append(get_stat_detail('Physical Damage',          stat, label='Phys.Damage'))
+		lines.append(get_stat_detail('Special Damage',           stat, label='Spec.Damage'))
+		lines.append(get_stat_detail('Physical Critical Chance', stat, percent=True, label='CC.Phys'))
+		lines.append(get_stat_detail('Special Critical Chance',  stat, percent=True, label='CC.Spec'))
+		lines.append(get_stat_detail('Critical Damage',          stat, percent=True, label='CD'))
 
 		if not unit['zetas']:
 			lines.append('No zetas')
