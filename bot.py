@@ -40,7 +40,17 @@ def log_message(message):
 	server = message.server
 	channel = message.channel
 	content = message.content
-	author = '/'.join([message.author.id, message.author.display_name, message.author.nick, message.author.name])
+	author_tokens = []
+	if message.author.id:
+		author_tokens.append(message.author.id)
+	if message.author.display_name:
+		author_tokens.append(message.author.display_name)
+	if message.author.nick:
+		author_tokens.append(message.author.nick)
+	if message.author.name:
+		author_tokens.append(message.author.name)
+
+	author = '/'.join(author_tokens)
 
 	log = '[%s][server=%s][channel=%s][author=%s] %s' % (date, server, channel, author, content)
 	print(log)
