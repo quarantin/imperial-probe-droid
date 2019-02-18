@@ -17,14 +17,14 @@ help_fight = {
 
 **Aliases**
 ```
-%prefixc```
+%prefixf```
 **Examples**
 Assuming your sith/empire team won against **OtherPlayer** nightsisters in automatic mode, you should type a command similar to this one:
 ```
-%prefixc win auto @You ep dn dv gat darthsion @OtherPlayer mt od zombi asajj talia```
+%prefixf win auto @You ep dn dv gat darthsion @OtherPlayer mt od zombi asajj talia```
 Alternatively, if your ewok team was defeated in manual mode by the first order team of **OtherPlayer**, then you should type a command similar to this one:
 ```
-%prefixc lose manual @You chirpa elder wicket logray paploo @OtherPlayer kru kr fox fotp fosftp```"""
+%prefixf lose manual @You chirpa elder wicket logray paploo @OtherPlayer kru kr fox fotp fosftp```"""
 }
 
 def cmd_fight(config, author, channel, args):

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from cmd.guild.gcompare import *
 from cmd.management.alias import *
 from cmd.management.format import *
 from cmd.management.help import *
@@ -8,8 +9,9 @@ from cmd.management.nicks import *
 from cmd.management.restart import *
 from cmd.management.sheets import *
 from cmd.management.update import *
-
+from cmd.misc.meta import *
 from cmd.player.arena import *
+from cmd.player.compare import *
 from cmd.player.fight import *
 from cmd.player.locked import *
 from cmd.player.mods import *
@@ -17,10 +19,6 @@ from cmd.player.needed import *
 from cmd.player.recos import *
 from cmd.player.stats import *
 from cmd.player.wntm import *
-
-from cmd.guild.gcompare import *
-
-from cmd.misc.meta import *
 
 COMMANDS = [
 	{
@@ -36,6 +34,12 @@ COMMANDS = [
 		'help': help_arena,
 	},
 	{
+		'command': 'pcompare',
+		'aliases': [ 'pc', 'pcompare' ],
+		'function': cmd_player_compare,
+		'help': help_player_compare,
+	},
+	{
 		'command': 'gcompare',
 		'aliases': [ 'gc', 'gcompare' ],
 		'function': cmd_guild_compare,
@@ -43,7 +47,7 @@ COMMANDS = [
 	},
 	{
 		'command': 'fight',
-		'aliases': [ 'c', 'fight' ],
+		'aliases': [ 'f', 'fight' ],
 		'function': cmd_fight,
 		'help': help_fight,
 	},
