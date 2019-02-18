@@ -89,10 +89,10 @@ def get_player_stats(config, roster, lang):
 
 def get_stat_detail(name, stats, percent=False, label=None):
 
-	coef = 1.0
+	coef = 1
 	percent_sign = ''
 	if percent is True:
-		coef = 100.0
+		coef = 100
 		percent_sign = '%'
 
 	if label is None:
@@ -102,7 +102,7 @@ def get_stat_detail(name, stats, percent=False, label=None):
 	mods_stat = name in stats['mods'] and stats['mods'][name] * coef or 0
 	gear_stat = name in stats['gear'] and stats['gear'][name] * coef or 0
 
-	base_stat = full_stat - mods_stat - gear_stat
+	base_stat = round(full_stat) - mods_stat - gear_stat
 
 	string_stat = '+'.join([
 		'%d%s' % (base_stat, percent_sign),
@@ -110,7 +110,7 @@ def get_stat_detail(name, stats, percent=False, label=None):
 		'%d%s' % (gear_stat, percent_sign),
 	])
 
-	return '%s: `%d%s (%s)`' % (label, full_stat, percent_sign, string_stat)
+	return '%s: `%d%s (%s)`' % (label, round(full_stat), percent_sign, string_stat)
 
 def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
