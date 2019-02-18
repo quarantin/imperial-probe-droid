@@ -73,6 +73,10 @@ def call_api(config, project, url):
 # API
 #
 
+def api_crinolo(config, rosters):
+	url = '%s/characters' % CRINOLO_TEST_URL
+	return requests.post(url, rosters).json()
+
 def api_swgoh_players(config, project):
 	return call_api(config, project, '%s/swgoh/players' % SWGOH_HELP)
 
@@ -207,7 +211,7 @@ def fetch_roster(config, ally_codes):
 
 	if needed:
 
-		# Perform API call to retrieve newly needed units info
+		# Perform API call to retrieve newly needed roster info
 		rosters = api_swgoh_roster(config, {
 			'allycodes': needed,
 		})
@@ -222,7 +226,32 @@ def fetch_roster(config, ally_codes):
 
 					db['roster'][ally_code][base_id] = unit
 
-	return db['roster']
+	rosters = {}
+	for ally_code in ally_codes:
+		rosters[ally_code] = db['roster'][int(ally_code)]
+
+	return rosters
+
+# Stats helper from crinolo
+
+def fetch_stats(config, ally_codes):
+
+	# Perform API call to retrieve newly needed players info
+	players = fetch_players(config, ally_codes)
+
+	# Remove ally codes for which we already have fetched the data
+	needed = list(ally_codes)
+	for ally_code in ally_codes:
+		if int(ally_code) in db['stats']:
+			needed.remove(ally_code)
+
+	if needed:
+
+		stats = api_crinolo(config, [ player['roster'] for player in players ])
+		for stat in stats:
+			print(stat)
+
+	return
 #
 # Utility functions
 #
@@ -327,10 +356,10 @@ def get_stats(config, ally_code):
 	stats = {}
 
 	ally_code = int(ally_code)
-	fetch_players(config, [ ally_code ])
+	players = fetch_players(config, [ ally_code ])
 
-	if 'char_stats' in db['players'][ally_code]:
-		return db['players'][ally_code]['char_stats']
+	if 'char_stats' in players[ally_code]:
+		return players[ally_code]['char_stats']
 
 	url = '%s/%s/characters?flags=withModCalc' % (CRINOLO_TEST_URL, ally_code)
 	roster = requests.get(url).json()
@@ -338,7 +367,7 @@ def get_stats(config, ally_code):
 		base_id = unit['defId']
 		stats[base_id] = unit['stats']
 
-	db['players'][ally_code]['char_stats'] = stats
+	players[ally_code]['char_stats'] = stats
 	return stats
 
 def get_ability_name(config, skill_id, lang):
