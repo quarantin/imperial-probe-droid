@@ -100,7 +100,7 @@ def cmd_arena(config, author, channel, args):
 		return [{
 			'title': 'Not Found',
 			'color': 'red',
-			'description': 'No ally code specified, or found registered to <%s>' % author,
+			'description': 'No ally code specified or found registered to %s' % author,
 		}]
 
 	args, selected_format = parse_opts_format(config, args)
