@@ -118,7 +118,16 @@ def fetch_players(config, ally_codes, key='name'):
 
 		# Store newly needed players in db
 		for player in players:
-			player['roster-by-id'] = get_units_dict(player['roster'], 'defId')
+
+			total, char, ship = get_player_gp_from_roster(player['roster'])
+
+			player['gp'] = {
+				'total': total,
+				'char': char,
+				'ship': ship,
+			}
+
+			player['roster'] = get_units_dict(player['roster'], 'defId')
 
 			ally_code = player['allyCode']
 			db['players'][ally_code] = player
@@ -144,7 +153,7 @@ def fetch_guilds(config, ally_codes):
 
 		# Store newly needed guilds in db
 		for guild in guilds:
-			guild['roster-by-id'] = get_units_dict(guild['roster'], 'allyCode')
+			guild['roster'] = get_units_dict(guild['roster'], 'allyCode')
 			guild_name = guild['name']
 			db['guilds'][guild_name] = guild
 
@@ -153,7 +162,7 @@ def fetch_guilds(config, ally_codes):
 	for guild_name, guild in db['guilds'].items():
 
 		for ally_code in ally_codes:
-			if ally_code in guild['roster-by-id']:
+			if ally_code in guild['roster']:
 				guilds[guild_name] = guild
 
 	return guilds
@@ -201,7 +210,6 @@ def fetch_roster(config, ally_codes):
 
 		# Store newly needed rosters in db
 		for roster in rosters:
-			print(roster)
 			for base_id, unit_roster in roster.items():
 				for unit in unit_roster:
 					ally_code = unit['allyCode']
@@ -291,6 +299,24 @@ def get_arena_squads(config, ally_codes, arena_type):
 def get_arena_squad(config, ally_code, arena_type):
 	data = get_arena_squads(config, [ ally_code ], arena_type)
 	return data[int(ally_code)]
+
+def get_player_gp_from_roster(roster):
+
+	total, char, ship = 0, 0, 0
+
+	for unit in roster:
+
+		gp = unit['gp']
+
+		total += gp
+
+		if unit['combatType'] is 1:
+			char += gp
+
+		if unit['combatType'] is 2:
+			ship += gp
+
+	return total, char, ship
 
 def get_stats(config, ally_code):
 

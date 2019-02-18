@@ -85,7 +85,7 @@ def cmd_recos(config, author, channel, args):
 		for ref_unit in selected_units:
 
 			base_id = ref_unit['base_id']
-			roster = players[int(ally_code)]['roster-by-id']
+			roster = players[int(ally_code)]['roster']
 			unit_name = basicstrip(ref_unit['name'])
 			if unit_name in config['recos']['by-name']:
 				recos = config['recos']['by-name'][unit_name]
