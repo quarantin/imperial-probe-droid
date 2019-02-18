@@ -329,7 +329,7 @@ def get_last_syncs(config, ally_codes, date_format):
 
 def get_last_sync(config, ally_code, date_format):
 	data = get_last_syncs(config, [ ally_code ], date_format)
-	return data[int(ally_code)]
+	return data[ally_code]
 
 def get_arena_ranks(config, ally_codes, arena_type):
 
