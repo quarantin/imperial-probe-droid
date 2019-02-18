@@ -14,12 +14,12 @@ help_locked = {
 **Aliases**
 ```
 %prefixl```
-
 **Options**
 The following options are available to filter output:
 **`chars`** (or **`c`**): To show locked characters for the specified players.
 **`ships`** (or **`s`**): To show locked ships for the specificed players.
 If no options are specified, all locked characters and ships are displayed.
+
 **Examples**
 Show your locked characters and ships:
 ```
