@@ -261,9 +261,12 @@ def get_mod_primaries(config, mods):
 
 def get_stars_as_emojis(rarity):
 
+	active = '★'
+	inactive = '☆'
+
 	stars = ''
 
 	for i in range(1, 8):
-		stars += i <= rarity and EMOJIS['star'] or EMOJIS['no-star']
+		stars += i <= rarity and active or inactive
 
 	return stars
