@@ -141,4 +141,3 @@ async def on_message(message):
 		})
 		for embed in embeds:
 			await bot.send_message(channel, embed=embed)
-		await bot.send_message(channel, embed=embed)
