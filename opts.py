@@ -112,7 +112,7 @@ def parse_opts_ally_code(config, author, arg):
 	return None
 
 
-def parse_opts_ally_codes(config, author, args):
+def parse_opts_ally_codes(config, author, args, min_allies=1):
 
 	ally_codes = []
 	args_cpy = list(args)
@@ -127,7 +127,7 @@ def parse_opts_ally_codes(config, author, args):
 			args.remove(arg)
 			ally_codes.append(config['allies']['by-mention'][arg][2])
 
-	if not ally_codes and author in config['allies']['by-discord-nick']:
+	if len(ally_codes) < min_allies and author in config['allies']['by-discord-nick']:
 		ally_codes.append(config['allies']['by-discord-nick'][author][2])
 
 	return args, ally_codes
