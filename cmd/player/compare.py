@@ -38,27 +38,28 @@ def get_player_stats(config, roster, lang):
 		'zetas': {},
 	}
 
-	for unit_roster in roster:
+	for i in range(0, 85 + 1):
+		stats['levels'][i] = 0
 
-		gp    = unit_roster['gp']
-		level = unit_roster['level']
-		gear  = unit_roster['gearLevel']
-		stars = unit_roster['starLevel']
-		zetas = unit_roster['zetas']
+	for i in range(0, 12 + 1):
+		stats['gears'][i] = 0
+
+	for i in range(0, 7 + 1):
+		stats['stars'][i] = 0
+
+	for base_id, unit in roster.items():
+
+		print("WTF: base_id=%s, unit=%s" % (base_id, unit))
+		gp    = unit['gp']
+		level = unit['level']
+		gear  = unit['gearLevel']
+		stars = unit['starLevel']
+		zetas = unit['zetas']
 
 		stats['count'] += 1
 		stats['cumul-gp'] += gp
-
-		if level not in stats['levels']:
-			stats['levels'][level] = 0
 		stats['levels'][level] += 1
-
-		if gear not in stats['gears']:
-			stats['gears'][gear] = 0
 		stats['gears'][gear] += 1
-
-		if stars not in stats['stars']:
-			stats['stars'][stars] = 0
 		stats['stars'][stars] += 1
 
 		for zeta in zetas:
@@ -76,22 +77,23 @@ def unit_to_embedfield(config, player, roster, base_id, lang):
 	lines = []
 
 	if base_id in roster:
-		unit_roster = roster[base_id]
-		stats = get_player_stats(config, unit_roster, lang)
-		lines.append(get_stars_as_emojis(next(iter(stats['stars']))))
+		unit = roster[base_id]
+		#stats = get_player_stats(config, unit, lang)
+		lines.append(get_stars_as_emojis(unit['starLevel']))
 
 		sublines = []
-		sublines.append('G%d' % next(iter(stats['gears'])))
-		sublines.append('L%d' % next(iter(stats['levels'])))
-		sublines.append('GP%d'  % (stats['cumul-gp'] / stats['count']))
+		sublines.append('G%d' % unit['gearLevel'])
+		sublines.append('L%d' % unit['level'])
+		sublines.append('GP%d'  % unit['gp'])
 		lines.append(' '.join(sublines))
 
-		if not stats['zetas']:
+		if not unit['zetas']:
 			lines.append('No zetas')
+
 		else:
 			lines.append('Zetas:')
-			for zeta_name in stats['zetas']:
-				lines.append('**%s**\u202F' % zeta_name)
+			for zeta in unit['zetas']:
+				lines.append('**%s**\u202F' % get_ability_name(config, zeta['id'], lang))
 	else:
 		lines.append('Character still locked.')
 
@@ -101,7 +103,9 @@ def unit_to_embedfield(config, player, roster, base_id, lang):
 		'inline': True,
 	}
 
-def player_to_embedfield(player):
+def player_to_embedfield(config, player, roster, lang):
+
+	stats = get_player_stats(config, roster, lang)
 
 	lines = [
 		'**ID:** %s' % player['id'],
@@ -113,8 +117,17 @@ def player_to_embedfield(player):
 		'**Rank:** %s' % player['arena']['char']['rank'],
 		'**Fleet Rank:** %s' % player['arena']['ship']['rank'],
 		'**Guild:** %s' % player['guildName'],
-		''
+		'**L85 Units:** %s' % stats['levels'][85],
 	]
+
+	for star in reversed(range(1, 7 + 1)):
+		lines.append('%s: %s' % (get_stars_as_emojis(star), stats['stars'][star]))
+
+	for gear in reversed(range(8, 12 + 1)):
+		lines.append('**G%d Units:** %s' % (gear, stats['gears'][gear]))
+
+	lines.append('**Zetas:** %s' % len(stats['zetas']))
+	lines.append('')
 
 	return {
 		'name': player['name'],
@@ -148,7 +161,7 @@ def cmd_player_compare(config, author, channel, args):
 	rosters = fetch_roster(config, ally_codes)
 
 	for ally_code, player in players.items():
-		fields.append(player_to_embedfield(player))
+		fields.append(player_to_embedfield(config, player, rosters[int(ally_code)], lang))
 
 	msgs.append({
 		'title': 'Player Comparison',
@@ -161,12 +174,13 @@ def cmd_player_compare(config, author, channel, args):
 		for ally_code, player in players.items():
 
 			roster = {}
-			player_roster = rosters[int(ally_code)]
-			for base_id, player_unit in player_roster.items():
-				if base_id not in roster:
-					roster[base_id] = []
-
-				roster[base_id].append(player_unit)
+			roster = rosters[int(ally_code)]
+			#player_roster = rosters[int(ally_code)]
+			#for base_id, player_unit in player_roster.items():
+			#	if base_id not in roster:
+			#		roster[base_id] = []
+			#
+			#	roster[base_id].append(player_unit)
 
 			fields.append(unit_to_embedfield(config, player, roster, unit['base_id'], lang))
 
