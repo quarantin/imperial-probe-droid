@@ -99,7 +99,6 @@ def cmd_locked(config, author, channel, args):
 	lines = []
 	for ally_code in ally_codes:
 
-		ally_code = int(ally_code)
 		ally_units = units[ally_code]
 
 		player = get_player_name(config, ally_code)
