@@ -346,7 +346,7 @@ def get_arena_ranks(config, ally_codes, arena_type):
 
 def get_arena_rank(config, ally_code, arena_type):
 	data = get_arena_ranks(config, [ ally_code ], arena_type)
-	return data[int(ally_code)]
+	return data[ally_code]
 
 def get_arena_squads(config, ally_codes, arena_type):
 
@@ -363,7 +363,7 @@ def get_arena_squads(config, ally_codes, arena_type):
 
 def get_arena_squad(config, ally_code, arena_type):
 	data = get_arena_squads(config, [ ally_code ], arena_type)
-	return data[int(ally_code)]
+	return data[ally_code]
 
 def get_player_gp_from_roster(roster):
 
