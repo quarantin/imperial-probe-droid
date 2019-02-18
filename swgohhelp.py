@@ -2,13 +2,15 @@
 
 from utils import get_units_dict
 
+import json
 import sys
 import requests
 from datetime import datetime, timedelta
 
 db = {
-	'guilds':  {},
+	'stats':   {},
 	'players': {},
+	'guilds':  {},
 	'roster':  {},
 	'units':   {},
 	'events':  {},
@@ -18,8 +20,8 @@ db = {
 
 SWGOH_HELP = 'https://api.swgoh.help'
 
-CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api/player'
-CRINOLO_TEST_URL = 'https://crinolo-swgoh.glitch.me/testCalc/api/player'
+CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api'
+CRINOLO_TEST_URL = 'https://crinolo-swgoh.glitch.me/testCalc/api'
 
 #
 # Internal - Do not call yourself
@@ -66,16 +68,12 @@ def get_headers(config):
 	}
 
 def call_api(config, project, url):
-	print("CALL API: %s %s" % (url, project))
+	print("CALL API: %s %s" % (url, project), file=sys.stderr)
 	return requests.post(url, headers=get_headers(config), json=project).json()
 
 #
 # API
 #
-
-def api_crinolo(config, rosters):
-	url = '%s/characters' % CRINOLO_TEST_URL
-	return requests.post(url, rosters).json()
 
 def api_swgoh_players(config, project):
 	return call_api(config, project, '%s/swgoh/players' % SWGOH_HELP)
@@ -100,6 +98,11 @@ def api_swgoh_events(config, project):
 
 def api_swgoh_data(config, project):
 	return call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
+
+def api_crinolo(config, units):
+	url = '%s/characters?flags=withModCalc' % CRINOLO_PROD_URL
+	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
+	return requests.post(url, json=units).json()
 
 #
 # Fetch functions
@@ -167,11 +170,8 @@ def fetch_guilds(config, ally_codes):
 
 	guilds = {}
 
-	for guild_name, guild in db['guilds'].items():
-
-		for ally_code in ally_codes:
-			if ally_code in guild['roster']:
-				guilds[guild_name] = guild
+	for ally_code in ally_codes:
+		guilds[ally_code] = db['guilds'][int(ally_code)]
 
 	return guilds
 
@@ -199,7 +199,12 @@ def fetch_units(config, ally_codes):
 
 				db['units'][ally_code][base_id] = unit
 
-	return db['units']
+	units = {}
+
+	for ally_code in ally_codes:
+		units[ally_code] = db['units'][int(ally_code)]
+
+	return units
 
 def fetch_roster(config, ally_codes):
 
@@ -227,17 +232,13 @@ def fetch_roster(config, ally_codes):
 					db['roster'][ally_code][base_id] = unit
 
 	rosters = {}
+
 	for ally_code in ally_codes:
 		rosters[ally_code] = db['roster'][int(ally_code)]
 
 	return rosters
 
-# Stats helper from crinolo
-
-def fetch_stats(config, ally_codes):
-
-	# Perform API call to retrieve newly needed players info
-	players = fetch_players(config, ally_codes)
+def fetch_crinolo_stats(config, ally_codes):
 
 	# Remove ally codes for which we already have fetched the data
 	needed = list(ally_codes)
@@ -247,11 +248,47 @@ def fetch_stats(config, ally_codes):
 
 	if needed:
 
-		stats = api_crinolo(config, [ player['roster'] for player in players ])
-		for stat in stats:
-			print(stat)
+		# Perform API call to retrieve newly needed units info
+		units = api_swgoh_units(config, {
+			'allycodes': ally_codes,
+		})
 
-	return
+		roster = {}
+
+		for base_id, unit_roster in units.items():
+			for unit in unit_roster:
+
+				if str(unit['allyCode']) not in needed:
+					continue
+
+				if base_id not in roster:
+					roster[base_id] = []
+
+				roster[base_id].append(unit)
+
+		stats = api_crinolo(config, roster)
+
+		for base_id, unit_roster in stats.items():
+			for unit in unit_roster:
+
+				print(json.dumps(unit, indent=4))
+				stats = unit['stats']
+				unit = unit['unit']
+				#TODO print(unit, file=sys.stderr)
+				ally_code = unit['allyCode']
+
+				if ally_code not in db['stats']:
+					db['stats'][ally_code] = {}
+
+				if base_id not in db['stats'][ally_code]:
+					db['stats'][ally_code][base_id] = stats
+
+	stats = {}
+
+	for ally_code in ally_codes:
+		stats[ally_code] = db['stats'][int(ally_code)]
+
+	return stats
 #
 # Utility functions
 #
@@ -361,7 +398,7 @@ def get_stats(config, ally_code):
 	if 'char_stats' in players[ally_code]:
 		return players[ally_code]['char_stats']
 
-	url = '%s/%s/characters?flags=withModCalc' % (CRINOLO_TEST_URL, ally_code)
+	url = '%s/player/%s/characters?flags=withModCalc' % (CRINOLO_TEST_URL, ally_code)
 	roster = requests.get(url).json()
 	for unit in roster:
 		base_id = unit['defId']
