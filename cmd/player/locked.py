@@ -78,7 +78,7 @@ def cmd_locked(config, author, channel, args):
 		return [{
 			'title': 'Not Found',
 			'color': 'red',
-			'description': 'No ally code specified or found registered to <%s>' % author,
+			'description': 'No ally code specified or found registered to %s' % author,
 		}]
 
 	args, opts = parse_opts_locked(args)
