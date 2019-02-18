@@ -309,14 +309,13 @@ def get_player_names(config, ally_codes):
 
 	names = {}
 	for ally_code in ally_codes:
-		ally_code = int(ally_code)
-		names[ally_code] = db['players'][ally_code]['name']
+		names[ally_code] = db['players'][int(ally_code)]['name']
 
 	return names
 
 def get_player_name(config, ally_code):
 	data = get_player_names(config, [ ally_code ])
-	return data[int(ally_code)]
+	return data[ally_code]
 
 def get_last_syncs(config, ally_codes, date_format):
 
@@ -324,8 +323,7 @@ def get_last_syncs(config, ally_codes, date_format):
 
 	updated = {}
 	for ally_code in ally_codes:
-		ally_code = int(ally_code)
-		updated[ally_code] = datetime.fromtimestamp(int(db['players'][ally_code]['updated']) / 1000).strftime(date_format)
+		updated[ally_code] = datetime.fromtimestamp(int(db['players'][int(ally_code)]['updated']) / 1000).strftime(date_format)
 
 	return updated
 
@@ -342,8 +340,7 @@ def get_arena_ranks(config, ally_codes, arena_type):
 
 	ranks = {}
 	for ally_code in ally_codes:
-		ally_code = int(ally_code)
-		ranks[ally_code] = db['players'][ally_code]['arena'][arena_type]['rank']
+		ranks[ally_code] = db['players'][int(ally_code)]['arena'][arena_type]['rank']
 
 	return ranks
 
@@ -360,8 +357,7 @@ def get_arena_squads(config, ally_codes, arena_type):
 
 	squads = {}
 	for ally_code in ally_codes:
-		ally_code = int(ally_code)
-		squads[ally_code] = db['players'][ally_code]['arena'][arena_type]['squad']
+		squads[ally_code] = db['players'][int(ally_code)]['arena'][arena_type]['squad']
 
 	return squads
 
