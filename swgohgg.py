@@ -94,6 +94,12 @@ def get_full_avatar_url(image, unit):
 		rarity = 'starLevel' in unit and unit['starLevel']  or 0
 		zetas  = 'zetas'     in unit and len(unit['zetas']) or 0
 
+		if 'gearLevel' not in unit and 'gear' in unit:
+			gear = unit['gear']
+
+		if 'starLevel' not in unit and 'rarity' in unit:
+			rarity = unit['rarity']
+
 	#return 'https://api.swgoh.help/image/char/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (base_id, level, gear, rarity, zetas)
 	url = 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image, level, gear, rarity, zetas)
 	return url
