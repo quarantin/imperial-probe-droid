@@ -136,7 +136,7 @@ def cmd_arena(config, author, channel, args):
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				unit = players[int(ally_code)]['roster'][base_id]
+				unit = players[ally_code]['roster'][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				stats = get_stats(config, ally_code)
 				line = format_char_details(unit, selected_format)
@@ -154,7 +154,7 @@ def cmd_arena(config, author, channel, args):
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				unit = players[int(ally_code)]['roster'][base_id]
+				unit = players[ally_code]['roster'][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				stats = { base_id: {} }
 				# No stats for ships yet (See with Crinolo)
