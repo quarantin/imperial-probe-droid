@@ -89,7 +89,7 @@ def cmd_links(config, author, channel, args):
 			config['save']()
 			return [{
 				'title': 'Delete URL',
-				'description': 'The URL was successfully deleted:\n%s: %s' % (link_name, link_val),
+				'description': 'The URL was successfully deleted:\n`%s`: %s' % (link_name, link_val),
 			}]
 
 		else:
@@ -121,7 +121,7 @@ def cmd_links(config, author, channel, args):
 		config['save']()
 		return [{
 			'title': 'Add URL',
-			'description': 'The URL was successfully added:\n%s: %s' % (link_name, config['short-urls'][link_val]),
+			'description': 'The URL was successfully added:\n`%s`: %s' % (link_name, config['short-urls'][link_val]),
 		}]
 
 	return [{
