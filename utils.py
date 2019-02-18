@@ -65,6 +65,9 @@ def now(timezone):
 	tz = pytz.timezone(timezone)
 	return tz.localize(datetime.now())
 
+def dotify(number):
+	return '{:,}'.format(number)
+
 def basicstrip(string):
 	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
 

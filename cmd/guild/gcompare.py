@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
+from utils import dotify
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_guilds, fetch_roster, get_guilds_ally_codes, get_ability_name
 
@@ -25,9 +26,6 @@ Compare your guild to another by guild ID and show stats about Revan and Traya:
 ```
 %prefixgc 12345 revan traya```"""
 }
-
-def dotify(number):
-	return '{:,}'.format(number)
 
 def get_guild_stats(config, roster, lang):
 
@@ -177,8 +175,8 @@ def cmd_guild_compare(config, author, channel, args):
 	guilds = {}
 	fields = []
 	guild_list = fetch_guilds(config, ally_codes)
-	ally_codes = get_guilds_ally_codes(guild_list)
-	guild_rosters = fetch_roster(config, ally_codes)
+	member_ally_codes = get_guilds_ally_codes(guild_list)
+	guild_rosters = fetch_roster(config, member_ally_codes)
 
 	for guild_name, guild in guild_list.items():
 		guilds[guild_name] = guild
