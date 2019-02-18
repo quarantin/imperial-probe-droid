@@ -26,7 +26,8 @@ NOT WORKING **`mods`**: Show information about mods.
 **`needed`**: Show information about needed modsets globally.
 **`recos`**: Show information about recommended mods.
 NOT WORKING **`stats`**: Show statistics about equipped mods.
-**`wntm`**: List characters who needs mods with specific criteria."""
+**`wntm`**: List characters who needs mods with specific criteria.
+EXPERIMENTAL**`pc`**: To compare players."""
 }
 
 def substitute_tokens(config, text):
