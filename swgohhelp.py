@@ -132,7 +132,11 @@ def fetch_players(config, ally_codes, key='name'):
 			ally_code = player['allyCode']
 			db['players'][ally_code] = player
 
-	return db['players']
+	players = {}
+	for ally_code in ally_codes:
+		players[ally_code] = db['players'][int(ally_code)]
+
+	return players
 
 def fetch_guilds(config, ally_codes):
 
