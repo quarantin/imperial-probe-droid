@@ -80,8 +80,9 @@ def cmd_wntm(config, author, channel, args):
 		}]
 
 	spacer = EMOJIS['']
-	emoji_cg = EMOJIS['capitalgames']
+	emoji_ea = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
+	emoji_gg = EMOJIS['swgoh.gg']
 
 	matching_recos = []
 	for modset, slot, prim in selected_filters:
@@ -116,18 +117,20 @@ def cmd_wntm(config, author, channel, args):
 			source = recos[1].replace(' ', '').lower()
 			source_emoji = EMOJIS[source]
 			if char_name not in chars:
-				chars[char_name] = []
+				chars[char_name] = [ spacer, spacer, spacer ]
 
 			if source_emoji not in chars[char_name]:
-				chars[char_name].append(source_emoji)
+
+				if source_emoji.startswith('<:ea:'):
+					chars[char_name][0] = source_emoji
+				elif source_emoji.startswith('<:cr:'):
+					chars[char_name][1] = source_emoji
+				elif source_emoji.startswith('<:gg:'):
+					chars[char_name][2] = source_emoji
+				else:
+					raise Exception('Unknown source')
 
 		for charac, sources in sorted(chars.items()):
-			if len(sources) < 2:
-				if sources[0].startswith('<:cg:'):
-					sources.append(spacer)
-				else:
-					sources.insert(0, spacer)
-
 				lines.append('%s %s' % (''.join(sources), charac))
 
 	return [{
@@ -139,7 +142,7 @@ def cmd_wntm(config, author, channel, args):
 		'fields': [
 			{
 				'name': '== Legend ==',
-				'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n%s' % (emoji_cg, emoji_cr, config['separator']),
+				'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_ea, emoji_cr, emoji_gg, config['separator']),
 				'inline': True,
 			},
 		]
