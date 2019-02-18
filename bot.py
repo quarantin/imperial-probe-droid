@@ -4,6 +4,7 @@ import shlex
 import string
 import random
 import discord
+from datetime import datetime
 from discord.ext import commands
 
 from config import config, load_config
@@ -11,6 +12,8 @@ from config import config, load_config
 from utils import *
 from embed import *
 from commands import *
+
+LOGFILE = 'messages.log'
 
 SHEETS_ALIASES = {
 	'a': 'allies',
@@ -30,6 +33,21 @@ PROBE_DIALOG = [
 	'stZS',
 	'wOm',
 ]
+
+def log_message(message):
+
+	date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+	server = message.server
+	channel = message.channel
+	content = message.content
+	author = '/'.join([message.author.id, message.author.display_name, message.author.nick, message.author.name])
+
+	log = '[%s][server=%s][channel=%s][author=%s] %s' % (date, server, channel, author, content)
+	print(log)
+
+	fout = open(LOGFILE, 'a+')
+	fout.write('%s\n' % log)
+	fout.close()
 
 def get_bot(config):
 
@@ -88,6 +106,8 @@ async def on_message(message):
 	if not message.content.startswith(config['prefix']):
 		return
 
+	log_message(message)
+
 	channel = message.channel
 	nick = message.author.display_name or message.author.nick or message.author.name
 	author = '@%s' % nick
@@ -114,9 +134,11 @@ async def on_message(message):
 					await bot.send_message(channel, embed=embed)
 			break
 	else:
-		embed = new_embed(config, {
+		embeds = new_embeds(config, {
 			'title': 'Unknown command',
 			'color': 'red',
-			'description': 'No such command: %s' % command,
+			'description': 'No such command: `%s`.\nPlease type `!help` to get information about available commands.' % command,
 		})
+		for embed in embeds:
+			await bot.send_message(channel, embed=embed)
 		await bot.send_message(channel, embed=embed)
