@@ -49,7 +49,7 @@ def get_player_stats(config, roster, lang):
 
 	for base_id, unit in roster.items():
 
-		print("WTF: base_id=%s, unit=%s" % (base_id, unit))
+		#print("WTF: base_id=%s, unit=%s" % (base_id, unit))
 		gp    = unit['gp']
 		level = unit['level']
 		gear  = unit['gearLevel']
@@ -161,7 +161,7 @@ def cmd_player_compare(config, author, channel, args):
 	rosters = fetch_roster(config, ally_codes)
 
 	for ally_code, player in players.items():
-		fields.append(player_to_embedfield(config, player, rosters[int(ally_code)], lang))
+		fields.append(player_to_embedfield(config, player, rosters[ally_code], lang))
 
 	msgs.append({
 		'title': 'Player Comparison',
@@ -174,7 +174,7 @@ def cmd_player_compare(config, author, channel, args):
 		for ally_code, player in players.items():
 
 			roster = {}
-			roster = rosters[int(ally_code)]
+			roster = rosters[ally_code]
 			#player_roster = rosters[int(ally_code)]
 			#for base_id, player_unit in player_roster.items():
 			#	if base_id not in roster:
