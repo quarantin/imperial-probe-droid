@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
+import json
+
 from opts import *
-from utils import dotify, get_stars_as_emojis
+from utils import dotify, get_stars_as_emojis, add_stats
 from swgohgg import get_avatar_url
-from swgohhelp import fetch_players, fetch_roster, get_guilds_ally_codes, get_ability_name
+from swgohhelp import fetch_players, fetch_roster, get_guilds_ally_codes, get_ability_name, fetch_crinolo_stats
 
 help_player_compare = {
 	'title': 'Player Compare Help',
@@ -32,6 +34,14 @@ def get_player_stats(config, roster, lang):
 	stats = {
 		'count': 0,
 		'cumul-gp': 0,
+		'char': {
+			'levels': {},
+			'stars': {},
+		},
+		'ship': {
+			'levels': {},
+			'stars': {},
+		},
 		'levels': {},
 		'gears': {},
 		'stars': {},
@@ -40,17 +50,22 @@ def get_player_stats(config, roster, lang):
 
 	for i in range(0, 85 + 1):
 		stats['levels'][i] = 0
+		stats['char']['levels'][i] = 0
+		stats['ship']['levels'][i] = 0
 
 	for i in range(0, 12 + 1):
 		stats['gears'][i] = 0
 
+
 	for i in range(0, 7 + 1):
 		stats['stars'][i] = 0
+		stats['char']['stars'][i] = 0
+		stats['ship']['stars'][i] = 0
 
 	for base_id, unit in roster.items():
 
-		#print("WTF: base_id=%s, unit=%s" % (base_id, unit))
 		gp    = unit['gp']
+		typ   = unit['type'] == 1 and 'char' or 'ship'
 		level = unit['level']
 		gear  = unit['gearLevel']
 		stars = unit['starLevel']
@@ -62,6 +77,9 @@ def get_player_stats(config, roster, lang):
 		stats['gears'][gear] += 1
 		stats['stars'][stars] += 1
 
+		stats[typ]['levels'][level] += 1
+		stats[typ]['stars'][stars] += 1
+
 		for zeta in zetas:
 
 			zeta_id = zeta['id']
@@ -72,13 +90,26 @@ def get_player_stats(config, roster, lang):
 
 	return stats
 
-def unit_to_embedfield(config, player, roster, base_id, lang):
+def get_stat_detail(name, stats, percent=False, label=None):
+
+	if label is None:
+		label = name
+
+	full_stat = name in stats['full'] and stats['full'][name] or 0
+	mods_stat = name in stats['mods'] and stats['mods'][name] or 0
+	gear_stat = name in stats['gear'] and stats['gear'][name] or 0
+	base_stat = full_stat - mods_stat - gear_stat
+
+	string_stat = '+'.join([ str(base_stat), str(mods_stat), str(gear_stat) ])
+
+	return '%s: `%d (%s)`' % (label, full_stat, string_stat)
+
+def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
 	lines = []
 
 	if base_id in roster:
 		unit = roster[base_id]
-		#stats = get_player_stats(config, unit, lang)
 		lines.append(get_stars_as_emojis(unit['starLevel']))
 
 		sublines = []
@@ -86,6 +117,29 @@ def unit_to_embedfield(config, player, roster, base_id, lang):
 		sublines.append('L%d' % unit['level'])
 		sublines.append('GP%d'  % unit['gp'])
 		lines.append(' '.join(sublines))
+
+		stat = stats[base_id]
+		add_stats(stat)
+
+		# Health, Protection, Armor, Resistance
+		lines.append(get_stat_detail('Health',     stat))
+		lines.append(get_stat_detail('Protection', stat))
+		lines.append(get_stat_detail('Armor',      stat))
+		lines.append(get_stat_detail('Resistance', stat))
+
+		# Speed
+		lines.append(get_stat_detail('Speed',      stat))
+
+		# Potency, Tenacity
+		lines.append(get_stat_detail('Potency',    stat))
+		lines.append(get_stat_detail('Tenacity',   stat))
+
+		# CD, CC, Damage
+		lines.append(get_stat_detail('Critical Damange', stat, label='CD'))
+		lines.append(get_stat_detail('Physical Critical Chance', stat, label='CC.Phys'))
+		lines.append(get_stat_detail('Special Critical Chance', stat, label='CC.Spec'))
+		lines.append(get_stat_detail('Physical Damage', stat, label='Phys.Damage'))
+		lines.append(get_stat_detail('Special Damage', stat, label='Spec.Damage'))
 
 		if not unit['zetas']:
 			lines.append('No zetas')
@@ -103,30 +157,41 @@ def unit_to_embedfield(config, player, roster, base_id, lang):
 		'inline': True,
 	}
 
-def player_to_embedfield(config, player, roster, lang):
+def player_to_embedfield(config, player, roster, crinolo_stats, lang):
 
 	stats = get_player_stats(config, roster, lang)
 
 	lines = [
-		'**ID:** %s' % player['id'],
-		'**Ally Code:** %s' % player['allyCode'],
-		'**GP:** %s' % dotify(player['gp']['total']),
-		'**Char GP:** %s' % dotify(player['gp']['char']),
-		'**Ship GP:** %s' % dotify(player['gp']['ship']),
-		'**Level:** %s' % player['level'],
-		'**Rank:** %s' % player['arena']['char']['rank'],
-		'**Fleet Rank:** %s' % player['arena']['ship']['rank'],
-		'**Guild:** %s' % player['guildName'],
-		'**L85 Units:** %s' % stats['levels'][85],
+		'**ID:** `%s`' % player['id'],
+		'**Ally Code:** `%s`' % player['allyCode'],
+		'**GP:** `%s`' % dotify(player['gp']['total']),
+		'**Char GP:** `%s`' % dotify(player['gp']['char']),
+		'**Ship GP:** `%s`' % dotify(player['gp']['ship']),
+		'**Level:** `%s`' % player['level'],
+		'**Rank:** `%s`' % player['arena']['char']['rank'],
+		'**Fleet Rank:** `%s`' % player['arena']['ship']['rank'],
+		'**Guild:** `%s`' % player['guildName'],
+		'**Characters**',
 	]
 
 	for star in reversed(range(1, 7 + 1)):
-		lines.append('%s: %s' % (get_stars_as_emojis(star), stats['stars'][star]))
+		lines.append('%s: `%s`' % (get_stars_as_emojis(star), stats['char']['stars'][star]))
 
-	for gear in reversed(range(8, 12 + 1)):
-		lines.append('**G%d Units:** %s' % (gear, stats['gears'][gear]))
+	lines.append('**L85 Units:** `%s`' % stats['char']['levels'][85])
+	gears = [ 1 ]
+	gears.extend(range(7, 12 + 1))
+	for gear in reversed(gears):
+		lines.append('**G%d Units:** `%s`' % (gear, stats['gears'][gear]))
 
-	lines.append('**Zetas:** %s' % len(stats['zetas']))
+	lines.append('**Zetas:** `%s`' % len(stats['zetas']))
+	lines.append('')
+
+	lines.append('**Ships**')
+
+	for star in reversed(range(1, 7 + 1)):
+		lines.append('%s: `%s`' % (get_stars_as_emojis(star), stats['ship']['stars'][star]))
+
+	lines.append('**L85 Units:** `%s`' % stats['ship']['levels'][85])
 	lines.append('')
 
 	return {
@@ -159,9 +224,10 @@ def cmd_player_compare(config, author, channel, args):
 	fields = []
 	players = fetch_players(config, ally_codes)
 	rosters = fetch_roster(config, ally_codes)
+	stats = fetch_crinolo_stats(config, ally_codes)
 
 	for ally_code, player in players.items():
-		fields.append(player_to_embedfield(config, player, rosters[ally_code], lang))
+		fields.append(player_to_embedfield(config, player, rosters[ally_code], stats[ally_code], lang))
 
 	msgs.append({
 		'title': 'Player Comparison',
@@ -172,17 +238,7 @@ def cmd_player_compare(config, author, channel, args):
 
 		fields = []
 		for ally_code, player in players.items():
-
-			roster = {}
-			roster = rosters[ally_code]
-			#player_roster = rosters[int(ally_code)]
-			#for base_id, player_unit in player_roster.items():
-			#	if base_id not in roster:
-			#		roster[base_id] = []
-			#
-			#	roster[base_id].append(player_unit)
-
-			fields.append(unit_to_embedfield(config, player, roster, unit['base_id'], lang))
+			fields.append(unit_to_embedfield(config, player, rosters[ally_code], stats[ally_code], unit['base_id'], lang))
 
 		msgs.append({
 			'author': {
