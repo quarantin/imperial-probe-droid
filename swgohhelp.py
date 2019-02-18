@@ -144,10 +144,19 @@ def fetch_guilds(config, ally_codes):
 
 		# Store newly needed guilds in db
 		for guild in guilds:
+			guild['roster-by-id'] = get_units_dict(guild['roster'], 'allyCode')
 			guild_name = guild['name']
 			db['guilds'][guild_name] = guild
 
-	return db['guilds']
+	guilds = {}
+
+	for guild_name, guild in db['guilds'].items():
+
+		for ally_code in ally_codes:
+			if ally_code in guild['roster-by-id']:
+				guilds[guild_name] = guild
+
+	return guilds
 
 def fetch_units(config, ally_codes):
 
