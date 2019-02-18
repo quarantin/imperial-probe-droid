@@ -72,9 +72,13 @@ def new_embeds(config, msg, timestamp=None):
 
 	msgs = split_message(msg)
 
+	i = 1
 	for msg in msgs:
 
-		embed = discord.Embed(title=msg['title'], colour=color(msg['color']), description=msg['description'], timestamp=timestamp)
+		msg_title = '%s (%d/%d)' % (msg['title'], i, len(msgs))
+		if len(msgs) == 1:
+			msg_title = msg['title']
+		embed = discord.Embed(title=msg_title, colour=color(msg['color']), description=msg['description'], timestamp=timestamp)
 
 		if 'author' in msg:
 
@@ -107,6 +111,8 @@ def new_embeds(config, msg, timestamp=None):
 				embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
 
 		embeds.append(embed)
+
+		i += 1
 
 	print('Sending %d messages' % len(msgs))
 	for msg in msgs:
