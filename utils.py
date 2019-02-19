@@ -79,20 +79,20 @@ def add_stats(stats):
 	if 'full' in stats:
 		return stats
 
-	if 'base' not in stats:
-		res = stats
+	#if 'base' not in stats:
+	#	res = stats
 
-	else:
-		res = stats['base']
+	#else:
+	res = dict(stats['base'])
 
-		for substat in [ 'gear', 'mods' ]:
+	for substat in [ 'gear', 'mods' ]:
 
-			for key in stats[substat]:
-				val = stats[substat][key]
-				if key not in res:
-					res[key] = val
-				else:
-					res[key] += val
+		for key in stats[substat]:
+			val = stats[substat][key]
+			if key not in res:
+				res[key] = val
+			else:
+				res[key] += val
 
 	stats['full'] = res
 	return stats
