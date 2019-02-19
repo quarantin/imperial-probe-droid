@@ -3,6 +3,7 @@
 import json
 
 from opts import *
+from constants import EMOJIS
 from utils import dotify, get_stars_as_emojis, add_stats
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_players, fetch_roster, get_guilds_ally_codes, get_ability_name, fetch_crinolo_stats
@@ -116,6 +117,7 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
 	lines = []
 
+	spacer = EMOJIS['']
 	if base_id in roster:
 		unit = roster[base_id]
 
@@ -152,13 +154,16 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 		lines.append(get_stat_detail('Special Critical Chance',  stat, percent=True, label='CC.Spec'))
 		lines.append(get_stat_detail('Critical Damage',          stat, percent=True, label='CD'))
 
-		if not unit['zetas']:
-			lines.append('No zetas')
+		# Abilities
+		for skill in player['roster'][base_id]['skills']:
+			emoji = spacer
+			is_zeta = skill['isZeta']
+			skill_tier = skill['tier']
+			if skill_tier == 8:
+				emoji = is_zeta and EMOJIS['zeta'] or EMOJIS['omega']
 
-		else:
-			lines.append('Zetas:')
-			for zeta in unit['zetas']:
-				lines.append('**%s**\u202F' % get_ability_name(config, zeta['id'], lang))
+			skill_name = get_ability_name(config, skill['id'], lang)
+			lines.append('%s %s\u202F' % (emoji, skill_name))
 	else:
 		lines.append('Character still locked.')
 
