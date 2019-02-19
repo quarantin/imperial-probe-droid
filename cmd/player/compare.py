@@ -113,6 +113,55 @@ def get_stat_detail(name, stats, percent=False, label=None):
 
 	return '%s: **`%d%s`** (`%s`)' % (label, round(full_stat), percent_sign, string_stat)
 
+def calc_def(d, key, level):
+
+	armor = 0
+	if key in d:
+		armor = d[key]
+
+	return armor / (armor + (7.5 * level)) * 100
+
+def get_def_stat_detail(name, stats, level, label=None):
+
+	if label is None:
+		label = name
+
+	base_stat = calc_def(stats['base'], name, level)
+	mods_stat = calc_def(stats['mods'], name, level)
+	gear_stat = calc_def(stats['gear'], name, level)
+	full_stat = calc_def(stats['full'], name, level)
+
+	string_stat = '+'.join([
+		'%.02f' % base_stat,
+		'%.02f' % mods_stat,
+		'%.02f' % gear_stat,
+	])
+
+	return '%s: **`%.02f%%`** (`%s`)' % (label, full_stat, string_stat)
+
+def get_cc_stat_detail(name, stats, label):
+
+	rating_name = name.replace('Chance', 'Rating')
+
+	mods_stat   = name        in stats['mods'] and stats['mods'][name]        or 0
+	gear_stat   = rating_name in stats['gear'] and stats['gear'][rating_name] or 0
+	base_stat   = rating_name in stats['base'] and stats['base'][rating_name] or 0
+	full_stat   = rating_name in stats['full'] and stats['full'][rating_name] or 0
+
+	cc = round(((full_stat / 2400 + 0.1) + stats['full'][name]) * 100, 3)
+
+	mods_stat = round(mods_stat * 100, 3)
+	gear_stat = round(((gear_stat / 2400) + 0.1) * 100, 3)
+	base_stat = round(((base_stat / 2400) + 0.1) * 100 - 10, 3)
+
+	string_stat = '+'.join([
+		'%.02f' % base_stat,
+		'%.02f' % mods_stat,
+		'%.02f' % gear_stat,
+	])
+
+	return '%s: **`%.02f%%`** (`%s`)' % (label, cc, string_stat)
+
 def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
 	lines = []
@@ -134,11 +183,13 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 		stat = stats[base_id]
 		add_stats(stat)
 
+		level = player['roster'][base_id]['level']
+
 		# Health, Protection, Armor, Resistance
 		lines.append(get_stat_detail('Health',     stat))
 		lines.append(get_stat_detail('Protection', stat))
-		lines.append(get_stat_detail('Armor',      stat))
-		lines.append(get_stat_detail('Resistance', stat))
+		lines.append(get_def_stat_detail('Armor',      stat, level))
+		lines.append(get_def_stat_detail('Resistance', stat, level))
 
 		# Speed
 		lines.append(get_stat_detail('Speed', stat))
@@ -150,8 +201,8 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 		# CD, CC, Damage
 		lines.append(get_stat_detail('Physical Damage',          stat, label='Phys.Damage'))
 		lines.append(get_stat_detail('Special Damage',           stat, label='Spec.Damage'))
-		lines.append(get_stat_detail('Physical Critical Chance', stat, percent=True, label='CC.Phys'))
-		lines.append(get_stat_detail('Special Critical Chance',  stat, percent=True, label='CC.Spec'))
+		lines.append(get_cc_stat_detail('Physical Critical Chance', stat, label='CC.Phys'))
+		lines.append(get_cc_stat_detail('Special Critical Chance',  stat, label='CC.Spec'))
 		lines.append(get_stat_detail('Critical Damage',          stat, percent=True, label='CD'))
 
 		# Abilities
