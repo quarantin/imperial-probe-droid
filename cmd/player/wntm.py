@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 
 from opts import *
-from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries
-from constants import EMOJIS, SHORT_STATS
-
-from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
-from swgohhelp import fetch_players, fetch_units
+from utils import get_field_legend
+from constants import EMOJIS
 
 help_wntm = {
 	'title': 'Who Need This Mod Help',
@@ -135,15 +132,11 @@ def cmd_wntm(config, author, channel, args):
 
 	return [{
 		'author': {
-			'name': 'Who Needs This Mod',
+			'name': '=== Who Need This Mod ==='
 		},
 		'title': '== %s%s %s ==' % (modset, slot, prim),
 		'description': '\n'.join(lines),
 		'fields': [
-			{
-				'name': '== Legend ==',
-				'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_ea, emoji_cr, emoji_gg, config['separator']),
-				'inline': True,
-			},
+			get_field_legend(config),
 		]
 	}]
