@@ -23,7 +23,7 @@ Here is the list of valid mod sets:
 **`potency`** (or **`po`**)
 **`tenacity`** (or **`te`**)
 **`criticalchance`** (or **`cc`**)
-**`criticaldamange`** (or **`cd`**)
+**`criticaldamage`** (or **`cd`**)
 **`offense`** (or **`of`**)
 **`speed`** (or **`sp`**)
 
@@ -39,7 +39,7 @@ Here is the list of valid mod primary stats:
 **`accuracy`** (or **`ac`**)
 **`criticalavoidance`** (or **`ca`**)
 **`criticalchance`** (or **`cc`**)
-**`criticaldamange`** (or **`cd`**)
+**`criticaldamage`** (or **`cd`**)
 **`defense`** (or **`de`**)
 **`health`** (or **`he`**)
 **`offense`** (or **`of`**)
