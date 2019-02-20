@@ -66,7 +66,7 @@ MODPRIMARIES_OPTS = {
 	'cc':                'Critical Chance',
 	'criticalchance':    'Critical Chance',
 	'cd':                'Critical Damage',
-	'criticaldamange':   'Critical Damage',
+	'criticaldamage':    'Critical Damage',
 	'de':                'Defense',
 	'defense':           'Defense',
 	'he':                'Health',
