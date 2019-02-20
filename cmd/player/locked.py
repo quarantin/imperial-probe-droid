@@ -90,8 +90,6 @@ def cmd_locked(config, author, channel, args):
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
-	all_ships = get_ship_list()
-
 	players = fetch_players(config, ally_codes)
 	units = fetch_units(config, ally_codes)
 
@@ -128,7 +126,7 @@ def cmd_locked(config, author, channel, args):
 		if opts in [ 'ships', 'all' ]:
 
 			locked_ships = []
-			for base_id, ship in all_ships.items():
+			for base_id, ship in get_ship_list().items():
 				if base_id not in ally_units:
 					locked_ships.append(ship['name'])
 
