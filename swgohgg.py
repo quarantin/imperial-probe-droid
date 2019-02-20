@@ -82,7 +82,7 @@ def get_avatar_url(base_id):
 	chars[base_id]['image'] = image_url
 	return image_url
 
-def get_full_avatar_url(image, unit):
+def get_full_avatar_url(config, image, unit):
 
 	image = os.path.basename(image)
 
@@ -101,7 +101,7 @@ def get_full_avatar_url(image, unit):
 			rarity = unit['rarity']
 
 	#return 'https://api.swgoh.help/image/char/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (base_id, level, gear, rarity, zetas)
-	url = 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (socket.gethostname(), image, level, gear, rarity, zetas)
+	url = 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (config['server'], image, level, gear, rarity, zetas)
 	return url
 
 def get_full_ship_avatar_url(ally_code, base_id):
