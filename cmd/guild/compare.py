@@ -78,7 +78,7 @@ def unit_to_embedfield(config, guild, roster, base_id, lang):
 		lines.append('Avg. GP: %d'  % (stats['cumul-gp'] / stats['count']))
 		lines.append('Count: %d'    % stats['count'])
 		lines.append('Level 85: %d' % stats['levels'][85])
-		lines.append('7\*: %d'      % stats['stars'][7])
+		lines.append('7\*: %d'      % (7 in stats['stars'] and stats['stars'][7] or 0))
 
 		for gear in [ 12, 11, 10 ]:
 
@@ -154,7 +154,7 @@ def cmd_guild_compare(config, author, channel, args):
 	msgs = []
 
 	args, lang = parse_opts_lang(args)
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
+	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies=2)
 	if not ally_codes:
 		return [{
 			'title': 'Missing Guild Code',
@@ -169,13 +169,22 @@ def cmd_guild_compare(config, author, channel, args):
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
-	guilds = {}
 	fields = []
 	guild_list = fetch_guilds(config, ally_codes)
-	member_ally_codes = get_guilds_ally_codes(guild_list)
-	guild_rosters = fetch_roster(config, member_ally_codes)
 
-	for guild_name, guild in guild_list.items():
+	members = []
+	for ally_code in guild_list:
+		guild = guild_list[ally_code]
+		allies = list(guild['roster'])
+		members.extend(allies)
+		fetch_roster(config, allies)
+
+	roster_list = fetch_roster(config, members)
+
+	guilds = {}
+	for ally_code in guild_list:
+		guild = guild_list[ally_code]
+		guild_name = guild['name']
 		guilds[guild_name] = guild
 		fields.append(guild_to_embedfield(guild))
 
@@ -190,11 +199,9 @@ def cmd_guild_compare(config, author, channel, args):
 		for guild_name, guild in guilds.items():
 
 			roster = {}
-			guild_members = get_guilds_ally_codes({ guild_name: guild })
-			for ally_code, member in guild_members.items():
-				rosters = fetch_roster(config, [ ally_code ])
-				player_roster = rosters[ally_code]
-				for base_id, player_unit in player_roster.items():
+			for ally_code in roster_list:
+				rosters = roster_list[ally_code]
+				for base_id, player_unit in rosters.items():
 					if base_id not in roster:
 						roster[base_id] = []
 
