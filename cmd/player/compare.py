@@ -10,21 +10,21 @@ from swgohhelp import fetch_players, fetch_roster, get_guilds_ally_codes, get_ab
 
 help_player_compare = {
 	'title': 'Player Compare Help',
-	'description': """Show statistics about one or more players, optionally comparing their respective units.
+	'description': """Compare different players, optionally comparing their respective units.
 
 **Syntax**
 ```
 %prefixpc [players] [units]```
 **Examples**
-Compare your profile to another by ally code:
+Compare your profile to another by ally code (assuming you're registered):
 ```
 %prefixpc 123456789```
 Compare two different players:
 ```
 %prefixpc 123456789 234567890```
-Compare your profile to another and show stats about Revan and Darth Traya:
+Compare two different players and show stats differences about Revan and Traya:
 ```
-%prefixpc 123456789 revan traya```"""
+%prefixpc 123456789 234567891 revan traya```"""
 }
 
 def get_player_stats(config, roster, lang):

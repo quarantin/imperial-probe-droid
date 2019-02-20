@@ -7,24 +7,21 @@ from swgohhelp import fetch_guilds, fetch_roster, get_guilds_ally_codes, get_abi
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
-	'description': """Show statistics about one or more guilds, optionally comparing their respective units.
+	'description': """Compare different guilds, optionally comparing their respective units.
 
 **Syntax**
 ```
-%prefixgcompare <guild ID> [other guild ID] [units]
-**Aliases**
-```
-%prefixgc```
+%prefixgc [players] [units]
 **Examples**
-Compare your guild to another by guild ID:
+Compare your guild to another (assuming you're registered):
 ```
-%prefixgc 12345```
-Compare two guilds by their guild ID:
+%prefixgc 123456789```
+Compare guilds from two different players:
 ```
-%prefixgc 12345 67890```
-Compare your guild to another by guild ID and show stats about Revan and Traya:
+%prefixgc 123456789 234567891```
+Compare guilds from two different players and show differences about Revan and Traya:
 ```
-%prefixgc 12345 revan traya```"""
+%prefixgc 123456789 234567891 revan traya```"""
 }
 
 def get_guild_stats(config, roster, lang):
