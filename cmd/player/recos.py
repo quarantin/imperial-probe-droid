@@ -5,7 +5,7 @@ from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_
 from constants import EMOJIS, SHORT_STATS
 
 from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
-from swgohhelp import fetch_players, fetch_units
+from swgohhelp import fetch_players
 
 help_recos = {
 	'title': 'Recommendations Help',
@@ -73,7 +73,6 @@ def cmd_recos(config, author, channel, args):
 
 	ref_units = get_char_list()
 	players = fetch_players(config, ally_codes)
-	units = fetch_units(config, ally_codes)
 
 	msgs = []
 	for ally_code in ally_codes:
