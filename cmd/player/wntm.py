@@ -64,14 +64,14 @@ def cmd_wntm(config, author, channel, args):
 	if args:
 		plural = len(args) > 1
 		return [{
-			'title': 'Unknown Parameter%s' % plural,
+			'title': 'Error: Unknown Parameter%s' % plural,
 			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
 	if not selected_filters:
 		return [{
-			'title': 'No Filter Selected',
+			'title': 'Error: No Filter Selected',
 			'color': 'red',
 			'description': 'You have to provide a mod filter.\nPlease check %shelp wntm for more information.' % config['prefix'],
 		}]

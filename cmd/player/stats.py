@@ -115,10 +115,11 @@ def cmd_stats(config, author, channel, args):
 	args, selected_modprimaries = parse_opts_modprimaries(args)
 
 	if args:
+		plural = len(args) > 1 and 's' or ''
 		return [{
-			'title': 'Unknown parameter(s)',
+			'title': 'Error: Unknown parameter%s' % plural,
 			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter(s):\n - %s' % '\n - '.join(args),
+			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
 	msgs = []

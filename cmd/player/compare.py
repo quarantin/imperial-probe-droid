@@ -304,7 +304,7 @@ def cmd_player_compare(config, author, channel, args):
 	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies=2)
 	if not ally_codes:
 		return [{
-			'title': 'Not Found',
+			'title': 'Error: Not Found',
 			'color': 'red',
 			'description': 'No ally code specified or found registered to %s' % author,
 		}]
@@ -313,7 +313,8 @@ def cmd_player_compare(config, author, channel, args):
 	if args:
 		plural = len(args) > 1 and 's' or ''
 		return [{
-			'title': 'Invalid Parameter%s' % plural,
+			'title': 'Error: Invalid Parameter%s' % plural,
+			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 

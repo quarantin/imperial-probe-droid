@@ -29,7 +29,7 @@ def cmd_update(config, author, channel, args):
 		return []
 
 	return [{
-		'title': 'Unauthorized Command',
+		'title': 'Permission Denied',
 		'color': 'red',
-		'description': 'You are not allowed to run this command because you are not an administrator.',
+		'description': 'You\'re not allowed to run this command because you\'re not one of my masters.',
 	}]

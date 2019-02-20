@@ -50,7 +50,7 @@ def cmd_recos(config, author, channel, args):
 	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	if not ally_codes:
 		return [{
-			'title': 'Not Found',
+			'title': 'Error: Not Found',
 			'color': 'red',
 			'description': 'No ally code specified or found registered to %s' % author,
 		}]
@@ -58,7 +58,7 @@ def cmd_recos(config, author, channel, args):
 	args, selected_units = parse_opts_unit_names(config, args)
 	if not selected_units:
 		return [{
-			'title': 'No Units Selected',
+			'title': 'Error: No Units Selected',
 			'color': 'red',
 			'description': 'You have to provide at least one unit name or a mod filter.\nPlease check %shelp recos for more information.' % config['prefix'],
 		}]
@@ -66,7 +66,7 @@ def cmd_recos(config, author, channel, args):
 	if args:
 		plural = len(args) > 1
 		return [{
-			'title': 'Unknown Parameter%s' % plural,
+			'title': 'Error: Unknown Parameter%s' % plural,
 			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
@@ -168,8 +168,7 @@ def cmd_recos(config, author, channel, args):
 				})
 			else:
 				msgs.append({
-					'title': 'No Recommended Mod Sets',
-					'color': 'red',
+					'title': '== No Recommended Mod Sets ==',
 					'description': '%s is missing from the recommendation spreadsheet' % ref_unit['name'],
 				})
 

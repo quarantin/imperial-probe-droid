@@ -98,7 +98,7 @@ def cmd_arena(config, author, channel, args):
 	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	if not ally_codes:
 		return [{
-			'title': 'Not Found',
+			'title': 'Error: Not Found',
 			'color': 'red',
 			'description': 'No ally code specified or found registered to %s' % author,
 		}]
@@ -107,7 +107,8 @@ def cmd_arena(config, author, channel, args):
 	if args:
 		plural = len(args) > 1 and 's' or ''
 		return [{
-			'title': 'Unknown Parameter%s' % plural,
+			'title': 'Error: Unknown Parameter%s' % plural,
+			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
@@ -124,7 +125,7 @@ def cmd_arena(config, author, channel, args):
 		if not player:
 			url = 'https://swgoh.gg/p/%s/' % ally_code
 			msgs.append({
-				'title': 'Not Found',
+				'title': 'Error: Not Found',
 				'color': 'red',
 				'description': 'Are you sure `%s` is a valid ally code and the account actually exists on swgoh.gg? Please check this URL to see: %s' % (ally_code, url)
 			})

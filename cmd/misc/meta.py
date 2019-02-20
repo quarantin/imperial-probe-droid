@@ -92,14 +92,14 @@ def cmd_meta(config, author, channel, args):
 	if args:
 		plural = len(args) > 1 and 's' or ''
 		return [{
-				'title': 'Invalid Parameter%s' % plural,
+				'title': 'Error: Invalid Parameter%s' % plural,
 				'color': 'red',
 				'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 			}]
 
 	if not selected_opts:
 		return [{
-			'title': 'Missing Option',
+			'title': 'Error: Missing Option',
 			'color': 'red',
 			'description': 'I need at least one option. Please see `%shelp meta` to see available options.' % config['prefix'],
 		}]
@@ -140,7 +140,7 @@ def cmd_meta(config, author, channel, args):
 			'title': 'Top %d - Arena Squad Leaders' % top_n,
 			'author': {
 				'name': 'Imperial Probe Droid',
-				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
+				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -194,7 +194,7 @@ def cmd_meta(config, author, channel, args):
 			'title': 'Top %d - Arena Squads ' % top_n,
 			'author': {
 				'name': 'Imperial Probe Droid',
-				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
+				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -221,7 +221,7 @@ def cmd_meta(config, author, channel, args):
 			'title': 'Top %d - Fleet Arena Commanders' % top_n,
 			'author': {
 				'name': 'Imperial Probe Droid',
-				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
+				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -270,7 +270,7 @@ def cmd_meta(config, author, channel, args):
 			'title': 'Top %d - Fleet Arena Squads ' % top_n,
 			'author': {
 				'name': 'Imperial Probe Droid',
-				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
+				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -318,7 +318,7 @@ def cmd_meta(config, author, channel, args):
 			'title': 'Top %d - Fleet Arena Reinforcements' % top_n,
 			'author': {
 				'name': 'Imperial Probe Droid',
-				'icon_url': 'http://zeroday.biz/media/imperial-probe-droid.jpg',
+				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})

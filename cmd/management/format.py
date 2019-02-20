@@ -58,7 +58,7 @@ def cmd_format(config, author, channel, args):
 
 		if len(args) < 2:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameter',
 				'color': 'red',
 				'description': 'Please see %shelp format.' % config['prefix'],
 			}]
@@ -84,11 +84,11 @@ def cmd_format(config, author, channel, args):
 			config['save']()
 			return [{
 				'title': 'Delete Format',
-				'description': 'The format was successfully deleted.',
+				'description': 'The format `%s` was successfully deleted.' % format_name,
 			}]
 		else:
 			return [{
-				'title': 'Delete Format',
+				'title': 'Error: Invalid Parameter',
 				'color': 'red',
 				'description': 'Could not find a format to delete with this index or name: `%s`.' % format_name,
 			}]
@@ -97,7 +97,7 @@ def cmd_format(config, author, channel, args):
 
 		if len(args) < 3:
 			return [{
-				'title': 'Add Format',
+				'title': 'Error: Missing Parameter',
 				'color': 'red',
 				'description': 'Missing parameters. Please see %shelp format.' % config['prefix'],
 			}]
@@ -112,10 +112,11 @@ def cmd_format(config, author, channel, args):
 		config['save']()
 		return [{
 			'title': 'Add Format',
-			'description': 'The format was successfully added.',
+			'description': 'The format `%s` was successfully added.' % format_name,
 		}]
 
 	return [{
-		'title': 'TODO',
-		'description': 'TODO',
+		'title': 'Error: Invalid Action',
+		'color': 'red',
+		'description': '`%s` is not a valid action. Please see `%shelp format` for a list of valid actions.' % (action, config['prefix']),
 	}]

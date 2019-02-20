@@ -56,7 +56,7 @@ def cmd_links(config, author, channel, args):
 
 		if len(args) < 2:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameter',
 				'color': 'red',
 				'description': 'Please see !help links.',
 			}]
@@ -94,15 +94,16 @@ def cmd_links(config, author, channel, args):
 
 		else:
 			return [{
-				'title': 'No Such ID',
-				'description': 'I could not find a link with ID `%d`. Please see `%prefixlinks` to see valid IDs.',
+				'title': 'Error: Invalid Parameter',
+				'color': 'red',
+				'description': 'I could not find a link with name or ID `%d`. Please see `%shelp links` for a list of valid names and IDs.' % (link_name, config['prefix']),
 			}]
 
 	elif action == 'add':
 
 		if len(args) < 3:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameters',
 				'color': 'red',
 				'description': 'Please see !help links.',
 			}]
@@ -125,6 +126,7 @@ def cmd_links(config, author, channel, args):
 		}]
 
 	return [{
-		'title': 'Invalid Action',
-		'description': 'The action `%s` is invalid for this command.',
+		'title': 'Error: Invalid Action',
+		'color': 'red',
+		'description': '`%s` is not a valid action. Please see `%shelp links` for a list of valid actions.' % (action, config['prefix']),
 	}]

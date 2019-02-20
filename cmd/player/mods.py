@@ -95,9 +95,10 @@ def cmd_mods(config, author, channel, args):
 			})
 
 		else:
+			plural = len(args) > 1 and 's' or ''
 			return [{
-				'title': 'Unknown Parameters',
-				'description': 'I don\'t know what to do with the following parameters:\n - %s' % '\n - '.join(args),
+				'title': 'Error: Unknown Parameter%s' % plural,
+				'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 			}]
 
 	return msgs

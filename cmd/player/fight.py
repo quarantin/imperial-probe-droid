@@ -31,7 +31,7 @@ def cmd_fight(config, author, channel, args):
 
 	if len(args) < 14:
 		return [{
-			'title': 'Invalid Number of Parameters',
+			'title': 'Error: Invalid Number of Parameters',
 			'color': 'red',
 			'description': 'You supplied %d parameters but I need exactly %d. Please see **`%shelp fight`** for more information.' % (len(args), 14),
 		}]
@@ -43,7 +43,7 @@ def cmd_fight(config, author, channel, args):
 		status = 'lose'
 	else:
 		return [{
-			'title': 'Invalid Parameter',
+			'title': 'Error: Invalid Parameter',
 			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter: **`%s`**.\nI need either **`win`** or **`lose`**.' % status,
 		}]
@@ -55,7 +55,7 @@ def cmd_fight(config, author, channel, args):
 		mode = 'manual'
 	else:
 		return [{
-			'title': 'Invalid Parameter',
+			'title': 'Error: Invalid Parameter',
 			'color': 'red',
 			'description': 'I don\'t know what to do with the following parameter: **`%s`**.\nI need either **`auto`** or **`manual`**.' % mode,
 		}]
@@ -88,6 +88,6 @@ def cmd_fight(config, author, channel, args):
 	mode_str = mode == 'auto' and 'automatic' or 'manual'
 
 	return [{
-		'title': 'Combat Result',
+		'title': '== Combat Result ==',
 		'description': '**%s vs %s**\n%s %s the fight in %s mode against %s\n\nRespective teams:\n**%s**\n- %s\n**%s**\n- %s' % (player1_name, player2_name, player1_name, status_str, mode_str, player2_name, player1_name, '\n - '.join(team1_nlist), player2_name, '\n - '.join(team2_nlist)),
 	}]

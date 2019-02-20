@@ -55,7 +55,7 @@ def cmd_nicks(config, author, channel, args):
 
 		if len(args) < 1:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameter',
 				'color': 'red',
 				'description': 'Please see !help nicks.',
 			}]
@@ -87,7 +87,7 @@ def cmd_nicks(config, author, channel, args):
 
 		if len(args) < 2:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameter',
 				'color': 'red',
 				'description': 'Please see !help nicks.',
 			}]
@@ -97,19 +97,22 @@ def cmd_nicks(config, author, channel, args):
 		if args:
 			plural = len(args) > 1 and 's' or ''
 			return [{
-				'title': 'Unknown Parameter%s' % plural, 
+				'title': 'Error: Unknown Parameter%s' % plural,
+				'color': 'red',
 				'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 			}]
 
 		if not selected_units:
 			return [{
-				'title': 'No Unit Selected',
+				'title': 'Error: No Unit Selected',
+				'color': 'red',
 				'description': 'You need to provide at least one unit or ship name',
 			}]
 
 		if len(selected_units) > 1:
 			return [{
-				'title': 'Invalid Number of Units',
+				'title': 'Error: Invalid Number of Units',
+				'color': 'red',
 				'description': 'You provided %d units but you have to supply only one.' % len(selected_units)
 			}]
 
@@ -122,6 +125,6 @@ def cmd_nicks(config, author, channel, args):
 		}]
 
 	return [{
-		'title': 'TODO',
-		'description': 'TODO',
+		'title': 'Error: Invalid Action',
+		'description': '`%s` is not a valid action. Please see `%shelp nicks` for a list of valid actions.' % (action. config['prefix']),
 	}]

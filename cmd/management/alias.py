@@ -53,7 +53,7 @@ def cmd_alias(config, author, channel, args):
 
 		if len(args) < 2:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameter',
 				'color': 'red',
 				'description': 'Please see !help alias.',
 			}]
@@ -65,7 +65,8 @@ def cmd_alias(config, author, channel, args):
 			i = 1
 			for alias, command in sorted(config['aliases'].items()):
 				if i == alias_name:
-					del config['aliases'][alias]
+					alias_name = alias
+					del config['aliases'][alias_name]
 					break
 
 				i = i + 1
@@ -75,14 +76,14 @@ def cmd_alias(config, author, channel, args):
 		config['save']()
 		return [{
 			'title': 'Delete alias',
-			'description': 'The alias was successfully deleted.',
+			'description': 'The alias `%s` was successfully deleted.' % alias_name,
 		}]
 
 	elif action == 'add':
 
 		if len(args) < 3:
 			return [{
-				'title': 'Missing Parameters',
+				'title': 'Error: Missing Parameters',
 				'color': 'red',
 				'description': 'Please see !help alias.',
 			}]
@@ -97,10 +98,11 @@ def cmd_alias(config, author, channel, args):
 		config['save']()
 		return [{
 			'title': 'Add alias',
-			'description': 'The alias was successfully added.',
+			'description': 'The alias `%s` was successfully added.' % alias_name,
 		}]
 
 	return [{
-		'title': 'TODO',
-		'description': 'TODO',
+		'title': 'Error: Invalid Action',
+		'color': 'red',
+		'description': '`%s` is not a valid action. Please see `%shelp alias` for a list of valid actions.' % (action, config['prefix']),
 	}]
