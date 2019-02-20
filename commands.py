@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from cmd.guild.gcompare import *
+from cmd.guild.compare import *
 from cmd.management.alias import *
 from cmd.management.format import *
 from cmd.management.help import *
@@ -34,14 +34,14 @@ COMMANDS = [
 		'help': help_arena,
 	},
 	{
-		'command': 'pcompare',
-		'aliases': [ 'pc', 'pcompare' ],
+		'command': 'pc',
+		'aliases': [ 'pc' ],
 		'function': cmd_player_compare,
 		'help': help_player_compare,
 	},
 	{
-		'command': 'gcompare',
-		'aliases': [ 'gc', 'gcompare' ],
+		'command': 'gc',
+		'aliases': [ 'gc' ],
 		'function': cmd_guild_compare,
 		'help': help_guild_compare,
 	},
