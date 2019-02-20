@@ -6,7 +6,7 @@ from opts import *
 from constants import EMOJIS
 from utils import dotify, get_stars_as_emojis, add_stats
 from swgohgg import get_avatar_url
-from swgohhelp import fetch_players, fetch_roster, get_guilds_ally_codes, get_ability_name, fetch_crinolo_stats
+from swgohhelp import fetch_players, fetch_roster, get_ability_name, fetch_crinolo_stats
 
 help_player_compare = {
 	'title': 'Player Compare Help',
