@@ -145,7 +145,7 @@ async def on_message(message):
 			break
 	else:
 		embeds = new_embeds(config, {
-			'title': 'Unknown command',
+			'title': 'Error: Unknown command',
 			'color': 'red',
 			'description': 'No such command: `%s`.\nPlease type `!help` to get information about available commands.' % command,
 		})
