@@ -23,12 +23,18 @@ def split_message(message):
 	if 'description' not in message or len(message['description']) <= 2048:
 		return [ message ]
 
-	desc = message['description']
+	title     = message.pop('title', False)
+	author    = message.pop('author', False)
+	fields    = message.pop('fields', False)
+	timestamp = message.pop('timestamp', False)
+	desc      = message.pop('description', False)
+
+	message['title'] = ''
+	message['description'] = ''
+
 	count, rest = divmod(len(desc), 2048)
 	if rest > 0:
 		count += 1
-
-	message['description'] = ''
 
 	msgs = [ dict(message) for i in range(0, count) ]
 
@@ -47,7 +53,18 @@ def split_message(message):
 		new_desc += line + '\n'
 
 	else:
-		msgs[index]['description'] = new_desc
+		print(index)
+		print(len(msgs))
+		msgs[ len(msgs) - 1 ]['description'] = new_desc
+
+	if title:
+		msgs[0]['title'] = title
+
+	if author:
+		msgs[0]['author'] = author
+
+	if fields:
+		msgs[ len(msgs) - 1 ]['fields'] = fields
 
 	return msgs
 
@@ -73,12 +90,14 @@ def new_embeds(config, msg, timestamp=None):
 	msgs = split_message(msg)
 
 	i = 1
+	last_msg = msgs[-1]
 	for msg in msgs:
 
-		msg_title = '%s (%d/%d)' % (msg['title'], i, len(msgs))
-		if len(msgs) == 1:
-			msg_title = msg['title']
-		embed = discord.Embed(title=msg_title, colour=color(msg['color']), description=msg['description'], timestamp=timestamp)
+		msg_title = msg['title'] #msg_title = '%s (%d/%d)' % (msg['title'], i, len(msgs))
+		#if len(msgs) == 1:
+		#	msg_title = msg['title']
+
+		embed = discord.Embed(title=msg_title, colour=color(msg['color']), description=msg['description'])
 
 		if 'author' in msg:
 
@@ -109,6 +128,11 @@ def new_embeds(config, msg, timestamp=None):
 					field['inline'] = False
 
 				embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
+
+		if msg == last_msg:
+			embed.timestamp = timestamp
+		else:
+			embed.set_footer(text='')
 
 		embeds.append(embed)
 
