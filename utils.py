@@ -270,3 +270,17 @@ def get_stars_as_emojis(rarity):
 		stars += i <= rarity and active or inactive
 
 	return stars
+
+def get_field_legend(config, inline=True):
+
+	from constants import EMOJIS
+
+	emoji_cg = EMOJIS['capitalgames']
+	emoji_cr = EMOJIS['crouchingrancor']
+	emoji_gg = EMOJIS['swgoh.gg']
+
+	return {
+		'name': '== Legend ==',
+		'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_cg, emoji_cr, emoji_gg, config['separator']),
+		'inline': inline,
+	}
