@@ -13,7 +13,6 @@ help_help = {
 **`format`**: Manage output formats.
 **`links`**: Manage URL list.
 **`nicks`**: Manage nicknames for units and ships.
-**`sheets`**: Show available spreadsheets.
 %separator
 **Guild Commands**
 NOT WORKING **`gc`**: Compare one (or more) guilds.
