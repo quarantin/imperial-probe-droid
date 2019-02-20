@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import roundup
+from utils import roundup, get_field_legend
 from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprimaries
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES, SHORT_STATS
 
@@ -77,32 +77,24 @@ def pad_numbers(number):
 
 	return ''
 
-def cmd_needed(config, author, channel, args):
+def get_field_modset_stats(config):
 
-	msgs = []
 	modsets = {}
-	option = None
+	spacer = EMOJIS['']
+	sources = sorted(list(config['recos']['by-source']))
+	src_emojis = [ spacer ]
+	for source in sources:
+		emoji = EMOJIS[ source.replace(' ', '').lower() ]
+		src_emojis.append(spacer)
+		src_emojis.append(emoji)
 
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
-	args, selected_slots = parse_opts_modslots(args)
-	args, selected_primaries = parse_opts_modprimaries(args)
-
-	for arg in list(args):
-		if arg in [ 'm', 'modsets' ]:
-			args.remove(arg)
-			option = 'modsets'
-
-	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Unknown Parameter%s' % plural,
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % '\n - '.join(args),
-		}]
+	headers = [ ''.join(src_emojis) ]
 
 	for source, names in config['recos']['by-source'].items():
 
 		new_modsets = {}
 		for name, recos in names.items():
+
 			amount = len(recos)
 			for reco in recos:
 
@@ -118,6 +110,7 @@ def cmd_needed(config, author, channel, args):
 						new_modsets[aset] = 0.0
 					new_modsets[aset] += 1.0 / amount
 
+		lines = []
 		for aset, count in new_modsets.items():
 
 			if aset not in modsets:
@@ -128,7 +121,6 @@ def cmd_needed(config, author, channel, args):
 
 			modsets[aset][source] += count
 
-		lines = []
 		for aset_name in MODSETS.values():
 			if aset_name not in modsets:
 				continue
@@ -137,28 +129,21 @@ def cmd_needed(config, author, channel, args):
 			counts = []
 			for source, count in sorted(sources.items()):
 				modset_emoji = EMOJIS[ aset_name.replace(' ', '').lower() ]
-				#source_emoji = EMOJIS[ source.replace(' ', '').lower() ]
 				counts.append('x %.3g' % count)
 
 			lines.append('%s `%s`' % (modset_emoji, ' | '.join(counts)))
 
-	if option == 'modsets':
+	lines.append(config['separator'])
 
-		sources = sorted(list(config['recos']['by-source']))
-		src_emojis = []
-		spacer = EMOJIS['']
-		for source in sources:
-			emoji = EMOJIS[ source.replace(' ', '').lower() ]
-			src_emojis.append(spacer)
-			src_emojis.append(emoji)
+	lines = headers + lines
 
-		emojis = ''.join(src_emojis)
-		lines = [ emojis ] + lines
+	return {
+		'name': '== Needed Mod Sets ==',
+		'value': '\n'.join(lines),
+		'inline': True,
+	}
 
-		return [{
-			'title': 'Modsets needed',
-			'description': '%s\n%s' % (config['separator'], '\n'.join(lines)),
-		}]
+def get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries):
 
 	if not selected_slots:
 		selected_slots = MODSLOTS.keys()
@@ -166,59 +151,86 @@ def cmd_needed(config, author, channel, args):
 	if not selected_primaries:
 		selected_primaries = MODSPRIMARIES
 
-	for ally_code in ally_codes:
+	#for ally_code in ally_codes:
 
-		#ally_stats = get_mod_stats(ally_code)
+	#ally_stats = get_mod_stats(ally_code)
 
-		lines = []
-		stats = config['recos']['stats']
-		for slot in selected_slots:
-			slot_emoji = EMOJIS[slot]
-			if slot not in stats:
-				continue
+	lines = []
+	stats = config['recos']['stats']
+	for slot in selected_slots:
+		slot_emoji = EMOJIS[slot]
+		if slot not in stats:
+			continue
 
-			sublines = []
-			for primary in sorted(selected_primaries):
-				if primary in stats[slot]:
-					cg_count = 0.0
-					if 'Capital Games' in stats[slot][primary]:
-						cg_count = roundup(stats[slot][primary]['Capital Games'])
+		sublines = []
+		for primary in sorted(selected_primaries):
+			if primary in stats[slot]:
+				cg_count = 0.0
+				if 'Capital Games' in stats[slot][primary]:
+					cg_count = roundup(stats[slot][primary]['Capital Games'])
 
-					cr_count = 0.0
-					if 'Crouching Rancor' in stats[slot][primary]:
-						cr_count = roundup(stats[slot][primary]['Crouching Rancor'])
+				cr_count = 0.0
+				if 'Crouching Rancor' in stats[slot][primary]:
+					cr_count = roundup(stats[slot][primary]['Crouching Rancor'])
 
-					gg_count = 0.0
-					if 'swgoh.gg' in stats[slot][primary]:
-						gg_count = roundup(stats[slot][primary]['swgoh.gg'])
+				gg_count = 0.0
+				if 'swgoh.gg' in stats[slot][primary]:
+					gg_count = roundup(stats[slot][primary]['swgoh.gg'])
 
-					ally_count = 0.0
-					#if slot in ally_stats and primary in ally_stats[slot]:
-					#	ally_count = roundup(ally_stats[slot][primary])
+				ally_count = 0.0
+				#if slot in ally_stats and primary in ally_stats[slot]:
+				#	ally_count = roundup(ally_stats[slot][primary])
 
-					pad1 = pad_numbers(cg_count)
-					pad2 = pad_numbers(cr_count)
-					pad3 = pad_numbers(gg_count)
-					pad4 = pad_numbers(ally_count)
+				pad1 = pad_numbers(cg_count)
+				pad2 = pad_numbers(cr_count)
+				pad3 = pad_numbers(gg_count)
+				pad4 = pad_numbers(ally_count)
 
-					sublines.append('%s `|%s%.3g|%s%.3g|%s%.3g|%s%.3g|%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, gg_count, pad4, ally_count, primary))
+				sublines.append('%s `|%s%.3g|%s%.3g|%s%.3g|%s%.3g|%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, gg_count, pad4, ally_count, primary))
 
-			if sublines:
-				lines += [ config['separator'] ] + sublines
+		if sublines:
+			lines += [ config['separator'] ] + sublines
 
-		sources = sorted(list(config['recos']['by-source'])) + [ 'crimsondeathwatch' ]
-		emojis = []
-		for source in sources:
-			emoji = EMOJIS[ source.replace(' ', '').lower() ]
-			emojis.append(emoji)
+	sources = sorted(list(config['recos']['by-source'])) + [ 'crimsondeathwatch' ]
+	emojis = []
+	for source in sources:
+		emoji = EMOJIS[ source.replace(' ', '').lower() ]
+		emojis.append(emoji)
 
-		lines = [
-			'`Slot|`%s`|Primary Stats`' % '|'.join(emojis),
-		] + lines
+	lines = [
+		'`Slot|`%s`|Primary Stats`' % '|'.join(emojis),
+	] + lines
 
-		msgs.append({
-			'title': 'Recommended Mod Primaries',
-			'description': '\n'.join(lines),
-		})
+	return '\n'.join(lines)
 
-	return msgs
+def cmd_needed(config, author, channel, args):
+
+	args, ally_codes = parse_opts_ally_codes(config, author, args)
+	args, selected_slots = parse_opts_modslots(args)
+	args, selected_primaries = parse_opts_modprimaries(args)
+
+
+	emoji_cg = EMOJIS['capitalgames']
+	emoji_cr = EMOJIS['crouchingrancor']
+	emoji_gg = EMOJIS['swgoh.gg']
+
+	if args:
+		plural = len(args) > 1 and 's' or ''
+		return [{
+			'title': 'Unknown Parameter%s' % plural,
+			'color': 'red',
+			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % '\n - '.join(args),
+		}]
+
+	field_modset_stats  = get_field_modset_stats(config)
+	field_primary_stats = get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries)
+	field_legend        = get_field_legend(config)
+
+	return [{
+		'title': '== Needed Mod Primaries ==',
+		'description': field_primary_stats,
+		'fields': [
+			field_modset_stats,
+			field_legend,
+		],
+	}]
