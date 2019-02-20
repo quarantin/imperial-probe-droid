@@ -104,15 +104,13 @@ def get_field_modset_stats(config):
 
 def get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries):
 
+	spacer = EMOJIS['']
+
 	if not selected_slots:
 		selected_slots = MODSLOTS.keys()
 
 	if not selected_primaries:
 		selected_primaries = MODSPRIMARIES
-
-	#for ally_code in ally_codes:
-
-	#ally_stats = get_mod_stats(ally_code)
 
 	lines = []
 	stats = config['recos']['stats']
@@ -137,8 +135,6 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 					gg_count = roundup(stats[slot][primary]['swgoh.gg'])
 
 				ally_count = 0.0
-				#if slot in ally_stats and primary in ally_stats[slot]:
-				#	ally_count = roundup(ally_stats[slot][primary])
 
 				pad1 = pad_numbers(cg_count)
 				pad2 = pad_numbers(cr_count)
@@ -157,7 +153,7 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 		emojis.append(emoji)
 
 	lines = [
-		'`Slot|`%s`|Primary Stats`' % '|'.join(emojis),
+		'%s\u202F\u202F\u202F%s`|Primary Stats`' % (spacer, '|'.join(emojis)),
 	] + lines
 
 	return '\n'.join(lines)
