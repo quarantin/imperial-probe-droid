@@ -2,67 +2,21 @@
 
 from utils import roundup, get_field_legend
 from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprimaries
-from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSLOTS, MODSPRIMARIES, SHORT_STATS
+from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
 
 help_needed = {
 	'title': 'Needed Help',
-	'description': """Shows statistics about recommended mod sets and mod primaries according to Capital Games and Crouching Rancor.
+	'description': """Shows statistics about recommended mod sets and mod primaries according to EA / Capital Games, Crouching Rancor, and swgoh.gg's mod meta reports.
 
 **Syntax**
 ```
-%prefixneeded [options]
-%prefixneeded [mod slots] [mod primaries]```
-
+%prefixneeded```
 **Aliases**
 ```
 %prefixn```
-
-**Options**
-Valid options are as follow:
-**`modsets`** (or **`m`**): to show stats about recommended mod sets.
-
-**Mod Slots**
-Mod slots parameters can be any of:
- - **`square`** (or **`sq`**)
- - **`arrow`** (or **`ar`**)
- - **`diamond`** (or **`di`**)
- - **`triangle`** (or **`tr`**)
- - **`circle`** (or **`ci`**)
- - **`cross`** (or **`cr`**)
-
-**Mod Primaries**
-Mod primaries parameters can be any of:
- - **`accuracy`** (or **`ac`**)
- - **`criticalavoidance`** (or **`ca`**)
- - **`criticalchance`** (or **`cc`**)
- - **`criticaldamage`** (or **`cd`**)
- - **`defense`** (or **`de`**)
- - **`health`** (or **`he`**)
- - **`offense`** (or **`of`**)
- - **`potency`** (or **`po`**)
- - **`protection`** (or **`pr`**)
- - **`speed`** (or **`sp`**)
- - **`tenacity`** (or **`te`**)
-
 **Examples**
-Show how many mods are recommended for all slots and primary stats:
 ```
-%prefixn```
-Show how many mod sets are recommended for each mod set:
-```
-%prefixn m```
-Show how many mods are recommended with speed as primary stat:
-```
-%prefixn speed```
-Show how many cross mods are recommended for each primary stat:
-```
-%prefixn cross```
-Show how many arrow mods are recommended with speed as primary stat:
-```
-%prefixn arrow speed```
-Show how many triangle mods are recommended with critical damage as primary stat:
-```
-%prefixn tr cd```"""
+%prefixn```"""
 }
 
 def pad_numbers(number):
@@ -82,13 +36,12 @@ def get_field_modset_stats(config):
 	modsets = {}
 	spacer = EMOJIS['']
 	sources = sorted(list(config['recos']['by-source']))
-	src_emojis = [ spacer ]
+	src_emojis = []
 	for source in sources:
 		emoji = EMOJIS[ source.replace(' ', '').lower() ]
-		src_emojis.append(spacer)
 		src_emojis.append(emoji)
 
-	headers = [ ''.join(src_emojis) ]
+	headers = [ '%s%s' % (spacer, '|'.join(src_emojis)) ]
 
 	for source, names in config['recos']['by-source'].items():
 
@@ -125,13 +78,19 @@ def get_field_modset_stats(config):
 			if aset_name not in modsets:
 				continue
 
-			sources = modsets[aset_name]
 			counts = []
+			sources = modsets[aset_name]
 			for source, count in sorted(sources.items()):
 				modset_emoji = EMOJIS[ aset_name.replace(' ', '').lower() ]
-				counts.append('x %.3g' % count)
+				count = roundup(count)
+				pad = pad_numbers(count)
+				counts.append('%s%s' % (pad, count))
 
-			lines.append('%s `%s`' % (modset_emoji, ' | '.join(counts)))
+			if len(counts) < 3:
+				pad = pad_numbers(0)
+				counts.append('%s%d' % (pad, 0))
+
+			lines.append('%s `%s`' % (modset_emoji, '|'.join(counts)))
 
 	lines.append(config['separator'])
 
@@ -209,7 +168,6 @@ def cmd_needed(config, author, channel, args):
 	args, selected_slots = parse_opts_modslots(args)
 	args, selected_primaries = parse_opts_modprimaries(args)
 
-
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
 	emoji_gg = EMOJIS['swgoh.gg']
@@ -217,13 +175,13 @@ def cmd_needed(config, author, channel, args):
 	if args:
 		plural = len(args) > 1 and 's' or ''
 		return [{
-			'title': 'Unknown Parameter%s' % plural,
+			'title': 'Error: Unknown Parameter%s' % plural,
 			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % '\n - '.join(args),
+			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
-	field_modset_stats  = get_field_modset_stats(config)
 	field_primary_stats = get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries)
+	field_modset_stats  = get_field_modset_stats(config)
 	field_legend        = get_field_legend(config)
 
 	return [{
