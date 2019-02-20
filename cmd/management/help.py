@@ -15,7 +15,7 @@ help_help = {
 **`nicks`**: Manage nicknames for units and ships.
 %separator
 **Guild Commands**
-**`gc`**: Compare one (or more) guilds.
+IN DEV **`gc`**: Compare one (or more) guilds.
 %separator
 **Player Commands**
 **`arena`**: Show arena squads details.
