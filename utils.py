@@ -97,6 +97,15 @@ def add_stats(stats):
 	stats['full'] = res
 	return stats
 
+def find_ally_in_guild(guild, ally_codes):
+
+	for ally_code in ally_codes:
+
+		if int(ally_code) in guild['roster']:
+			return ally_code
+
+	return None
+
 def format_char_details(unit, fmt):
 
 	if '%name' in fmt:
