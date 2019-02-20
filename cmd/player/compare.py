@@ -103,15 +103,27 @@ def get_stat_detail(name, stats, percent=False, label=None):
 	mods_stat = name in stats['mods'] and stats['mods'][name] * coef or 0
 	gear_stat = name in stats['gear'] and stats['gear'][name] * coef or 0
 
-	base_stat = round(full_stat) - mods_stat - gear_stat
+	base_stat = round(full_stat, 3) - mods_stat - gear_stat
 
-	string_stat = '+'.join([
-		'%d%s' % (base_stat, percent_sign),
-		'%d%s' % (mods_stat, percent_sign),
-		'%d%s' % (gear_stat, percent_sign),
-	])
+	if percent is True:
 
-	return '%s: **`%d%s`** (`%s`)' % (label, round(full_stat), percent_sign, string_stat)
+		string_stat = '+'.join([
+			'%.02g' % base_stat,
+			'%.02g' % mods_stat,
+			'%.02g' % gear_stat,
+		])
+
+		return '%s: **`%.02g%%`** (`%s`)' % (label, round(full_stat, 3), string_stat)
+
+	else:
+		string_stat = '+'.join([
+			'%d' % base_stat,
+			'%d' % mods_stat,
+			'%d' % gear_stat,
+		])
+
+		return '%s: **`%d`** (`%s`)' % (label, full_stat, string_stat)
+
 
 def calc_def(d, key, level):
 
@@ -132,12 +144,12 @@ def get_def_stat_detail(name, stats, level, label=None):
 	full_stat = calc_def(stats['full'], name, level)
 
 	string_stat = '+'.join([
-		'%.02f' % base_stat,
-		'%.02f' % mods_stat,
-		'%.02f' % gear_stat,
+		'%.02g' % base_stat,
+		'%.02g' % mods_stat,
+		'%.02g' % gear_stat,
 	])
 
-	return '%s: **`%.02f%%`** (`%s`)' % (label, full_stat, string_stat)
+	return '%s: **`%.02g%%`** (`%s`)' % (label, full_stat, string_stat)
 
 def get_cc_stat_detail(name, stats, label):
 
@@ -148,19 +160,36 @@ def get_cc_stat_detail(name, stats, label):
 	base_stat   = rating_name in stats['base'] and stats['base'][rating_name] or 0
 	full_stat   = rating_name in stats['full'] and stats['full'][rating_name] or 0
 
-	cc = round(((full_stat / 2400 + 0.1) + stats['full'][name]) * 100, 3)
+	cc = ((full_stat / 2400 + 0.1) + stats['full'][name]) * 100
+
+	#cc = round(cc, 3)
 
 	mods_stat = round(mods_stat * 100, 3)
 	gear_stat = round(((gear_stat / 2400) + 0.1) * 100, 3)
 	base_stat = round(((base_stat / 2400) + 0.1) * 100 - 10, 3)
 
 	string_stat = '+'.join([
-		'%.02f' % base_stat,
-		'%.02f' % mods_stat,
-		'%.02f' % gear_stat,
+		'%.02g' % base_stat,
+		'%.02g' % mods_stat,
+		'%.02g' % gear_stat,
 	])
 
-	return '%s: **`%.02f%%`** (`%s`)' % (label, cc, string_stat)
+	return '%s: **`%.02g%%`** (`%s`)' % (label, cc, string_stat)
+
+def get_cd_stat_detail(name, stats, label):
+
+	base_stat   = (name in stats['base'] and stats['base'][name] or 0) * 100
+	mods_stat   = (name in stats['mods'] and stats['mods'][name] or 0) * 100
+	gear_stat   = (name in stats['gear'] and stats['gear'][name] or 0) * 100
+	full_stat   = (name in stats['full'] and stats['full'][name] or 0) * 100
+
+	string_stat = '+'.join([
+		'%d' % base_stat,
+		'%d' % mods_stat,
+		'%d' % gear_stat,
+	])
+
+	return '%s: **`%d%%`** (`%s`)' % (label, full_stat, string_stat)
 
 def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 
@@ -199,11 +228,11 @@ def unit_to_embedfield(config, player, roster, stats, base_id, lang):
 		lines.append(get_stat_detail('Tenacity', stat, percent=True))
 
 		# CD, CC, Damage
-		lines.append(get_stat_detail('Physical Damage',          stat, label='Phys.Damage'))
-		lines.append(get_stat_detail('Special Damage',           stat, label='Spec.Damage'))
+		lines.append(get_stat_detail('Physical Damage',             stat, label='Phys.Damage'))
+		lines.append(get_stat_detail('Special Damage',              stat, label='Spec.Damage'))
 		lines.append(get_cc_stat_detail('Physical Critical Chance', stat, label='CC.Phys'))
 		lines.append(get_cc_stat_detail('Special Critical Chance',  stat, label='CC.Spec'))
-		lines.append(get_stat_detail('Critical Damage',          stat, percent=True, label='CD'))
+		lines.append(get_cd_stat_detail('Critical Damage',          stat, label='CD'))
 
 		# Abilities
 		for skill in player['roster'][base_id]['skills']:
