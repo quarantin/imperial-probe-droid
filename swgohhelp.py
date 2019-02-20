@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import get_units_dict
+from utils import get_units_dict, find_ally_in_guild
 
 import json
 import sys
@@ -150,10 +150,8 @@ def fetch_guilds(config, ally_codes):
 	# Remove ally codes for which we already have fetched the guild data
 	needed = list(ally_codes)
 	for ally_code in ally_codes:
-		for guild_name, guild in db['guilds'].items():
-			for player in guild['roster']:
-				if int(ally_code) == player['allyCode']:
-					needed.remove(ally_code)
+		if int(ally_code) in db['guilds']:
+			needed.remove(ally_code)
 
 	if needed:
 
@@ -166,7 +164,10 @@ def fetch_guilds(config, ally_codes):
 		for guild in guilds:
 			guild['roster'] = get_units_dict(guild['roster'], 'allyCode')
 			guild_name = guild['name']
-			db['guilds'][guild_name] = guild
+			ally_code = find_ally_in_guild(guild, needed)
+			if not ally_code:
+				raise Exception('Could not find ally code: %s in guild: %s' % (ally_code, guild_name))
+			db['guilds'][int(ally_code)] = guild
 
 	guilds = {}
 
@@ -297,8 +298,8 @@ def get_guilds_ally_codes(guilds):
 	ally_codes = {}
 
 	for guild_name, guild in guilds.items():
-		for ally in guild['roster']:
-			ally_code = ally['allyCode']
+		for ally_code in guild['roster']:
+			ally = guild['roster'][ally_code]
 			ally_codes[ally_code] = ally
 
 	return ally_codes
