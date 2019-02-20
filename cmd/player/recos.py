@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
-from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries
+from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend
 from constants import EMOJIS, SHORT_STATS
 
 from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
@@ -155,6 +155,8 @@ def cmd_recos(config, author, channel, args):
 				line = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
 				lines = [ line ] + lines
 
+				field_legend = get_field_legend(config)
+
 				msgs.append({
 					'title': '== Recommended Mod Sets and Primary Stats ==',
 					'description': '\n'.join(lines),
@@ -162,12 +164,8 @@ def cmd_recos(config, author, channel, args):
 						'name': ref_unit['name'],
 						'icon_url': get_avatar_url(ref_unit['base_id']),
 					},
-					'image': get_full_avatar_url(ref_unit['image'], unit),
-					'fields': [{
-						'name': '== Legend ==',
-						'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_cg, emoji_cr, emoji_gg, config['separator']),
-						'inline': True,
-					}]
+					'image': get_full_avatar_url(config, ref_unit['image'], unit),
+					'fields': [ field_legend ],
 				})
 			else:
 				msgs.append({
