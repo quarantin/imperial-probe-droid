@@ -199,7 +199,7 @@ def cmd_guild_compare(config, author, channel, args):
 		for guild_name, guild in guilds.items():
 
 			roster = {}
-			for ally_code in roster_list:
+			for ally_code in guild['roster']:
 				rosters = roster_list[ally_code]
 				for base_id, player_unit in rosters.items():
 					if base_id not in roster:
