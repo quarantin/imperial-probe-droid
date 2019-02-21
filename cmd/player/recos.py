@@ -60,7 +60,7 @@ def cmd_recos(config, author, channel, args):
 		return [{
 			'title': 'Error: No Units Selected',
 			'color': 'red',
-			'description': 'You have to provide at least one unit name or a mod filter.\nPlease check %shelp recos for more information.' % config['prefix'],
+			'description': 'You have to provide at least one unit name.\nPlease check %shelp recos for more information.' % config['prefix'],
 		}]
 
 	if args:
