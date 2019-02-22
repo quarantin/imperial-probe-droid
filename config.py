@@ -233,7 +233,6 @@ def load_config(bot=None, config_file='config.json'):
 						config['short-urls'][view_url] = get_short_url(view_url)
 
 	if bot:
-		from swgohgg import get_top_rank1_mods
 		config['allies'] = parse_allies_db(bot.get_all_members())
 		config['help'] = load_help()
 		config['recos'] = parse_recommendations()
