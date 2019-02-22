@@ -70,10 +70,12 @@ def get_headers(config):
 def call_api(config, project, url):
 	print("CALL API: %s %s" % (url, project), file=sys.stderr)
 	response = requests.post(url, headers=get_headers(config), json=project)
-	if not response:
-		raise Exception('POST request failed: %s' % url)
+	data = response.json()
+	if 'error' in data:
+		print(data)
+		raise Exception('POST request failed for URL: %s\n%d %s Error: %s' % (url, data['code'], data['error'], data['error_description']))
 
-	return response.json()
+	return data
 
 #
 # API
@@ -106,8 +108,12 @@ def api_swgoh_data(config, project):
 def api_crinolo(config, units):
 	url = '%s/characters?flags=withModCalc' % CRINOLO_PROD_URL
 	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
-	return requests.post(url, json=units).json()
+	response = requests.post(url, json=units)
+	data = response.json()
+	if 'error' in data:
+		raise Exception('POST request failed for URL: %s\n%d Error: %s' % (url, response.status_code, data['error']))
 
+	return data
 #
 # Fetch functions
 #
@@ -278,7 +284,6 @@ def fetch_crinolo_stats(config, ally_codes):
 
 				stats = unit['stats']
 				unit = unit['unit']
-				#TODO print(unit, file=sys.stderr)
 				ally_code = unit['allyCode']
 
 				if ally_code not in db['stats']:
