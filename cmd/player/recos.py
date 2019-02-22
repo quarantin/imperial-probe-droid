@@ -71,7 +71,6 @@ def cmd_recos(config, author, channel, args):
 			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
 		}]
 
-	ref_units = get_char_list()
 	players = fetch_players(config, ally_codes)
 
 	msgs = []
@@ -83,31 +82,30 @@ def cmd_recos(config, author, channel, args):
 
 		for ref_unit in selected_units:
 
+			name    = ref_unit['name']
 			base_id = ref_unit['base_id']
-			roster = players[ally_code]['roster']
-			unit_name = basicstrip(ref_unit['name'])
-			if unit_name in config['recos']['by-name']:
-				recos = config['recos']['by-name'][unit_name]
+			roster  = players[ally_code]['roster']
+			if name in config['recos']['by-name']:
+				recos = config['recos']['by-name'][name]
 				lines = []
 
 				for reco in recos:
 
-					source   = EMOJIS[ reco[1].replace(' ', '').lower() ]
+					source   = EMOJIS[ reco['source'].replace(' ', '').lower() ]
 
-					info     = reco[2].strip()
+					set1     = EMOJIS[ reco['set1'].replace(' ', '').lower() ]
+					set2     = EMOJIS[ reco['set2'].replace(' ', '').lower() ]
+					set3     = EMOJIS[ reco['set3'].replace(' ', '').lower() ]
 
-					set1     = EMOJIS[ reco[3].replace(' ', '').lower() ]
-					set2     = EMOJIS[ reco[4].replace(' ', '').lower() ]
-					set3     = EMOJIS[ reco[5].replace(' ', '').lower() ]
+					square   = SHORT_STATS[ reco['square'].strip()   ]
+					arrow    = SHORT_STATS[ reco['arrow'].strip()    ]
+					diamond  = SHORT_STATS[ reco['diamond'].strip()  ]
+					triangle = SHORT_STATS[ reco['triangle'].strip() ]
+					circle   = SHORT_STATS[ reco['circle'].strip()   ]
+					cross    = SHORT_STATS[ reco['cross'].strip()    ]
 
-					square   = SHORT_STATS[ reco[6].strip()  ]
-					arrow    = SHORT_STATS[ reco[7].strip()  ]
-					diamond  = SHORT_STATS[ reco[8].strip()  ]
-					triangle = SHORT_STATS[ reco[9].strip()  ]
-					circle   = SHORT_STATS[ reco[10].strip() ]
-					cross    = SHORT_STATS[ reco[11].strip() ]
-
-					info = info and ' %s' % info or ''
+					info     = reco['info'].strip()
+					info     = info and ' %s' % info or ''
 
 					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
 					lines.append(line)
@@ -161,7 +159,7 @@ def cmd_recos(config, author, channel, args):
 					'description': '\n'.join(lines),
 					'author': {
 						'name': ref_unit['name'],
-						'icon_url': get_avatar_url(ref_unit['base_id']),
+						'icon_url': get_avatar_url(base_id),
 					},
 					'image': get_full_avatar_url(config, ref_unit['image'], unit),
 					'fields': [ field_legend ],
