@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import cache_expired, ensure_parents, get_units_dict
+from utils import cache_expired, ensure_parents, get_units_dict, parse_modsets
 
 from swgohhelp import fetch_players
 
@@ -19,9 +19,10 @@ META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
 META_MODS_URL = 'https://swgoh.gg/mod-meta-report/rank_10/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
 
-def download_unit_list(key, url):
+def download_unit_list(key, url, index='base_id'):
 
-	by_id = '%s-by-id' % key
+	by_id = '%s-by-%s' % (key, index)
+	key = '%s-%s' % (key, index)
 	cache = 'cache/%s.json' % key
 	ensure_parents(cache)
 
@@ -41,18 +42,18 @@ def download_unit_list(key, url):
 		fout.close()
 
 	db[key] = unit_list
-	db[by_id] = get_units_dict(unit_list, 'base_id')
+	db[by_id] = get_units_dict(unit_list, index)
 	return db[by_id]
 
-def get_char_list():
-	return download_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL)
+def get_char_list(index='base_id'):
+	return download_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL, index=index)
 
-def get_ship_list():
-	return download_unit_list('ships', '%s/ships/' % SWGOH_GG_API_URL)
+def get_ship_list(index='base_id'):
+	return download_unit_list('ships', '%s/ships/' % SWGOH_GG_API_URL, index=index)
 
-def get_unit_list():
-	units = get_char_list()
-	units.update(get_ship_list())
+def get_unit_list(index='base_id'):
+	units = get_char_list(index=index)
+	units.update(get_ship_list(index=index))
 	return units
 
 def get_swgohgg_profile_url(ally_code):
@@ -186,41 +187,3 @@ def get_top_rank1_fleet_squads(top_n):
 
 def get_top_rank1_reinforcements(top_n):
 	return get_top_rank1_squads(top_n, 'reinforcements', META_SHIPS_URL)
-
-def parse_modsets(td):
-
-	modsets = sorted([ div['data-title'] for div in td.find_all('div') ])
-
-	modsets += [''] * (3 - len(modsets))
-
-	return modsets
-
-def get_top_rank1_mods():
-
-	top_mods = []
-
-	response = requests.get(META_MODS_URL)
-	soup = BeautifulSoup(response.text, 'lxml')
-	trs = soup.select('li tr')
-
-	for tr in trs:
-
-		tds = tr.find_all('td')
-		if not tds:
-			continue
-
-		char_name = tds[0].text.strip()
-		modsets = parse_modsets(tds[1])
-		prim_sq = tds[2].text.strip().split('/')
-		prim_tr = tds[3].text.strip().split('/')
-		prim_ci = tds[4].text.strip().split('/')
-		prim_cr = tds[5].text.strip().split('/')
-
-		for _sq in prim_sq:
-			for _tr in prim_tr:
-				for _ci in prim_ci:
-					for _cr in prim_cr:
-						top_mods.append([ char_name, 'swgoh.gg', 'Meta Report', modsets[0], modsets[1], modsets[2], 'Offense', _sq.strip(), 'Defense', _tr.strip(), _ci.strip(), _cr.strip()])
-						#print("%s;swgoh.gg;Meta Report;Offense;%s;Defense;%s;%s;%s;%s" % (char_name, ';'.join(modsets), _sq.strip(), _tr.strip(), _ci.strip(), _cr.strip()))
-
-	return top_mods
