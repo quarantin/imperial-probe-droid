@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
 import os
 import pytz
@@ -79,6 +80,10 @@ def add_stats(stats):
 	if 'full' in stats:
 		return stats
 
+	if 'base' not in stats:
+		print(json.dump(stats, indent=4))
+		raise Exception("base is missing from stats")
+
 	#if 'base' not in stats:
 	#	res = stats
 
@@ -127,6 +132,17 @@ def format_char_details(unit, fmt):
 				fmt = fmt.replace(pattern, str(0))
 
 	return fmt
+
+def get_unit_type(base_id):
+
+	from swgohgg import get_unit_list
+	all_units = get_unit_list()
+	if base_id not in all_units:
+		raise Exception('Could not find base_id: %s in static unit database' % base_id)
+
+	unit = all_units[base_id]
+
+	return unit['combat_type'] == 1 and 'char' or 'ship'
 
 def format_char_stats(stats, fmt):
 
@@ -188,6 +204,9 @@ def cache_expired(filepath):
 
 	return modified < oldest
 
+def expired(expiration_date):
+	return expiration_date < datetime.now()
+
 def lpad(number, limit=1000):
 
 	pads = []
@@ -204,6 +223,19 @@ def lpad(number, limit=1000):
 			pads.append('\u202F\u202F')
 
 	return '%s%s' % (''.join(pads), number)
+
+def get_dict_by_index(dict_list, index_key):
+
+	d = {}
+
+	for a_dict in dict_list:
+		index = a_dict[index_key]
+		if index not in d:
+			d[index] = []
+
+		d[index].append(a_dict)
+
+	return d
 
 def get_units_dict(units, base_id_key):
 
@@ -293,3 +325,11 @@ def get_field_legend(config, inline=True):
 		'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_cg, emoji_cr, emoji_gg, config['separator']),
 		'inline': inline,
 	}
+
+def parse_modsets(td):
+
+	modsets = sorted([ div['data-title'] for div in td.find_all('div') ])
+
+	modsets += [''] * (3 - len(modsets))
+
+	return modsets
