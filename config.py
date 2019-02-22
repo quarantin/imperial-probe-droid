@@ -97,7 +97,7 @@ def count_recos_per_source(source, recos):
 
 	count = 0
 	for reco in recos:
-		if reco[1] == source:
+		if reco['source'] == source:
 			count += 1
 
 	return count
@@ -106,13 +106,12 @@ def extract_modstats(stats, recos):
 
 	for reco in recos:
 
-		source = reco[1]
+		source = reco['source']
 		count = count_recos_per_source(source, recos)
 
-		for i in range(6, 12):
+		for slot in [ 'square', 'arrow', 'diamond', 'triangle', 'circle', 'cross' ]:
 
-			slot = i - 5
-			primary = reco[i]
+			primary = reco[slot]
 
 			if slot not in stats:
 				stats[slot] = {}
@@ -126,40 +125,11 @@ def extract_modstats(stats, recos):
 
 def parse_recommendations(recos=None, recos_db={}):
 
-	from swgohgg import get_top_rank1_mods
-	get_top_rank1_mods()
-	url = config['sheets']['recommendations']['view']
+	from recos import fetch_all_recos
 
 	stats = {}
-
-	if 'by-name' not in recos_db:
-		recos_db['by-name'] = {}
-
-	if 'by-source' not in recos_db:
-		recos_db['by-source'] = {}
-
-	if not recos:
-		recos = download_spreadsheet(url, 16)
-		next(recos)
-
-	for reco in recos:
-
-		name = basicstrip(reco[0])
-		source = reco[1]
-		if not name or not source:
-			continue
-
-		if name not in recos_db['by-name']:
-			recos_db['by-name'][name] = []
-
-		if source not in recos_db['by-source']:
-			recos_db['by-source'][source] = {}
-
-		if name not in recos_db['by-source'][source]:
-			recos_db['by-source'][source][name] = []
-
-		recos_db['by-name'][name].append(reco)
-		recos_db['by-source'][source][name].append(reco)
+	recos_db['by-name'] = fetch_all_recos(index='name')
+	recos_db['by-source'] = fetch_all_recos(index='source', index2='name')
 
 	for unit, recos in recos_db['by-name'].items():
 		extract_modstats(stats, recos)
@@ -264,12 +234,9 @@ def load_config(bot=None, config_file='config.json'):
 
 	if bot:
 		from swgohgg import get_top_rank1_mods
-		recos_db = parse_recommendations()
-		swgohgg_recos = get_top_rank1_mods()
-		parse_recommendations(swgohgg_recos, recos_db)
 		config['allies'] = parse_allies_db(bot.get_all_members())
 		config['help'] = load_help()
-		config['recos'] = recos_db
+		config['recos'] = parse_recommendations()
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
 
