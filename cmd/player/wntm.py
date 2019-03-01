@@ -86,12 +86,12 @@ def cmd_wntm(config, author, channel, args):
 		for name, recos in sorted(config['recos']['by-name'].items()):
 			for reco in recos:
 
-				alist = [ reco[x] for x in range(3, 6) ]
-				if modset not in [ reco[x] for x in range(3, 6) ]:
+				alist = [ reco['set1'], reco['set2'], reco['set3'] ]
+				if modset not in alist:
 					continue
 
-				if prim != reco[5 + slot]:
-					continue
+				#if prim != reco['set1']:
+				#	continue
 
 				matching_recos.append(reco)
 
@@ -104,14 +104,14 @@ def cmd_wntm(config, author, channel, args):
 	else:
 		chars = {}
 		for recos in matching_recos:
-			char_name = recos[0]
+			char_name = recos['name']
 			if char_name.startswith('"'):
 				char_name = char_name[1:]
 			if char_name.endswith('"'):
 				char_name = char_name[:-1]
 			char_name = char_name.replace('""', '"')
 
-			source = recos[1].replace(' ', '').lower()
+			source = recos['source'].replace(' ', '').lower()
 			source_emoji = EMOJIS[source]
 			if char_name not in chars:
 				chars[char_name] = [ spacer, spacer, spacer ]
