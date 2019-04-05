@@ -11,6 +11,7 @@ help_help = {
 **Management Commands**
 **`alias`**: Manage command aliases.
 **`format`**: Manage output formats.
+**`invite`**: Invite this bot.
 **`links`**: Manage URL list.
 **`nicks`**: Manage nicknames for units and ships.
 %separator

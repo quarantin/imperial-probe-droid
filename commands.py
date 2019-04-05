@@ -4,6 +4,7 @@ from cmd.guild.compare import *
 from cmd.management.alias import *
 from cmd.management.format import *
 from cmd.management.help import *
+from cmd.management.invite import *
 from cmd.management.links import *
 from cmd.management.nicks import *
 from cmd.management.restart import *
@@ -62,6 +63,12 @@ COMMANDS = [
 		'aliases': [ 'h', 'help' ],
 		'function': cmd_help,
 		'help': help_help,
+	},
+	{
+		'command': 'invite',
+		'aliases': [ 'I', 'invite' ],
+		'function': cmd_invite,
+		'help': help_invite,
 	},
 	{
 		'command': 'links',
