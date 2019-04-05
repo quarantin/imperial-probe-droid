@@ -4,6 +4,7 @@ help_help = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
 	'description': """**Botmaster(s)**: %authors
 **Source Code**: %source
+**Like this bot?**: Support me on [Patreon](%patreon)!
 %separator
 **Help Commands**
 **`help`**: This help menu
@@ -34,6 +35,7 @@ def substitute_tokens(config, text):
 
 	tokens = [
 		'authors',
+		'patreon',
 		'prefix',
 		'separator',
 		'source',
