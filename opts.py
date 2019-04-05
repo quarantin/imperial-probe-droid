@@ -103,6 +103,9 @@ def parse_opts_format(config, args):
 
 def parse_opts_ally_code(config, author, arg):
 
+	if len(arg) >= 11 and arg.find('-') == 3:
+		arg = ''.join(arg.split('-'))
+
 	if len(arg) >= 9 and arg.isdigit():
 		return arg
 
@@ -119,11 +122,17 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 
 	for arg in args_cpy:
 
-		if len(arg) >= 9 and arg.isdigit():
+		if len(arg) >= 11 and arg.find('-') == 3:
+			cpy = ''.join(arg.split('-'))
+			if len(cpy) >= 9 and cpy.isdigit():
+				args.remove(arg)
+				ally_codes.append(cpy)
+
+		elif len(arg) >= 9 and arg.isdigit():
 			args.remove(arg)
 			ally_codes.append(arg)
 
-		if arg in config['allies']['by-mention']:
+		elif arg in config['allies']['by-mention']:
 			args.remove(arg)
 			ally_codes.append(config['allies']['by-mention'][arg][2])
 
