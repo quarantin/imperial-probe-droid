@@ -64,7 +64,7 @@ def cmd_recos(config, author, channel, args):
 		}]
 
 	if args:
-		plural = len(args) > 1
+		plural = len(args) > 1 and 's' or ''
 		return [{
 			'title': 'Error: Unknown Parameter%s' % plural,
 			'color': 'red',
