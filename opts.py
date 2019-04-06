@@ -141,7 +141,76 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 
 	return args, ally_codes
 
+def parse_opts_unit_names_broad(config, args, units, combat_type=1):
+
+	full_match = []
+	token_match = []
+	wild_match = []
+	loose_match = []
+
+	arg = basicstrip(' '.join(args))
+
+	for base_id, unit in units.items():
+
+		if unit['combat_type'] != combat_type:
+			continue
+
+		name = basicstrip(unit['name'])
+
+		if arg == name:
+			full_match.append(unit)
+
+		elif arg in name.split('-'):
+			token_match.append(unit)
+
+		elif arg in name:
+			wild_match.append(unit)
+
+		elif arg.replace('-', '') == name.replace('-', ''):
+			loose_match.append(unit)
+
+	if full_match:
+		return full_match
+
+	if token_match:
+		return token_match
+
+	if wild_match:
+		return wild_match
+
+	if loose_match:
+		return loose_match
+
+	return None
+
 def parse_opts_unit_names(config, args, combat_type=1):
+
+	units = get_unit_list()
+
+	match = parse_opts_unit_names_broad(config, args, units, combat_type)
+	if match:
+		args.clear()
+		return args, match
+
+	selected_units = []
+	args_cpy = list(args)
+
+	for arg in args_cpy:
+
+		nick = basicstrip(arg)
+		if nick in config['nicks']:
+			nick = basicstrip(config['nicks'][nick])
+
+		match = parse_opts_unit_names_broad(config, [ nick ], units, combat_type)
+		if match:
+			args.remove(arg)
+			for m in match:
+				if m not in selected_units:
+					selected_units.append(m)
+
+	return args, selected_units
+
+def parse_opts_unit_names_v1(config, args, combat_type=1):
 
 	selected_units = []
 	new_args = list(args)
