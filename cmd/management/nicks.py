@@ -74,6 +74,7 @@ def cmd_nicks(config, author, channel, args):
 
 				i = i + 1
 		elif target_nick in config['nicks']:
+			old_nick = target_nick
 			old_unit = config['nicks'][target_nick]
 			del config['nicks'][target_nick]
 
