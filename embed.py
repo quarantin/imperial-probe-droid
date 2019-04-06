@@ -109,9 +109,6 @@ def new_embeds(config, msg, timestamp=None):
 
 			embed.set_author(name=msg['author']['name'], icon_url=msg['author']['icon_url'])
 
-		if 'image' in msg:
-			embed.set_image(url=msg['image'])
-
 		if 'thumbnail' in msg:
 			embed.set_thumbnail(url=msg['thumbnail'])
 
@@ -131,6 +128,8 @@ def new_embeds(config, msg, timestamp=None):
 
 		if msg == last_msg:
 			embed.timestamp = timestamp
+			if 'image' in msg:
+				embed.set_image(url=msg['image'])
 		else:
 			embed.set_footer(text='')
 
