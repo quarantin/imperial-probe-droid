@@ -123,7 +123,7 @@ def extract_modstats(stats, recos):
 				stats[slot][primary][source] = 0.0
 			stats[slot][primary][source] += 1.0 / count
 
-def parse_recommendations(recos=None, recos_db={}):
+def parse_recommendations(recos_db={}):
 
 	from recos import fetch_all_recos
 
