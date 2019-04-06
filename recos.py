@@ -251,13 +251,11 @@ def fetch_capital_games_recos(recos=[]):
 
 def fetch_all_recos(index='base_id', index2=None):
 
-	recos = []
+	recos_cg = fetch_capital_games_recos()
+	recos_cr = fetch_crouching_rancor_recos()
+	recos_gg = fetch_swgohgg_meta_recos()
 
-	fetch_crouching_rancor_recos(recos)
-	fetch_swgohgg_meta_recos(recos)
-	fetch_capital_games_recos(recos)
-
-	result = get_dict_by_index(recos, index)
+	result = get_dict_by_index(recos_cg + recos_cr + recos_gg, index)
 
 	if index2 is not None:
 		for key in list(result):
