@@ -160,6 +160,14 @@ def get_cc_stat_detail(name, stats, label):
 	base_stat   = rating_name in stats['base'] and stats['base'][rating_name] or 0
 	full_stat   = rating_name in stats['full'] and stats['full'][rating_name] or 0
 
+	if name not in stats['full']:
+		if name == 'Physical Critical Chance':
+			name = 'Physical Critical Rating'
+		elif name == 'Special Critical Chance':
+			name = 'Special Critical Rating'
+		else:
+			raise Exception('Unsupported stat: %s' % name)
+
 	cc = ((full_stat / 2400 + 0.1) + stats['full'][name]) * 100
 
 	#cc = round(cc, 3)
