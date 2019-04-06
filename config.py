@@ -3,7 +3,7 @@
 import os, json, requests
 
 from commands import *
-from utils import get_short_url
+from utils import download_spreadsheet, get_short_url
 
 config = {}
 
@@ -26,19 +26,6 @@ def write_config_to_file(config, config_file):
 	fin.close()
 
 	os.remove(backup)
-
-def download_spreadsheet(url, cols):
-
-	content = []
-	response = requests.get(url)
-	response.encoding = 'utf-8'
-
-	lines = response.text.split('\r\n')
-	for line in lines:
-		toks = line.split(',')
-		content.append(toks[0:cols])
-
-	return iter(content)
 
 def parse_allies_db(members):
 
