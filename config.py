@@ -115,8 +115,8 @@ def parse_recommendations(recos_db={}):
 	from recos import fetch_all_recos
 
 	stats = {}
-	recos_db['by-name'] = fetch_all_recos(index='name')
-	recos_db['by-source'] = fetch_all_recos(index='source', index2='name')
+	recos_db['by-name'] = fetch_all_recos(config, index='name')
+	recos_db['by-source'] = fetch_all_recos(config, index='source', index2='name')
 
 	for unit, recos in recos_db['by-name'].items():
 		extract_modstats(stats, recos)

@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from utils import expired, get_dict_by_index, parse_modsets
+from utils import download_spreadsheet, expired, get_dict_by_index, parse_modsets
 from swgohgg import get_char_list
 
 REAL_NAMES = {
@@ -232,26 +232,44 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 	db[expire] = datetime.now() + timeout
 	return recos
 
-def fetch_capital_games_recos(recos=[]):
+def convert_cg_recos_to_json(config, recos=[]):
+
+	url = config['sheets']['recommendations']['view']
+
+	new_recos = download_spreadsheet(url, 13)
+	for reco in new_recos:
+
+		source, base_id, name, set1, set2, set3, square, arrow, diamond, triangle, circle, cross, comment = reco
+		recos.append({
+			'source':   reco[0],
+			'base_id':  reco[1],
+			'name':     reco[2],
+			'set1':     reco[3],
+			'set2':     reco[4],
+			'set3':     reco[5],
+			'square':   reco[6],
+			'arrow':    reco[7],
+			'diamond':  reco[8],
+			'triangle': reco[9],
+			'circle':   reco[10],
+			'cross':    reco[11],
+			'info':     reco[12],
+		})
+
+	return recos
+
+def fetch_capital_games_recos(config, recos=[]):
 
 	if 'cg' in db and 'cg-expire' in db and not expired(db['cg-expire']):
 		return db['cg']
 
-	filename = 'cache/recos-capital-games.json'
-
-	fin = open(filename, 'r')
-	data = fin.read()
-	fin.close()
-
-	recos.extend(json.loads(data))
-
-	db['cg'] = recos
+	db['cg'] = convert_cg_recos_to_json(config, recos)
 	db['cg-expire'] = datetime.now() + timeout
-	return recos
+	return db['cg']
 
-def fetch_all_recos(index='base_id', index2=None):
+def fetch_all_recos(config, index='base_id', index2=None):
 
-	recos_cg = fetch_capital_games_recos()
+	recos_cg = fetch_capital_games_recos(config)
 	recos_cr = fetch_crouching_rancor_recos()
 	recos_gg = fetch_swgohgg_meta_recos()
 
