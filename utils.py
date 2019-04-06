@@ -69,8 +69,26 @@ def now(timezone):
 def dotify(number):
 	return '{:,}'.format(number)
 
+removable_chars = """`'"()[]{}"""
+
+replaceable_chars = {
+	'î': 'i',
+	'Î': 'I',
+	'_': '-',
+	' ': '-',
+}
+
 def basicstrip(string):
-	return string.replace(' ', '').replace('"', '').replace('(', '').replace(')', '').lower()
+
+	for char in string:
+
+		if char in removable_chars:
+			string = string.replace(char, '')
+
+		elif char in replaceable_chars:
+			string = string.replace(char, replaceable_chars[char])
+
+	return string.lower()
 
 def emojistrip(string):
 	return string.replace(' ', '').lower()
