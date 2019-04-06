@@ -3,7 +3,7 @@
 import os, json, requests
 
 from commands import *
-from utils import basicstrip, get_short_url
+from utils import get_short_url
 
 config = {}
 
