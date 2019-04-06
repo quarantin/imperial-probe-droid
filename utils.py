@@ -80,24 +80,25 @@ def add_stats(stats):
 	if 'full' in stats:
 		return stats
 
-	if 'base' not in stats:
-		print(json.dump(stats, indent=4))
-		raise Exception("base is missing from stats")
-
 	#if 'base' not in stats:
-	#	res = stats
+	#	print(json.dump(stats, indent=4))
+	#	raise Exception("base is missing from stats")
 
-	#else:
-	res = dict(stats['base'])
+	if 'base' not in stats:
+		res = stats
 
-	for substat in [ 'gear', 'mods' ]:
+	else:
+		res = dict(stats['base'])
 
-		for key in stats[substat]:
-			val = stats[substat][key]
-			if key not in res:
-				res[key] = val
-			else:
-				res[key] += val
+		for substat in [ 'gear', 'mods' ]:
+
+
+			for key in stats[substat]:
+				val = stats[substat][key]
+				if key not in res:
+					res[key] = val
+				else:
+					res[key] += val
 
 	stats['full'] = res
 	return stats
