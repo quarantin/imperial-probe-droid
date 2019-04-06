@@ -51,12 +51,7 @@ def get_field_modset_stats(config):
 			amount = len(recos)
 			for reco in recos:
 
-				sets = []
-
-				sets.append(reco[3])
-				sets.append(reco[4])
-				if reco[5]:
-					sets.append(reco[5])
+				sets = [ reco['set1'], reco['set2'], reco['set3'] ]
 
 				for aset in sets:
 					if aset not in new_modsets:
@@ -107,7 +102,7 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 	spacer = EMOJIS['']
 
 	if not selected_slots:
-		selected_slots = MODSLOTS.keys()
+		selected_slots = MODSLOTS.values()
 
 	if not selected_primaries:
 		selected_primaries = MODSPRIMARIES
@@ -115,6 +110,7 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 	lines = []
 	stats = config['recos']['stats']
 	for slot in selected_slots:
+		slot = slot.lower()
 		slot_emoji = EMOJIS[slot]
 		if slot not in stats:
 			continue
