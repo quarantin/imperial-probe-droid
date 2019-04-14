@@ -18,11 +18,11 @@ def load_help():
 
 def write_config_to_file(config, config_file):
 
+	data = json.dumps(config, indent=4, sort_keys=True)
 	backup = '%s.bak' % config_file
 	os.rename(config_file, backup)
-
 	fin = open(config_file, 'w')
-	fin.write(json.dumps(config, indent=4, sort_keys=True))
+	fin.write(data)
 	fin.close()
 
 	os.remove(backup)
