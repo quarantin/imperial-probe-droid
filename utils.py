@@ -73,6 +73,8 @@ def dotify(number):
 removable_chars = """`'"()[]{}"""
 
 replaceable_chars = {
+	'é': 'e',
+	'É': 'E',
 	'î': 'i',
 	'Î': 'I',
 	'_': '-',
