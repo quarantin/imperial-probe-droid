@@ -229,10 +229,10 @@ def get_short_url(url):
 	response = requests.get(full_url)
 	return response.content.decode('utf-8')
 
-def cache_expired(filepath):
+def cache_expired(filepath, timedelta=timedelta(hours=6)):
 
 	modified = datetime.fromtimestamp(os.path.getmtime(filepath))
-	oldest = datetime.now() - timedelta(days=1)
+	oldest = datetime.now() - timedelta
 
 	return modified < oldest
 
