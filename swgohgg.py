@@ -1,13 +1,12 @@
 #!/usr/bin/python3
 
-from utils import cache_expired, ensure_parents, get_units_dict, parse_modsets
+from utils import cache_expired, ensure_parents, get_units_dict, http_get, parse_modsets
 
 from swgohhelp import fetch_players
 
 import os
 import json
 import socket
-import requests
 from bs4 import BeautifulSoup
 
 db = {}
@@ -36,7 +35,12 @@ def download_unit_list(key, url, index='base_id'):
 		unit_list = json.loads(data)
 
 	else:
-		unit_list = requests.get(url).json()
+		response, error = http_get(url)
+		if error:
+			raise Exception('http_get(%s) failed: %s' % (url, error))
+
+		unit_list = response.json()
+
 		fout = open(cache, 'w+')
 		fout.write(json.dumps(unit_list))
 		fout.close()
@@ -44,6 +48,9 @@ def download_unit_list(key, url, index='base_id'):
 	db[key] = unit_list
 	db[by_id] = get_units_dict(unit_list, index)
 	return db[by_id]
+
+def get_gear_list(index='base_id'):
+	return download_unit_list('gear', '%s/gear/' % SWGOH_GG_API_URL, index=index)
 
 def get_char_list(index='base_id'):
 	return download_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL, index=index)
@@ -61,8 +68,8 @@ def get_swgohgg_profile_url(ally_code):
 	url = 'https://swgoh.gg/p/%s/' % ally_code
 
 	try:
-		response = requests.head(url)
-		if response.status_code == 200:
+		response, error = http_get(url, headOnly=True)
+		if not error and response.status_code == 200:
 			return url
 	except:
 		pass
@@ -116,7 +123,10 @@ def get_top_rank1_leaders(top_n, html_id, url):
 
 	top_leaders = []
 
-	response = requests.get(url)
+	response, error = http_get(url)
+	if error:
+		raise Exception('http_get(%s) failed: %s' % (url, error))
+
 	soup = BeautifulSoup(response.text, 'lxml')
 	trs = soup.select('li#%s tr' % html_id)
 
@@ -144,7 +154,10 @@ def get_top_rank1_squads(top_n, html_id, url):
 
 	top_squads = []
 
-	response = requests.get(url)
+	response, error = http_get(url)
+	if error:
+		raise Exception('http_get(%s) failed: %s' % (url, error))
+
 	soup = BeautifulSoup(response.text, 'lxml')
 	trs = soup.select('li#%s tr' % html_id)
 

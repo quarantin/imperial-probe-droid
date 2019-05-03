@@ -5,6 +5,7 @@ import os
 import pytz
 import requests
 import subprocess
+from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -77,6 +78,40 @@ replaceable_chars = {
 	'_': '-',
 	' ': '-',
 }
+
+def http_get(url, headOnly=False):
+
+	try:
+		if headOnly is True:
+			response = requests.head(url)
+		else:
+			response = requests.get(url)
+
+		response.raise_for_status()
+
+	except HTTPError as http_err:
+		return (None, 'HTTP error occured: %s' % http_err)
+
+	except Exception as err:
+		return (None, 'Other error occured: %s' % err)
+
+	else:
+		return response, False
+
+def http_post(url, *args, **kwargs):
+
+	try:
+		response = requests.post(url, *args, **kwargs)
+		response.raise_for_status()
+
+	except HTTPError as http_err:
+		return (None, 'HTTP error occured: %s' % http_err)
+
+	except Exception as err:
+		return (None, 'Other error occured: %s' % err)
+
+	else:
+		return response, False
 
 def basicstrip(string):
 

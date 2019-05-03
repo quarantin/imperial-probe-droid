@@ -3,11 +3,10 @@
 
 import sys
 import json
-import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from utils import download_spreadsheet, expired, get_dict_by_index, parse_modsets
+from utils import download_spreadsheet, expired, get_dict_by_index, http_get, parse_modsets
 from swgohgg import get_char_list
 
 REAL_NAMES = {
@@ -98,7 +97,10 @@ def fetch_crouching_rancor_recos(recos=[]):
 
 	url = 'http://apps.crouchingrancor.com/mods/advisor.json'
 
-	response = requests.get(url)
+	response, error = http_get(url)
+	if error:
+		raise Exception('http_get(%s) failed: %s' % (url, error))
+
 	data = response.json()
 
 	chars = get_char_list(index='name')
@@ -190,7 +192,10 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 
 	char_list = get_char_list(index='name')
 	url = 'https://swgoh.gg/mod-meta-report/rank_%d/' % rank
-	response = requests.get(url)
+	response, error = http_get(url)
+	if error:
+		raise Exception('http_get(%s) failed: %s' % (url, error))
+
 	soup = BeautifulSoup(response.text, 'lxml')
 	trs = soup.select('li tr')
 

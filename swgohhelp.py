@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 
-from utils import get_units_dict, find_ally_in_guild
+from utils import get_units_dict, http_get, http_post, find_ally_in_guild
 
 import json
 import sys
-import requests
 from datetime import datetime, timedelta
 
 db = {
@@ -48,9 +47,11 @@ def get_access_token(config):
 	}
 
 	auth_url = '%s/auth/signin' % SWGOH_HELP
-	response = requests.post(auth_url, headers=headers, data=data)
-	data = response.json()
+	response, error = http_post(auth_url, headers=headers, data=data)
+	if error:
+		raise Exception('Authentication failed to swgohhelp API: %s' % error)
 
+	data = response.json()
 	if 'access_token' not in data:
 		raise Exception('Authentication failed: Server returned `%s`' % data)
 
@@ -69,7 +70,10 @@ def get_headers(config):
 
 def call_api(config, project, url):
 	print("CALL API: %s %s" % (url, project), file=sys.stderr)
-	response = requests.post(url, headers=get_headers(config), json=project)
+	response, error = http_post(url, headers=get_headers(config), json=project)
+	if error:
+		raise Exception('http_post(%s) failed: %s' % (url, error))
+
 	data = response.json()
 	if 'error' in data:
 		print(data)
@@ -108,7 +112,10 @@ def api_swgoh_data(config, project):
 def api_crinolo(config, units):
 	url = '%s/characters?flags=withModCalc' % CRINOLO_PROD_URL
 	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
-	response = requests.post(url, json=units)
+	response, error = http_post(url, json=units)
+	if error:
+		raise Exception('http_post(%s) failed: %s' % (url, error))
+
 	data = response.json()
 	if 'error' in data:
 		raise Exception('POST request failed for URL: %s\n%d Error: %s' % (url, response.status_code, data['error']))
@@ -404,7 +411,11 @@ def get_stats(config, ally_code):
 		return players[ally_code]['char_stats']
 
 	url = '%s/player/%s/characters?flags=withModCalc' % (CRINOLO_TEST_URL, ally_code)
-	roster = requests.get(url).json()
+	response, error = http_get(url)
+	if error:
+		raise Exception('http_get(%s) failed: %s' % (url, error))
+
+	roster = response.json()
 	for unit in roster:
 		base_id = unit['defId']
 		stats[base_id] = unit['stats']
