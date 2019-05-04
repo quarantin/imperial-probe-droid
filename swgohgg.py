@@ -109,7 +109,7 @@ def get_full_avatar_url(config, image, unit):
 			rarity = unit['rarity']
 
 	#return 'https://api.swgoh.help/image/char/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (base_id, level, gear, rarity, zetas)
-	url = 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s' % (config['server'], image, level, gear, rarity, zetas)
+	url = 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&version=2' % (config['server'], image, level, gear, rarity, zetas)
 	return url
 
 def get_full_ship_avatar_url(ally_code, base_id):
