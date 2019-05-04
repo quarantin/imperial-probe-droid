@@ -145,6 +145,12 @@ def fetch_crouching_rancor_recos(recos=[]):
 		set2 = TRANSLATE_STATS[ reco['set2'] ]
 		set3 = TRANSLATE_STATS[ reco['set3'] ]
 
+		if set1 and set2 and set1 > set2:
+			set1, set2 = set2, set1
+
+		if set2 and set3 and set2 > set3:
+			set2, set3 = set3, set2
+
 		square_list   = split_stats(reco['square'])
 		arrow_list    = split_stats(reco['arrow'])
 		diamond_list  = split_stats(reco['diamond'])
