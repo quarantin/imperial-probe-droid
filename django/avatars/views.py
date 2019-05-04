@@ -19,6 +19,9 @@ def download_image(image_name):
 		url = 'https://swgoh.gg/static/img/%s' % image_name
 
 		response = requests.get(url)
+		if response.status_code != 200:
+			raise Exception('ERROR: requests.get(\'%s\') failed.' % url)
+
 		image_data = response.content
 
 		fin = open(image_path, 'wb+')
