@@ -70,15 +70,13 @@ def now(timezone):
 def dotify(number):
 	return '{:,}'.format(number)
 
-removable_chars = """`'"()[]{}"""
+removable_chars = """-`'"()[]{} """
 
 replaceable_chars = {
 	'é': 'e',
 	'É': 'E',
 	'î': 'i',
 	'Î': 'I',
-	'_': '-',
-	' ': '-',
 }
 
 def http_get(url, headOnly=False):
