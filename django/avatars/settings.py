@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-import os, socket
+import os, json, socket
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,6 +32,10 @@ DEBUG = True
 ALLOWED_HOSTS = [
 	socket.gethostname(),
 ]
+
+IPD_CONFIG = json.load(open(os.path.join(BASE_DIR, '../config.json')))
+if 'server' in IPD_CONFIG:
+	ALLOWED_HOSTS.append(IPD_CONFIG['server'])
 
 
 # Application definition
