@@ -70,7 +70,7 @@ def now(timezone):
 def dotify(number):
 	return '{:,}'.format(number)
 
-removable_chars = """-`'"()[]{} """
+removable_chars = """`'"()[]{}"""
 
 replaceable_chars = {
 	'é': 'e',
