@@ -61,7 +61,25 @@ def get_level(level):
 	return level_image
 
 def get_rarity(rarity):
-	pass
+
+	star_image_name = 'star.png'
+	star_image_path = download_image(star_image_name)
+
+	no_star_image_name = 'star-inactive.png'
+	no_star_image_path = download_image(no_star_image_name)
+
+	star_img = Image.open(star_image_path)
+	no_star_img = Image.open(no_star_image_path)
+
+	rarity_img = Image.new('RGBA', (154, 22), 0)
+
+	for i in range(0, rarity):
+		rarity_img.paste(star_img, (i * 20 - 2, 0), star_img)
+
+	for i in range(rarity, 7):
+		rarity_img.paste(no_star_img, (i * 20 - 2, 0), no_star_img)
+
+	return rarity_img
 
 def get_zetas(zetas):
 
@@ -114,5 +132,6 @@ def avatar(request, portrait):
 	full_image.paste(level_image, (5, 10), level_image)
 
 	full_image = format_image(full_image, 138)
+	full_image.paste(rarity_image, (0, 0), rarity_image)
 
 	return HttpResponse(img2png(full_image), content_type='image/png')
