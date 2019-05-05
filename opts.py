@@ -155,6 +155,9 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 		if unit['combat_type'] != combat_type:
 			continue
 
+		if arg in config['nicks']:
+			arg = basicstrip(config['nicks'][arg])
+
 		name = basicstrip(unit['name'])
 
 		if arg == name:
