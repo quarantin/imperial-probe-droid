@@ -130,12 +130,12 @@ def avatar(request, portrait):
 
 	full_image = Image.new('RGBA', (138, 138), 0)
 	full_image.paste(portrait_image, (5, 5), portrait_image)
-	full_image.paste(level_image, (5, 10), level_image)
 
 	full_image = format_image(full_image, 138)
 
 	if zetas > 0:
 		full_image.paste(zeta_image, (-8, 63), zeta_image)
+	full_image.paste(level_image, (5, 10), level_image)
 	full_image.paste(rarity_image, (0, 0), rarity_image)
 
 	return HttpResponse(img2png(full_image), content_type='image/png')
