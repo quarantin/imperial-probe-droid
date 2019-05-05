@@ -163,13 +163,10 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 		if arg == name:
 			full_match.append(unit)
 
-		elif arg in name.split('-'):
+		elif arg in name.split('-') or arg in name.split(' '):
 			token_match.append(unit)
 
-		elif arg in name.split(' '):
-			token_match.append(unit)
-
-		elif arg in name:
+		elif arg in name or arg in name.replace('-', '').replace(' ', ''):
 			wild_match.append(unit)
 
 		elif arg.replace('-', '') == name.replace('-', ''):
