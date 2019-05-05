@@ -105,7 +105,6 @@ def get_full_avatar_url(config, image, unit):
 	level, gear, rarity, zetas = 1, 1, 0, 0
 
 	if unit is not None:
-		print(unit)
 		level  = 'level'     in unit and unit['level']      or 1
 		gear   = 'gearLevel' in unit and unit['gearLevel']  or 1
 		rarity = 'starLevel' in unit and unit['starLevel']  or 0
