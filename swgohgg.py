@@ -90,6 +90,14 @@ def get_avatar_url(base_id):
 	chars[base_id]['image'] = image_url
 	return image_url
 
+def count_zetas(unit):
+	zetas = 0
+	for skill in unit['skills']:
+		if 'isZeta' in skill and skill['isZeta'] is True:
+			zetas += 1
+
+	return zetas
+
 def get_full_avatar_url(config, image, unit):
 
 	image = os.path.basename(image)
@@ -97,10 +105,14 @@ def get_full_avatar_url(config, image, unit):
 	level, gear, rarity, zetas = 1, 1, 0, 0
 
 	if unit is not None:
+		print(unit)
 		level  = 'level'     in unit and unit['level']      or 1
 		gear   = 'gearLevel' in unit and unit['gearLevel']  or 1
 		rarity = 'starLevel' in unit and unit['starLevel']  or 0
 		zetas  = 'zetas'     in unit and len(unit['zetas']) or 0
+
+		if zetas == 0:
+			zetas = count_zetas(unit)
 
 		if 'gearLevel' not in unit and 'gear' in unit:
 			gear = unit['gear']
