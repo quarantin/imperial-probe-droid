@@ -219,6 +219,16 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 		prim_ci = tds[4].text.strip().split('/')
 		prim_cr = tds[5].text.strip().split('/')
 
+		set1 = modsets[0]
+		set2 = modsets[1]
+		set3 = modsets[2]
+
+		if set1 and set2 and set1 > set2:
+			set1, set2 = set2, set1
+
+		if set2 and set3 and set2 > set3:
+			set2, set3 = set3, set2
+
 		for _ar in prim_ar:
 			for _tr in prim_tr:
 				for _ci in prim_ci:
