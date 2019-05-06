@@ -76,8 +76,8 @@ def call_api(config, project, url):
 
 	data = response.json()
 	if 'error' in data:
-		print(data)
-		raise Exception('POST request failed for URL: %s\n%d %s Error: %s' % (url, data['code'], data['error'], data['error_description']))
+		msg = '%s:\n - %s' % (data['error_description'], '\n -'.join(project['allycodes']))
+		raise Exception(msg)
 
 	return data
 
