@@ -2,7 +2,7 @@
 
 from opts import *
 from utils import get_field_legend
-from constants import EMOJIS
+from constants import EMOJIS, MODSLOTS
 
 help_wntm = {
 	'title': 'Who Need This Mod Help',
@@ -62,7 +62,7 @@ def cmd_wntm(config, author, channel, args):
 	args, selected_filters = parse_opts_mod_filters(args)
 
 	if args:
-		plural = len(args) > 1
+		plural = len(args) > 1 and 's' or ''
 		return [{
 			'title': 'Error: Unknown Parameter%s' % plural,
 			'color': 'red',
@@ -90,8 +90,9 @@ def cmd_wntm(config, author, channel, args):
 				if modset not in alist:
 					continue
 
-				#if prim != reco['set1']:
-				#	continue
+				slot_name = MODSLOTS[slot].lower()
+				if prim != reco[slot_name]:
+					continue
 
 				matching_recos.append(reco)
 
