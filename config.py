@@ -185,6 +185,11 @@ def save_config(config_file='config.json'):
 		if key in config_cpy:
 			del config_cpy[key]
 
+	if 'swgoh.help' in config_cpy:
+		for key in [ 'access_token', 'access_token_expire' ]:
+			if key in config_cpy['swgoh.help']:
+				del config_cpy['swgoh.help'][key]
+
 	write_config_to_file(config_cpy, config_file)
 
 def load_config(bot=None, config_file='config.json'):
