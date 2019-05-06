@@ -135,19 +135,33 @@ async def on_message(message):
 		args = [ command ]
 		command = 'help'
 
-	for cmd in COMMANDS:
-		if command in cmd['aliases']:
-			msgs = cmd['function'](config, author, channel, args)
-			for msg in msgs:
-				embeds = new_embeds(config, msg)
-				for embed in embeds:
-					await bot.send_message(channel, embed=embed)
-			break
-	else:
+	attachment = None
+
+	try:
+		for cmd in COMMANDS:
+			if command in cmd['aliases']:
+				msgs = cmd['function'](config, author, channel, args)
+				for msg in msgs:
+					embeds = new_embeds(config, msg)
+				break
+		else:
+			embeds = new_embeds(config, {
+				'title': 'Error: Unknown command',
+				'color': 'red',
+				'description': 'No such command: `%s`.\nPlease type `!help` to get information about available commands.' % command,
+			})
+	except Exception as err:
+		if 'crash' in config and config['crash']:
+			await bot.send_message(channel, config['crash'])
+
 		embeds = new_embeds(config, {
-			'title': 'Error: Unknown command',
+			'title': 'Unexpected Error',
 			'color': 'red',
-			'description': 'No such command: `%s`.\nPlease type `!help` to get information about available commands.' % command,
+			'description': err,
 		})
-		for embed in embeds:
-			await bot.send_message(channel, embed=embed)
+
+		print(err)
+
+
+	for embed in embeds:
+		await bot.send_message(channel, embed=embed)
