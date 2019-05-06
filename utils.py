@@ -102,7 +102,8 @@ def http_post(url, *args, **kwargs):
 
 	try:
 		response = requests.post(url, *args, **kwargs)
-		response.raise_for_status()
+		if response.status_code not in [ 200, 404 ]:
+			response.raise_for_status()
 
 	except HTTPError as http_err:
 		return (None, 'HTTP error occured: %s' % http_err)
