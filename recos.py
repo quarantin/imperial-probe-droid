@@ -22,6 +22,7 @@ REAL_NAMES = {
 	'Kylo Ren Unmasked': 'Kylo Ren (Unmasked)',
 	'Luke Skywalker Farmboy': 'Luke Skywalker (Farmboy)',
 	'Obi-Wan Kenobi Old Ben': 'Obi-Wan Kenobi (Old Ben)',
+	'Padme Amidala': 'Padmé Amidala',
 	'Poggle The Lesser': 'Poggle the Lesser',
 	'Rey Scavenger': 'Rey (Scavenger)',
 	'Rey Jedi Training': 'Rey (Jedi Training)',
