@@ -144,6 +144,8 @@ async def on_message(message):
 				msgs = cmd['function'](config, author, channel, args)
 				for msg in msgs:
 					embeds = new_embeds(config, msg)
+					for embed in embeds:
+						await bot.send_message(channel, embed=embed)
 				break
 		else:
 			embeds = new_embeds(config, {
@@ -161,8 +163,5 @@ async def on_message(message):
 			'description': err,
 		})
 
-		print(err)
-
-
-	for embed in embeds:
-		await bot.send_message(channel, embed=embed)
+		for embed in embeds:
+			await bot.send_message(channel, embed=embed)
