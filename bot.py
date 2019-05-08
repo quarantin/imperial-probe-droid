@@ -153,6 +153,10 @@ async def on_message(message):
 				'color': 'red',
 				'description': 'No such command: `%s`.\nPlease type `!help` to get information about available commands.' % command,
 			})
+
+			for embed in embeds:
+				await bot.send_message(channel, embed=embed)
+
 	except Exception as err:
 		if 'crash' in config and config['crash']:
 			await bot.send_message(channel, config['crash'])
