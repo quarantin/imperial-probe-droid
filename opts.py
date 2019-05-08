@@ -188,6 +188,9 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 
 def parse_opts_unit_names(config, args, combat_type=1):
 
+	if not args:
+		return args, []
+
 	units = get_unit_list()
 
 	match = parse_opts_unit_names_broad(config, args, units, combat_type)
