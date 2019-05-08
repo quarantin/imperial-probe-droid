@@ -135,6 +135,7 @@ async def on_message(message):
 		args = [ command ]
 		command = 'help'
 
+	embeds = []
 	attachment = None
 
 	try:
