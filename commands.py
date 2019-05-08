@@ -15,7 +15,7 @@ from cmd.player.arena import *
 from cmd.player.compare import *
 from cmd.player.fight import *
 from cmd.player.locked import *
-from cmd.player.mods import *
+#from cmd.player.mods import *
 from cmd.player.needed import *
 from cmd.player.recos import *
 from cmd.player.stats import *
@@ -88,12 +88,12 @@ COMMANDS = [
 		'function': cmd_meta,
 		'help': help_meta,
 	},
-	{
-		'command': 'mods',
-		'aliases': [ 'm', 'mods' ],
-		'function': cmd_mods,
-		'help': help_mods,
-	},
+	#{
+	#	'command': 'mods',
+	#	'aliases': [ 'm', 'mods' ],
+	#	'function': cmd_mods,
+	#	'help': help_mods,
+	#},
 	{
 		'command': 'nicks',
 		'aliases': [ 'N', 'nicks' ],
