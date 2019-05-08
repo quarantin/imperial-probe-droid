@@ -2,6 +2,8 @@
 
 from opts import *
 
+from swgohhelp import get_player_name
+
 help_mods = {
 	'title': 'Mods Help',
 	'description': """Shows statistics about mods for the supplied ally codes.
@@ -54,7 +56,7 @@ def cmd_mods(config, author, channel, args):
 
 	for ally_code in ally_codes:
 
-		player = get_player_name(ally_code)
+		player = get_player_name(config, ally_code)
 
 		if not action:
 			msgs.append({
