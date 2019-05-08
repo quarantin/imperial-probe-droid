@@ -265,6 +265,12 @@ def player_to_embedfield(config, player, roster, crinolo_stats, lang):
 
 	stats = get_player_stats(config, roster, lang)
 
+	guild_name = player['guildName'].strip()
+	if guild_name:
+		guild_name = '`%s`' % guild_name
+	else:
+		guild_name = '**No guild**'
+
 	lines = [
 		'**ID:** `%s`' % player['id'],
 		'**Ally Code:** `%s`' % player['allyCode'],
@@ -274,7 +280,7 @@ def player_to_embedfield(config, player, roster, crinolo_stats, lang):
 		'**Level:** `%s`' % player['level'],
 		'**Rank:** `%s`' % player['arena']['char']['rank'],
 		'**Fleet Rank:** `%s`' % player['arena']['ship']['rank'],
-		'**Guild:** `%s`' % player['guildName'],
+		'**Guild:** %s' % guild_name,
 		'**Characters**',
 	]
 
