@@ -6,9 +6,10 @@ from .models import BaseUnitGear
 import json
 
 def gear_levels(request, base_id):
-	gear_levels = BaseUnitGear.get_unit_gear_levels(base_id)
+
 	result = {}
 
+	gear_levels = BaseUnitGear.get_unit_gear_levels(base_id)
 	for gear_level in gear_levels:
 		unit_name = gear_level.unit.name
 		if unit_name not in result:
