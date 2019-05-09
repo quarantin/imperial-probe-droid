@@ -112,7 +112,7 @@ def img2png(image):
 
 	return None
 
-def avatar(request, portrait):
+def get_avatar(request, portrait):
 
 	level = 'level' in request.GET and int(request.GET['level']) or 1
 	gear = 'gear' in request.GET and int(request.GET['gear']) or 1
@@ -137,5 +137,37 @@ def avatar(request, portrait):
 		full_image.paste(zeta_image, (-8, 63), zeta_image)
 	full_image.paste(level_image, (5, 10), level_image)
 	full_image.paste(rarity_image, (0, 0), rarity_image)
+
+	return full_image
+
+def avatar(request, portrait):
+	return HttpResponse(img2png(get_avatar(request, portrait)), content_type='image/png')
+
+def stats(request, portrait, ally_code):
+
+
+	full_image = Image.open('./images/background.png')
+
+	avatar = get_avatar(request, portrait)
+
+	full_image.paste(avatar, (10, 10), avatar)
+
+	draw = ImageDraw.Draw(full_image)
+	font = ImageFont.truetype('arial.ttf', 16)
+
+	x = 150
+	y = 20
+
+	for key in request.GET:
+		string = '%s:' % key.title()
+		draw.text((x, y), string, (255, 255, 255), font=font)
+		y += 20
+
+	x = 250
+	y = 20
+
+	for key, val in request.GET.items():
+		draw.text((x, y), val, (255, 255, 255), font=font)
+		y += 20
 
 	return HttpResponse(img2png(full_image), content_type='image/png')

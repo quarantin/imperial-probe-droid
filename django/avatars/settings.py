@@ -41,6 +41,7 @@ if 'server' in IPD_CONFIG:
 # Application definition
 
 INSTALLED_APPS = [
+    'swgoh',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

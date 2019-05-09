@@ -14,6 +14,7 @@ from cmd.misc.meta import *
 from cmd.player.arena import *
 from cmd.player.compare import *
 from cmd.player.fight import *
+from cmd.player.gear import *
 from cmd.player.locked import *
 #from cmd.player.mods import *
 from cmd.player.needed import *
@@ -57,6 +58,12 @@ COMMANDS = [
 		'aliases': [ 'F', 'format' ],
 		'function': cmd_format,
 		'help': help_format,
+	},
+	{
+		'command': 'gear',
+		'aliases': [ 'g', 'gear' ],
+		'function': cmd_gear,
+		'help': help_gear,
 	},
 	{
 		'command': 'help',
