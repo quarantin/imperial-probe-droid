@@ -50,6 +50,7 @@ MODSPRIMARIES = {
 	'Defense',
 	'Health',
 	'Offense',
+	'Potency',
 	'Protection',
 	'Tenacity',
 	'Speed',
