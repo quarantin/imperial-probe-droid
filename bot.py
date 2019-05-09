@@ -4,6 +4,7 @@ import shlex
 import string
 import random
 import discord
+import traceback
 from datetime import datetime
 from discord.ext import commands
 
@@ -158,6 +159,8 @@ async def on_message(message):
 				await bot.send_message(channel, embed=embed)
 
 	except Exception as err:
+		traceback.format_exc()
+
 		if 'crash' in config and config['crash']:
 			await bot.send_message(channel, config['crash'])
 
