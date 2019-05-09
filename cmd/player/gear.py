@@ -57,7 +57,7 @@ def cmd_gear(config, author, channel, args):
 			for tier in reversed(range(1, 13)):
 				tier_str = str(tier)
 				tier_data = data['tiers'][tier_str]
-				lines.append('=== Gear%d ===' % tier)
+				lines.append('== Gear%d ==' % tier)
 				for slot in sorted(data['tiers'][tier_str]):
 					gear_name = data['tiers'][tier_str][slot]['gear']
 					gear_url = data['tiers'][tier_str][slot]['url']
