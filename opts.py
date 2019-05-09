@@ -257,6 +257,33 @@ def parse_opts_unit_names_v1(config, args, combat_type=1):
 
 	return args, selected_units
 
+def parse_opts_char_filters(args):
+
+	selected_char_filters = {
+		'gear': [],
+		'level': [],
+		'star': [],
+	}
+	args_cpy = list(args)
+	for arg in args_cpy:
+		toks = arg.split('=')
+		if len(toks) != 2:
+			continue
+
+		if toks[0] in [ 'g', 'gear' ] and toks[1].isdigit():
+			args.remove(arg)
+			selected_char_filters['gear'].append(int(toks[1]))
+
+		elif toks[0] in [ 'l', 'level' ] and toks[1].isdigit():
+			args.remove(arg)
+			selected_char_filters['level'].append(int(toks[1]))
+
+		elif toks[0] in [ 's', 'star' ] and toks[1].isdigit():
+			args.remove(arg)
+			selected_char_filters['star'].append(int(toks[1]))
+
+	return args, selected_char_filters
+
 def parse_opts_modsets(args, ref_table):
 
 	selected_modsets = []
