@@ -45,7 +45,7 @@ def log_message(message):
 		author_tokens.append(message.author.id)
 	if message.author.display_name:
 		author_tokens.append(message.author.display_name)
-	if message.author.nick:
+	if hasattr(message.author, 'nick') and message.author.nick:
 		author_tokens.append(message.author.nick)
 	if message.author.name:
 		author_tokens.append(message.author.name)
