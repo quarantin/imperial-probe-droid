@@ -203,11 +203,6 @@ def load_config(bot=None, config_file='config.json'):
 		if 'short-urls' not in config:
 			config['short-urls'] = {}
 
-		if 'source' in config:
-			source_url = config['source']
-			if source_url not in config['short-urls']:
-				config['short-urls'][source_url] = get_short_url(source_url)
-
 		if 'sheets' in config:
 
 			for sheet in [ 'allies', 'recommendations' ]:
