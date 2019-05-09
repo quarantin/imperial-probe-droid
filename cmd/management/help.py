@@ -7,7 +7,7 @@ help_help = {
 **Like this bot?**: Support me on [Patreon](%patreon)!
 %separator
 **Help Commands**
-**`help`**: This help menu
+**`help`**: This help menu.
 %separator
 **Management Commands**
 **`alias`**: Manage command aliases.
@@ -21,7 +21,8 @@ help_help = {
 %separator
 **Player Commands**
 **`arena`**: Show arena squads details.
-**`locked`**: Show locked characters or ships
+**`gear`**: List needed pieces of gear for units.
+**`locked`**: Show locked characters or ships.
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Compare different players and their respective units.
@@ -45,8 +46,7 @@ def substitute_tokens(config, text):
 
 		value = config[token]
 		if token == 'source':
-			if value in config['short-urls']:
-				value = config['short-urls'][value]
+			value = '[github](%s)' % value
 
 		if type(value) is list:
 			value = ', '.join(value)
