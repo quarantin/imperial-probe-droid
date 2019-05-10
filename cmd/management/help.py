@@ -4,7 +4,8 @@ help_help = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
 	'description': """**Botmaster(s)**: %authors
 **Source Code**: %source
-**Like this bot?**: Support me on [Patreon](%patreon)!
+**Need support?**: Join us on [Discord](%discord)!
+**Like this bot?**: Support us on [Patreon](%patreon)!
 %separator
 **Help Commands**
 **`help`**: This help menu.
@@ -27,15 +28,16 @@ help_help = {
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Compare different players and their respective units.
 **`recos`**: Show information about recommended mods.
-**`wntm`**: List characters who needs mods with specific criteria.
-NOT WORKING **`mods`**: Show information about mods.
-NOT WORKING **`stats`**: Show statistics about equipped mods."""
+**`wntm`**: List characters who needs mods with specific criteria."""
+#NOT WORKING **`mods`**: Show information about mods.
+#NOT WORKING **`stats`**: Show statistics about equipped mods."""
 }
 
 def substitute_tokens(config, text):
 
 	tokens = [
 		'authors',
+		'discord',
 		'patreon',
 		'prefix',
 		'separator',
@@ -46,7 +48,7 @@ def substitute_tokens(config, text):
 
 		value = config[token]
 		if token == 'source':
-			value = '[github](%s)' % value
+			value = '[Github](%s)' % value
 
 		if type(value) is list:
 			value = ', '.join(value)
