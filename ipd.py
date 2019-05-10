@@ -3,12 +3,14 @@
 import asyncio 
 
 from bot import bot
-from config import config, load_config
+from config import load_config
 
 try:
-	load_config()
+	config = load_config()
 
-	bot.loop.run_until_complete(bot.start(config['token']))
+	bot.run(config['token'])
+
+	print('Bot quitting')
 
 except Exception as err:
 	print(err)
