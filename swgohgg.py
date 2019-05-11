@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
-from utils import cache_expired, ensure_parents, get_units_dict, http_get, parse_modsets
-
-from swgohhelp import fetch_players
+from utils import cache_expired, ensure_parents, get_units_dict, http_get
 
 import os
 import json
