@@ -62,7 +62,7 @@ def cmd_help(config, author, channel, args):
 	msg = help_help
 
 	if args:
-		command = args[0]
+		command = args[0].lower()
 		if command in config['help']:
 			msg = config['help'][command]
 
