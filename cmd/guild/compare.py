@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
+from errors import *
 from utils import dotify
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_guilds, fetch_roster, get_guilds_ally_codes, get_ability_name
@@ -153,23 +154,21 @@ def cmd_guild_compare(config, author, channel, args):
 
 	msgs = []
 
-	args, lang = parse_opts_lang(args)
-	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies=2)
-	if not ally_codes:
-		return [{
-			'title': 'Missing Guild Code',
-			'description': 'I need at least one guild code.',
-		}]
+	args, players, error = parse_opts_players(config, author, args)
 
 	args, selected_units = parse_opts_unit_names(config, args)
+
 	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Invalid Parameter%s' % plural,
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
+		return error_unknown_parameters(args)
+
+	if not selected_units:
+		return error_no_unit_selected()
+
+	if error:
+		return error
 
 	fields = []
+	ally_codes = [ player.ally_code for player in players ]
 	guild_list = fetch_guilds(config, ally_codes)
 
 	members = []
@@ -200,13 +199,19 @@ def cmd_guild_compare(config, author, channel, args):
 
 			roster = {}
 			for ally_code in guild['roster']:
+				lang = 'eng_us'
+				try:
+					p = Player.objects.get(ally_code=ally_code)
+					lang = p.language
+				except Player.DoesNotExist:
+					pass
 				rosters = roster_list[ally_code]
 				for base_id, player_unit in rosters.items():
 					if base_id not in roster:
 						roster[base_id] = []
 
 					roster[base_id].append(player_unit)
-
+# TODO handle lang
 			fields.append(unit_to_embedfield(config, guild, roster, unit['base_id'], lang))
 
 		msgs.append({

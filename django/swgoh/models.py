@@ -39,9 +39,57 @@ ROLES = (
 )
 
 class Player(models.Model):
-	game_nick = models.CharField(max_length=128)
-	discord_nick = models.CharField(max_length=128)
-	ally_code = models.CharField(max_length=128)
+
+	LANGS = (
+		('chs_cn', 'cs', 'Chinese (Simplified)'),
+		('cht_cn', 'ct', 'Chinese (Traditional)'),
+		('eng_us', 'en', 'English'),
+		('fre_fr', 'fr', 'French'),
+		('ger_de', 'de', 'German'),
+		('ind_id', 'id', 'Indy'),
+		('ita_it', 'it', 'Italian'),
+		('jpn_jp', 'jp', 'Japanese'),
+		('kor_kr', 'kr', 'Korean'),
+		('por_br', 'br', 'Brasilian'),
+		('rus_ru', 'ru', 'Russian'),
+		('spa_xm', 'xm', 'Spanish (Latino)'),
+		('tha_th', 'th', 'Thai'),
+		('tur_tr', 'tr', 'Turkish'),
+	)
+
+	BOT_LANGUAGES = ( (short_code, name) for code, short_code, name in LANGS )
+
+	LANGUAGES = ( (code, name) for code, short_code, name in LANGS )
+
+	def get_language_info(lang):
+		for code, short_code, name in Player.LANGS:
+			if code == lang or short_code == lang or name == lang:
+				return code, short_code, name
+
+		return None
+
+	ally_code            = models.CharField(max_length=128, unique=True)
+	discord_id           = models.CharField(max_length=128, unique=True)
+	discord_name         = models.CharField(max_length=128, default='', blank=True, null=True)
+	discord_nick         = models.CharField(max_length=128, default='', blank=True, null=True)
+	discord_display_name = models.CharField(max_length=128, default='', blank=True, null=True)
+	game_nick            = models.CharField(max_length=128, default='', blank=True, null=True)
+	language             = models.CharField(max_length=128, default='eng_us', choices=LANGUAGES)
+
+	def get_ally_code(self):
+		return '%s-%s-%s' % (self.ally_code[0:3], self.ally_code[3:6], self.ally_code[6:9])
+
+	def __str__(self):
+		if self.discord_display_name:
+			return self.discord_display_name
+
+		if self.discord_nick:
+			return self.discord_nick
+
+		if self.discord_name:
+			return self.discord_name
+
+		return self.discord_id
 
 class Gear(models.Model):
 
@@ -485,3 +533,13 @@ class ModRecommendation(models.Model):
 	circle = models.CharField(max_length=32, choices=CIRCLE_PRIMARIES)
 	cross = models.CharField(max_length=32, choices=CROSS_PRIMARIES)
 	info = models.CharField(max_length=255, default='', blank=True)
+
+class Translation(models.Model):
+
+	string_id = models.CharField(max_length=64)
+	context = models.CharField(max_length=16)
+	translation = models.CharField(max_length=64)
+	language = models.CharField(max_length=6, choices=Player.LANGUAGES)
+
+	class Meta:
+		unique_together = [ 'string_id', 'context', 'language' ]

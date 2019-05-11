@@ -5,8 +5,10 @@ from cmd.management.alias import *
 from cmd.management.format import *
 from cmd.management.help import *
 from cmd.management.invite import *
+from cmd.management.language import *
 from cmd.management.links import *
 from cmd.management.nicks import *
+from cmd.management.register import *
 from cmd.management.restart import *
 from cmd.management.sheets import *
 from cmd.management.update import *
@@ -78,6 +80,12 @@ COMMANDS = [
 		'help': help_invite,
 	},
 	{
+		'command': 'language',
+		'aliases': [ 'lang', 'language' ],
+		'function': cmd_language,
+		'help': help_language,
+	},
+	{
 		'command': 'links',
 		'aliases': [ 'L', 'links' ],
 		'function': cmd_links,
@@ -118,6 +126,12 @@ COMMANDS = [
 		'aliases': [ 'r', 'recos' ],
 		'function': cmd_recos,
 		'help': help_recos,
+	},
+	{
+		'command': 'register',
+		'aliases': [ 'me', 'reg', 'register' ],
+		'function': cmd_register,
+		'help': help_register,
 	},
 	{
 		'command': 'restart',

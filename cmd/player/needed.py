@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
+from opts import *
+from errors import *
 from utils import roundup, get_field_legend
-from opts import parse_opts_ally_codes, parse_opts_modslots, parse_opts_modprimaries
 from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
 
 help_needed = {
@@ -38,8 +39,9 @@ def get_field_modset_stats(config):
 	sources = sorted(list(config['recos']['by-source']))
 	src_emojis = []
 	for source in sources:
-		emoji = EMOJIS[ source.replace(' ', '').lower() ]
-		src_emojis.append(emoji)
+		emoji_key = source.replace(' ', '').lower()
+		if emoji_key in EMOJIS:
+			src_emojis.append(EMOJIS[emoji_key])
 
 	headers = [ '%s%s' % (spacer, '|'.join(src_emojis)) ]
 
@@ -145,8 +147,10 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 	sources = sorted(list(config['recos']['by-source'])) + [ 'crimsondeathwatch' ]
 	emojis = []
 	for source in sources:
-		emoji = EMOJIS[ source.replace(' ', '').lower() ]
-		emojis.append(emoji)
+		print("WTF: source=%s" % source)
+		emoji_key = source.replace(' ', '').lower()
+		if emoji_key in EMOJIS:
+			emojis.append(EMOJIS[emoji_key])
 
 	lines = [
 		'%s\u202F\u202F\u202F%s`|Primary Stats`' % (spacer, '|'.join(emojis)),
@@ -156,7 +160,7 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 
 def cmd_needed(config, author, channel, args):
 
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
+	args, players, error = parse_opts_players(config, author, args)
 	args, selected_slots = parse_opts_modslots(args)
 	args, selected_primaries = parse_opts_modprimaries(args)
 
@@ -165,13 +169,12 @@ def cmd_needed(config, author, channel, args):
 	emoji_gg = EMOJIS['swgoh.gg']
 
 	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Error: Unknown Parameter%s' % plural,
-			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
+		return error_unknown_parameters(args)
 
+	if error:
+		return error
+
+	ally_codes = [ player.ally_code for player in players ]
 	field_primary_stats = get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries)
 	field_modset_stats  = get_field_modset_stats(config)
 	field_legend        = get_field_legend(config)

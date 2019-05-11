@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from errors import *
+
 help_format = {
 	'title': 'Format Help',
 	'description': """Manages output formats.
@@ -57,11 +59,7 @@ def cmd_format(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 2:
-			return [{
-				'title': 'Error: Missing Parameter',
-				'color': 'red',
-				'description': 'Please see %shelp format.' % config['prefix'],
-			}]
+			return error_missing_parameter('format')
 
 		success = False
 		format_name = args[1]
@@ -96,11 +94,7 @@ def cmd_format(config, author, channel, args):
 	elif action == 'add':
 
 		if len(args) < 3:
-			return [{
-				'title': 'Error: Missing Parameter',
-				'color': 'red',
-				'description': 'Missing parameters. Please see %shelp format.' % config['prefix'],
-			}]
+			return error_missing_parameter('format')
 
 		format_name = args[1]
 		custom_format = ' '.join(args[2:])

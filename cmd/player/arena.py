@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
+from errors import *
 from utils import format_char_stats, format_char_details
 
 from swgohhelp import fetch_players, fetch_units, get_player_name, get_last_sync, get_arena_rank, get_arena_squad, get_stats
@@ -93,26 +94,20 @@ def cmd_arena(config, author, channel, args):
 
 	args, selected_opts = parse_opts_arena(args)
 	if not selected_opts:
-		selected_opts.extend([ 'chars' ])
+		selected_opts.append('chars')
 
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
-	if not ally_codes:
-		return [{
-			'title': 'Error: Not Found',
-			'color': 'red',
-			'description': 'No ally code specified or found registered to %s' % author,
-		}]
+	args, players, error = parse_opts_players(config, author, args)
 
 	args, selected_format = parse_opts_format(config, args)
-	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Error: Unknown Parameter%s' % plural,
-			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
 
-	players = fetch_players(config, ally_codes)
+	if args:
+		return error_unknown_parameters(args)
+
+	if error:
+		return error
+
+	ally_codes = [ player.ally_code for player in players ]
+	players_data = fetch_players(config, ally_codes)
 	units = fetch_units(config, ally_codes)
 
 	msgs = []
@@ -123,12 +118,7 @@ def cmd_arena(config, author, channel, args):
 		profile_url = get_swgohgg_profile_url(ally_code)
 
 		if not player:
-			url = 'https://swgoh.gg/p/%s/' % ally_code
-			msgs.append({
-				'title': 'Error: Not Found',
-				'color': 'red',
-				'description': 'Are you sure `%s` is a valid ally code and the account actually exists on swgoh.gg? Please check this URL to see: %s' % (ally_code, url)
-			})
+			msgs.extend(error_ally_code_not_found(ally_code))
 			continue
 
 		if 'chars' in selected_opts:
@@ -137,7 +127,7 @@ def cmd_arena(config, author, channel, args):
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				unit = players[ally_code]['roster'][base_id]
+				unit = players_data[ally_code]['roster'][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				stats = get_stats(config, ally_code)
 				line = format_char_details(unit, selected_format)
@@ -155,7 +145,7 @@ def cmd_arena(config, author, channel, args):
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				unit = players[ally_code]['roster'][base_id]
+				unit = players_data[ally_code]['roster'][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				stats = { base_id: {} }
 				# No stats for ships yet (See with Crinolo)

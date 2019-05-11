@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from errors import *
+
 help_alias = {
 	'title': 'Alias Help',
 	'description': """Manages command aliases.
@@ -52,11 +54,7 @@ def cmd_alias(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 2:
-			return [{
-				'title': 'Error: Missing Parameter',
-				'color': 'red',
-				'description': 'Please see !help alias.',
-			}]
+			return error_missing_parameter('alias')
 
 		alias_name = args[1]
 		if alias_name.isdigit():

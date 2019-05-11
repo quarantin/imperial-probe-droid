@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import exit_bot
+from errors import *
 
 help_restart = {
 	'title': 'Restart Help',
@@ -24,11 +24,8 @@ Restart the bot:
 def cmd_restart(config, author, channel, args):
 
 	if 'admins' in config and author in config['admins']:
+		from utils import exit_bot
 		exit_bot()
 		return []
 
-	return [{
-		'title': 'Permission Denied',
-		'color': 'red',
-		'description': 'You\'re not allowed to run this command because you\'re not one of my masters.',
-	}]
+	return error_permission_denied()

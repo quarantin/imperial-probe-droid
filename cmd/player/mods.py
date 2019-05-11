@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
-
+from errors import *
 from swgohhelp import get_player_name
 
 help_mods = {
@@ -36,7 +36,7 @@ def cmd_mods(config, author, channel, args):
 
 	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	if not ally_codes:
-		return
+		return error_no_ally_code_specified(author)
 
 	action = ''
 	for arg in args:

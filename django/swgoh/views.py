@@ -1,13 +1,21 @@
 from django.shortcuts import render
 from django.http import JsonResponse 
 
-from .models import BaseUnitGear
+from .models import Player, BaseUnitGear, Translation
 
 import json
 
-def gear_levels(request, base_id):
+def gear_levels(request, base_id, ally_code):
 
 	result = {}
+	language = 'eng_us'
+
+	try:
+		player = Player.objects.get(ally_code=ally_code)
+		language = player.language
+
+	except Player.DoesNotExist:
+		player = None
 
 	gear_levels = BaseUnitGear.get_unit_gear_levels(base_id)
 	for gear_level in gear_levels:
@@ -23,8 +31,17 @@ def gear_levels(request, base_id):
 			result[unit_name]['tiers'][tier] = {}
 
 		slot = gear_level.slot
+		gear_name = gear_level.gear.name
+
+		try:
+			t = Translation.objects.get(string_id=gear_level.gear.base_id, language=language)
+			gear_name = t.translation
+
+		except Translation.DoesNotExist:
+			pass
+
 		result[unit_name]['tiers'][tier][slot] = {
-			'gear': gear_level.gear.name,
+			'gear': gear_name,
 			'url': gear_level.gear.get_url(),
 		}
 

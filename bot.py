@@ -120,8 +120,6 @@ async def on_message(message):
 	log_message(message)
 
 	channel = message.channel
-	nick = message.author.display_name or message.author.nick or message.author.name
-	author = '@%s' % nick
 	args = shlex.split(message.content.strip())
 	command = args[0][1:]
 	if command in config['aliases']:
@@ -142,7 +140,7 @@ async def on_message(message):
 	try:
 		for cmd in COMMANDS:
 			if command in cmd['aliases']:
-				msgs = cmd['function'](config, author, channel, args)
+				msgs = cmd['function'](config, message.author, channel, args)
 				for msg in msgs:
 					embeds = new_embeds(config, msg)
 					for embed in embeds:
@@ -159,7 +157,7 @@ async def on_message(message):
 				await bot.send_message(channel, embed=embed)
 
 	except Exception as err:
-		traceback.format_exc()
+		print(traceback.format_exc())
 
 		if 'crash' in config and config['crash']:
 			await bot.send_message(channel, config['crash'])

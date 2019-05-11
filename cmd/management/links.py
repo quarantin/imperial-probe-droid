@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from errors import *
 from utils import get_short_url
 
 help_links = {
@@ -55,11 +56,7 @@ def cmd_links(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 2:
-			return [{
-				'title': 'Error: Missing Parameter',
-				'color': 'red',
-				'description': 'Please see !help links.',
-			}]
+			return error_missing_parameter('links')
 
 		found = False
 		link_val = None
@@ -102,11 +99,7 @@ def cmd_links(config, author, channel, args):
 	elif action == 'add':
 
 		if len(args) < 3:
-			return [{
-				'title': 'Error: Missing Parameters',
-				'color': 'red',
-				'description': 'Please see !help links.',
-			}]
+			return error_missing_parameter('links')
 
 		link_name = args[1]
 		link_val = args[2]

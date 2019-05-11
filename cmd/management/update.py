@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import exit_bot, update_source_code
+from errors import *
 
 help_update = {
 	'title': 'Update Help',
@@ -24,12 +24,9 @@ Update the bot:
 def cmd_update(config, author, channel, args):
 
 	if 'admins' in config and author in config['admins']:
+		from utils import exit_bot, update_source_code
 		update_source_code()
 		exit_bot()
 		return []
 
-	return [{
-		'title': 'Permission Denied',
-		'color': 'red',
-		'description': 'You\'re not allowed to run this command because you\'re not one of my masters.',
-	}]
+	return error_permission_denied()

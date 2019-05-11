@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
+from errors import *
 from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend
 from constants import EMOJIS, SHORT_STATS
 
@@ -47,38 +48,26 @@ def cmd_recos(config, author, channel, args):
 	emoji_cr = EMOJIS['crouchingrancor']
 	emoji_gg = EMOJIS['swgoh.gg']
 
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
-	if not ally_codes:
-		return [{
-			'title': 'Error: Not Found',
-			'color': 'red',
-			'description': 'No ally code specified or found registered to %s' % author,
-		}]
-
+	args, players, error = parse_opts_players(config, author, args)
 	args, selected_units = parse_opts_unit_names(config, args)
-	if not selected_units:
-		return [{
-			'title': 'Error: No Units Selected',
-			'color': 'red',
-			'description': 'You have to provide at least one unit name.\nPlease check %shelp recos for more information.' % config['prefix'],
-		}]
 
 	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Error: Unknown Parameter%s' % plural,
-			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
+		return error_unknown_parameters(args)
+
+	if not players:
+		return error_no_ally_code_specified(author)
+
+	if not selected_units:
+		return error_no_unit_selected()
+
+	ally_codes = [ player.ally_code for player in players ]
 
 	players = fetch_players(config, ally_codes)
 
 	msgs = []
 	for ally_code in ally_codes:
 
-		discord_id = None
-		if ally_code in config['allies']['by-ally-code']:
-			discord_id = config['allies']['by-ally-code'][ally_code][1]
+		discord_id = author.id
 
 		for ref_unit in selected_units:
 
@@ -122,7 +111,7 @@ def cmd_recos(config, author, channel, args):
 
 					source   = EMOJIS['crimsondeathwatch']
 
-					info     = ' %s' % (discord_id or ally_code)
+					info     = '<@%s>' % discord_id
 
 					set1     = modsets[0]
 					set2     = modsets[1]
@@ -134,15 +123,15 @@ def cmd_recos(config, author, channel, args):
 
 					primaries = '|'.join(short_primaries)
 
-					line = '%s%s%s%s`%s`%s' % (source, set1, set2, set3, primaries, info)
+					line = '%s%s%s%s`%s` %s' % (source, set1, set2, set3, primaries, info)
 
 				elif base_id not in roster:
 					unit = None
-					line = '%s is still locked for %s' % (ref_unit['name'], discord_id or ally_code)
+					line = '%s is still locked for <@%s>' % (ref_unit['name'], discord_id)
 
 				else:
 					unit = roster[base_id]
-					line = '%s has no mods for %s' % (ref_unit['name'], discord_id or ally_code)
+					line = '%s has no mods for <@%s>' % (ref_unit['name'], discord_id)
 
 				lines.append(config['separator'])
 				lines.append(line)

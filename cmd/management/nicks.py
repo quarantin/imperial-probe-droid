@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
+from errors import *
 
 help_nicks = {
 	'title': 'Nicks Help',
@@ -54,11 +55,7 @@ def cmd_nicks(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 1:
-			return [{
-				'title': 'Error: Missing Parameter',
-				'color': 'red',
-				'description': 'Please see !help nicks.',
-			}]
+			return error_missing_parameters('nicks')
 
 		target_nick = args.pop(0)
 		if target_nick.isdigit():
@@ -87,28 +84,15 @@ def cmd_nicks(config, author, channel, args):
 	elif action == 'add':
 
 		if len(args) < 2:
-			return [{
-				'title': 'Error: Missing Parameter',
-				'color': 'red',
-				'description': 'Please see !help nicks.',
-			}]
+			return error_missing_parameter('nicks')
 
 		target_nick = args.pop(0)
 		args, selected_units = parse_opts_unit_names(config, args)
 		if args:
-			plural = len(args) > 1 and 's' or ''
-			return [{
-				'title': 'Error: Unknown Parameter%s' % plural,
-				'color': 'red',
-				'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-			}]
+			return error_unknown_parameters(args)
 
 		if not selected_units:
-			return [{
-				'title': 'Error: No Unit Selected',
-				'color': 'red',
-				'description': 'You need to provide at least one unit or ship name',
-			}]
+			return error_no_unit_selected()
 
 		if len(selected_units) > 1:
 			return [{

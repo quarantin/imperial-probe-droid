@@ -3,6 +3,7 @@
 import re
 
 from opts import *
+from errors import *
 from constants import EMOJIS, MODSETS, MODSETS_LIST, MODSETS_NEEDED, MODSLOTS
 
 help_stats = {
@@ -115,12 +116,7 @@ def cmd_stats(config, author, channel, args):
 	args, selected_modprimaries = parse_opts_modprimaries(args)
 
 	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Error: Unknown parameter%s' % plural,
-			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
+		return error_unknown_parameters(args)
 
 	msgs = []
 	for ally_code in ally_codes:

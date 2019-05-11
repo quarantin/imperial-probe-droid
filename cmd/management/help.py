@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from errors import *
+
 help_help = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
 	'description': """**Botmaster(s)**: %authors
@@ -66,6 +68,8 @@ def cmd_help(config, author, channel, args):
 		command = args[0].lower()
 		if command in config['help']:
 			msg = config['help'][command]
+		else:
+			return error_no_such_command(command)
 
 	return [{
 		'title':       substitute_tokens(config, msg['title']),

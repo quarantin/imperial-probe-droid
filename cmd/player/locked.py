@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 from opts import *
+from errors import *
 from swgohgg import get_char_list, get_ship_list
 from swgohhelp import fetch_players, fetch_units, get_player_name
 
@@ -73,23 +74,17 @@ def parse_opts_locked(args):
 	
 def cmd_locked(config, author, channel, args):
 
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
-	if not ally_codes:
-		return [{
-			'title': 'Error: Not Found',
-			'color': 'red',
-			'description': 'No ally code specified or found registered to %s' % author,
-		}]
+	args, players, error = parse_opts_players(config, author, args)
 
 	args, opts = parse_opts_locked(args)
-	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Error: Unknown Parameter%s' % plural,
-			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
 
+	if args:
+		return error_unknown_parameters(args)
+
+	if error:
+		return error
+
+	ally_codes = [ player.ally_code for player in players ]
 	players = fetch_players(config, ally_codes)
 	units = fetch_units(config, ally_codes)
 
@@ -101,12 +96,7 @@ def cmd_locked(config, author, channel, args):
 
 		player = get_player_name(config, ally_code)
 		if not player:
-			url = 'https://swgoh.gg/p/%s/' % ally_code
-			msgs.append({
-				'title': 'Error: Not Found',
-				'color': 'red',
-				'description': 'Are you sure `%s` is a valid ally code and the account actually exists on swgoh.gg? Please visit this URL to check: %s' % (ally_code, url)
-			})
+			msgs.extend(error_ally_code_not_found(ally_code))
 			continue
 
 		if opts in [ 'chars', 'all' ]:

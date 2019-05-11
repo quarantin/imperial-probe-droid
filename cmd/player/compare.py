@@ -3,6 +3,7 @@
 import json
 
 from opts import *
+from errors import *
 from constants import EMOJIS
 from utils import dotify, get_stars_as_emojis, add_stats
 from swgohgg import get_avatar_url
@@ -314,30 +315,28 @@ def cmd_player_compare(config, author, channel, args):
 
 	msgs = []
 
-	args, lang = parse_opts_lang(args)
-	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies=2)
-	if not ally_codes:
-		return [{
-			'title': 'Error: Not Found',
-			'color': 'red',
-			'description': 'No ally code specified or found registered to %s' % author,
-		}]
+	args, players, error = parse_opts_players(config, author, args)
 
 	args, selected_units = parse_opts_unit_names(config, args)
 	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Error: Invalid Parameter%s' % plural,
-			'color': 'red',
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
+		return error_unknown_parameters(args)
+
+	if error:
+		return error
 
 	fields = []
-	players = fetch_players(config, ally_codes)
+	ally_codes = [ player.ally_code for player in players ]
+	players_data = fetch_players(config, ally_codes)
 	rosters = fetch_roster(config, ally_codes)
 	stats = fetch_crinolo_stats(config, ally_codes)
 
-	for ally_code, player in players.items():
+	for ally_code, player in players_data.items():
+		lang = 'eng_us'
+		try:
+			p = Player.objects.get(ally_code=ally_code)
+			lang = p.language
+		except Player.DoesNotExist:
+			pass
 		fields.append(player_to_embedfield(config, player, rosters[ally_code], stats[ally_code], lang))
 
 	msgs.append({
@@ -348,7 +347,13 @@ def cmd_player_compare(config, author, channel, args):
 	for unit in selected_units:
 
 		fields = []
-		for ally_code, player in players.items():
+		for ally_code, player in players_data.items():
+			lang = 'eng_us'
+			try:
+				p = Player.objects.get(ally_code=ally_code)
+				lang = p.language
+			except Player.DoesNotExist:
+				pass
 			fields.append(unit_to_embedfield(config, player, rosters[ally_code], stats[ally_code], unit['base_id'], lang))
 
 		msgs.append({

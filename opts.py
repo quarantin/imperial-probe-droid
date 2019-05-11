@@ -1,7 +1,11 @@
 #!/usr/bin/python3
 
+from errors import *
 from utils import basicstrip
 from swgohgg import get_unit_list
+
+import DJANGO
+from swgoh.models import Player
 
 DEFAULT_FORMAT = '**%name** (%role)\n GP:%gp H:%health Pr:%protection\n  S:%speed Po:%potency T:%tenacity\n'
 
@@ -140,6 +144,40 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 		ally_codes.append(config['allies']['by-discord-nick'][author][2])
 
 	return args, ally_codes
+
+def parse_opts_players(config, author, args, min_allies=1, max_allies=-1):
+
+	players = []
+	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies)
+
+	if len(ally_codes) < min_allies:
+		try:
+			player = Player.objects.get(discord_id=author.id)
+			if player.ally_code not in ally_codes:
+				ally_codes.insert(0, player.ally_code)
+		except Player.DoesNotExist:
+			pass
+
+	if not ally_codes:
+		return args, None, error_no_ally_code_specified(author)
+
+	if len(ally_codes) < min_allies:
+		return args, None, error_not_enough_ally_codes_specified(ally_codes, min_allies)
+
+	if len(ally_codes) > max_allies and max_allies != -1:
+		return args, None, error_too_many_ally_codes_specified(ally_codes, max_allies)
+
+	for ally_code in ally_codes:
+		try:
+			player = Player.objects.get(discord_id=author.id, ally_code=ally_code)
+
+		except Player.DoesNotExist:
+			player = Player(discord_id=author.id, ally_code=ally_code)
+			player.not_in_db = True
+
+		players.append(player)
+
+	return args, players, None
 
 def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 
@@ -355,3 +393,17 @@ def parse_opts_lang(args):
 			return args, 'fr'
 
 	return args, 'en'
+
+def parse_opts_language(args):
+
+	langs = { y: x for x, y, z in Player.LANGS }
+
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		argl = arg.lower()
+		if argl in langs:
+			args.remove(arg)
+			return args, Player.get_language_info(argl)
+
+	return args, None
