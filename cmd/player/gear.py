@@ -43,7 +43,7 @@ def cmd_gear(config, author, channel, args):
 	msgs = []
 	lines = []
 	for unit in units:
-		url = 'http://zeroday.biz/swgoh/gear-levels/%s/' % unit['base_id']
+		url = 'http://zeroday.biz/swgoh/gear-levels/%s/123456789/' % unit['base_id']
 		response, error = http_get(url)
 		if error:
 			raise Exception('101 %s' % error)
