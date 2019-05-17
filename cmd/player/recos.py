@@ -55,7 +55,7 @@ def cmd_recos(config, author, channel, args):
 		return error_unknown_parameters(args)
 
 	if not players:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 	if not selected_units:
 		return error_no_unit_selected()

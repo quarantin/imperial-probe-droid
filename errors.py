@@ -14,11 +14,11 @@ def error_no_such_command(command):
 		'description': 'No such command \'%s\'' % command,
 	}]
 
-def error_no_ally_code_specified(author):
+def error_no_ally_code_specified(config, author):
 	return [{
 		'title': 'Error: Not Found',
 		'color': 'red',
-		'description': 'No ally code specified or found registered to <@%s>' % author.id,
+		'description': 'No ally code specified or found registered to <@%s>. Please see `%shelp register` to get help with registration.' % (author.id, config['prefix']),
 	}]
 
 def error_not_enough_ally_codes_specified(ally_codes, limit):

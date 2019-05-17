@@ -159,7 +159,7 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 			pass
 
 	if not ally_codes:
-		return args, None, error_no_ally_code_specified(author)
+		return args, None, error_no_ally_code_specified(config, author)
 
 	if len(ally_codes) < min_allies:
 		return args, None, error_not_enough_ally_codes_specified(ally_codes, min_allies)

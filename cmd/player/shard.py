@@ -56,7 +56,7 @@ def handle_new_shard(config, author, args, shard_type):
 		}]
 
 	except Player.DoesNotExist:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 def handle_list_shard(config, author, args, shard_type):
 
@@ -64,7 +64,7 @@ def handle_list_shard(config, author, args, shard_type):
 		player = Player.objects.get(discord_id=author.id)
 
 	except Player.DoesNotExist:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 	if shard_type:
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
@@ -120,7 +120,7 @@ def handle_add_player(config, author, args, shard_type):
 		}]
 
 	except Player.DoesNotExist:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 def handle_del_player(config, author, args, shard_type):
 
@@ -144,7 +144,7 @@ def handle_del_player(config, author, args, shard_type):
 		}]
 
 	except Player.DoesNotExist:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 def handle_shard_stats(config, author, args, shard_type):
 
@@ -184,7 +184,7 @@ def handle_shard_stats(config, author, args, shard_type):
 		}]
 
 	except Player.DoesNotExist:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 	except Shard.DoesNotExist:
 		return error_generic('Shard Not Found', 'I couldn\'t find the shard **%s** for <@%s>' % (shard_type, author.id))

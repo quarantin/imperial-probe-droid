@@ -36,7 +36,7 @@ def cmd_mods(config, author, channel, args):
 
 	args, ally_codes = parse_opts_ally_codes(config, author, args)
 	if not ally_codes:
-		return error_no_ally_code_specified(author)
+		return error_no_ally_code_specified(config, author)
 
 	action = ''
 	for arg in args:
