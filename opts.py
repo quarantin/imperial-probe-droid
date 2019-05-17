@@ -7,7 +7,7 @@ from swgohgg import get_unit_list
 import DJANGO
 from swgoh.models import Player
 
-DEFAULT_FORMAT = '**%name** (%role)\n GP:%gp H:%health Pr:%protection\n  S:%speed Po:%potency T:%tenacity\n'
+DEFAULT_FORMAT = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
 
 MODSET_OPTS = {
 	'he':             1,
