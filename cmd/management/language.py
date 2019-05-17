@@ -30,7 +30,7 @@ def get_available_languages(config, author):
 	try:
 		player = Player.objects.get(discord_id=author.id)
 		language = Player.get_language_info(player.language)
-		langs.insert(0, 'Your current language is **%s** %s' % (language[3], language[2])
+		langs.insert(0, 'Your current language is **%s** %s' % (language[3], language[2]))
 		langs.insert(1, config['separator'])
 
 	except Player.DoesNotExist:
@@ -61,6 +61,6 @@ def cmd_language(config, author, channel, args):
 	player.save()
 
 	return [{
-		'title': 'Operation Sucessful',
+		'title': 'Operation Successful',
 		'description': 'The language settings for <@%s> have been changed to **%s** %s.' % (player.discord_id, language[3], language[2]),
 	}]
