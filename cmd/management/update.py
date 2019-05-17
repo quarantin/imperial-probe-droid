@@ -23,7 +23,7 @@ Update the bot:
 
 def cmd_update(config, author, channel, args):
 
-	if 'admins' in config and author in config['admins']:
+	if 'admins' in config and author.id in config['admins']:
 		from utils import exit_bot, update_source_code
 		update_source_code()
 		exit_bot()

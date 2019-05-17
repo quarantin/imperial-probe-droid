@@ -23,7 +23,7 @@ Restart the bot:
 
 def cmd_restart(config, author, channel, args):
 
-	if 'admins' in config and author in config['admins']:
+	if 'admins' in config and author.id in config['admins']:
 		from utils import exit_bot
 		exit_bot()
 		return []
