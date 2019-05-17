@@ -543,3 +543,23 @@ class Translation(models.Model):
 
 	class Meta:
 		unique_together = [ 'string_id', 'context', 'language' ]
+
+class Shard(models.Model):
+
+	SHARD_TYPES = (
+		('char', 'Character Arena'),
+		('ship', 'Ship Arena'),
+	)
+
+	SHARD_TYPES_DICT = { x: y for x, y in SHARD_TYPES }
+
+	type = models.CharField(max_length=8, choices=SHARD_TYPES)
+	player = models.ForeignKey(Player, on_delete=models.CASCADE)
+
+	class Meta:
+		unique_together = [ 'player', 'type' ]
+
+class ShardMember(models.Model):
+
+	shard = models.ForeignKey(Shard, on_delete=models.CASCADE)
+	ally_code = models.CharField(max_length=12)
