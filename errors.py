@@ -1,5 +1,12 @@
 #!/usr/bin/python3
 
+def error_generic(title, description):
+	return [{
+		'title': title,
+		'color': 'red',
+		'description': description,
+	}]
+
 def error_no_such_command(command):
 	return [{
 		'title': 'Error: No Such Command',
@@ -37,6 +44,7 @@ def error_no_unit_selected():
 		'description': 'You have to provide at least one unit name.',
 	}]
 
+# TODO pass bot command prefix
 def error_missing_parameter(command):
 	return [{
 		'title': 'Error: Missing Parameter',
