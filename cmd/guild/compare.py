@@ -154,7 +154,7 @@ def cmd_guild_compare(config, author, channel, args):
 
 	msgs = []
 
-	args, players, error = parse_opts_players(config, author, args)
+	args, players, error = parse_opts_players(config, author, args, expected_allies=2)
 
 	args, selected_units = parse_opts_unit_names(config, args)
 

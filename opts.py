@@ -145,12 +145,12 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 
 	return args, ally_codes
 
-def parse_opts_players(config, author, args, min_allies=1, max_allies=-1):
+def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1):
 
 	players = []
 	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies)
 
-	if len(ally_codes) < min_allies:
+	if len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
 		try:
 			player = Player.objects.get(discord_id=author.id)
 			if player.ally_code not in ally_codes:
