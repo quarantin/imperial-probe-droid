@@ -29,7 +29,7 @@ PERCENT_STATS = [
 ]
 
 FORMAT_LUT = {
-	'%gear':   'gearLevel',
+	'%gear':   'gear',
 	'%gp':     'gp',
 	'%level':  'level',
 	'%rarity': 'starLevel',
