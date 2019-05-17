@@ -150,7 +150,7 @@ async def on_message(message):
 			embeds = new_embeds(config, {
 				'title': 'Error: Unknown command',
 				'color': 'red',
-				'description': 'No such command: `%s`.\nPlease type `!help` to get information about available commands.' % command,
+				'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
 			})
 
 			for embed in embeds:
