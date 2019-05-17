@@ -63,5 +63,5 @@ def cmd_register(config, author, channel, args):
 
 	return [{
 		'title': '',
-		'description': 'Hello <@%s>,\n%s%s\nYour current language is set to **%s**.\nYou can change it with `!language`.' % (player.discord_id, registered, your_ally_code, language[2]),
+		'description': 'Hello <@%s>,\n%s%s\nYour current language is set to **%s**.\nYou can change it with `%slanguage`.' % (player.discord_id, registered, your_ally_code, language[2], config['prefix']),
 	}]
