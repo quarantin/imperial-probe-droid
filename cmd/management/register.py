@@ -12,7 +12,7 @@ help_register = {
 	
 **Syntax**
 ```
-%prefixregister <ally_code>```
+%prefixregister <ally-code>```
 
 **Examples**
 Register your ally code:
