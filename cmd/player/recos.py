@@ -68,6 +68,11 @@ def cmd_recos(config, author, channel, args):
 	for ally_code in ally_codes:
 
 		discord_id = author.id
+		try:
+			player = Player.objects.get(ally_code=ally_code)
+			discord_id = player.discord_id
+		except Player.DoesNotExist:
+			pass
 
 		for ref_unit in selected_units:
 
