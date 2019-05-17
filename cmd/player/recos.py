@@ -67,10 +67,10 @@ def cmd_recos(config, author, channel, args):
 	msgs = []
 	for ally_code in ally_codes:
 
-		discord_id = author.id
+		discord_id = ally_code
 		try:
 			player = Player.objects.get(ally_code=ally_code)
-			discord_id = player.discord_id
+			discord_id = '<@%s>' % player.discord_id
 		except Player.DoesNotExist:
 			pass
 
@@ -116,8 +116,6 @@ def cmd_recos(config, author, channel, args):
 
 					source   = EMOJIS['crimsondeathwatch']
 
-					info     = '<@%s>' % discord_id
-
 					set1     = modsets[0]
 					set2     = modsets[1]
 					set3     = modsets[2]
@@ -128,15 +126,15 @@ def cmd_recos(config, author, channel, args):
 
 					primaries = '|'.join(short_primaries)
 
-					line = '%s%s%s%s`%s` %s' % (source, set1, set2, set3, primaries, info)
+					line = '%s%s%s%s`%s` %s' % (source, set1, set2, set3, primaries, discord_id)
 
 				elif base_id not in roster:
 					unit = None
-					line = '%s is still locked for <@%s>' % (ref_unit['name'], discord_id)
+					line = '%s is still locked for %s' % (ref_unit['name'], discord_id)
 
 				else:
 					unit = roster[base_id]
-					line = '%s has no mods for <@%s>' % (ref_unit['name'], discord_id)
+					line = '%s has no mods for %s' % (ref_unit['name'], discord_id)
 
 				lines.append(config['separator'])
 				lines.append(line)
