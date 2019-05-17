@@ -69,8 +69,9 @@ def get_headers(config):
 	}
 
 def call_api(config, project, url):
-	print("CALL API: %s %s" % (url, project), file=sys.stderr)
-	response, error = http_post(url, headers=get_headers(config), json=project)
+	headers = get_headers(config)
+	print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
+	response, error = http_post(url, headers=headers, json=project)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
