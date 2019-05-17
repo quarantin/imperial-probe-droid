@@ -396,7 +396,7 @@ def parse_opts_lang(args):
 
 def parse_opts_language(args):
 
-	langs = { y: x for x, y, z in Player.LANGS }
+	langs = { lang_code: language for language, lang_code, lang_flag, lang_name in Player.LANGS }
 
 	args_cpy = list(args)
 	for arg in args_cpy:

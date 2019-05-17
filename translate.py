@@ -51,7 +51,7 @@ def fetch_all_collections(config):
 			fout.write(json.dumps(data))
 
 	# Then download language specific information
-	for language, lang_code, lang_name in Player.LANGS:
+	for language, lang_code, lang_flag, lang_name in Player.LANGS:
 		for collection, params in collections.items():
 
 			print('Downloading %s collection `%s`...' % (language, collection))
@@ -93,7 +93,7 @@ def parse_json(collection, key, val, context, language):
 #		for item in result:
 #			Translation(string_id=item['id'], translation=item['nameKey'], language=language).save()
 
-#for language, lang_code, lang_name in Player.LANGS:
+#for language, lang_code, lang_flag, lang_name in Player.LANGS:
 
 #	language = 'fre_fr'
 #	lang_name = 'French'
@@ -132,7 +132,7 @@ fout = open(version_cache, 'w')
 fout.write(json.dumps(new_version))
 fout.close()
 
-for language, lang_code, lang_name in Player.LANGS:
+for language, lang_code, lang_flag, lang_name in Player.LANGS:
 	print('Parsing %s translations...' % language.lower())
 	parse_json('unitsList', 'baseId', 'nameKey', 'unit-names', language)
 	parse_json('equipmentList', 'id', 'nameKey', 'gear-names', language)

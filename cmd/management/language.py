@@ -24,13 +24,13 @@ Configure your default language to French:
 }
 
 def get_available_languages(config, author):
-	langs = [ ' - **%s**: %s' % (y, z) for x, y, z in Player.LANGS ]
+	langs = [ ' - **%s**: %s' % (lang_code, lang_name) for language, lang_code, lang_flag, lang_name in Player.LANGS ]
 	langs.insert(0, 'Here is the list of supported languages:')
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
 		language = Player.get_language_info(player.language)
-		langs.insert(0, 'Your current language is **%s**' % language[2])
+		langs.insert(0, 'Your current language is **%s** %s' % (language[3], language[2])
 		langs.insert(1, config['separator'])
 
 	except Player.DoesNotExist:
@@ -62,5 +62,5 @@ def cmd_language(config, author, channel, args):
 
 	return [{
 		'title': 'Operation Sucessful',
-		'description': 'The language settings for <@%s> have been changed to **%s**.' % (player.discord_id, language[2]),
+		'description': 'The language settings for <@%s> have been changed to **%s** %s.' % (player.discord_id, language[3], language[2]),
 	}]

@@ -41,30 +41,30 @@ ROLES = (
 class Player(models.Model):
 
 	LANGS = (
-		('chs_cn', 'cs', 'Chinese (Simplified)'),
-		('cht_cn', 'ct', 'Chinese (Traditional)'),
-		('eng_us', 'en', 'English'),
-		('fre_fr', 'fr', 'French'),
-		('ger_de', 'de', 'German'),
-		('ind_id', 'id', 'Indy'),
-		('ita_it', 'it', 'Italian'),
-		('jpn_jp', 'jp', 'Japanese'),
-		('kor_kr', 'kr', 'Korean'),
-		('por_br', 'br', 'Brasilian'),
-		('rus_ru', 'ru', 'Russian'),
-		('spa_xm', 'xm', 'Spanish (Latino)'),
-		('tha_th', 'th', 'Thai'),
-		('tur_tr', 'tr', 'Turkish'),
+		('chs_cn', 'cs', '', 'Chinese (Simplified)'),
+		('cht_cn', 'ct', '', 'Chinese (Traditional)'),
+		('eng_us', 'en', '', 'English'),
+		('fre_fr', 'fr', '', 'French'),
+		('ger_de', 'de', '', 'German'),
+		('ind_id', 'id', '', 'Indy'),
+		('ita_it', 'it', '', 'Italian'),
+		('jpn_jp', 'jp', '', 'Japanese'),
+		('kor_kr', 'kr', '', 'Korean'),
+		('por_br', 'br', '', 'Brasilian'),
+		('rus_ru', 'ru', '', 'Russian'),
+		('spa_xm', 'xm', '', 'Spanish (Latino)'),
+		('tha_th', 'th', '', 'Thai'),
+		('tur_tr', 'tr', '', 'Turkish'),
 	)
 
-	BOT_LANGUAGES = ( (short_code, name) for code, short_code, name in LANGS )
+	BOT_LANGUAGES = ( (short_code, name) for code, short_code, flag, name in LANGS )
 
-	LANGUAGES = ( (code, name) for code, short_code, name in LANGS )
+	LANGUAGES = ( (code, name) for code, short_code, flag, name in LANGS )
 
 	def get_language_info(lang):
-		for code, short_code, name in Player.LANGS:
-			if code == lang or short_code == lang or name == lang:
-				return code, short_code, name
+		for code, short_code, flag, name in Player.LANGS:
+			if code == lang or short_code == lang or flag == lang or name == lang:
+				return code, short_code, flag, name
 
 		return None
 
