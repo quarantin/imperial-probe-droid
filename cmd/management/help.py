@@ -19,6 +19,7 @@ help_help = {
 **`invite`**: Invite this bot.
 **`links`**: Manage URL list.
 **`nicks`**: Manage nicknames for units and ships.
+**`register`**: Register your ally code.
 %separator
 **Guild Commands**
 **`gc`**: Compare different guilds and their respective units.
