@@ -10,7 +10,7 @@ from datetime import datetime
 
 help_shard = {
 	'title': 'Shard Help',
-	'description': """Helps you to track your shard ranks over time in arena.
+	'description': """Helps you tracking your shard ranks over time in arena.
 
 **Syntax**
 Adding members to your shard:
@@ -23,9 +23,10 @@ Showing char/ship arena rank for your shard members:
 ```
 %prefixshard [char|ship]```
 **Options**
-- **`players`**: Can be a list of ally codes or discord mentions
-- **`char`** (or **`c`**): Show character arena rank
-- **`ship`** (or **`s`**): Show fleet arena rank
+- **`players`**: Can be a list of ally codes or discord mentions.
+- **`char`** (or **`c`**): Show character arena rank (the default).
+- **`ship`** (or **`s`**): Show fleet arena rank.
+
 **Examples**
 Add some members to your shard:
 ```
