@@ -20,7 +20,7 @@ You have to supply one or more options:
 **`fleet`** or **`f`**: To show top fleet arena squads from meta reports.
 **`reinforcements`** or **`r`**: To show top reinforcements from meta reports.
 **`compact`** or **`C`**: (Optional) For compact display.
-**`n`**: (Optional) A number. Get the top **`n`** squads (default is 10).
+**`n`**: (Optional) A number. Get the top **`n`** squads (default is 5).
 
 **Aliases**
 ```
