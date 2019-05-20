@@ -22,23 +22,35 @@ Removing members from your shard:
 Showing char/ship arena rank for your shard members:
 ```
 %prefixshard [char|ship]```
+**Options**
+- **`players`**: Can be a list of ally codes or discord mentions
+- **`char`** (or **`c`**): Show character arena rank
+- **`ship`** (or **`s`**): Show fleet arena rank
 **Examples**
 Add some members to your shard:
 ```
 %prefixshard add 123456789 234567891 3456789012```
+Or:
+```
+%prefixshard add 123-456-789 234-567-891 345-678-9012```
 Remove some members from your shard:
 ```
 %prefixshard del 123456789 234567891 3456789012```
 List all players in your shard and their respective character arena rank:
 ```
 %prefixshard char```
-Or simply (because char is the default):
+Or the short form:
+```
+%prefixshard c```
+Or simply (because `char` is the default):
 ```
 %prefixshard```
 List all players in your shard and their respective fleet arena rank:
 ```
 %prefixshard ship```
-"""
+Or the short form:
+```
+%prefixshard s```"""
 }
 
 def handle_shard_add(config, author, args, shard_type):
