@@ -13,9 +13,14 @@ help_shard = {
 	'description': """Helps you to track your shard ranks over time in arena.
 
 **Syntax**
+Adding members to your shard:
 ```
-%prefixshard add [players]
-%prefixshard del [players]
+%prefixshard add [players]```
+Removing members from your shard:
+```
+%prefixshard del [players]```
+Showing char/ship arena rank for your shard members:
+```
 %prefixshard [char|ship]```
 **Examples**
 Add some members to your shard:
