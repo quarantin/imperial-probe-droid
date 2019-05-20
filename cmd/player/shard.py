@@ -10,93 +10,33 @@ from datetime import datetime
 
 help_shard = {
 	'title': 'Shard Help',
-	'description': """Helps you to track your shard progress over time in arena.
+	'description': """Helps you to track your shard ranks over time in arena.
 
 **Syntax**
 ```
-%prefixshard [add|del|stat] [players]```
+%prefixshard add [players]
+%prefixshard del [players]
+%prefixshard [char|ship]```
 **Examples**
-List all players in your shard:
-```
-%prefixshard```
-Add some players to your shard:
+Add some members to your shard:
 ```
 %prefixshard add 123456789 234567891 3456789012```
-Remove some players from your shard:
+Remove some members from your shard:
 ```
 %prefixshard del 123456789 234567891 3456789012```
-Show character and fleet arena status of your shard:
+List all players in your shard and their respective character arena rank:
 ```
-%prefixshard stat```"""
+%prefixshard char```
+Or simply (because char is the default):
+```
+%prefixshard```
+List all players in your shard and their respective fleet arena rank:
+```
+%prefixshard ship```
+"""
 }
 
-def parse_opts_shard_type(args):
-
-	args_cpy = list(args)
-	for arg in args_cpy:
-		if arg.lower() in [ 'char', 'ship' ]:
-			args.remove(arg)
-			return args, arg.lower()
-
-	return args, None
-
-def handle_new_shard(config, author, args, shard_type):
-
-	try:
-		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
-		if not created:
-			return error_generic('Duplicate Shard', '<@%s> already has a shard for %s' % (author.id, shard_type.lower()))
-
-		shard_type_string = Shard.SHARD_TYPES_DICT[shard_type].lower()
-
-		return [{
-			'title': 'New Shard Created',
-			'description': 'A new shard was created by <@%s> for %s.' % (author.id, shard_type_string),
-		}]
-
-	except Player.DoesNotExist:
-		return error_no_ally_code_specified(config, author)
-
-def handle_list_shard(config, author, args, shard_type):
-
-	try:
-		player = Player.objects.get(discord_id=author.id)
-
-	except Player.DoesNotExist:
-		return error_no_ally_code_specified(config, author)
-
-	if shard_type:
-		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
-		members = ShardMember.objects.filter(shard=shard)
-
-		members_str = '\n'.join([ '- %s' % e.ally_code for e in members ])
-		if members_str:
-			members_str = 'Here is <@%s>\'s shard members:\n%s' % (author.id, members_str)
-		else:
-			members_str = 'No members defined in your shard yet.'
-
-		return [{
-			'title': 'List of Shard Members',
-			'description': members_str,
-		}]
-
-	else:
-		shards = [ x for x in Shard.objects.filter(player=player) ]
-		if not shards:
-			return [{
-				'title': 'No Shard Defined',
-				'description': 'You haven\'t created any shard yet. Please use `%sshard new char` or `%sshard new ship` to create a shard. See `%shelp shard` for more information.' % (config['prefix'], config['prefix'], config['prefix']),
-			}]
-
-		shards = [ '- **%s**' % x.type for x in shards ]
-
-		return [{
-			'title': 'List of Shards',
-			'description': 'Here is <@%s>\'s shards:\n%s' % (author.id, '\n'.join(shards)),
-		}]
-
-def handle_add_player(config, author, args, shard_type):
+def handle_shard_add(config, author, args, shard_type):
 
 	args, players, error = parse_opts_players(config, author, args)
 	if error:
@@ -104,7 +44,7 @@ def handle_add_player(config, author, args, shard_type):
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
+		shard, created = Shard.objects.get_or_create(player=player, type='char')
 		ally_codes = [ x.ally_code for x in players ]
 		for ally_code in ally_codes:
 			enemy, created = ShardMember.objects.get_or_create(shard=shard, ally_code=ally_code)
@@ -116,13 +56,13 @@ def handle_add_player(config, author, args, shard_type):
 		plural_have = len(ally_codes) > 1 and 've' or 's'
 		return [{
 			'title': 'Shard Updated',
-			'description': '<@%s>\'s shard for %s has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (author.id, shard_type_str, plural, plural_have, ally_code_str),
+			'description': '<@%s>\'s shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (author.id, plural, plural_have, ally_code_str),
 		}]
 
 	except Player.DoesNotExist:
 		return error_no_ally_code_specified(config, author)
 
-def handle_del_player(config, author, args, shard_type):
+def handle_shard_del(config, author, args, shard_type):
 
 	args, players, error = parse_opts_players(config, author, args)
 	if error:
@@ -130,7 +70,7 @@ def handle_del_player(config, author, args, shard_type):
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
+		shard, created = Shard.objects.get_or_create(player=player, type='char')
 		ally_codes = [ x.ally_code for x in players ]
 		ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).delete()
 		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
@@ -150,14 +90,15 @@ def handle_shard_stats(config, author, args, shard_type):
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
+		shard, created = Shard.objects.get_or_create(player=player, type='char')
 		members = ShardMember.objects.filter(shard=shard)
-		ally_codes = [ x.ally_code for x in members]
+		ally_codes = [ x.ally_code for x in members ]
 		ally_codes.insert(0, player.ally_code)
 
 		data = api_swgoh_players(config, {
 			'allycodes': ally_codes,
 			'project': {
+				'name': 1,
 				'allyCode': 1,
 				'updated': 1,
 				'arena': {
@@ -172,15 +113,32 @@ def handle_shard_stats(config, author, args, shard_type):
 		})
 
 		lines = []
-		for player in data:
-			updated = datetime.fromtimestamp(int(player['updated']) / 1000).strftime('%m-%d %H:%M:%S')
-			lines.append('`%s | %s | `**%s**` | `**%s**' % (player['allyCode'], updated, player['arena']['char']['rank'], player['arena']['ship']['rank']))
+		players = sorted([ p for p in data ], key=lambda x: x['arena'][shard_type]['rank'])
+		for p in players:
+			bold = ''
+			print('%s / %s' % (type(player.ally_code), type(p['allyCode'])))
+			if player.ally_code == str(p['allyCode']):
+				bold = '**'
+
+			spacer = ''
+			rank = int(p['arena'][shard_type]['rank'])
+			if rank < 10:
+				spacer = '\u00a0' * 4
+			elif rank < 100:
+				spacer = '\u00a0' * 3
+			elif rank < 1000:
+				spacer = '\u00a0' * 2
+			elif rank < 10000:
+				spacer = '\u00a0' * 1
+
+			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
+			lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, p['allyCode'], p['name'], bold))
 
 		lines_str = '\n'.join(lines)
 
 		return [{
 			'title': 'Shard Status',
-			'description': 'Here is <@%s>\'s shard status:\n%s\n`Ally Code | Updated | Char | Ship`\n%s' % (author.id, config['separator'], lines_str),
+			'description': 'Here is <@%s>\'s shard ranks for **%s** arena:\n%s\n`| Rank | Ally Code | Name`\n%s\n%s' % (author.id, shard_type, config['separator'], config['separator'], lines_str),
 		}]
 
 	except Player.DoesNotExist:
@@ -189,17 +147,35 @@ def handle_shard_stats(config, author, args, shard_type):
 	except Shard.DoesNotExist:
 		return error_generic('Shard Not Found', 'I couldn\'t find the shard **%s** for <@%s>' % (shard_type, author.id))
 
+shard_types = {
+	'c':     'char',
+	'char':  'char',
+	'chars': 'char',
+	's':     'ship',
+	'ship':  'ship',
+	'ships': 'ship',
+}
+
 subcommands = {
-	'add':    handle_add_player,
-	'del':    handle_del_player,
-	'delete': handle_del_player,
-	'rm':     handle_del_player,
-	'remove': handle_del_player,
-	'list':   handle_list_shard,
+	'add':    handle_shard_add,
+	'del':    handle_shard_del,
+	'delete': handle_shard_del,
+	'rm':     handle_shard_del,
+	'remove': handle_shard_del,
 	'stat':   handle_shard_stats,
 	'stats':  handle_shard_stats,
 	'status': handle_shard_stats,
 }
+
+def parse_opts_shard_type(args):
+
+	args_cpy = list(args)
+	for arg in args_cpy:
+		if arg.lower() in shard_types:
+			args.remove(arg)
+			return args, shard_types[arg.lower()]
+
+	return args, None
 
 def parse_opts_subcommands(args):
 
@@ -213,14 +189,14 @@ def parse_opts_subcommands(args):
 
 def cmd_shard(config, author, channel, args):
 
-	args, subcommand = parse_opts_subcommands(args)
 	args, shard_type = parse_opts_shard_type(args)
-
-	if not subcommand:
-		subcommand = 'list'
+	args, subcommand = parse_opts_subcommands(args)
 
 	if not shard_type:
 		shard_type = 'char'
+
+	if not subcommand:
+		subcommand = 'stats'
 
 	if subcommand in subcommands:
 		return subcommands[subcommand](config, author, args, shard_type)
