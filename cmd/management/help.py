@@ -32,7 +32,7 @@ help_help = {
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Compare different players and their respective units.
 **`recos`**: Show information about recommended mods.
-**`shard`**: Keep track of arena ranks for each of your shard member (**NEW**).
+**`shard`**: Keep track of arena ranks of your shard members (**NEW**).
 **`wntm`**: List characters who needs mods with specific criteria."""
 #NOT WORKING **`mods`**: Show information about mods.
 #NOT WORKING **`stats`**: Show statistics about equipped mods."""
