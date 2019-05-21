@@ -148,9 +148,15 @@ COMMANDS = [
 	},
 	{
 		'command': 'shard',
-		'aliases': [ 'shard', 'shards' ],
+		'aliases': [ 'shard' ],
 		'function': cmd_shard,
 		'help': help_shard,
+	},
+	{
+		'command': 'fshard',
+		'aliases': [ 'fshard' ],
+		'function': cmd_fshard,
+		'help': help_fshard,
 	},
 	{
 		'command': 'stats',

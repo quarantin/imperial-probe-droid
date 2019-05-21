@@ -10,7 +10,7 @@ from datetime import datetime
 
 help_shard = {
 	'title': 'Shard Help',
-	'description': """Helps you tracking your shard ranks over time in arena.
+	'description': """Helps you to track the ranks of your shard members over time in character arena.
 
 **Syntax**
 Adding members to your shard:
@@ -19,39 +19,47 @@ Adding members to your shard:
 Removing members from your shard:
 ```
 %prefixshard del [players]```
-Showing char/ship arena rank for your shard members:
+Showing arena rank for your shard members:
 ```
-%prefixshard [char|ship]```
-**Options**
-- **`players`**: Can be a list of ally codes or discord mentions.
-- **`char`** (or **`c`**): Show character arena rank (the default).
-- **`ship`** (or **`s`**): Show fleet arena rank.
+%prefixshard```
 
 **Examples**
 Add some members to your shard:
 ```
-%prefixshard add 123456789 234567891 3456789012```
-Or:
-```
-%prefixshard add 123-456-789 234-567-891 345-678-9012```
+%prefixshard add 123456789 234567891 345-678-912```
 Remove some members from your shard:
 ```
-%prefixshard del 123456789 234567891 3456789012```
-List all players in your shard and their respective character arena rank:
+%prefixshard del 123-456-789 234567891 345678912```
+List arena ranks of all members of your shard:
 ```
-%prefixshard char```
-Or the short form:
+%prefixshard```"""
+}
+
+help_fshard = {
+	'title': 'Fshard Help',
+	'description': """Helps you to track the ranks of your shard members over time in fleet arena.
+
+**Syntax**
+Adding members to your shard:
 ```
-%prefixshard c```
-Or simply (because `char` is the default):
+%prefixfshard add [players]```
+Removing members from your shard:
 ```
-%prefixshard```
-List all players in your shard and their respective fleet arena rank:
+%prefixfshard del [players]```
+Showing arena rank for your shard members:
 ```
-%prefixshard ship```
-Or the short form:
+%prefixfshard```
+
+**Examples**
+Add some members to your shard:
 ```
-%prefixshard s```"""
+%prefixfshard add 123456789 234567891 345-678-912```
+Remove some members from your shard:
+```
+%prefixfshard del 123-456-789 234567891 345678912```
+List arena ranks of all members of your shard:
+```
+%prefixfshard```"""
 }
 
 def handle_shard_add(config, author, args, shard_type):
@@ -60,9 +68,12 @@ def handle_shard_add(config, author, args, shard_type):
 	if error:
 		return error
 
+	if args:
+		return error_unknown_parameters(args)
+
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type='char')
+		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		ally_codes = [ x.ally_code for x in players ]
 		for ally_code in ally_codes:
 			enemy, created = ShardMember.objects.get_or_create(shard=shard, ally_code=ally_code)
@@ -74,7 +85,7 @@ def handle_shard_add(config, author, args, shard_type):
 		plural_have = len(ally_codes) > 1 and 've' or 's'
 		return [{
 			'title': 'Shard Updated',
-			'description': '<@%s>\'s shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (author.id, plural, plural_have, ally_code_str),
+			'description': '<@%s>\'s %s shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (author.id, shard_type_str, plural, plural_have, ally_code_str),
 		}]
 
 	except Player.DoesNotExist:
@@ -86,9 +97,12 @@ def handle_shard_del(config, author, args, shard_type):
 	if error:
 		return error
 
+	if args:
+		return error_unknown_parameters(args)
+
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type='char')
+		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		ally_codes = [ x.ally_code for x in players ]
 		ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).delete()
 		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
@@ -98,7 +112,7 @@ def handle_shard_del(config, author, args, shard_type):
 		plural_have = len(ally_codes) > 1 and 've' or 's'
 		return [{
 			'title': 'Shard Updated',
-			'description': '<@%s>\'s shard for %s has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (author.id, shard_type_str, plural, plural_have, ally_code_str),
+			'description': '<@%s>\'s %s shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (author.id, shard_type_str, plural, plural_have, ally_code_str),
 		}]
 
 	except Player.DoesNotExist:
@@ -106,9 +120,12 @@ def handle_shard_del(config, author, args, shard_type):
 
 def handle_shard_stats(config, author, args, shard_type):
 
+	if args:
+		return error_unknown_parameters(args)
+
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		shard, created = Shard.objects.get_or_create(player=player, type='char')
+		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		members = ShardMember.objects.filter(shard=shard)
 		ally_codes = [ x.ally_code for x in members ]
 		ally_codes.insert(0, player.ally_code)
@@ -162,9 +179,6 @@ def handle_shard_stats(config, author, args, shard_type):
 	except Player.DoesNotExist:
 		return error_no_ally_code_specified(config, author)
 
-	except Shard.DoesNotExist:
-		return error_generic('Shard Not Found', 'I couldn\'t find the shard **%s** for <@%s>' % (shard_type, author.id))
-
 shard_types = {
 	'c':     'char',
 	'char':  'char',
@@ -185,34 +199,19 @@ subcommands = {
 	'status': handle_shard_stats,
 }
 
-def parse_opts_shard_type(args):
-
-	args_cpy = list(args)
-	for arg in args_cpy:
-		if arg.lower() in shard_types:
-			args.remove(arg)
-			return args, shard_types[arg.lower()]
-
-	return args, None
-
 def parse_opts_subcommands(args):
 
 	args_cpy = list(args)
 	for arg in args_cpy:
 		if arg.lower() in subcommands:
 			args.remove(arg)
-			return args, arg.lower()
+			return args, subcommands[arg.lower()]
 
 	return args, None
 
-def cmd_shard(config, author, channel, args):
+def _cmd_shard(config, author, channel, args, shard_type):
 
-	args, shard_type = parse_opts_shard_type(args)
 	args, subcommand = parse_opts_subcommands(args)
-
-	if not shard_type:
-		shard_type = 'char'
-
 	if not subcommand:
 		subcommand = 'stats'
 
@@ -220,3 +219,9 @@ def cmd_shard(config, author, channel, args):
 		return subcommands[subcommand](config, author, args, shard_type)
 
 	return error_generic('Unsupported Action', subcommand)
+
+def cmd_shard(config, author, channel, args):
+	return _cmd_shard(config, author, channel, args, 'char')
+
+def cmd_fshard(config, author, channel, args):
+	return _cmd_shard(config, author, channel, args, 'ship')
