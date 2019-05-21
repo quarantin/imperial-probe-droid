@@ -303,5 +303,7 @@ def fetch_all_recos(config, index='base_id', index2=None):
 
 	return result
 
-#test = fetch_all_recos(index='name', index2=None)
+#from config import load_config
+#config = load_config()
+#test = fetch_all_recos(config, index='name', index2=None)
 #print(json.dumps(test, indent=4))
