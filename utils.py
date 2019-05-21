@@ -9,6 +9,21 @@ from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
+ROMAN_NUMBERS = {
+	1: 'I',
+	2: 'II',
+	3: 'III',
+	4: 'IV',
+	5: 'V',
+	6: 'VI',
+	7: 'VII',
+	8: 'VIII',
+	9: 'IX',
+	10: 'X',
+	11: 'XI',
+	12: 'XII',
+}
+
 SQUAD_ROLES = {
 	1: 'Member',
 	2: 'Leader',
