@@ -105,19 +105,6 @@ def parse_opts_format(config, args):
 
 	return args, DEFAULT_FORMAT
 
-def parse_opts_ally_code(config, author, arg):
-
-	if len(arg) >= 11 and arg.find('-') == 3:
-		arg = ''.join(arg.split('-'))
-
-	if len(arg) >= 9 and arg.isdigit():
-		return arg
-
-	if arg in config['allies']['by-mention']:
-		return config['allies']['by-mention'][arg][2]
-
-	return None
-
 
 def parse_opts_ally_codes(config, author, args, min_allies=1):
 
@@ -126,7 +113,12 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 
 	for arg in args_cpy:
 
-		if len(arg) >= 11 and arg.find('-') == 3:
+		ally_code = Player.get_ally_code_by_nick(arg)
+		if ally_code:
+			args.remove(arg)
+			ally_codes.append(ally_code)
+
+		elif len(arg) >= 11 and len(arg.split('-')) == 3:
 			cpy = ''.join(arg.split('-'))
 			if len(cpy) >= 9 and cpy.isdigit():
 				args.remove(arg)
@@ -136,12 +128,13 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 			args.remove(arg)
 			ally_codes.append(arg)
 
-		elif arg in config['allies']['by-mention']:
-			args.remove(arg)
-			ally_codes.append(config['allies']['by-mention'][arg][2])
+	if len(ally_codes) < min_allies:
+		try:
+			player = Player.objects.get(discord_id=author.id)
+			ally_codes.append(player.ally_code)
 
-	if len(ally_codes) < min_allies and author in config['allies']['by-discord-nick']:
-		ally_codes.append(config['allies']['by-discord-nick'][author][2])
+		except Player.DoesNotExist:
+			pass
 
 	return args, ally_codes
 
@@ -378,21 +371,6 @@ def parse_opts_mod_filters(args):
 					selected_filters.append(tupl)
 
 	return args, selected_filters
-
-def parse_opts_lang(args):
-
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		if arg in [ 'en', 'EN', 'english' ]:
-			args.remove(arg)
-			return args, 'en'
-
-		if arg in [ 'fr', 'FR', 'french' ]:
-			args.remove(arg)
-			return args, 'fr'
-
-	return args, 'en'
 
 def parse_opts_language(args):
 
