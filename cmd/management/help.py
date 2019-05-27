@@ -15,9 +15,7 @@ help_help = {
 %separator
 **Management Commands**
 **`alias`**: Manage command aliases.
-**`format`**: Manage output formats.
 **`invite`**: Invite this bot.
-**`links`**: Manage URL list.
 **`nicks`**: Manage nicknames for units and ships.
 **`register`**: Register your ally code.
 %separator
@@ -25,7 +23,7 @@ help_help = {
 **`gc`**: Compare different guilds and their respective units.
 %separator
 **Player Commands**
-**`arena`**: Show arena squads details.
+**`arena`**: Show arena squad details.
 **`gear`**: List needed pieces of gear for units.
 **`locked`**: Show locked characters or ships.
 **`meta`**: Show information about best arena and fleet squads.
