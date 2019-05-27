@@ -2,20 +2,20 @@
 
 from cmd.guild.compare import *
 from cmd.management.alias import *
-from cmd.management.format import *
+#from cmd.management.format import *
 from cmd.management.help import *
 from cmd.management.invite import *
 from cmd.management.language import *
-from cmd.management.links import *
+#from cmd.management.links import *
 from cmd.management.nicks import *
 from cmd.management.register import *
 from cmd.management.restart import *
-from cmd.management.sheets import *
+#from cmd.management.sheets import *
 from cmd.management.update import *
 from cmd.misc.meta import *
 from cmd.player.arena import *
 from cmd.player.compare import *
-from cmd.player.fight import *
+#from cmd.player.fight import *
 from cmd.player.gear import *
 from cmd.player.locked import *
 #from cmd.player.mods import *
@@ -50,18 +50,18 @@ COMMANDS = [
 		'function': cmd_guild_compare,
 		'help': help_guild_compare,
 	},
-	{
-		'command': 'fight',
-		'aliases': [ 'f', 'fight' ],
-		'function': cmd_fight,
-		'help': help_fight,
-	},
-	{
-		'command': 'format',
-		'aliases': [ 'F', 'format' ],
-		'function': cmd_format,
-		'help': help_format,
-	},
+	#{
+	#	'command': 'fight',
+	#	'aliases': [ 'f', 'fight' ],
+	#	'function': cmd_fight,
+	#	'help': help_fight,
+	#},
+	#{
+	#	'command': 'format',
+	#	'aliases': [ 'F', 'format' ],
+	#	'function': cmd_format,
+	#	'help': help_format,
+	#},
 	{
 		'command': 'gear',
 		'aliases': [ 'g', 'gear' ],
@@ -86,12 +86,12 @@ COMMANDS = [
 		'function': cmd_language,
 		'help': help_language,
 	},
-	{
-		'command': 'links',
-		'aliases': [ 'L', 'links' ],
-		'function': cmd_links,
-		'help': help_links,
-	},
+	#{
+	#	'command': 'links',
+	#	'aliases': [ 'L', 'links' ],
+	#	'function': cmd_links,
+	#	'help': help_links,
+	#},
 	{
 		'command': 'locked',
 		'aliases': [ 'l', 'locked' ],
@@ -140,12 +140,12 @@ COMMANDS = [
 		'function': cmd_restart,
 		'help': help_restart,
 	},
-	{
-		'command': 'sheets',
-		'aliases': [ 'S', 'sheets' ],
-		'function': cmd_sheets,
-		'help': help_sheets,
-	},
+	#{
+	#	'command': 'sheets',
+	#	'aliases': [ 'S', 'sheets' ],
+	#	'function': cmd_sheets,
+	#	'help': help_sheets,
+	#},
 	{
 		'command': 'shard',
 		'aliases': [ 'shard' ],
