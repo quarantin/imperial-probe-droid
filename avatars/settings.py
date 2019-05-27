@@ -33,7 +33,7 @@ ALLOWED_HOSTS = [
 	socket.gethostname(),
 ]
 
-IPD_CONFIG = json.load(open(os.path.join(BASE_DIR, '../config.json')))
+IPD_CONFIG = json.load(open(os.path.join(BASE_DIR, 'config.json')))
 if 'server' in IPD_CONFIG:
 	ALLOWED_HOSTS.append(IPD_CONFIG['server'])
 
