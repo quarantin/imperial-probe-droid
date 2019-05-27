@@ -75,8 +75,6 @@
         "ylc": "Young Lando Calrissian"
     },
     "prefix": "!",
-    "short-urls": {
-    },
     "source": "https://github.com/quarantin/imperial-probe-droid",
     "timezone": "Europe/Paris",
     "token": "YOUR DISCORD TOKEN"
