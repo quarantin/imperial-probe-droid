@@ -79,6 +79,18 @@ class Player(models.Model):
 	def get_ally_code(self):
 		return '%s-%s-%s' % (self.ally_code[0:3], self.ally_code[3:6], self.ally_code[6:9])
 
+	def get_ally_code_by_nick(nick):
+		from django.db.models import Q
+		match_name = Q(discord_name=nick)
+		match_nick = Q(discord_nick=nick)
+		match_display_name = Q(discord_display_name=nick)
+		match_game_nick = Q(game_nick=nick)
+		try:
+			return Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
+
+		except Player.DoesNotExist:
+			return None
+
 	def __str__(self):
 		if self.discord_display_name:
 			return self.discord_display_name
