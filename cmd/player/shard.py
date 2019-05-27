@@ -205,7 +205,7 @@ def parse_opts_subcommands(args):
 	for arg in args_cpy:
 		if arg.lower() in subcommands:
 			args.remove(arg)
-			return args, subcommands[arg.lower()]
+			return args, arg.lower()
 
 	return args, None
 
