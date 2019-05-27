@@ -22,7 +22,7 @@ from cmd.player.locked import *
 from cmd.player.needed import *
 from cmd.player.recos import *
 from cmd.player.shard import *
-from cmd.player.stats import *
+#from cmd.player.stats import *
 from cmd.player.wntm import *
 
 COMMANDS = [
@@ -158,12 +158,12 @@ COMMANDS = [
 		'function': cmd_fshard,
 		'help': help_fshard,
 	},
-	{
-		'command': 'stats',
-		'aliases': [ 's', 'stats' ],
-		'function': cmd_stats,
-		'help': help_stats,
-	},
+	#{
+	#	'command': 'stats',
+	#	'aliases': [ 's', 'stats' ],
+	#	'function': cmd_stats,
+	#	'help': help_stats,
+	#},
 	{
 		'command': 'update',
 		'aliases': [ 'U', 'update' ],
