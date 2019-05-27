@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+import DJANGO
+from swgoh.models import Translation
+
 from utils import get_units_dict, http_get, http_post, find_ally_in_guild
 
 import json
@@ -423,7 +426,7 @@ def get_stats(config, ally_code):
 	players[ally_code]['char_stats'] = stats
 	return stats
 
-def get_ability_name(config, skill_id, lang):
+def get_ability_name(config, skill_id, language):
 
 	import DJANGO
 	from swgoh.models import Translation
@@ -434,9 +437,8 @@ def get_ability_name(config, skill_id, lang):
 			t = Translation.objects.get(string_id=ability_id, language=language)
 			return t.translation
 
-	if skill_id in config['skills'][lang]:
-		ability_id = config['skills'][lang][skill_id]
-		if ability_id in config['abilities'][lang]:
-			name = config['abilities'][lang][ability_id]
+		except Translation.DoesNotExist:
+			pass
 
-	return name
+	print('No ability name found for skill id: %s' % skill_id)
+	return 'Not found'

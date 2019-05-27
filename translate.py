@@ -13,9 +13,13 @@ from django.db import transaction
 
 from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction
 
-config = load_config()
-
-collections = {
+"""
+	'abilityList': {
+		'project': {
+			'id': 1,
+			'nameKey': 1,
+		},
+	},
 	'equipmentList': {
 		'project': {
 			'id': 1,
@@ -30,6 +34,14 @@ collections = {
 		'project': {
 			'baseId': 1,
 			'nameKey': 1,
+		},
+	},
+
+"""
+collections = {
+	'skillList': {
+		'project': {
+			'id': 1,
 		},
 	},
 }
@@ -209,6 +221,9 @@ print('New version found, updating: %s' % new_version)
 fout = open(version_cache, 'w')
 fout.write(json.dumps(new_version))
 fout.close()
+
+config = load_config()
+fetch_all_collections(config)
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 	print('Parsing %s translations...' % language.lower())

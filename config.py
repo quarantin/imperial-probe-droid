@@ -84,7 +84,7 @@ def parse_json(filename):
 	fin.close()
 	return json.loads(data)
 
-def parse_skills(filename='skillList.en.json', lang='en'):
+def parse_skills(filename='skillList.json'):
 
 	skills = {}
 	skill_list = parse_json(filename)
@@ -96,27 +96,7 @@ def parse_skills(filename='skillList.en.json', lang='en'):
 
 		skills[skill_id] = skill_ability_ref
 
-	if 'skills' not in config:
-		config['skills'] = {}
-
-	config['skills'][lang] = skills
-
-def parse_abilities(filename='abilityList.en.json', lang='en'):
-
-	abilities = {}
-	ability_list = parse_json(filename)
-
-	for ability in ability_list:
-
-		ability_id   = ability['id']
-		ability_name = ability['nameKey']
-
-		abilities[ability_id] = ability_name
-
-	if 'abilities' not in config:
-		config['abilities'] = {}
-
-	config['abilities'][lang] = abilities
+	config['skills'] = skills
 
 def save_config(config_file='config.json'):
 
@@ -160,9 +140,6 @@ def load_config(bot=None, config_file='config.json'):
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
 
-		parse_skills('skillList.en.json', 'en')
-		parse_skills('skillList.fr.json', 'fr')
-		parse_abilities('abilityList.en.json', 'en')
-		parse_abilities('abilityList.fr.json', 'fr')
+		parse_skills()
 
 	return config
