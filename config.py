@@ -2,14 +2,12 @@
 
 import os, json, requests
 
-from commands import *
-from utils import download_spreadsheet, get_short_url
-
 config = {}
 
 def load_help():
 
 	help_msgs = {}
+	from commands import COMMANDS
 	for cmd in COMMANDS:
 		for alias in cmd['aliases']:
 			help_msgs[alias] = cmd['help']
@@ -26,51 +24,6 @@ def write_config_to_file(config, config_file):
 	fin.close()
 
 	os.remove(backup)
-
-def parse_allies_db(members):
-
-	url = config['sheets']['allies']['view']
-
-	allies_db = {}
-	allies_db['by-mention'] = {}
-	allies_db['by-ally-code'] = {}
-	allies_db['by-game-nick'] = {}
-	allies_db['by-discord-nick'] = {}
-
-	allies = download_spreadsheet(url, 3)
-	next(allies)
-
-	for ally in allies:
-
-		game_nick, discord_nick, ally_code = ally
-
-		allies_db['by-ally-code'][ally_code] = ally
-		allies_db['by-game-nick'][game_nick] = ally
-
-		if discord_nick:
-			allies_db['by-discord-nick'][discord_nick] = ally
-
-	for member in members:
-
-		raw_nick = member.display_name or member.nick or member.name
-		nick = '@%s' % raw_nick
-		if nick not in allies_db['by-discord-nick']:
-			continue
-
-		mention1 = '<@%s>' % member.id
-		mention2 = '<@!%s>' % member.id
-		ally_code = allies_db['by-discord-nick'][nick]
-
-		if raw_nick not in allies_db['by-mention']:
-			allies_db['by-mention'][raw_nick] = ally_code
-
-		if mention1 not in allies_db['by-mention']:
-			allies_db['by-mention'][mention1] = ally_code
-
-		if mention2 not in allies_db['by-mention']:
-			allies_db['by-mention'][mention2] = ally_code
-
-	return allies_db
 
 def parse_mod_primaries(filename='cache/mod-primaries.json'):
 
@@ -200,27 +153,8 @@ def load_config(bot=None, config_file='config.json'):
 		fin.close()
 		config.update(json.loads(jsonstr))
 		parse_mod_primaries()
-		if 'short-urls' not in config:
-			config['short-urls'] = {}
-
-		if 'sheets' in config:
-
-			for sheet in [ 'allies', 'recommendations' ]:
-				if sheet not in config['sheets']:
-					continue
-
-				if 'edit' in config['sheets'][sheet]:
-					edit_url = config['sheets'][sheet]['edit']
-					if edit_url not in config['short-urls']:
-						config['short-urls'][edit_url] = get_short_url(edit_url)
-
-				if 'view' in config['sheets'][sheet]:
-					view_url = config['sheets'][sheet]['view']
-					if view_url not in config['short-urls']:
-						config['short-urls'][view_url] = get_short_url(view_url)
 
 	if bot:
-		config['allies'] = parse_allies_db(bot.get_all_members())
 		config['help'] = load_help()
 		config['recos'] = parse_recommendations()
 		config['save'] = save_config
