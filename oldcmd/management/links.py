@@ -38,8 +38,6 @@ def cmd_links(config, author, channel, args):
 		lines = []
 		if 'links' in config:
 			for name, link in sorted(config['links'].items()):
-				if link in config['short-urls']:
-					link = config['short-urls'][link]
 				lines.append('**[%d]** **%s** %s' % (i, name, link))
 				i = i + 1
 
@@ -104,9 +102,6 @@ def cmd_links(config, author, channel, args):
 		link_name = args[1]
 		link_val = args[2]
 
-		if link_val not in config['short-urls']:
-			config['short-urls'][link_val] = get_short_url(link_val)
-
 		if 'links' not in config:
 			config['links'] = {}
 
@@ -115,7 +110,7 @@ def cmd_links(config, author, channel, args):
 		config['save']()
 		return [{
 			'title': 'Add URL',
-			'description': 'The URL was successfully added:\n`%s`: %s' % (link_name, config['short-urls'][link_val]),
+			'description': 'The URL was successfully added:\n`%s`: %s' % (link_name, link_val),
 		}]
 
 	return [{
