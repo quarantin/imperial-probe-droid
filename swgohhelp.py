@@ -425,9 +425,14 @@ def get_stats(config, ally_code):
 
 def get_ability_name(config, skill_id, lang):
 
-	name = 'Not found'
-	if lang not in config['skills']:
-		lang = 'en'
+	import DJANGO
+	from swgoh.models import Translation
+
+	if skill_id in config['skills']:
+		ability_id = config['skills'][skill_id]
+		try:
+			t = Translation.objects.get(string_id=ability_id, language=language)
+			return t.translation
 
 	if skill_id in config['skills'][lang]:
 		ability_id = config['skills'][lang][skill_id]
