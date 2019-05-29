@@ -181,48 +181,6 @@ class Gear(models.Model):
 	def get_url(self):
 		return 'https://swgoh.gg/db/gear/%s' % self.url
 
-class BaseShip(models.Model):
-	base_id = models.CharField(max_length=128)
-	name = models.CharField(max_length=128)
-	alignment = models.CharField(max_length=32, choices=ALIGNMENTS)
-	role = models.CharField(max_length=32, choices=ROLES)
-	power = models.IntegerField()
-	combat_type = models.CharField(max_length=32, choices=COMBAT_TYPES)
-	description = models.CharField(max_length=255)
-	url = models.CharField(max_length=255)
-	image = models.CharField(max_length=255)
-	activate_shard_count = models.IntegerField()
-	capital_ship = models.BooleanField(default=False)
-
-	def get_all_ships():
-		url = 'https://swgoh.gg/api/ships/'
-		units, from_cache = download(url)
-		cache_key = 'BaseShip.get_all_ships'
-		parsed = cache_key in CACHE and not expired(CACHE[cache_key])
-		if not from_cache or not parsed:
-			with transaction.atomic():
-				for unit in units:
-
-					ship = dict(unit)
-
-					ability_classes = ship.pop('ability_classes')
-					categories      = ship.pop('categories')
-
-					ship['url']     = os.path.basename(os.path.dirname(ship['url']))
-					ship['image']   = os.path.basename(ship['image'])
-
-					BaseShip.objects.update_or_create(**ship)
-
-				CACHE[cache_key] = datetime.now()
-
-		return list(BaseShip.objects.all())
-	
-	def get_image(self):
-		return 'https://swgoh.gg/static/img/assets/%s' % self.image
-
-	def get_url(self):
-		return 'https://swgoh.gg/ships/%s' % self.url
-
 class BaseUnit(models.Model):
 
 	SHIP_SLOTS = (
@@ -242,39 +200,36 @@ class BaseUnit(models.Model):
 	url = models.CharField(max_length=255)
 	image = models.CharField(max_length=255)
 	activate_shard_count = models.IntegerField()
-	#ship = models.ForeignKey(BaseShip, on_delete=models.CASCADE, blank=True, null=True)
+	ship = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
 	ship_slot = models.CharField(max_length=8, choices=SHIP_SLOTS, null=True)
+	capital_ship = models.BooleanField(default=False)
+
+	def __str__(self):
+		return self.name
+
+	def get_units_by_faction(factions):
+
+		selected_units = []
+		all_units = BaseUnit.get_all_units()
+
+		try:
+			facs = BaseUnitFaction.objects.filter(faction__in=factions)
+			base_ids = [ faction.unit.base_id for faction in facs ]
+			for unit in all_units:
+				if unit['base_id'] in base_ids and unit not in selected_units:
+					selected_units.append(unit)
+					base_ids.remove(unit['base_id'])
+
+		except BaseUnitFaction.DoesNotExist:
+			pass
+
+		return selected_units
 
 	def get_all_units():
-		url = 'https://swgoh.gg/api/characters/'
-		units, from_cache = download(url)
-		cache_key = 'BaseUnit.get_all_units'
-		parsed = cache_key in CACHE and not expired(CACHE[cache_key])
-		if not from_cache or not parsed:
-			with transaction.atomic():
-				for unit in units:
+		return list(BaseUnit.objects.filter(combat_type=1).values())
 
-					char = dict(unit)
-
-					ability_classes = char.pop('ability_classes')
-					categories      = char.pop('categories')
-					gear_levels     = char.pop('gear_levels')
-					ship            = char.pop('ship')
-
-					char['url']     = os.path.basename(os.path.dirname(char['url']))
-					char['image']   = os.path.basename(char['image'])
-
-					base_unit, created = BaseUnit.objects.update_or_create(**char)
-
-					#for ability in ability_classes:
-					#	BaseUnitAbilityClass.objects.update_or_create(unit=base_unit, ability=ability)
-
-					#for category in categories:
-					#	BaseUnitCategory.objects.update_or_create(unit=base_unit, category=category)
-
-				CACHE[cache_key] = datetime.now()
-
-		return list(BaseUnit.objects.all())
+	def get_all_ships():
+		return list(BaseUnit.objects.filter(combat_type=2))
 
 	def get_all_units_by_id():
 		result = {}
@@ -288,6 +243,60 @@ class BaseUnit(models.Model):
 
 	def get_url(self):
 		return 'https://swgoh.gg/characters/%s' % self.url
+
+	def get_char_url(self):
+		return 'https://swgoh.gg/characters/%s' % self.url
+
+	def get_ship_url(self):
+		return 'https://swgoh.gg/ships/%s' % self.url
+
+class BaseUnitFaction(models.Model):
+
+	FACTIONS = [
+		('profession_bountyhunter',     'Bounty Hunters'),
+		('profession_clonetrooper',     'Clone Trooper'),
+		('profession_jedi',             'Jedi'),
+		('profession_scoundrel',        'Scoundrel'),
+		('profession_sith',             'Sith'),
+		('profession_smuggler',         'Smuggler'),
+		('affiliation_empire',          'Empire'),
+		('affiliation_firstorder',      'First Order'),
+		('affiliation_imperialtrooper', 'Imperial Trooper'),
+		('affiliation_nightsisters',    'Nightsister'),
+		('affiliation_oldrepublic',     'Old Republic'),
+		('affiliation_phoenix',         'Phoenix'),
+		('affiliation_rebels',          'Rebel'),
+		('affiliation_republic',        'Galactic Republic'),
+		('affiliation_resistance',      'Resistance'),
+		('affiliation_rogue_one',       'Rogue One'),
+		('affiliation_separatist',      'Separatist'),
+		('affiliation_sithempire',      'Sith Empire'),
+		('species_droid',               'Droid'),
+		('species_ewok',                'Ewok'),
+		('species_geonosian',           'Geonosian'),
+		('species_human',               'Human'),
+		('species_jawa',                'Jawa'),
+		('species_tusken',              'Tusken'),
+		('species_wookiee',             'Wookie'),
+	]
+
+	FACTION_NICKS = {
+		'bh':           'bountyhunter',
+		'fo':           'firstorder',
+		'geos':         'geonosian',
+		'ns':           'nightsisters',
+		'or':           'oldrepublic',
+		'r1':           'rogue_one',
+	}
+
+	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
+	faction = models.CharField(max_length=32, choices=FACTIONS)
+
+	def is_supported_faction(faction):
+		for fac_id, fac_name in BaseUnitFaction.FACTIONS:
+			if fac_id == faction or fac_name.lower() == faction.lower():
+				return fac_id
+		return False
 
 class BaseUnitAbilityClass(models.Model):
 
@@ -340,43 +349,6 @@ class BaseUnitAbilityClass(models.Model):
 	
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 	ability = models.CharField(max_length=32, choices=ABILITIES)
-
-class BaseUnitCategory(models.Model):
-
-	CATEGORIES = (
-		('Attacker', 'Attacker'),
-		('Bounty Hunters', 'Bounty Hunters'),
-		('Clone Trooper', 'Clone Trooper'),
-		('Droid', 'Droid'),
-		('Empire', 'Empire'),
-		('Ewok', 'Ewok'),
-		('First Order', 'First Order'),
-		('Fleet Commander', 'Fleet Commander'),
-		('Galactic Republic', 'Galactic Republic'),
-		('Geonosian', 'Geonosian'),
-		('Healer', 'Healer'),
-		('Imperial Trooper', 'Imperial Trooper'),
-		('Jawa', 'Jawa'),
-		('Jedi', 'Jedi'),
-		('Leader', 'Leader'),
-		('Nightsister', 'Nightsister'),
-		('Old Republic', 'Old Republic'),
-		('Phoenix', 'Phoenix'),
-		('Rebel', 'Rebel'),
-		('Resistance', 'Resistance'),
-		('Rogue One', 'Rogue One'),
-		('Scoundrel', 'Scoundrel'),
-		('Separatist', 'Separatist'),
-		('Sith', 'Sith'),
-		('Sith Empire', 'Sith Empire'),
-		('Smuggler', 'Smuggler'),
-		('Support', 'Support'),
-		('Tank', 'Tank'),
-		('Tusken', 'Tusken'),
-	)
-
-	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
-	category = models.CharField(max_length=32, choices=CATEGORIES)
 
 class BaseUnitGear(models.Model):
 
