@@ -5,7 +5,7 @@ from utils import basicstrip
 from swgohgg import get_unit_list
 
 import DJANGO
-from swgoh.models import Player
+from swgoh.models import Player, BaseUnit, BaseUnitFaction
 
 DEFAULT_FORMAT = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
 
@@ -172,12 +172,38 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 
 	return args, players, None
 
+def parse_opts_unit_names_by_faction(config, args):
+
+	factions = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		larg = arg.lower()
+		if larg in BaseUnitFaction.FACTION_NICKS:
+			larg = BaseUnitFaction.FACTION_NICKS[larg]
+
+		for fac_key, fac_name in BaseUnitFaction.FACTIONS:
+			if larg in fac_key.split('_')[1]:
+				args.remove(arg)
+				if fac_key not in factions:
+					factions.append(fac_key)
+				break
+
+	return args, BaseUnit.get_units_by_faction(factions)
+
 def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 
 	full_match = []
 	token_match = []
 	wild_match = []
 	loose_match = []
+
+	args, factions = parse_opts_unit_names_by_faction(config, args)
+	if factions:
+		return factions
+
+	if not args:
+		return None
 
 	arg = basicstrip(' '.join(args))
 
