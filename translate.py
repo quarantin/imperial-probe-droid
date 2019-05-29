@@ -11,7 +11,7 @@ import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction
 
 config = load_config()
 
@@ -34,8 +34,23 @@ collections = {
 	},
 }
 
+urls = {
+	'cache/characters.json': 'https://swgoh.gg/api/characters/'
+}
 
 def fetch_all_collections(config):
+
+	for filename, url in urls.items():
+		response = requests.get(url)
+		if response.status_code != 200:
+			raise Exception('requests.get failed!')
+
+		fin = open(filename, 'w')
+		fin.write(response.text)
+		fin.close()
+
+	# TODO remove this line
+	return
 
 	# First download all base files
 	for collection, data in collections.items():
@@ -75,7 +90,7 @@ def fetch_all_collections(config):
 
 	print('All Done!')
 
-def parse_json(collection, key, val, context, language):
+def parse_translations(collection, key, val, context, language):
 
 	filename = 'cache/%s_%s.json' % (collection, language)
 	with open(filename, 'r') as fin:
@@ -107,7 +122,69 @@ def parse_json(collection, key, val, context, language):
 
 #	break
 
-#fetch_all_collections(config)
+WANTED_KEYS = [
+	'UnitStat_Accuracy',          # Potency
+	'UnitStat_Armor',             # Armor
+	'UnitStat_CriticalDamage',    # Critical Damage
+	'UnitStat_Health',            # Health
+	'UnitStat_MaxShield',         # Protection
+	'UnitStat_Offense',           # Offense
+	'UnitStat_Resistance',        # Tenacity
+	'UnitStat_Speed',             # Speed
+	'UnitStat_Suppression',       # Resistance
+]
+
+def parse_localization_files():
+
+	context = 'localization'
+	for language, lang_code, lang_flag, lang_name in Player.LANGS:
+
+		filename = 'Loc_%s.txt' % language.upper()
+		if not os.path.exists(filename):
+			print('Skipping missing translation file: %s' % filename)
+			continue
+
+		with open(filename, 'r') as fin:
+			for line in fin:
+				line = line.strip()
+				if line.startswith('#'):
+					continue
+				string_id, translation = line.split('|')
+				if string_id in WANTED_KEYS:
+					obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language, )
+					if obj.translation != translation:
+						obj.translation = translation
+						obj.save()
+						print('Updated %s translation for %s' % (lang_name, string_id))
+
+def load_json(filename):
+
+	with open(filename, 'r') as fin:
+		return json.loads(fin.read())
+
+def parse_units():
+
+	filename = 'cache/characters.json'
+	units = load_json(filename)
+	with transaction.atomic():
+		for unit in units:
+
+			char = dict(unit)
+
+			ability_classes = char.pop('ability_classes')
+			categories      = char.pop('categories')
+			gear_levels     = char.pop('gear_levels')
+			ship            = char.pop('ship')
+
+			char['url']     = os.path.basename(os.path.dirname(char['url']))
+			char['image']   = os.path.basename(char['image'])
+
+			base_unit, created = BaseUnit.objects.update_or_create(**char)
+
+			for category in categories:
+				faction = BaseUnitFaction.is_supported_faction(category)
+				if faction:
+					obj, created = BaseUnitFaction.objects.update_or_create(unit=base_unit, faction=faction)
 
 first_time = False
 version_url = 'https://api.swgoh.help/version'
@@ -125,7 +202,8 @@ else:
 
 if old_version == new_version and not first_time:
 	print('Up-to-date: %s' % new_version)
-	sys.exit()
+	# TODO Uncomment this line
+	#sys.exit()
 
 print('New version found, updating: %s' % new_version)
 fout = open(version_cache, 'w')
@@ -134,5 +212,9 @@ fout.close()
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 	print('Parsing %s translations...' % language.lower())
-	parse_json('unitsList', 'baseId', 'nameKey', 'unit-names', language)
-	parse_json('equipmentList', 'id', 'nameKey', 'gear-names', language)
+	parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
+	parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
+	parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
+
+parse_localization_files()
+parse_units()
