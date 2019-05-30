@@ -151,7 +151,6 @@ def handle_shard_stats(config, author, args, shard_type):
 		players = sorted([ p for p in data ], key=lambda x: x['arena'][shard_type]['rank'])
 		for p in players:
 			bold = ''
-			print('%s / %s' % (type(player.ally_code), type(p['allyCode'])))
 			if player.ally_code == str(p['allyCode']):
 				bold = '**'
 
