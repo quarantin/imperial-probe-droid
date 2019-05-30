@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from utils import format_char_stats, format_char_details
 
-from swgohhelp import fetch_players, fetch_units
+from swgohhelp import fetch_crinolo_stats
 from swgohgg import get_swgohgg_profile_url
 
 help_arena = {
@@ -68,16 +68,18 @@ Showing only your arena squad using a custom format:
 
 opts_arena = {
 	'c':     'chars',
+	'char':  'chars',
 	'chars': 'chars',
+	's':     'ships',
+	'ship':  'ships',
+	'ships': 'ships',
 	'f':     'ships',
 	'fleet': 'ships',
-	's':     'ships',
-	'ships': 'ships',
 }
 
 def parse_opts_arena(args):
 
-	selected_opts = []
+	selected_opts = 'chars'
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -85,8 +87,7 @@ def parse_opts_arena(args):
 		if arg in opts_arena:
 			args.remove(arg)
 			opt = opts_arena[arg]
-			if opt not in selected_opts:
-				selected_opts.append(opt)
+			return args, opt
 
 	return args, selected_opts
 
@@ -96,9 +97,9 @@ def cmd_arena(config, author, channel, args):
 	if not selected_opts:
 		selected_opts.append('chars')
 
-	args, players, error = parse_opts_players(config, author, args)
+	args, selected_players, error = parse_opts_players(config, author, args)
 
-	args, selected_format = parse_opts_format(config, args)
+	args, selected_format = parse_opts_format(config, selected_opts, args)
 
 	if args:
 		return error_unknown_parameters(args)
@@ -106,32 +107,33 @@ def cmd_arena(config, author, channel, args):
 	if error:
 		return error
 
-	ally_codes = [ player.ally_code for player in players ]
-	players_data = fetch_players(config, ally_codes)
-	units = fetch_units(config, ally_codes)
+	ally_codes = [ int(player.ally_code) for player in selected_players ]
+	stats, players = fetch_crinolo_stats(config, ally_codes)
+	players = { player['allyCode']: player for player in players }
 
 	msgs = []
 	for ally_code in ally_codes:
 
-		#player = get_player_name(config, ally_code)
-		last_sync = get_last_sync(config, ally_code, '%Y-%m-%d at %H:%M:%S')
+		#last_sync = get_last_sync(config, ally_code, '%Y-%m-%d at %H:%M:%S')
+		last_sync = 'TODO'
 		profile_url = get_swgohgg_profile_url(ally_code)
 
+		player = players[ally_code]['name']
 		if not player:
 			msgs.extend(error_ally_code_not_found(ally_code))
 			continue
 
-		if 'chars' in selected_opts:
-			rank = get_arena_rank(config, ally_code, 'char')
-			squad = get_arena_squad(config, ally_code, 'char')
+		if 'chars' == selected_opts:
+			rank = players[ally_code]['arena']['char']['rank']
+			squad = players[ally_code]['arena']['char']['squad']
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				unit = players_data[ally_code]['roster'][base_id]
+				roster = { unit['defId']: unit for unit in players[ally_code]['roster'] }
+				unit = roster[base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
-				stats = get_stats(config, ally_code)
 				line = format_char_details(unit, selected_format)
-				line = format_char_stats(stats[base_id], line)
+				line = format_char_stats(stats[ally_code][base_id], line)
 				lines.append(line)
 
 			msgs.append({
@@ -139,19 +141,17 @@ def cmd_arena(config, author, channel, args):
 				'description': 'Last Sync: %s\n%s\n%s' % (last_sync, config['separator'], ('\n'.join(lines)).strip()),
 			})
 
-		if 'ships' in selected_opts:
-			rank = get_arena_rank(config, ally_code, 'ship')
-			squad = get_arena_squad(config, ally_code, 'ship') #, selected_format)
+		if 'ships' == selected_opts:
+			rank = players[ally_code]['arena']['ship']['rank']
+			squad = players[ally_code]['arena']['ship']['squad']
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				unit = players_data[ally_code]['roster'][base_id]
+				roster = { unit['defId']: unit for unit in players[ally_code]['roster'] }
+				unit = roster[base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
-				stats = { base_id: {} }
-				# No stats for ships yet (See with Crinolo)
-				# stats = get_stats(config, ally_code)
 				line = format_char_details(unit, selected_format)
-				line = format_char_stats(stats[base_id], line)
+				#line = format_char_stats(stats[ally_code][base_id], line)
 				lines.append(line)
 
 			msgs.append({

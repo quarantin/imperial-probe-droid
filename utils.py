@@ -205,10 +205,10 @@ def format_char_stats(stats, fmt):
 
 		if pattern in fmt:
 
-			if key not in stats['full']:
+			if key not in stats['stats']['final']:
 				data = 0
 			else:
-				data = stats['full'][key]
+				data = stats['stats']['final'][key]
 
 			if pattern in [ '%critical-damage', '%potency', '%tenacity' ]:
 				data = 100 * data

@@ -7,7 +7,8 @@ from swgohgg import get_unit_list
 import DJANGO
 from swgoh.models import Player, BaseUnit, BaseUnitFaction
 
-DEFAULT_FORMAT = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
+DEFAULT_FORMAT_SHIP = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear\n'
+DEFAULT_FORMAT_CHAR = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
 
 MODSET_OPTS = {
 	'he':             1,
@@ -87,7 +88,7 @@ MODPRIMARIES_OPTS = {
 	'tenacity':          'Tenacity',
 }
 
-def parse_opts_format(config, args):
+def parse_opts_format(config, opts, args):
 
 	args_cpy = iter(list(args))
 
@@ -103,7 +104,11 @@ def parse_opts_format(config, args):
 			args.remove(fmt)
 			return args, fmt
 
-	return args, DEFAULT_FORMAT
+	if 'ships' == opts:
+		return args, DEFAULT_FORMAT_SHIP
+
+	return args, DEFAULT_FORMAT_CHAR
+
 
 
 def parse_opts_ally_codes(config, author, args, min_allies=1):
