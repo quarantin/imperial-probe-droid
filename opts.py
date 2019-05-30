@@ -403,6 +403,17 @@ def parse_opts_mod_filters(args):
 
 	return args, selected_filters
 
+def parse_opts_lang(author):
+
+	try:
+		p = Player.objects.get(discord_id=author.id)
+		return p.language
+
+	except Player.DoesNotExist:
+		pass
+
+	return 'eng_us'
+
 def parse_opts_language(args):
 
 	langs = { lang_code: language for language, lang_code, lang_flag, lang_name in Player.LANGS }
