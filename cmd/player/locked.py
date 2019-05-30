@@ -74,6 +74,8 @@ def parse_opts_locked(args):
 	
 def cmd_locked(config, author, channel, args):
 
+	language = parse_opts_lang(author)
+
 	args, players, error = parse_opts_players(config, author, args)
 
 	args, opts = parse_opts_locked(args)
@@ -86,14 +88,6 @@ def cmd_locked(config, author, channel, args):
 
 	ally_codes = [ player.ally_code for player in players ]
 	players = fetch_players(config, ally_codes)
-
-	language = 'eng_us'
-	try:
-		p = Player.objects.get(discord_id=author.id)
-		language = p.language
-
-	except Player.DoesNotExist:
-		pass
 
 	msgs = []
 	lines = []
