@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from datetime import datetime, timedelta
+
 from opts import *
 from errors import *
 from utils import format_char_stats, format_char_details
@@ -114,8 +116,9 @@ def cmd_arena(config, author, channel, args):
 	msgs = []
 	for ally_code in ally_codes:
 
-		#last_sync = get_last_sync(config, ally_code, '%Y-%m-%d at %H:%M:%S')
-		last_sync = 'TODO'
+		utc_offset = players[ally_code]['poUTCOffsetMinutes']
+		last_sync_date = datetime.fromtimestamp(int(players[ally_code]['updated']) / 1000) + timedelta(minutes=utc_offset)
+		last_sync = last_sync_date.strftime('%Y-%m-%d at %H:%M:%S')
 		profile_url = get_swgohgg_profile_url(ally_code)
 
 		player = players[ally_code]['name']
