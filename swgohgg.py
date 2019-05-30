@@ -7,6 +7,9 @@ import json
 import socket
 from bs4 import BeautifulSoup
 
+import DJANGO
+from swgoh.models import BaseUnit
+
 db = {}
 
 SWGOH_GG_API_URL = 'https://swgoh.gg/api'
@@ -31,7 +34,8 @@ def get_swgohgg_profile_url(ally_code):
 
 def get_avatar_url(base_id):
 
-	chars = get_char_list()
+	units = BaseUnit.objects.all()
+	chars = { x.base_id: { 'image': x.get_image() } for x in units }
 
 	image_url = chars[base_id]['image']
 	if image_url.startswith('//'):
