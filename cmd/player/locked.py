@@ -3,7 +3,7 @@
 from opts import *
 from errors import *
 from swgohgg import get_char_list, get_ship_list
-from swgohhelp import fetch_players, fetch_units, get_player_name
+from swgohhelp import fetch_players, fetch_units, get_unit_name
 
 help_locked = {
 	'title': 'Locked Help',
@@ -86,28 +86,31 @@ def cmd_locked(config, author, channel, args):
 
 	ally_codes = [ player.ally_code for player in players ]
 	players = fetch_players(config, ally_codes)
-	units = fetch_units(config, ally_codes)
+
+	language = 'eng_us'
+	try:
+		p = Player.objects.get(discord_id=author.id)
+		language = p.language
+
+	except Player.DoesNotExist:
+		pass
 
 	msgs = []
 	lines = []
-	for ally_code in ally_codes:
+	for ally_code, player in players.items():
 
-		ally_units = units[ally_code]
-
-		player = get_player_name(config, ally_code)
-		if not player:
-			msgs.extend(error_ally_code_not_found(ally_code))
-			continue
+		ally_units = player['roster']
 
 		if opts in [ 'chars', 'all' ]:
 
 			locked_chars = []
 			for base_id, char in get_char_list().items():
 				if base_id not in ally_units:
-					locked_chars.append(char['name'])
+					char_name = get_unit_name(config, base_id, language)
+					locked_chars.append(char_name)
 
 			if not locked_chars:
-				locked_chars.append('All units unlocked!')
+				locked_chars.append('All characters unlocked!')
 
 			lines.append('**Locked Characters**')
 			lines += sorted(locked_chars)
@@ -118,7 +121,8 @@ def cmd_locked(config, author, channel, args):
 			locked_ships = []
 			for base_id, ship in get_ship_list().items():
 				if base_id not in ally_units:
-					locked_ships.append(ship['name'])
+					ship_name = get_unit_name(config, base_id, language)
+					locked_ships.append(ship_name)
 
 			if not locked_ships:
 				locked_ships.append('All ships unlocked!')
@@ -129,7 +133,7 @@ def cmd_locked(config, author, channel, args):
 
 		msgs.append({
 			'author': {
-				'name': '%s\'s Locked Units' % player,
+				'name': '%s\'s Locked Units' % player['name'],
 			},
 			'title': '',
 			'description': '\n'.join(lines),

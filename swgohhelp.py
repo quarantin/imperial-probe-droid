@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 
-import DJANGO
-from swgoh.models import Translation
-
 from utils import get_units_dict, http_get, http_post, find_ally_in_guild
 
 import json
@@ -24,6 +21,7 @@ SWGOH_HELP = 'https://api.swgoh.help'
 
 CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api'
 CRINOLO_TEST_URL = 'https://crinolo-swgoh.glitch.me/testCalc/api'
+CRINOLO_BETA_URL = 'https://crinolo-swgoh-beta.glitch.me/statCalc/api'
 
 #
 # Internal - Do not call yourself
@@ -113,7 +111,9 @@ def api_swgoh_data(config, project):
 	return call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
 
 def api_crinolo(config, units):
-	url = '%s/characters?flags=withModCalc' % CRINOLO_PROD_URL
+	#url = '%s/characters?flags=withModCalc' % CRINOLO_PROD_URL
+	#url = '%s/characters?flags=withModCalc,gameStyle' % CRINOLO_TEST_URL
+	url = '%s/characters?flags=withModCalc,gameStyle' % CRINOLO_BETA_URL
 	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
 	response, error = http_post(url, json=units)
 	if error:
@@ -261,53 +261,23 @@ def fetch_roster(config, ally_codes):
 
 def fetch_crinolo_stats(config, ally_codes):
 
-	# Remove ally codes for which we already have fetched the data
-	needed = list(ally_codes)
-	for ally_code in ally_codes:
-		if int(ally_code) in db['stats']:
-			needed.remove(ally_code)
+	result = {}
 
-	if needed:
+	players = api_swgoh_players(config, {
+		'allycodes': ally_codes,
+	})
 
-		# Perform API call to retrieve newly needed units info
-		units = api_swgoh_units(config, {
-			'allycodes': ally_codes,
-		})
+	stats = api_crinolo(config, players)
 
-		roster = {}
+	for player in stats:
+		ally_code = player['allyCode']
+		result[ally_code] = {}
+		for unit in player['roster']:
+			base_id = unit['defId']
+			if base_id not in result[ally_code]:
+				result[ally_code][base_id] = unit
 
-		for base_id, unit_roster in units.items():
-			for unit in unit_roster:
-
-				if str(unit['allyCode']) not in needed:
-					continue
-
-				if base_id not in roster:
-					roster[base_id] = []
-
-				roster[base_id].append(unit)
-
-		stats = api_crinolo(config, roster)
-
-		for base_id, unit_roster in stats.items():
-			for unit in unit_roster:
-
-				stats = unit['stats']
-				unit = unit['unit']
-				ally_code = unit['allyCode']
-
-				if ally_code not in db['stats']:
-					db['stats'][ally_code] = {}
-
-				if base_id not in db['stats'][ally_code]:
-					db['stats'][ally_code][base_id] = stats
-
-	stats = {}
-
-	for ally_code in ally_codes:
-		stats[ally_code] = db['stats'][int(ally_code)]
-
-	return stats
+	return result, players
 #
 # Utility functions
 #
@@ -322,68 +292,6 @@ def get_guilds_ally_codes(guilds):
 			ally_codes[ally_code] = ally
 
 	return ally_codes
-
-def get_player_names(config, ally_codes):
-
-	fetch_players(config, ally_codes, 'name')
-
-	names = {}
-	for ally_code in ally_codes:
-		names[ally_code] = db['players'][int(ally_code)]['name']
-
-	return names
-
-def get_player_name(config, ally_code):
-	data = get_player_names(config, [ ally_code ])
-	return data[ally_code]
-
-def get_last_syncs(config, ally_codes, date_format):
-
-	fetch_players(config, ally_codes, 'updated')
-
-	updated = {}
-	for ally_code in ally_codes:
-		updated[ally_code] = datetime.fromtimestamp(int(db['players'][int(ally_code)]['updated']) / 1000).strftime(date_format)
-
-	return updated
-
-def get_last_sync(config, ally_code, date_format):
-	data = get_last_syncs(config, [ ally_code ], date_format)
-	return data[ally_code]
-
-def get_arena_ranks(config, ally_codes, arena_type):
-
-	if arena_type not in [ 'char', 'ship' ]:
-		raise Exception('Invalid arena type: %s. It must be either \'char\' or \'ship\'.' % arena_type)
-
-	fetch_players(config, ally_codes, 'arena')
-
-	ranks = {}
-	for ally_code in ally_codes:
-		ranks[ally_code] = db['players'][int(ally_code)]['arena'][arena_type]['rank']
-
-	return ranks
-
-def get_arena_rank(config, ally_code, arena_type):
-	data = get_arena_ranks(config, [ ally_code ], arena_type)
-	return data[ally_code]
-
-def get_arena_squads(config, ally_codes, arena_type):
-
-	if arena_type not in [ 'char', 'ship' ]:
-		raise Exception('Invalid arena type: %s. It must be either \'char\' or \'ship\'.' % arena_type)
-
-	fetch_players(config, ally_codes, 'arena')
-
-	squads = {}
-	for ally_code in ally_codes:
-		squads[ally_code] = db['players'][int(ally_code)]['arena'][arena_type]['squad']
-
-	return squads
-
-def get_arena_squad(config, ally_code, arena_type):
-	data = get_arena_squads(config, [ ally_code ], arena_type)
-	return data[ally_code]
 
 def get_player_gp_from_roster(roster):
 
@@ -403,28 +311,20 @@ def get_player_gp_from_roster(roster):
 
 	return total, char, ship
 
-def get_stats(config, ally_code):
+def get_unit_name(config, base_id, language):
 
-	stats = {}
+	import DJANGO
+	from swgoh.models import Translation
 
-	ally_code = int(ally_code)
-	players = fetch_players(config, [ ally_code ])
+	try:
+		t = Translation.objects.get(string_id=base_id, language=language)
+		return t.translation
 
-	if 'char_stats' in players[ally_code]:
-		return players[ally_code]['char_stats']
+	except Translation.DoesNotExist:
+		pass
 
-	url = '%s/player/%s/characters?flags=withModCalc' % (CRINOLO_TEST_URL, ally_code)
-	response, error = http_get(url)
-	if error:
-		raise Exception('http_get(%s) failed: %s' % (url, error))
-
-	roster = response.json()
-	for unit in roster:
-		base_id = unit['defId']
-		stats[base_id] = unit['stats']
-
-	players[ally_code]['char_stats'] = stats
-	return stats
+	print('No character name found for base id: %s' % base_id)
+	return None
 
 def get_ability_name(config, skill_id, language):
 
@@ -432,7 +332,7 @@ def get_ability_name(config, skill_id, language):
 	from swgoh.models import Translation
 
 	if skill_id in config['skills']:
-		ability_id = config['skills'][skill_id]
+		ability_id = config['skills'][skill_id]['abilityReference']
 		try:
 			t = Translation.objects.get(string_id=ability_id, language=language)
 			return t.translation
@@ -441,4 +341,4 @@ def get_ability_name(config, skill_id, language):
 			pass
 
 	print('No ability name found for skill id: %s' % skill_id)
-	return 'Not found'
+	return None
