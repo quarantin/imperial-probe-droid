@@ -156,6 +156,8 @@ def cmd_guild_compare(config, author, channel, args):
 
 	msgs = []
 
+	lang = parse_opts_lang(author)
+
 	args, players, error = parse_opts_players(config, author, args, expected_allies=2)
 
 	args, selected_units = parse_opts_unit_names(config, args)
@@ -168,13 +170,6 @@ def cmd_guild_compare(config, author, channel, args):
 
 	if error:
 		return error
-
-	lang = 'eng_us'
-	try:
-		p = Player.objects.get(discord_id=author.id)
-		lang = p.language
-	except Player.DoesNotExist:
-		pass
 
 	fields = []
 	ally_codes = [ player.ally_code for player in players ]
