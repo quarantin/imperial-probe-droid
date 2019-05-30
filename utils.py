@@ -206,11 +206,12 @@ def format_char_stats(stats, fmt):
 		if pattern in fmt:
 
 			if key not in stats['stats']['final']:
+				print('MISSING STAT KEY: %s\n%s' % (key, stats['stats']['final']))
 				data = 0
 			else:
 				data = stats['stats']['final'][key]
 
-			if pattern in [ '%critical-damage', '%potency', '%tenacity' ]:
+			if pattern in PERCENT_STATS:
 				data = 100 * data
 
 			data = round(data)
