@@ -259,14 +259,13 @@ def fetch_roster(config, ally_codes):
 
 	return rosters
 
-def fetch_crinolo_stats(config, ally_codes):
-
-	result = {}
+def fetch_crinolo_stats(config, ally_codes, base_ids=[]):
 
 	players = api_swgoh_players(config, {
 		'allycodes': ally_codes,
 	})
 
+	result = {}
 	stats = api_crinolo(config, players)
 
 	for player in stats:
@@ -274,6 +273,9 @@ def fetch_crinolo_stats(config, ally_codes):
 		result[ally_code] = {}
 		for unit in player['roster']:
 			base_id = unit['defId']
+			if base_id not in base_ids:
+				continue
+
 			if base_id not in result[ally_code]:
 				result[ally_code][base_id] = unit
 
