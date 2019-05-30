@@ -281,13 +281,27 @@ class BaseUnitFaction(models.Model):
 	]
 
 	FACTION_NICKS = {
-		'bh':           'bountyhunter',
-		'ewoks':        'ewok',
-		'fo':           'firstorder',
-		'geos':         'geonosian',
-		'ns':           'nightsisters',
-		'or':           'oldrepublic',
-		'r1':           'rogue_one',
+		'bh':            'bountyhunter',
+		'bountyhunters': 'bountyhunter',
+		'droids':        'droid',
+		'ewoks':         'ewok',
+		'fo':            'firstorder',
+		'galactic':      'republic',
+		'geos':          'geonosian',
+		'geonosians':    'geonosian',
+		'humans':        'human',
+		'jawas':         'jawa',
+		'jedis':         'jedi',
+		'ns':            'nightsisters',
+		'or':            'oldrepublic',
+		'r1':            'rogue_one',
+		'rebells':       'rebels',
+		'rebelles':      'rebels',
+		'separatists':   'separatist',
+		'siths':         'sith',
+		'tuskens':       'tusken',
+		'wookies':       'wookiee',
+		'wookiees':      'wookiee',
 	}
 
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
