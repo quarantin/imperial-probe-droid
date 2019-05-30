@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import cache_expired, ensure_parents, get_units_dict, http_get
+from utils import http_get
 
 import os
 import json
@@ -15,48 +15,6 @@ META_UNITS_URL = 'https://swgoh.gg/meta-report/'
 META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
 META_MODS_URL = 'https://swgoh.gg/mod-meta-report/rank_10/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
-
-def download_unit_list(key, url, index='base_id'):
-
-	by_id = '%s-by-%s' % (key, index)
-	key = '%s-%s' % (key, index)
-	cache = 'cache/%s.json' % key
-	ensure_parents(cache)
-
-	if key in db:
-		return db[by_id]
-
-	elif os.path.exists(cache) and os.path.getsize(cache) > 0 and not cache_expired(cache):
-		fin = open(cache, 'r')
-		data = fin.read()
-		fin.close()
-		unit_list = json.loads(data)
-
-	else:
-		response, error = http_get(url)
-		if error:
-			raise Exception('http_get(%s) failed: %s' % (url, error))
-
-		unit_list = response.json()
-
-		fout = open(cache, 'w+')
-		fout.write(json.dumps(unit_list))
-		fout.close()
-
-	db[key] = unit_list
-	db[by_id] = get_units_dict(unit_list, index)
-	return db[by_id]
-
-def get_char_list(index='base_id'):
-	return download_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL, index=index)
-
-def get_ship_list(index='base_id'):
-	return download_unit_list('ships', '%s/ships/' % SWGOH_GG_API_URL, index=index)
-
-def get_unit_list(index='base_id'):
-	units = get_char_list(index=index)
-	units.update(get_ship_list(index=index))
-	return units
 
 def get_swgohgg_profile_url(ally_code):
 
