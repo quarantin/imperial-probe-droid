@@ -307,7 +307,8 @@ def cmd_player_compare(config, author, channel, args):
 	for key, listval in player_fields.items():
 		pad = (max_key_len - len(key)) + 1
 		if key in [ 'Characters', 'Ships' ]:
-			lines.append('**%s**' % key)
+			lines.append('')
+			lines.append('**`%s`**' % key)
 			values = OrderedDict()
 			for d in listval:
 				for k, v in d.items():
@@ -340,11 +341,6 @@ def cmd_player_compare(config, author, channel, args):
 					fields[key] = []
 				fields[key].append(val)
 
-		max_key_len = 0
-		for key in fields:
-			if len(key) > max_key_len:
-				max_key_len = len(key)
-
 		lines = []
 
 		key = 'Unit still locked'
@@ -364,7 +360,7 @@ def cmd_player_compare(config, author, channel, args):
 				for item in listval:
 					pad = 0
 					aval = item
-					if len(item) < 7:
+					if len(item) < 7 and key != 'Players':
 						pad = max(0, 6 - len(item))
 						aval = '%s%s ' % (pad * '\u00a0', item)
 
