@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from utils import format_char_stats, format_char_details
 
-from swgohhelp import fetch_players, fetch_units, get_player_name, get_last_sync, get_arena_rank, get_arena_squad, get_stats
+from swgohhelp import fetch_players, fetch_units
 from swgohgg import get_swgohgg_profile_url
 
 help_arena = {
@@ -113,7 +113,7 @@ def cmd_arena(config, author, channel, args):
 	msgs = []
 	for ally_code in ally_codes:
 
-		player = get_player_name(config, ally_code)
+		#player = get_player_name(config, ally_code)
 		last_sync = get_last_sync(config, ally_code, '%Y-%m-%d at %H:%M:%S')
 		profile_url = get_swgohgg_profile_url(ally_code)
 
