@@ -2,7 +2,6 @@
 
 from errors import *
 from utils import basicstrip
-from swgohgg import get_unit_list
 
 import DJANGO
 from swgoh.models import Player, BaseUnit, BaseUnitFaction

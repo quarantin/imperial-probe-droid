@@ -47,9 +47,6 @@ def download_unit_list(key, url, index='base_id'):
 	db[by_id] = get_units_dict(unit_list, index)
 	return db[by_id]
 
-def get_gear_list(index='base_id'):
-	return download_unit_list('gear', '%s/gear/' % SWGOH_GG_API_URL, index=index)
-
 def get_char_list(index='base_id'):
 	return download_unit_list('chars', '%s/characters/' % SWGOH_GG_API_URL, index=index)
 
