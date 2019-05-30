@@ -264,6 +264,8 @@ def cmd_player_compare(config, author, channel, args):
 
 	msgs = []
 
+	lang = parse_opts_lang(author)
+
 	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
 	if error:
 		return error
@@ -276,13 +278,6 @@ def cmd_player_compare(config, author, channel, args):
 	ally_codes = [ player.ally_code for player in selected_players ]
 	stats, players = fetch_crinolo_stats(config, ally_codes)
 	print('Done fetching crinolo stats')
-
-	lang = 'eng_us'
-	try:
-		p = Player.objects.get(discord_id=author.id)
-		lang = p.language
-	except Player.DoesNotExist:
-		pass
 
 	for player in players:
 		ally_code = player['allyCode']
