@@ -5,7 +5,7 @@ from errors import *
 from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend
 from constants import EMOJIS, SHORT_STATS
 
-from swgohgg import get_char_list, get_avatar_url, get_full_avatar_url
+from swgohgg import get_avatar_url, get_full_avatar_url
 from swgohhelp import fetch_players
 
 help_recos = {
