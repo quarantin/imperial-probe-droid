@@ -216,9 +216,9 @@ class BaseUnit(models.Model):
 			facs = BaseUnitFaction.objects.filter(faction__in=factions)
 			base_ids = [ faction.unit.base_id for faction in facs ]
 			for unit in all_units:
-				if unit['base_id'] in base_ids and unit not in selected_units:
+				if unit.base_id in base_ids and unit not in selected_units:
 					selected_units.append(unit)
-					base_ids.remove(unit['base_id'])
+					base_ids.remove(unit.base_id)
 
 		except BaseUnitFaction.DoesNotExist:
 			pass
