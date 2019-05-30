@@ -6,9 +6,12 @@ from opts import *
 from errors import *
 from constants import EMOJIS
 from collections import OrderedDict
-from utils import dotify, get_stars_as_emojis, add_stats, ROMAN_NUMBERS
+from utils import get_stars_as_emojis, ROMAN_NUMBERS
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_players, fetch_roster, get_ability_name, fetch_crinolo_stats
+
+import DJANGO
+from swgoh.models import BaseUnit, BaseUnitSkill
 
 help_player_compare = {
 	'title': 'Player Compare Help',
@@ -54,19 +57,22 @@ def get_player_stats(config, roster, lang):
 
 	stats = {
 		'count': 0,
-		'cumul-gp': 0,
+		'gp': 0,
 		'char': {
 			'levels': {},
-			'stars': {},
+			'stars': OrderedDict(),
+			'gp': 0,
 		},
 		'ship': {
 			'levels': {},
-			'stars': {},
+			'stars': OrderedDict(),
+			'gp': 0,
 		},
 		'levels': {},
 		'gears': {},
 		'stars': {},
 		'zetas': {},
+		'omegas': {},
 	}
 
 	for i in range(0, 85 + 1):
@@ -85,29 +91,45 @@ def get_player_stats(config, roster, lang):
 
 	for base_id, unit in roster.items():
 
-		gp    = unit['gp']
-		typ   = unit['type'] == 1 and 'char' or 'ship'
-		level = unit['level']
-		gear  = unit['gearLevel']
-		stars = unit['starLevel']
-		zetas = unit['zetas']
+		gp     = unit['gp']
+		typ    = unit['combatType'] == 1 and 'char' or 'ship'
+		level  = unit['level']
+		gear   = unit['gear']
+		stars  = unit['rarity']
+		skills = unit['skills']
 
-		stats['count'] += 1
-		stats['cumul-gp'] += gp
+		stats['count']         += 1
+		stats['gp']            += gp
 		stats['levels'][level] += 1
-		stats['gears'][gear] += 1
-		stats['stars'][stars] += 1
+		stats['gears'][gear]   += 1
+		stats['stars'][stars]  += 1
 
 		stats[typ]['levels'][level] += 1
-		stats[typ]['stars'][stars] += 1
+		stats[typ]['stars'][stars]  += 1
+		stats[typ]['gp']            += gp
 
-		for zeta in zetas:
+		for skill_id, skill in config['skills'].items():
+			skill_name = get_ability_name(config, skill_id, lang)
+			param = {
+				'name': skill_name,
+				'isZeta': skill['isZeta'],
+				'count': 0,
+			}
+			if skill['isZeta']:
+				stats['zetas'][skill_id] = param
+			else:
+				stats['omegas'][skill_id] = param
 
-			zeta_id = zeta['id']
-			zeta_name = get_ability_name(config, zeta_id, lang)
-			if zeta_name not in stats['zetas']:
-				stats['zetas'][zeta_name] = 0
-			stats['zetas'][zeta_name] += 1
+		for skill in skills:
+
+			if skill['tier'] != 8:
+				continue
+
+			skill_id = skill['id']
+			if skill['isZeta']:
+				stats['zetas'][skill_id]['count'] += 1
+			else:
+				stats['omegas'][skill_id]['count'] += 1
 
 	return stats
 
@@ -119,107 +141,29 @@ def get_stat_detail(name, stats, percent=False):
 		coef = 100
 		percent_sign = '%'
 
-	full_stat = name in stats['full'] and stats['full'][name] * coef or 0
-	mods_stat = name in stats['mods'] and stats['mods'][name] * coef or 0
-	gear_stat = name in stats['gear'] and stats['gear'][name] * coef or 0
-
-	base_stat = round(full_stat, 3) - mods_stat - gear_stat
+	final_stat = name in stats['stats']['final'] and stats['stats']['final'][name] * coef or 0
 
 	if percent is True:
 
-		string_stat = '+'.join([
-			'%.02g' % base_stat,
-			'%.02g' % mods_stat,
-			'%.02g' % gear_stat,
-		])
-
-		#return '**`%.02g%%`** (`%s`)' % (round(full_stat, 3), string_stat)
-		return '%.02g%%' % round(full_stat, 3)
+		#return '**`%.02g%%`** (`%s`)' % (round(final_stat, 3), string_stat)
+		return '%.02g%%' % round(final_stat, 3)
 
 	else:
-		string_stat = '+'.join([
-			'%d' % base_stat,
-			'%d' % mods_stat,
-			'%d' % gear_stat,
-		])
-
-		#return '**`%d`** (`%s`)' % (full_stat, string_stat)
-		return '%d' % full_stat
+		#return '**`%d`** (`%s`)' % (final_stat, string_stat)
+		return '%d' % final_stat
 
 
-def calc_def(d, key, level):
-
-	armor = 0
-	if key in d:
-		armor = d[key]
-
-	return armor / (armor + (7.5 * level)) * 100
-
-def get_def_stat_detail(name, stats, level):
-
-	base_stat = calc_def(stats['base'], name, level)
-	mods_stat = calc_def(stats['mods'], name, level)
-	gear_stat = calc_def(stats['gear'], name, level)
-	full_stat = calc_def(stats['full'], name, level)
-
-	string_stat = '+'.join([
-		'%.02g' % base_stat,
-		'%.02g' % mods_stat,
-		'%.02g' % gear_stat,
-	])
-
-	#return '**`%.02g%%`** (`%s`)' % (full_stat, string_stat)
-	return '%.02g%%' % full_stat
+def get_def_stat_detail(name, stats):
+	final_stat = name in stats['stats']['final'] and stats['stats']['final'][name] * 100 or 0
+	return '%.02g%%' % final_stat
 
 def get_cc_stat_detail(name, stats):
-
-	rating_name = name.replace('Chance', 'Rating')
-
-	mods_stat   = name        in stats['mods'] and stats['mods'][name]        or 0
-	gear_stat   = rating_name in stats['gear'] and stats['gear'][rating_name] or 0
-	base_stat   = rating_name in stats['base'] and stats['base'][rating_name] or 0
-	full_stat   = rating_name in stats['full'] and stats['full'][rating_name] or 0
-
-	if name not in stats['full']:
-		if name == 'Physical Critical Chance':
-			name = 'Physical Critical Rating'
-		elif name == 'Special Critical Chance':
-			name = 'Special Critical Rating'
-		else:
-			raise Exception('Unsupported stat: %s' % name)
-
-	cc = ((full_stat / 2400 + 0.1) + stats['full'][name]) * 100
-
-	#cc = round(cc, 3)
-
-	mods_stat = round(mods_stat * 100, 3)
-	gear_stat = round(((gear_stat / 2400) + 0.1) * 100, 3)
-	base_stat = round(((base_stat / 2400) + 0.1) * 100 - 10, 3)
-
-	string_stat = '+'.join([
-		'%.02g' % base_stat,
-		'%.02g' % mods_stat,
-		'%.02g' % gear_stat,
-	])
-
-	#return '**`%.02g%%`** (`%s`)' % (cc, string_stat)
-	return '%.02g%%' % cc
+	final_stat = name in stats['stats']['final'] and stats['stats']['final'][name] * 100 or 0
+	return '%.02g%%' % final_stat
 
 def get_cd_stat_detail(name, stats):
-
-	base_stat   = (name in stats['base'] and stats['base'][name] or 0) * 100
-	mods_stat   = (name in stats['mods'] and stats['mods'][name] or 0) * 100
-	gear_stat   = (name in stats['gear'] and stats['gear'][name] or 0) * 100
-	full_stat   = (name in stats['full'] and stats['full'][name] or 0) * 100
-
-	string_stat = '+'.join([
-		'%d' % base_stat,
-		'%d' % mods_stat,
-		'%d' % gear_stat,
-	])
-
-	#return '**`%d%%`** (`%s`)' % (full_stat, string_stat)
-	return '%d%%' % full_stat
+	final_stat = (name in stats['stats']['final'] and stats['stats']['final'][name] or 0) * 100
+	return '%d%%' % final_stat
 
 def unit_to_dict(config, player, roster, stats, base_id, lang):
 
@@ -229,23 +173,19 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 
 	spacer = EMOJIS['']
 	if base_id in roster:
+		stat = stats[base_id]
 		unit = roster[base_id]
 
-		res['Stars'] = get_stars_as_emojis(unit['starLevel'])
-		res['GP']     = '%d'  % unit['gp']
-		res['Level']  = '%d' % unit['level']
-		res['Gear']   = '%s' % unit['gearLevel']
-
-		stat = stats[base_id]
-		add_stats(stat)
-
-		level = player['roster'][base_id]['level']
+		res['Stars'] = get_stars_as_emojis(unit['rarity'])
+		res['GP']    = '%d'  % unit['gp']
+		res['Level'] = '%d' % unit['level']
+		res['Gear']  = '%d' % unit['gear']
 
 		# Health, Protection, Armor, Resistance
 		res['Health']     = get_stat_detail('Health',         stat)
 		res['Protection'] = get_stat_detail('Protection',     stat)
-		res['Armor']      = get_def_stat_detail('Armor',      stat, level)
-		res['Resistance'] = get_def_stat_detail('Resistance', stat, level)
+		res['Armor']      = get_def_stat_detail('Armor',      stat)
+		res['Resistance'] = get_def_stat_detail('Resistance', stat)
 
 		# Speed
 		res['Speed'] = get_stat_detail('Speed', stat)
@@ -255,29 +195,39 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 		res['Tenacity'] = get_stat_detail('Tenacity', stat, percent=True)
 
 		# CD, CC, Damage
-		res['Phys.Damage']     = get_stat_detail('Physical Damage',             stat)
-		res['Spec.Damage']     = get_stat_detail('Special Damage',              stat)
-		res['CD']              = get_cd_stat_detail('Critical Damage',          stat)
-		res['CC.Phys']         = get_cc_stat_detail('Physical Critical Chance', stat)
-		res['CC.Spec']         = get_cc_stat_detail('Special Critical Chance',  stat)
+		res['Phys.Damage'] = get_stat_detail('Physical Damage',             stat)
+		res['Spec.Damage'] = get_stat_detail('Special Damage',              stat)
+		res['CD']          = get_cd_stat_detail('Critical Damage',          stat)
+		res['CC.Phys']     = get_cc_stat_detail('Physical Critical Chance', stat)
+		res['CC.Spec']     = get_cc_stat_detail('Special Critical Chance',  stat)
+
+		real_unit = BaseUnit.objects.get(base_id=base_id)
+		unit_skills = BaseUnitSkill.objects.filter(unit=real_unit)
+		for skill in unit_skills:
+			skill_id = skill.skill_id
+			skill_name = get_ability_name(config, skill_id, lang)
+			res[skill_id] = {
+				'tier': ' T0 ',
+				'name': skill_name,
+				'isZeta': skill.is_zeta,
+			}
 
 		# Abilities
-		for skill in player['roster'][base_id]['skills']:
-			is_zeta = skill['isZeta']
+		for skill in stat['skills']:
+			skill_id = skill['id']
 			skill_tier = skill['tier']
-			emoji = ' `\u00a0L%d\u00a0` ' % skill_tier
+			emoji = ' T%d ' % skill_tier
 			if skill_tier == 8:
-				emoji = is_zeta and EMOJIS['zeta'] or EMOJIS['omega']
+				emoji = '`%s`' % (skill['isZeta'] and EMOJIS['zeta'] or EMOJIS['omega'])
 
-			skill_name = get_ability_name(config, skill['id'], lang)
-			res[skill_name] = emoji
+			res[skill_id]['tier'] = emoji
 	else:
 		key = 'Unit still locked'
 		res = { key: player['name'] }
 
 	return res
 
-def player_to_embedfield(config, player, roster, crinolo_stats, lang):
+def player_to_embedfield(config, player, roster, lang):
 
 	stats = get_player_stats(config, roster, lang)
 
@@ -292,17 +242,18 @@ def player_to_embedfield(config, player, roster, crinolo_stats, lang):
 	res['ID']         = player['id']
 	res['name']       = player['name']
 	res['Ally Code']  = player['allyCode']
-	res['GP']         = player['gp']['total']
-	res['Char GP']    = player['gp']['char']
-	res['Ship GP']    = player['gp']['ship']
+	res['GP']         = stats['gp']
+	res['Char GP']    = stats['char']['gp']
+	res['Ship GP']    = stats['ship']['gp']
 	res['Level']      = player['level']
 	res['Rank']       = player['arena']['char']['rank']
 	res['Fleet Rank'] = player['arena']['ship']['rank']
 	res['Guild']      = guild_name
 
+	res['Characters'] = OrderedDict()
 	for star in reversed(range(1, 7 + 1)):
 		stars = get_stars_as_emojis(star)
-		res[stars] = stats['char']['stars'][star]
+		res['Characters'][stars] = stats['char']['stars'][star]
 
 	res['L85 Units'] = stats['char']['levels'][85]
 
@@ -313,10 +264,12 @@ def player_to_embedfield(config, player, roster, crinolo_stats, lang):
 		res[gear_label] = stats['gears'][gear]
 
 	res['Zetas'] = len(stats['zetas'])
+	res['Omegas'] = len(stats['omegas'])
 
+	res['Ships'] = OrderedDict()
 	for star in reversed(range(1, 7 + 1)):
 		stars = get_stars_as_emojis(star)
-		res[stars] = stats['ship']['stars'][star]
+		res['Ships'][stars] = stats['ship']['stars'][star]
 
 	res['L85 Ships'] = stats['ship']['levels'][85]
 
@@ -326,7 +279,7 @@ def cmd_player_compare(config, author, channel, args):
 
 	msgs = []
 
-	args, players, error = parse_opts_players(config, author, args, expected_allies=2)
+	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
 	if error:
 		return error
 
@@ -335,10 +288,10 @@ def cmd_player_compare(config, author, channel, args):
 		return error_unknown_parameters(args)
 
 	fields = []
-	ally_codes = [ player.ally_code for player in players ]
-	players_data = fetch_players(config, ally_codes)
-	rosters = fetch_roster(config, ally_codes)
-	stats = fetch_crinolo_stats(config, ally_codes)
+	ally_codes = [ player.ally_code for player in selected_players ]
+	base_ids = [ unit['base_id'] for unit in selected_units ]
+	stats, players = fetch_crinolo_stats(config, ally_codes, base_ids)
+	print('Done fetching crinolo stats')
 
 	lang = 'eng_us'
 	try:
@@ -347,15 +300,19 @@ def cmd_player_compare(config, author, channel, args):
 	except Player.DoesNotExist:
 		pass
 
-	for ally_code, player in players_data.items():
-		fields.append(player_to_embedfield(config, player, rosters[ally_code], stats[ally_code], lang))
+	for player in players:
+		ally_code = player['allyCode']
+		fields.append(player_to_embedfield(config, player, stats[ally_code], lang))
 
 	player_fields = OrderedDict()
 	for field in fields:
 		for key, val in field.items():
 			if key not in player_fields:
 				player_fields[key] = []
-			player_fields[key].append(str(val))
+			if type(val) is not list:
+				player_fields[key].append(val)
+			else:
+				player_fields[key].append(str(val))
 
 	max_key_len = 0
 	for key in player_fields:
@@ -365,9 +322,19 @@ def cmd_player_compare(config, author, channel, args):
 	lines = []
 	for key, listval in player_fields.items():
 		pad = (max_key_len - len(key)) + 1
-		if key.startswith('★'):
-			lines.append('**%s**`:| %s`' % (key, ' | '.join(listval)))
+		if key in [ 'Characters', 'Ships' ]:
+			lines.append('**%s**' % key)
+			values = OrderedDict()
+			for d in listval:
+				for k, v in d.items():
+					if k not in values:
+						values[k] = []
+					values[k].append(str(v))
+
+			for k, v in values.items():
+				lines.append('**%s**`:| %s`' % (k, ' | '.join(v)))
 		else:
+			listval = [ '%s' % i for i in listval ]
 			lines.append('**`%s`**`:%s| %s`' % (key, pad * '\u00a0', ' | '.join(listval)))
 
 	msgs.append({
@@ -379,8 +346,9 @@ def cmd_player_compare(config, author, channel, args):
 
 		units = []
 		fields = OrderedDict()
-		for ally_code, player in players_data.items():
-			units.append(unit_to_dict(config, player, rosters[ally_code], stats[ally_code], unit['base_id'], lang))
+		for player in players:
+			ally_code = player['allyCode']
+			units.append(unit_to_dict(config, player, stats[ally_code], stats[ally_code], unit['base_id'], lang))
 
 		for someunit in units:
 			for key, val in someunit.items():
@@ -403,12 +371,42 @@ def cmd_player_compare(config, author, channel, args):
 			if fields:
 				lines.append('')
 
+		first_time = True
 		for key, listval in fields.items():
-			pad = (max_key_len - len(key)) + 1
+
 			if key in base_stats:
-				lines.append('**`%s`**`:%s| %s`' % (key, pad * '\u00a0', ' | '.join(listval)))
+
+				newlistval = []
+				for item in listval:
+					pad = 0
+					aval = item
+					if len(item) < 7:
+						pad = max(0, 6 - len(item))
+						aval = '%s%s ' % (pad * '\u00a0', item)
+
+					newlistval.append(aval)
+
+				if key == 'Players':
+					lines.append('**Stats**')
+					lines.append(config['separator'])
+
+				key_string = '**`%s`**' % key
+				if key in [ 'Players', 'Stars' ]:
+					key_string = ''
+				lines.append('`|%s|`%s' % ('|'.join(newlistval), key_string))
 			else:
-				lines.append('**`%s`**`:%s|`%s' % (key, pad * '\u00a0', '` | `'.join(listval)))
+				if first_time:
+					first_time = False
+					lines.append(config['separator'])
+					lines.append('')
+					lines.append('**Skills**')
+					lines.append(config['separator'])
+
+				ability = listval[0]['name']
+				tiers = [ x['tier'] for x in listval ]
+				print(listval)
+				print(tiers)
+				lines.append('`|%s|`**`%s`**' % ('|'.join(tiers), ability))
 
 		msgs.append({
 			'author': {

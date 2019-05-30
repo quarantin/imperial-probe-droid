@@ -92,9 +92,13 @@ def parse_skills(filename='skillList.json'):
 	for skill in skill_list:
 
 		skill_id          = skill['id']
+		skill_is_zeta     = skill['isZeta']
 		skill_ability_ref = skill['abilityReference']
 
-		skills[skill_id] = skill_ability_ref
+		skills[skill_id] = {
+			'isZeta': skill_is_zeta,
+			'abilityReference': skill_ability_ref,
+		}
 
 	config['skills'] = skills
 
