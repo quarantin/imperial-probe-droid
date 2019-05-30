@@ -332,7 +332,7 @@ def cmd_player_compare(config, author, channel, args):
 		fields = OrderedDict()
 		for player in players:
 			ally_code = player['allyCode']
-			units.append(unit_to_dict(config, player, stats[ally_code], stats[ally_code], unit['base_id'], lang))
+			units.append(unit_to_dict(config, player, stats[ally_code], stats[ally_code], unit.base_id, lang))
 
 		for someunit in units:
 			for key, val in someunit.items():
@@ -394,8 +394,8 @@ def cmd_player_compare(config, author, channel, args):
 
 		msgs.append({
 			'author': {
-				'name': unit['name'],
-				'icon_url': get_avatar_url(unit['base_id']),
+				'name': unit.name,
+				'icon_url': get_avatar_url(unit.base_id),
 			},
 			'description': '\n'.join(lines),
 		})
