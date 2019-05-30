@@ -76,8 +76,8 @@ def cmd_recos(config, author, channel, args):
 
 		for ref_unit in selected_units:
 
-			name    = ref_unit['name']
-			base_id = ref_unit['base_id']
+			name    = ref_unit.name
+			base_id = ref_unit.base_id
 			roster  = players[ally_code]['roster']
 			if name in config['recos']['by-name']:
 				recos = config['recos']['by-name'][name]
@@ -130,11 +130,11 @@ def cmd_recos(config, author, channel, args):
 
 				elif base_id not in roster:
 					unit = None
-					line = '%s is still locked for %s' % (ref_unit['name'], discord_id)
+					line = '%s is still locked for %s' % (ref_unit.name, discord_id)
 
 				else:
 					unit = roster[base_id]
-					line = '%s has no mods for %s' % (ref_unit['name'], discord_id)
+					line = '%s has no mods for %s' % (ref_unit.name, discord_id)
 
 				lines.append(config['separator'])
 				lines.append(line)
@@ -150,16 +150,16 @@ def cmd_recos(config, author, channel, args):
 					'title': '== Recommended Mod Sets and Primary Stats ==',
 					'description': '\n'.join(lines),
 					'author': {
-						'name': ref_unit['name'],
+						'name': ref_unit.name,
 						'icon_url': get_avatar_url(base_id),
 					},
-					'image': get_full_avatar_url(config, ref_unit['image'], unit),
+					'image': get_full_avatar_url(config, ref_unit.image, unit),
 					'fields': [ field_legend ],
 				})
 			else:
 				msgs.append({
 					'title': '== No Recommended Mod Sets ==',
-					'description': '%s is missing from the recommendation spreadsheet' % ref_unit['name'],
+					'description': '%s is missing from the recommendation spreadsheet' % ref_unit.name,
 				})
 
 	return msgs

@@ -43,7 +43,7 @@ def cmd_gear(config, author, channel, args):
 	msgs = []
 	lines = []
 	for unit in units:
-		url = 'http://%s/swgoh/gear-levels/%s/%s/' % (config['server'], unit['base_id'], player.ally_code)
+		url = 'http://%s/swgoh/gear-levels/%s/%s/' % (config['server'], unit.base_id, player.ally_code)
 		response, error = http_get(url)
 		if error:
 			raise Exception('101 %s' % error)
@@ -67,10 +67,10 @@ def cmd_gear(config, author, channel, args):
 			'title': '== Needed Gear ==',
 			'description': '\n'.join(lines),
 			'author': {
-				'name': unit['name'],
-				'icon_url': get_avatar_url(unit['base_id']),
+				'name': unit.name,
+				'icon_url': get_avatar_url(unit.base_id),
 			},
-			'image': unit['image'],
+			'image': unit.get_image(),
 		})
 
 	return msgs

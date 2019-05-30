@@ -207,15 +207,15 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 
 	arg = basicstrip(' '.join(args))
 
-	for base_id, unit in units.items():
+	for unit in units:
 
-		if unit['combat_type'] != combat_type:
+		if int(unit.combat_type) != combat_type:
 			continue
 
 		if arg in config['nicks']:
 			arg = basicstrip(config['nicks'][arg])
 
-		name = basicstrip(unit['name'])
+		name = basicstrip(unit.name)
 
 		if arg == name:
 			full_match.append(unit)
@@ -248,7 +248,7 @@ def parse_opts_unit_names(config, args, combat_type=1):
 	if not args:
 		return args, []
 
-	units = get_unit_list()
+	units = BaseUnit.objects.all()
 
 	match = parse_opts_unit_names_broad(config, args, units, combat_type)
 	if match:
@@ -288,15 +288,15 @@ def parse_opts_unit_names_v1(config, args, combat_type=1):
 			larg = basicstrip(config['nicks'][larg])
 
 		found = False
-		units = get_unit_list()
+		units = BaseUnit.objects.all()
 
 		new_units = []
-		for base_id, unit in units.items():
+		for unit in units:
 
-			if unit['combat_type'] != combat_type:
+			if unit.combat_type != combat_type:
 				continue
 
-			name1 = basicstrip(unit['name'])
+			name1 = basicstrip(unit.name)
 			name2 = name1.replace('î', 'i').replace('Î', 'i')
 			name3 = name1.replace('-', '')
 			name4 = name1.replace('\'', '')
