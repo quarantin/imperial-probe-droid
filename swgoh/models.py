@@ -282,6 +282,7 @@ class BaseUnitFaction(models.Model):
 
 	FACTION_NICKS = {
 		'bh':           'bountyhunter',
+		'ewoks':        'ewok',
 		'fo':           'firstorder',
 		'geos':         'geonosian',
 		'ns':           'nightsisters',
