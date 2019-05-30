@@ -235,18 +235,6 @@ def exit_bot():
 def roundup(number):
 	return Decimal(number).quantize(0, ROUND_HALF_UP)
 
-def get_short_url(url):
-	full_url = '%s%s' % (SHORTENER_URL, url)
-	response = requests.get(full_url)
-	return response.content.decode('utf-8')
-
-def cache_expired(filepath, timedelta=timedelta(hours=6)):
-
-	modified = datetime.fromtimestamp(os.path.getmtime(filepath))
-	oldest = datetime.now() - timedelta
-
-	return modified < oldest
-
 def expired(expiration_date):
 	return expiration_date < datetime.now()
 
