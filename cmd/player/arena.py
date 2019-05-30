@@ -154,7 +154,7 @@ def cmd_arena(config, author, channel, args):
 				unit = roster[base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
-				#line = format_char_stats(stats[ally_code][base_id], line)
+				line = format_char_stats(stats[ally_code][base_id], line)
 				lines.append(line)
 
 			msgs.append({

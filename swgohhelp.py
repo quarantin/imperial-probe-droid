@@ -111,9 +111,7 @@ def api_swgoh_data(config, project):
 	return call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
 
 def api_crinolo(config, units):
-	#url = '%s/characters?flags=withModCalc' % CRINOLO_PROD_URL
-	#url = '%s/characters?flags=withModCalc,gameStyle' % CRINOLO_TEST_URL
-	url = '%s/characters?flags=withModCalc,gameStyle' % CRINOLO_BETA_URL
+	url = '%s?flags=gameStyle' % CRINOLO_BETA_URL
 	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
 	response, error = http_post(url, json=units)
 	if error:
