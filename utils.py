@@ -157,34 +157,6 @@ def download_spreadsheet(url, cols):
 
 	return iter(content)
 
-def add_stats(stats):
-
-	if 'full' in stats:
-		return stats
-
-	#if 'base' not in stats:
-	#	print(json.dump(stats, indent=4))
-	#	raise Exception("base is missing from stats")
-
-	if 'base' not in stats:
-		res = stats
-
-	else:
-		res = dict(stats['base'])
-
-		for substat in [ 'gear', 'mods' ]:
-
-
-			for key in stats[substat]:
-				val = stats[substat][key]
-				if key not in res:
-					res[key] = val
-				else:
-					res[key] += val
-
-	stats['full'] = res
-	return stats
-
 def find_ally_in_guild(guild, ally_codes):
 
 	for ally_code in ally_codes:
@@ -228,8 +200,6 @@ def get_unit_type(base_id):
 	return unit['combat_type'] == 1 and 'char' or 'ship'
 
 def format_char_stats(stats, fmt):
-
-	add_stats(stats)
 
 	for pattern, key in STATS_LUT.items():
 
