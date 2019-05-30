@@ -11,7 +11,7 @@ import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill
 
 """
 	'abilityList': {
@@ -47,7 +47,8 @@ collections = {
 }
 
 urls = {
-	'cache/characters.json': 'https://swgoh.gg/api/characters/'
+	'cache/characters.json': 'https://swgoh.gg/api/characters/',
+	'cache/ships.json':      'https://swgoh.gg/api/ships/',
 }
 
 def fetch_all_collections(config):
@@ -176,27 +177,55 @@ def load_json(filename):
 
 def parse_units():
 
-	filename = 'cache/characters.json'
+	with transaction.atomic():
+		for filename in [ 'cache/characters.json', 'cache/ships.json' ]:
+			units = load_json(filename)
+			for unit in units:
+
+				char = dict(unit)
+
+				categories      = char.pop('categories')
+				ability_classes = char.pop('ability_classes')
+
+				if 'ship' in char:
+					ship = char.pop('ship')
+
+				if 'gear_levels' in char:
+					gear_levels = char.pop('gear_levels')
+
+				char['url']     = os.path.basename(os.path.dirname(char['url']))
+				char['image']   = os.path.basename(char['image'])
+
+				base_unit, created = BaseUnit.objects.update_or_create(**char)
+
+				for category in categories:
+					faction = BaseUnitFaction.is_supported_faction(category)
+					if faction:
+						obj, created = BaseUnitFaction.objects.update_or_create(unit=base_unit, faction=faction)
+
+def parse_skills():
+
+	filename = 'cache/skillList.json'
+	skill_list = load_json(filename)
+	skills = {}
+	for skill in skill_list:
+		skill_id = skill['id']
+		skills[skill_id] = skill['isZeta']
+
+	filename = 'cache/unitsList_base.json'
 	units = load_json(filename)
 	with transaction.atomic():
 		for unit in units:
-
-			char = dict(unit)
-
-			ability_classes = char.pop('ability_classes')
-			categories      = char.pop('categories')
-			gear_levels     = char.pop('gear_levels')
-			ship            = char.pop('ship')
-
-			char['url']     = os.path.basename(os.path.dirname(char['url']))
-			char['image']   = os.path.basename(char['image'])
-
-			base_unit, created = BaseUnit.objects.update_or_create(**char)
-
-			for category in categories:
-				faction = BaseUnitFaction.is_supported_faction(category)
-				if faction:
-					obj, created = BaseUnitFaction.objects.update_or_create(unit=base_unit, faction=faction)
+			base_id = unit['baseId']
+			try:
+				real_unit = BaseUnit.objects.get(base_id=base_id)
+			except BaseUnit.DoesNotExist:
+				continue
+			unit_skills = unit['skillReferenceList']
+			for skill in unit_skills:
+				skill_id = skill['skillId']
+				is_zeta = skills[skill_id]
+				obj, created = BaseUnitSkill.objects.update_or_create(skill_id=skill_id, is_zeta=is_zeta, unit=real_unit)
 
 first_time = False
 version_url = 'https://api.swgoh.help/version'
@@ -227,9 +256,10 @@ fetch_all_collections(config)
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 	print('Parsing %s translations...' % language.lower())
-	parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
-	parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
-	parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
+	#parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
+	#parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
+	#parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
 
 parse_localization_files()
 parse_units()
+parse_skills()
