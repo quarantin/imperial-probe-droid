@@ -212,13 +212,13 @@ def cmd_guild_compare(config, author, channel, args):
 
 					roster[base_id].append(player_unit)
 # TODO handle lang
-			fields.append(unit_to_embedfield(config, guild, roster, unit['base_id'], lang))
+			fields.append(unit_to_embedfield(config, guild, roster, unit.base_id, lang))
 
 		msgs.append({
-			'title': '%s' % unit['name'],
+			'title': '%s' % unit.name,
 			'author': {
-				'name': unit['name'],
-				'icon_url': get_avatar_url(unit['base_id']),
+				'name': unit.name,
+				'icon_url': get_avatar_url(unit.base_id),
 			},
 			'fields': fields,
 		})
