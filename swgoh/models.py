@@ -404,6 +404,11 @@ class BaseUnitGear(models.Model):
 
 		return BaseUnitGear.objects.filter(unit__base_id=base_id)
 
+class BaseUnitSkill(models.Model):
+	skill_id = models.CharField(max_length=30)
+	is_zeta = models.BooleanField(default=False)
+	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
+
 class PlayerCharacter(models.Model):
 	player = models.ForeignKey(Player, on_delete=models.CASCADE)
 	character = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
