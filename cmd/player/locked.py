@@ -2,7 +2,6 @@
 
 from opts import *
 from errors import *
-from swgohgg import get_char_list, get_ship_list
 from swgohhelp import fetch_players, fetch_units, get_unit_name
 
 help_locked = {
@@ -89,6 +88,11 @@ def cmd_locked(config, author, channel, args):
 	ally_codes = [ player.ally_code for player in players ]
 	players = fetch_players(config, ally_codes)
 
+	units = BaseUnit.objects.filter(combat_type=1).values()
+	ships = BaseUnit.objects.filter(combat_type=2).values()
+	char_list = { x['base_id']: x for x in units }
+	ship_list = { x['base_id']: x for x in ships }
+
 	msgs = []
 	lines = []
 	for ally_code, player in players.items():
@@ -98,7 +102,7 @@ def cmd_locked(config, author, channel, args):
 		if opts in [ 'chars', 'all' ]:
 
 			locked_chars = []
-			for base_id, char in get_char_list().items():
+			for base_id, char in char_list.items():
 				if base_id not in ally_units:
 					char_name = get_unit_name(config, base_id, language)
 					locked_chars.append(char_name)
@@ -113,7 +117,7 @@ def cmd_locked(config, author, channel, args):
 		if opts in [ 'ships', 'all' ]:
 
 			locked_ships = []
-			for base_id, ship in get_ship_list().items():
+			for base_id, ship in ship_list.items():
 				if base_id not in ally_units:
 					ship_name = get_unit_name(config, base_id, language)
 					locked_ships.append(ship_name)
