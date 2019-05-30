@@ -7,7 +7,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from utils import download_spreadsheet, expired, get_dict_by_index, http_get, parse_modsets
-from swgohgg import get_char_list
+
+import DJANGO
+from swgoh.models import BaseUnit
 
 REAL_NAMES = {
 	'Ahsoka Tano Fulcrum': 'Ahsoka Tano (Fulcrum)',
@@ -104,7 +106,8 @@ def fetch_crouching_rancor_recos(recos=[]):
 
 	data = response.json()
 
-	chars = get_char_list(index='name')
+	units = BaseUnit.objects.all().values('name', 'base_id')
+	chars = { x['name']: { 'base_id': x['base_id'] } for x in units }
 
 	for reco in data['data']:
 
@@ -118,7 +121,7 @@ def fetch_crouching_rancor_recos(recos=[]):
 		if real_name not in chars:
 			raise Exception('Missing name `%s` from DB' % real_name)
 
-		base_id = chars[ real_name ]['base_id']
+		base_id = chars[real_name]['base_id']
 
 		info_name = name
 		if info_name in INFO_NAMES:
@@ -135,9 +138,6 @@ def fetch_crouching_rancor_recos(recos=[]):
 
 		else:
 			raise Exception('Info does not start with char name for %s / %s / %s / %s' % (real_name, name, info_name, info))
-
-		if real_name not in chars:
-			raise Exception('Missing %s from DB' % real_name)
 
 		if info and info[0] != 'z':
 			info = info[0].upper() + info[1:]
@@ -197,7 +197,8 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 	if key in db and expire in db and not expired(db[expire]):
 		return db[key]
 
-	char_list = get_char_list(index='name')
+	units = BaseUnit.objects.all().values('name', 'base_id')
+	char_list = { x['name']: { 'base_id': x['base_id'] } for x in units }
 	url = 'https://swgoh.gg/mod-meta-report/rank_%d/' % rank
 	response, error = http_get(url)
 	if error:
