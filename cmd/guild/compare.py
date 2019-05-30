@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
+from collections import OrderedDict
+
 from opts import *
 from errors import *
-from utils import dotify
+from utils import dotify, get_stars_as_emojis
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_guilds, fetch_roster, get_guilds_ally_codes, get_ability_name
 
@@ -69,17 +71,21 @@ def get_guild_stats(config, roster, lang):
 
 	return stats
 
-def unit_to_embedfield(config, guild, roster, base_id, lang):
+def unit_to_dict(config, guild, roster, base_id, lang):
 
-	lines = []
+	res = OrderedDict()
 
 	if base_id in roster:
 		unit_roster = roster[base_id]
 		stats = get_guild_stats(config, unit_roster, lang)
-		lines.append('Avg. GP: %d'  % (stats['cumul-gp'] / stats['count']))
-		lines.append('Count: %d'    % stats['count'])
-		lines.append('Level 85: %d' % stats['levels'][85])
-		lines.append('7\*: %d'      % (7 in stats['stars'] and stats['stars'][7] or 0))
+
+		seven_stars = get_stars_as_emojis(7)
+
+		res['Guild']    = guild['name']
+		res['Avg. GP']  = str(int(stats['cumul-gp'] / stats['count']))
+		res['Count']    = str(stats['count'])
+		res['Level 85'] = str(stats['levels'][85])
+		res[seven_stars]    = str(7 in stats['stars'] and stats['stars'][7] or 0)
 
 		for gear in [ 12, 11, 10 ]:
 
@@ -87,16 +93,16 @@ def unit_to_embedfield(config, guild, roster, base_id, lang):
 			if gear in stats['gears']:
 				count = stats['gears'][gear]
 
-			lines.append('Gear %d: %d' % (gear, count))
+			res['Gear %d' % gear] = str(count)
 
-		lines.append('Locked: %d' % (guild['members'] - stats['count']))
+		res['Locked'] = str(guild['members'] - stats['count'])
 
-		lines.append('Zetas:')
-		for zeta_name in stats['zetas']:
+		if stats['zetas']:
+			res['Zetas'] = ''
+			for zeta_name in stats['zetas']:
+				count = stats['zetas'][zeta_name]
+				res[zeta_name] = str(count)
 
-			count = stats['zetas'][zeta_name]
-
-			lines.append('%d x %s' % (count, zeta_name))
 		"""
 		for ability in sorted(stats['abilities']):
 
@@ -112,13 +118,9 @@ def unit_to_embedfield(config, guild, roster, base_id, lang):
 		"""
 
 	else:
-		lines.append('No one unlocked this unit yet.')
+		res['No one unlocked this unit yet.'] = ''
 
-	return {
-		'name': guild['name'],
-		'value': '\n'.join(lines),
-		'inline': True,
-	}
+	return res
 
 def guild_to_embedfield(guild):
 
@@ -167,6 +169,13 @@ def cmd_guild_compare(config, author, channel, args):
 	if error:
 		return error
 
+	lang = 'eng_us'
+	try:
+		p = Player.objects.get(discord_id=author.id)
+		lang = p.language
+	except Player.DoesNotExist:
+		pass
+
 	fields = []
 	ally_codes = [ player.ally_code for player in players ]
 	guild_list = fetch_guilds(config, ally_codes)
@@ -194,25 +203,55 @@ def cmd_guild_compare(config, author, channel, args):
 
 	for unit in selected_units:
 
-		fields = []
+		units = []
+		fields = OrderedDict()
 		for guild_name, guild in guilds.items():
 
 			roster = {}
 			for ally_code in guild['roster']:
-				lang = 'eng_us'
-				try:
-					p = Player.objects.get(ally_code=ally_code)
-					lang = p.language
-				except Player.DoesNotExist:
-					pass
 				rosters = roster_list[ally_code]
 				for base_id, player_unit in rosters.items():
 					if base_id not in roster:
 						roster[base_id] = []
 
 					roster[base_id].append(player_unit)
-# TODO handle lang
-			fields.append(unit_to_embedfield(config, guild, roster, unit.base_id, lang))
+
+			units.append(unit_to_dict(config, guild, roster, unit.base_id, lang))
+
+		for someunit in units:
+			for key, val in someunit.items():
+				if key not in fields:
+					fields[key] = []
+				fields[key].append(val)
+
+		lines = []
+		first_time = True
+		for key, val in fields.items():
+
+			newval = []
+			for v in val:
+				pad = 0
+				if len(v) < 3:
+					pad = 2 - len(v)
+				newval.append('%s%s' % (pad * '\u00a0', v))
+
+			key_str = '**`%s`**' % key
+			if key == 'Guild':
+				key_str = ''
+
+			if first_time:
+				first_time = False
+				lines.append('**Stats**')
+				lines.append(config['separator'])
+
+			if key == 'Zetas':
+				lines.append(config['separator'])
+				lines.append('')
+				lines.append('**%s**' % key)
+				lines.append(config['separator'])
+
+			else:
+				lines.append('`|%s|`%s' % ('|'.join(newval), key_str))
 
 		msgs.append({
 			'title': '%s' % unit.name,
@@ -220,7 +259,7 @@ def cmd_guild_compare(config, author, channel, args):
 				'name': unit.name,
 				'icon_url': get_avatar_url(unit.base_id),
 			},
-			'fields': fields,
+			'description': '\n'.join(lines),
 		})
 
 	return msgs
