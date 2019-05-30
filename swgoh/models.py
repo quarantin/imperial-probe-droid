@@ -226,7 +226,7 @@ class BaseUnit(models.Model):
 		return selected_units
 
 	def get_all_units():
-		return list(BaseUnit.objects.filter(combat_type=1).values())
+		return list(BaseUnit.objects.filter(combat_type=1))
 
 	def get_all_ships():
 		return list(BaseUnit.objects.filter(combat_type=2))
