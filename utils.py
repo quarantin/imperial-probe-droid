@@ -9,6 +9,9 @@ from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
+import DJANGO
+from swgoh.models import BaseUnit
+
 ROMAN_NUMBERS = {
 	1: 'I',
 	2: 'II',
@@ -169,10 +172,10 @@ def find_ally_in_guild(guild, ally_codes):
 def format_char_details(unit, fmt):
 
 	if '%name' in fmt:
-		from swgohgg import get_unit_list
 		base_id = unit['defId']
-		units = get_unit_list()
-		fmt = fmt.replace('%name', units[base_id]['name'])
+		units = BaseUnit.objects.all().values('name', 'base_id')
+		chars = { x['base_id']: { 'name': x['name'] } for x in units }
+		fmt = fmt.replace('%name', chars[base_id]['name'])
 
 	if '%role' in fmt:
 
@@ -187,17 +190,6 @@ def format_char_details(unit, fmt):
 				fmt = fmt.replace(pattern, str(0))
 
 	return fmt
-
-def get_unit_type(base_id):
-
-	from swgohgg import get_unit_list
-	all_units = get_unit_list()
-	if base_id not in all_units:
-		raise Exception('Could not find base_id: %s in static unit database' % base_id)
-
-	unit = all_units[base_id]
-
-	return unit['combat_type'] == 1 and 'char' or 'ship'
 
 def format_char_stats(stats, fmt):
 
@@ -239,9 +231,6 @@ def exit_bot():
 	bot.close()
 
 	print('User initiated restart!')
-
-def ensure_parents(filepath):
-	os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
 def roundup(number):
 	return Decimal(number).quantize(0, ROUND_HALF_UP)
