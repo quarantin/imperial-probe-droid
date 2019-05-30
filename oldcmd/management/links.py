@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 from errors import *
-from utils import get_short_url
 
 help_links = {
 	'title': 'Links Help',
