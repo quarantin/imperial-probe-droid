@@ -147,7 +147,6 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 	sources = sorted(list(config['recos']['by-source'])) + [ 'crimsondeathwatch' ]
 	emojis = []
 	for source in sources:
-		print("WTF: source=%s" % source)
 		emoji_key = source.replace(' ', '').lower()
 		if emoji_key in EMOJIS:
 			emojis.append(EMOJIS[emoji_key])
