@@ -71,8 +71,8 @@ def get_player_stats(config, roster, lang):
 		'levels': {},
 		'gears': {},
 		'stars': {},
-		'zetas': {},
-		'omegas': {},
+		'zetas': 0,
+		'omegas': 0,
 	}
 
 	for i in range(0, 85 + 1):
@@ -108,28 +108,13 @@ def get_player_stats(config, roster, lang):
 		stats[typ]['stars'][stars]  += 1
 		stats[typ]['gp']            += gp
 
-		for skill_id, skill in config['skills'].items():
-			skill_name = get_ability_name(config, skill_id, lang)
-			param = {
-				'name': skill_name,
-				'isZeta': skill['isZeta'],
-				'count': 0,
-			}
-			if skill['isZeta']:
-				stats['zetas'][skill_id] = param
-			else:
-				stats['omegas'][skill_id] = param
-
 		for skill in skills:
 
 			if skill['tier'] != 8:
 				continue
 
-			skill_id = skill['id']
-			if skill['isZeta']:
-				stats['zetas'][skill_id]['count'] += 1
-			else:
-				stats['omegas'][skill_id]['count'] += 1
+			key = skill['isZeta'] and 'zetas' or 'omegas'
+			stats[key] += 1
 
 	return stats
 
@@ -263,8 +248,8 @@ def player_to_embedfield(config, player, roster, lang):
 		gear_label = 'G%d Units' % gear
 		res[gear_label] = stats['gears'][gear]
 
-	res['Zetas'] = len(stats['zetas'])
-	res['Omegas'] = len(stats['omegas'])
+	res['Zetas'] = stats['zetas']
+	res['Omegas'] = stats['omegas']
 
 	res['Ships'] = OrderedDict()
 	for star in reversed(range(1, 7 + 1)):
@@ -289,8 +274,7 @@ def cmd_player_compare(config, author, channel, args):
 
 	fields = []
 	ally_codes = [ player.ally_code for player in selected_players ]
-	base_ids = [ unit['base_id'] for unit in selected_units ]
-	stats, players = fetch_crinolo_stats(config, ally_codes, base_ids)
+	stats, players = fetch_crinolo_stats(config, ally_codes)
 	print('Done fetching crinolo stats')
 
 	lang = 'eng_us'
