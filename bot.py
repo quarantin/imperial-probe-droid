@@ -38,12 +38,12 @@ PROBE_DIALOG = [
 def log_message(message):
 
 	date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-	server = message.server
+	server = 'TODO' #message.server
 	channel = message.channel
 	content = message.content
 	author_tokens = []
 	if message.author.id:
-		author_tokens.append(message.author.id)
+		author_tokens.append(str(message.author.id))
 	if message.author.display_name:
 		author_tokens.append(message.author.display_name)
 	if hasattr(message.author, 'nick') and message.author.nick:
@@ -104,12 +104,12 @@ def get_game():
 async def on_ready():
 	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
 	if 'env' in config and config['env'] == 'prod':
-		await bot.change_presence(game=get_game())
+		await bot.change_presence(activity=get_game())
 	load_config(bot=bot)
 	message = compute_hello_msg()
 	for chan_id in config['hello']:
-		channel = bot.get_channel(chan_id)
-		await bot.send_message(channel, message)
+		channel = bot.get_channel(int(chan_id))
+		await channel.send(message)
 
 	print('Ready!')
 
@@ -146,7 +146,7 @@ async def on_message(message):
 				for msg in msgs:
 					embeds = new_embeds(config, msg)
 					for embed in embeds:
-						await bot.send_message(channel, embed=embed)
+						await channel.send(embed=embed)
 				break
 		else:
 			embeds = new_embeds(config, {
@@ -156,13 +156,13 @@ async def on_message(message):
 			})
 
 			for embed in embeds:
-				await bot.send_message(channel, embed=embed)
+				await channel.send(embed=embed)
 
 	except Exception as err:
 		print(traceback.format_exc())
 
 		if 'crash' in config and config['crash']:
-			await bot.send_message(channel, config['crash'])
+			await channel.send(config['crash'])
 
 		embeds = new_embeds(config, {
 			'title': 'Unexpected Error',
@@ -171,4 +171,4 @@ async def on_message(message):
 		})
 
 		for embed in embeds:
-			await bot.send_message(channel, embed=embed)
+			await channel.send(embed=embed)
