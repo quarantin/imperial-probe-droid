@@ -106,9 +106,32 @@ def parse_opts_format(config, opts, args):
 
 	return args, DEFAULT_FORMAT
 
+def parse_opts_mentions(config, args):
+
+	missing = []
+	ally_codes = []
+	args_cpy = list(args)
+
+	for arg in args_cpy:
+
+		m = re.search(r'^<@([0-9]+)>$', arg)
+		if m:
+			discord_id = m.group(1)
+			try:
+				p = Player.objects.get(discord_id=discord_id)
+				ally_codes.append(p.ally_code)
+				args.remove(arg)
+
+			except Player.DoesNotExist:
+				missing.append(arg)
+				args.remove(arg)
+
+	return args, ally_codes, missing
+
 def parse_opts_ally_codes(config, author, args):
 
-	ally_codes = []
+	args, ally_codes, missing = parse_opts_mentions(config, args)
+
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -121,16 +144,18 @@ def parse_opts_ally_codes(config, author, args):
 		else:
 			m = re.search('^[0-9]{9}|[0-9]{3}-[0-9]{3}-[0-9]{3}$', arg)
 			if m:
-				args.remove(arg)
 				ally_code = m.group(0).replace('-', '')
 				ally_codes.append(ally_code)
+				args.remove(arg)
 
-	return args, ally_codes
+	return args, ally_codes, missing
 
 def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1):
 
 	players = []
-	args, ally_codes = parse_opts_ally_codes(config, author, args)
+	args, ally_codes, missing = parse_opts_ally_codes(config, author, args)
+	if missing:
+		return args, None, error_no_ally_code_registered(config, missing)
 
 	if len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
 		try:
