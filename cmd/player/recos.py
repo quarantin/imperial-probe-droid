@@ -51,14 +51,17 @@ def cmd_recos(config, author, channel, args):
 	args, players, error = parse_opts_players(config, author, args)
 	args, selected_units = parse_opts_unit_names(config, args)
 
-	if args:
-		return error_unknown_parameters(args)
+	if error:
+		return error
 
 	if not players:
 		return error_no_ally_code_specified(config, author)
 
 	if not selected_units:
 		return error_no_unit_selected()
+
+	if args:
+		return error_unknown_parameters(args)
 
 	ally_codes = [ player.ally_code for player in players ]
 
