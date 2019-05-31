@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import re
+
 from errors import *
 from utils import basicstrip
 
@@ -104,9 +106,7 @@ def parse_opts_format(config, opts, args):
 
 	return args, DEFAULT_FORMAT
 
-
-
-def parse_opts_ally_codes(config, author, args, min_allies=1):
+def parse_opts_ally_codes(config, author, args):
 
 	ally_codes = []
 	args_cpy = list(args)
@@ -118,30 +118,19 @@ def parse_opts_ally_codes(config, author, args, min_allies=1):
 			args.remove(arg)
 			ally_codes.append(ally_code)
 
-		elif len(arg) >= 11 and len(arg.split('-')) == 3:
-			cpy = ''.join(arg.split('-'))
-			if len(cpy) >= 9 and cpy.isdigit():
+		else:
+			m = re.search('^[0-9]{9}|[0-9]{3}-[0-9]{3}-[0-9]{3}$', arg)
+			if m:
 				args.remove(arg)
-				ally_codes.append(cpy)
-
-		elif len(arg) >= 9 and arg.isdigit():
-			args.remove(arg)
-			ally_codes.append(arg)
-
-	if len(ally_codes) < min_allies:
-		try:
-			player = Player.objects.get(discord_id=author.id)
-			ally_codes.append(player.ally_code)
-
-		except Player.DoesNotExist:
-			pass
+				ally_code = m.group(0).replace('-', '')
+				ally_codes.append(ally_code)
 
 	return args, ally_codes
 
 def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1):
 
 	players = []
-	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies)
+	args, ally_codes = parse_opts_ally_codes(config, author, args)
 
 	if len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
 		try:
@@ -317,27 +306,26 @@ def parse_opts_unit_names_v1(config, args, combat_type=1):
 def parse_opts_char_filters(args):
 
 	selected_char_filters = {
-		'gear': [],
-		'level': [],
-		'star': [],
+		'gp':     1,
+		'gear':   1,
+		'level':  1,
+		'rarity': 1,
 	}
+
+	rules = {
+		'gp':     r'^(gp)([0-9]+)$',
+		'gear':   r'^(g|gear[s]{0,1})([0-9]+)$',
+		'level':  r'^(l|level[s]{0,1})([0-9]+)$',
+		'rarity': r'^(s|star[s]{0,1})([0-9]+)$',
+	}
+
 	args_cpy = list(args)
 	for arg in args_cpy:
-		toks = arg.split('=')
-		if len(toks) != 2:
-			continue
-
-		if toks[0] in [ 'g', 'gear' ] and toks[1].isdigit():
-			args.remove(arg)
-			selected_char_filters['gear'].append(int(toks[1]))
-
-		elif toks[0] in [ 'l', 'level' ] and toks[1].isdigit():
-			args.remove(arg)
-			selected_char_filters['level'].append(int(toks[1]))
-
-		elif toks[0] in [ 's', 'star' ] and toks[1].isdigit():
-			args.remove(arg)
-			selected_char_filters['star'].append(int(toks[1]))
+		for key, regex in rules.items():
+			m = re.search(regex, arg)
+			if m:
+				args.remove(arg)
+				selected_char_filters[key] = int(m.group(2))
 
 	return args, selected_char_filters
 
