@@ -6,7 +6,7 @@ from opts import *
 from errors import *
 from utils import dotify, get_stars_as_emojis
 from swgohgg import get_avatar_url
-from swgohhelp import fetch_guilds, fetch_roster, get_ability_name
+from swgohhelp import fetch_players, fetch_guilds, get_ability_name
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
@@ -40,11 +40,12 @@ def get_guild_stats(config, roster, lang):
 
 	for unit_roster in roster:
 
+
 		gp    = unit_roster['gp']
 		level = unit_roster['level']
-		gear  = unit_roster['gearLevel']
-		stars = unit_roster['starLevel']
-		zetas = unit_roster['zetas']
+		gear  = unit_roster['gear']
+		stars = unit_roster['rarity']
+		zetas = [ x for x in unit_roster['skills'] if x['tier'] == 8 and x['isZeta'] ]
 
 		stats['count'] += 1
 		stats['cumul-gp'] += gp
@@ -76,8 +77,8 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 	res = OrderedDict()
 
 	if base_id in roster:
-		unit_roster = roster[base_id]
-		stats = get_guild_stats(config, unit_roster, lang)
+
+		stats = get_guild_stats(config, roster[base_id], lang)
 
 		seven_stars = get_stars_as_emojis(7)
 
@@ -158,7 +159,7 @@ def cmd_guild_compare(config, author, channel, args):
 
 	lang = parse_opts_lang(author)
 
-	args, players, error = parse_opts_players(config, author, args, expected_allies=2)
+	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
 
 	args, selected_units = parse_opts_unit_names(config, args)
 
@@ -172,14 +173,28 @@ def cmd_guild_compare(config, author, channel, args):
 		return error
 
 	fields = []
-	ally_codes = [ player.ally_code for player in players ]
+	ally_codes = [ player.ally_code for player in selected_players ]
 	guild_list = fetch_guilds(config, ally_codes)
 
 	members = []
 	for ally_code, guild in guild_list.items():
 		members.extend(list(guild['roster']))
 
-	roster_list = fetch_roster(config, members)
+	players = fetch_players(config, {
+		'allycodes': members,
+		'project': {
+			'allyCode': 1,
+			'name': 1,
+			'roster': {
+				'defId': 1,
+				'gp': 1,
+				'gear': 1,
+				'level': 1,
+				'rarity': 1,
+				'skills': 1,
+			},
+		},
+	})
 
 	guilds = {}
 	for ally_code, guild in guild_list.items():
@@ -200,8 +215,11 @@ def cmd_guild_compare(config, author, channel, args):
 
 			roster = {}
 			for ally_code in guild['roster']:
-				rosters = roster_list[ally_code]
-				for base_id, player_unit in rosters.items():
+				if ally_code not in players:
+					print('WARN: Player missing from swgoh.help/api/players: %s' % ally_code)
+					continue
+				player = players[ally_code]
+				for base_id, player_unit in player['roster'].items():
 					if base_id not in roster:
 						roster[base_id] = []
 

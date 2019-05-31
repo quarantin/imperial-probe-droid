@@ -161,68 +161,42 @@ def fetch_guilds(config, project):
 
 	return result
 
-def fetch_units(config, ally_codes):
+def fetch_units(config, project):
 
-	# Remove ally codes for which we already have fetched the data
-	needed = list(ally_codes)
-	for ally_code in ally_codes:
-		if ally_code in db['units']:
-			needed.remove(ally_code)
+	if type(project) is list:
+		project = { 'allycodes': project }
 
-	if needed:
+	units = api_swgoh_units(config, project)
 
-		# Perform API call to retrieve newly needed units info
-		units = api_swgoh_units(config, {
-			'allycodes': needed,
-		})
+	result = {}
+	for base_id, units in units.items():
+		for unit in units:
+			ally_code = str(unit['allyCode'])
+			if ally_code not in result:
+				result[ally_code] = {}
 
-		# Store newly needed units in db
-		for base_id, units in units.items():
-			for unit in units:
+			result[ally_code][base_id] = unit
+
+	return result
+
+def fetch_roster(config, project):
+
+	if type(project) is list:
+		project = { 'allycodes': project }
+
+	rosters = api_swgoh_roster(config, project)
+
+	result = {}
+	for roster in rosters:
+		for base_id, unit_roster in roster.items():
+			for unit in unit_roster:
 				ally_code = str(unit['allyCode'])
-				if ally_code not in db['units']:
-					db['units'][ally_code] = {}
+				if ally_code not in result:
+					result[ally_code] = {}
 
-				db['units'][ally_code][base_id] = unit
+				result[ally_code][base_id] = unit
 
-	units = {}
-
-	for ally_code in ally_codes:
-		units[ally_code] = db['units'][ally_code]
-
-	return units
-
-def fetch_roster(config, ally_codes):
-
-	# Remove ally codes for which we already have fetched the data
-	needed = list(ally_codes)
-	for ally_code in ally_codes:
-		if ally_code in db['roster']:
-			needed.remove(ally_code)
-
-	if needed:
-
-		# Perform API call to retrieve newly needed roster info
-		rosters = api_swgoh_roster(config, {
-			'allycodes': needed,
-		})
-
-		# Store newly needed rosters in db
-		for roster in rosters:
-			for base_id, unit_roster in roster.items():
-				for unit in unit_roster:
-					ally_code = str(unit['allyCode'])
-					if ally_code not in db['roster']:
-						db['roster'][ally_code] = {}
-
-					db['roster'][ally_code][base_id] = unit
-
-	rosters = {}
-
-	for ally_code in ally_codes:
-		rosters[ally_code] = db['roster'][ally_code]
-
-	return rosters
+	return result
 
 def fetch_crinolo_stats(config, project):
 
@@ -231,9 +205,9 @@ def fetch_crinolo_stats(config, project):
 
 	players = api_swgoh_players(config, project)
 
-	result = {}
 	stats = api_crinolo(config, players)
 
+	result = {}
 	for player in stats:
 		ally_code = str(player['allyCode'])
 		result[ally_code] = {}
