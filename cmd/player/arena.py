@@ -109,9 +109,9 @@ def cmd_arena(config, author, channel, args):
 	if error:
 		return error
 
-	ally_codes = [ int(player.ally_code) for player in selected_players ]
+	ally_codes = [ player.ally_code for player in selected_players ]
 	stats, players = fetch_crinolo_stats(config, ally_codes)
-	players = { player['allyCode']: player for player in players }
+	players = { str(player['allyCode']): player for player in players }
 
 	msgs = []
 	for ally_code in ally_codes:

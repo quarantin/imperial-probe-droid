@@ -6,7 +6,7 @@ from opts import *
 from errors import *
 from utils import dotify, get_stars_as_emojis
 from swgohgg import get_avatar_url
-from swgohhelp import fetch_guilds, fetch_roster, get_guilds_ally_codes, get_ability_name
+from swgohhelp import fetch_guilds, fetch_roster, get_ability_name
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
@@ -176,17 +176,13 @@ def cmd_guild_compare(config, author, channel, args):
 	guild_list = fetch_guilds(config, ally_codes)
 
 	members = []
-	for ally_code in guild_list:
-		guild = guild_list[ally_code]
-		allies = list(guild['roster'])
-		members.extend(allies)
-		fetch_roster(config, allies)
+	for ally_code, guild in guild_list.items():
+		members.extend(list(guild['roster']))
 
 	roster_list = fetch_roster(config, members)
 
 	guilds = {}
-	for ally_code in guild_list:
-		guild = guild_list[ally_code]
+	for ally_code, guild in guild_list.items():
 		guild_name = guild['name']
 		guilds[guild_name] = guild
 		fields.append(guild_to_embedfield(guild))

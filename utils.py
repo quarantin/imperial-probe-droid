@@ -9,9 +9,6 @@ from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
-import DJANGO
-from swgoh.models import BaseUnit
-
 ROMAN_NUMBERS = {
 	1: 'I',
 	2: 'II',
@@ -160,16 +157,10 @@ def download_spreadsheet(url, cols):
 
 	return iter(content)
 
-def find_ally_in_guild(guild, ally_codes):
-
-	for ally_code in ally_codes:
-
-		if int(ally_code) in guild['roster']:
-			return ally_code
-
-	return None
-
 def format_char_details(unit, fmt):
+
+	import DJANGO
+	from swgoh.models import BaseUnit
 
 	if '%name' in fmt:
 		base_id = unit['defId']
@@ -273,7 +264,7 @@ def get_units_dict(units, base_id_key):
 	d = {}
 
 	for unit in units:
-		base_id = unit[base_id_key]
+		base_id = str(unit[base_id_key])
 		d[base_id] = unit
 
 	return d
@@ -330,6 +321,9 @@ def get_mod_primaries(config, mods):
 		res[slot] = primary
 
 	return res
+
+def get_star():
+	return '★'
 
 def get_stars_as_emojis(rarity):
 

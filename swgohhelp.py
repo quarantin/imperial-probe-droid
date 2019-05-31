@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from utils import get_units_dict, http_get, http_post, find_ally_in_guild
+from utils import get_units_dict, http_get, http_post
 
 import json
 import sys
@@ -126,80 +126,47 @@ def api_crinolo(config, units):
 # Fetch functions
 #
 
-def fetch_players(config, ally_codes, key='name'):
+def fetch_players(config, project):
 
-	# Remove ally codes for which we already have fetched the data
-	needed = list(ally_codes)
-	for ally_code in ally_codes:
-		if int(ally_code) in db['players'] and key in db['players'][int(ally_code)]:
-			needed.remove(ally_code)
+	if type(project) is list:
+		project = { 'allycodes': project }
 
-	if needed:
+	players = api_swgoh_players(config, project)
 
-		# Perform API call to retrieve newly needed player info
-		players = api_swgoh_players(config, {
-			'allycodes': needed,
-		})
+	result = {}
+	for player in players:
 
-		# Store newly needed players in db
-		for player in players:
+		player['roster'] = get_units_dict(player['roster'], 'defId')
 
-			total, char, ship = get_player_gp_from_roster(player['roster'])
+		ally_code = str(player['allyCode'])
+		result[ally_code] = player
 
-			player['gp'] = {
-				'total': total,
-				'char': char,
-				'ship': ship,
-			}
+	return result
 
-			player['roster'] = get_units_dict(player['roster'], 'defId')
+def fetch_guilds(config, project):
 
-			ally_code = player['allyCode']
-			db['players'][ally_code] = player
+	if type(project) is list:
+		project = { 'allycodes': project }
 
-	players = {}
-	for ally_code in ally_codes:
-		players[ally_code] = db['players'][int(ally_code)]
+	ally_codes = project['allycodes']
+	guilds = api_swgoh_guilds(config, project)
 
-	return players
+	result = {}
+	for guild in guilds:
 
-def fetch_guilds(config, ally_codes):
+		guild['roster'] = get_units_dict(guild['roster'], 'allyCode')
+		for ally_code in ally_codes:
+			if ally_code in guild['roster']:
+				result[ally_code] = guild
 
-	# Remove ally codes for which we already have fetched the guild data
-	needed = list(ally_codes)
-	for ally_code in ally_codes:
-		if int(ally_code) in db['guilds']:
-			needed.remove(ally_code)
-
-	if needed:
-
-		# Perform API call to retrieve newly needed guild info
-		guilds = api_swgoh_guilds(config, {
-			'allycodes': needed,
-		})
-
-		# Store newly needed guilds in db
-		for guild in guilds:
-			guild['roster'] = get_units_dict(guild['roster'], 'allyCode')
-			guild_name = guild['name']
-			ally_code = find_ally_in_guild(guild, needed)
-			if not ally_code:
-				raise Exception('Could not find ally code: %s in guild: %s' % (ally_code, guild_name))
-			db['guilds'][int(ally_code)] = guild
-
-	guilds = {}
-
-	for ally_code in ally_codes:
-		guilds[ally_code] = db['guilds'][int(ally_code)]
-
-	return guilds
+	return result
 
 def fetch_units(config, ally_codes):
 
 	# Remove ally codes for which we already have fetched the data
 	needed = list(ally_codes)
 	for ally_code in ally_codes:
-		if int(ally_code) in db['units']:
+		if ally_code in db['units']:
 			needed.remove(ally_code)
 
 	if needed:
@@ -212,7 +179,7 @@ def fetch_units(config, ally_codes):
 		# Store newly needed units in db
 		for base_id, units in units.items():
 			for unit in units:
-				ally_code = unit['allyCode']
+				ally_code = str(unit['allyCode'])
 				if ally_code not in db['units']:
 					db['units'][ally_code] = {}
 
@@ -221,7 +188,7 @@ def fetch_units(config, ally_codes):
 	units = {}
 
 	for ally_code in ally_codes:
-		units[ally_code] = db['units'][int(ally_code)]
+		units[ally_code] = db['units'][ally_code]
 
 	return units
 
@@ -230,7 +197,7 @@ def fetch_roster(config, ally_codes):
 	# Remove ally codes for which we already have fetched the data
 	needed = list(ally_codes)
 	for ally_code in ally_codes:
-		if int(ally_code) in db['roster']:
+		if ally_code in db['roster']:
 			needed.remove(ally_code)
 
 	if needed:
@@ -244,7 +211,7 @@ def fetch_roster(config, ally_codes):
 		for roster in rosters:
 			for base_id, unit_roster in roster.items():
 				for unit in unit_roster:
-					ally_code = unit['allyCode']
+					ally_code = str(unit['allyCode'])
 					if ally_code not in db['roster']:
 						db['roster'][ally_code] = {}
 
@@ -253,21 +220,22 @@ def fetch_roster(config, ally_codes):
 	rosters = {}
 
 	for ally_code in ally_codes:
-		rosters[ally_code] = db['roster'][int(ally_code)]
+		rosters[ally_code] = db['roster'][ally_code]
 
 	return rosters
 
-def fetch_crinolo_stats(config, ally_codes):
+def fetch_crinolo_stats(config, project):
 
-	players = api_swgoh_players(config, {
-		'allycodes': ally_codes,
-	})
+	if type(project) is list:
+		project = { 'allycodes': project }
+
+	players = api_swgoh_players(config, project)
 
 	result = {}
 	stats = api_crinolo(config, players)
 
 	for player in stats:
-		ally_code = player['allyCode']
+		ally_code = str(player['allyCode'])
 		result[ally_code] = {}
 		for unit in player['roster']:
 			base_id = unit['defId']
@@ -276,37 +244,8 @@ def fetch_crinolo_stats(config, ally_codes):
 
 	return result, players
 #
-# Utility functions
+# Localized functions
 #
-
-def get_guilds_ally_codes(guilds):
-
-	ally_codes = {}
-
-	for guild_name, guild in guilds.items():
-		for ally_code in guild['roster']:
-			ally = guild['roster'][ally_code]
-			ally_codes[ally_code] = ally
-
-	return ally_codes
-
-def get_player_gp_from_roster(roster):
-
-	total, char, ship = 0, 0, 0
-
-	for unit in roster:
-
-		gp = unit['gp']
-
-		total += gp
-
-		if unit['combatType'] is 1:
-			char += gp
-
-		if unit['combatType'] is 2:
-			ship += gp
-
-	return total, char, ship
 
 def get_unit_name(config, base_id, language):
 

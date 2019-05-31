@@ -280,7 +280,7 @@ def cmd_player_compare(config, author, channel, args):
 	print('Done fetching crinolo stats')
 
 	for player in players:
-		ally_code = player['allyCode']
+		ally_code = str(player['allyCode'])
 		fields.append(player_to_embedfield(config, player, stats[ally_code], lang))
 
 	player_fields = OrderedDict()
@@ -327,7 +327,7 @@ def cmd_player_compare(config, author, channel, args):
 		units = []
 		fields = OrderedDict()
 		for player in players:
-			ally_code = player['allyCode']
+			ally_code = str(player['allyCode'])
 			units.append(unit_to_dict(config, player, stats[ally_code], stats[ally_code], unit.base_id, lang))
 
 		for someunit in units:

@@ -1,18 +1,19 @@
 #!/usr/bin/python3
 
 from opts import *
-from utils import dotify
+from errors import *
 
+from utils import get_star
 from swgohgg import get_avatar_url
-from swgohhelp import fetch_guilds, fetch_roster, get_guilds_ally_codes, get_ability_name
+from swgohhelp import fetch_players, fetch_guilds
 
-help_guild_search = {
-	'title': 'Guild Search Help',
-	'description': """Search your guild for player matching some character requirements
+help_guild_list = {
+	'title': 'Guild List Help',
+	'description': """List your guild members matching some character requirements.
 
 **Syntax**
 ```
-%prefixgs [players] [units] [filters]
+%prefixglist [players]
 
 **Examples**
 Search your guild for all player having Asajj Ventress at least Gear 12:
@@ -20,80 +21,124 @@ Search your guild for all player having Asajj Ventress at least Gear 12:
 %prefixgs 123456789 asajj g12```"""
 }
 
-def cmd_guild_search(config, author, channel, args):
+def unit_is_matching(unit, char_filters):
 
-	msgs = []
+	if unit['gp'] < char_filters['gp']:
+		return False
 
-	args, lang = parse_opts_lang(args)
-	args, ally_codes = parse_opts_ally_codes(config, author, args, min_allies=2)
-	if not ally_codes:
-		return [{
-			'title': 'Missing Guild Code',
-			'description': 'I need at least one guild code.',
-		}]
+	if unit['gear'] < char_filters['gear']:
+		return False
+
+	if unit['level'] < char_filters['level']:
+		return False
+
+	if unit['rarity'] < char_filters['rarity']:
+		return False
+
+	return True
+
+def cmd_guild_list(config, author, channel, args):
+
+	lang = parse_opts_lang(author)
+
+	args, selected_char_filters = parse_opts_char_filters(args)
+
+	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
 
 	args, selected_units = parse_opts_unit_names(config, args)
+
+	if error:
+		return error
+
+	if not selected_players:
+		return error_no_ally_code_specified(config, author)
+
 	if not selected_units:
-		return [{
-			'title': 'Missing Unit Name',
-			'description': 'I need at least one unit name.',
-		}]
-	
-	args, selected_char_filters = parse_opts_char_filters(config, args)
+		return error_no_unit_selected()
+
 	if args:
-		plural = len(args) > 1 and 's' or ''
-		return [{
-			'title': 'Invalid Parameter%s' % plural,
-			'description': 'I don\'t know what to do with the following parameter%s:\n - %s' % (plural, '\n - '.join(args)),
-		}]
+		return error_unknown_parameters(args)
 
 	fields = []
-	guild_list = fetch_guilds(config, ally_codes)
-
-	members = []
-	for ally_code in guild_list:
-		guild = guild_list[ally_code]
-		allies = list(guild['roster'])
-		members.extend(allies)
-		fetch_roster(config, allies)
-
-	roster_list = fetch_roster(config, members)
-
-	guilds = {}
-	for ally_code in guild_list:
-		guild = guild_list[ally_code]
-		guild_name = guild['name']
-		guilds[guild_name] = guild
-		fields.append(guild_to_embedfield(guild))
-
-	msgs.append({
-		'title': 'Guild Comparison',
-		'fields': fields,
+	ally_codes = [ p.ally_code for p in selected_players ]
+	guild_list = fetch_guilds(config, {
+		'allycodes': ally_codes,
+		'project': {
+			'guildName': 1,
+			'roster': {
+				'allyCode': 1,
+			}
+		},
 	})
 
-	for unit in selected_units:
+	ally_codes = []
+	for root_ally_code, guild in guild_list.items():
+		for ally_code, player in guild['roster'].items():
+			if str(player['allyCode']) not in ally_codes:
+				ally_codes.append(str(player['allyCode']))
 
-		fields = []
-		for guild_name, guild in guilds.items():
+	matches = {}
+	players = fetch_players(config, ally_codes)
+	for ally_code, player in players.items():
+		guild_name = player['guildName']
+		player_name = player['name']
+		for base_unit in selected_units:
 
-			roster = {}
-			for ally_code in guild['roster']:
-				rosters = roster_list[ally_code]
-				for base_id, player_unit in rosters.items():
-					if base_id not in roster:
-						roster[base_id] = []
+			base_id = base_unit.base_id
+			if base_id not in player['roster']:
+				print('Unit is locked for: %s' % player_name)
+				continue
 
-					roster[base_id].append(player_unit)
+			unit = player['roster'][base_id]
+			if not unit_is_matching(unit, selected_char_filters):
+				print('Unit does not match criteria for: %s' % player_name)
+				continue
 
-			fields.append(unit_to_embedfield(config, guild, roster, unit['base_id'], lang))
+			if guild_name not in matches:
+				matches[guild_name] = {}
 
-		msgs.append({
-			'title': '%s' % unit['name'],
-			'author': {
-				'name': unit['name'],
-				'icon_url': get_avatar_url(unit['base_id']),
-			},
-			'fields': fields,
-		})
+			if player_name not in matches[guild_name]:
+				matches[guild_name][player_name] = {}
+
+			matches[guild_name][player_name][base_unit.name] = {
+				'gp':     unit['gp'],
+				'gear':   unit['gear'],
+				'level':  unit['level'],
+				'rarity': unit['rarity'],
+			}
+	units = {}
+
+	for guild_name, players in matches.items():
+		for player_name, unit_names in players.items():
+			for unit_name, unit in unit_names.items():
+
+				if unit_name not in units:
+					units[unit_name] = {}
+
+				if guild_name not in units[unit_name]:
+					units[unit_name][guild_name] = {}
+
+				units[unit_name][guild_name][player_name] = unit
+
+	msgs = []
+	for unit_name, guilds in units.items():
+		for guild_name, player_names in guilds.items():
+
+			lines = []
+			lines.append('**`%s`**' % unit_name)
+			lines.append('')
+			lines.append('`- `**`%s`** (%d)' % (guild_name, len(player_names)))
+			lines.append(config['separator'])
+			lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % get_star())
+
+			rosters = sorted(player_names.items(), key=lambda x: x[1]['gp'], reverse=True)
+			for player_name, unit in rosters:
+				lines.append('`|%s|%d|%d|%d|`**`%s`**' % (unit['rarity'], unit['gp'], unit['level'], unit['gear'], player_name))
+
+			msgs.append({
+				'title': 'Guild: %s' % guild_name,
+				'description': '\n'.join(lines),
+			})
+
 
 	return msgs
