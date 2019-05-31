@@ -161,24 +161,6 @@ def fetch_guilds(config, project):
 
 	return result
 
-def fetch_units(config, project):
-
-	if type(project) is list:
-		project = { 'allycodes': project }
-
-	units = api_swgoh_units(config, project)
-
-	result = {}
-	for base_id, units in units.items():
-		for unit in units:
-			ally_code = str(unit['allyCode'])
-			if ally_code not in result:
-				result[ally_code] = {}
-
-			result[ally_code][base_id] = unit
-
-	return result
-
 def fetch_crinolo_stats(config, project):
 
 	if type(project) is list:

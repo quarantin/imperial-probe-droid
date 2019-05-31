@@ -2,7 +2,7 @@
 
 from opts import *
 from errors import *
-from swgohhelp import fetch_players, fetch_units, get_unit_name
+from swgohhelp import fetch_players, get_unit_name
 
 help_locked = {
 	'title': 'Locked Help',
