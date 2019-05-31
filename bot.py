@@ -111,6 +111,8 @@ async def on_ready():
 		channel = bot.get_channel(chan_id)
 		await bot.send_message(channel, message)
 
+	print('Ready!')
+
 @bot.event
 async def on_message(message):
 
