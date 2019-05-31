@@ -1,12 +1,14 @@
 #!/usr/bin/python3
 
 from cmd.guild.compare import *
+from cmd.guild.glist import *
 from cmd.management.alias import *
 #from cmd.management.format import *
 from cmd.management.help import *
 from cmd.management.invite import *
 from cmd.management.language import *
 #from cmd.management.links import *
+from cmd.management.lookup import *
 from cmd.management.nicks import *
 from cmd.management.register import *
 from cmd.management.restart import *
@@ -49,6 +51,12 @@ COMMANDS = [
 		'aliases': [ 'gc' ],
 		'function': cmd_guild_compare,
 		'help': help_guild_compare,
+	},
+	{
+		'command': 'glist',
+		'aliases': [ 'gl', 'glist' ],
+		'function': cmd_guild_list,
+		'help': help_guild_list,
 	},
 	#{
 	#	'command': 'fight',
@@ -97,6 +105,12 @@ COMMANDS = [
 		'aliases': [ 'l', 'locked' ],
 		'function': cmd_locked,
 		'help': help_locked,
+	},
+	{
+		'command': 'lookup',
+		'aliases': [ 'lookup' ],
+		'function': cmd_lookup,
+		'help': help_lookup,
 	},
 	{
 		'command': 'meta',
