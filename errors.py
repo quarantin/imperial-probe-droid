@@ -21,6 +21,14 @@ def error_no_ally_code_specified(config, author):
 		'description': 'No ally code specified or found registered to <@%s>. Please see `%shelp register` to get help with registration.' % (author.id, config['prefix']),
 	}]
 
+def error_no_ally_code_registered(config, discord_mentions):
+	plural = len(discord_mentions) > 1 and 's' or ''
+	return [{
+		'title': 'Error: Unknown Player',
+		'color': 'red',
+		'description': 'I don\'t know any ally code registered to the following user%s\n- %s.\n\nPlease see `%shelp register` for more information.' % (plural, '\n- '.join(discord_mentions), config['prefix']),
+	}]
+
 def error_not_enough_ally_codes_specified(ally_codes, limit):
 	plural = limit > 1 and 's' or ''
 	return [{
