@@ -8,7 +8,7 @@ from constants import EMOJIS
 from collections import OrderedDict
 from utils import get_stars_as_emojis, ROMAN_NUMBERS
 from swgohgg import get_avatar_url
-from swgohhelp import fetch_players, fetch_roster, get_ability_name, fetch_crinolo_stats
+from swgohhelp import fetch_crinolo_stats, get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
