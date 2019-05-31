@@ -86,7 +86,8 @@ class Player(models.Model):
 		match_display_name = Q(discord_display_name=nick)
 		match_game_nick = Q(game_nick=nick)
 		try:
-			return Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
+			p = Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
+			return p.ally_code
 
 		except Player.DoesNotExist:
 			return None
