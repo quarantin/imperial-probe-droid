@@ -13,12 +13,21 @@ help_guild_list = {
 
 **Syntax**
 ```
-%prefixglist [players]
+%prefixglist [players] [filters]
 
+**Options**
+Possible filters are:
+**`gp<number>`**: To filter units by GP.
+**`gear<number>`** or **`g<number>`**: To filter units by gear level.
+**`level<number>`** or **`l<number>`**: To filter units by level.
+**`star<number>`** or **`s<number>`**: To filter units by rarity.
 **Examples**
 Search your guild for all player having Asajj Ventress at least Gear 12:
 ```
-%prefixgs 123456789 asajj g12```"""
+%prefixglist asajj g12```
+Search your guild to see who's having Jedi Knight Reven with GP greater than 23000:
+```
+%prefixglist jkr gp23000```"""
 }
 
 def unit_is_matching(unit, char_filters):
@@ -130,14 +139,15 @@ def cmd_guild_list(config, author, channel, args):
 
 			lines = []
 			lines.append(config['separator'])
-			lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % get_star())
+			#lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % get_star())
+			lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % '*')
 
 			rosters = sorted(player_names.items(), key=lambda x: x[1]['gp'], reverse=True)
 			for player_name, unit in rosters:
 				pad_gp = (5 - len(str(unit['gp']))) * '\u00a0'
 				pad_gear = (2 - len(str(unit['gear']))) * '\u00a0'
 				pad_level = (2 - len(str(unit['level']))) * '\u00a0'
-				lines.append('`|\u202F%s\u202F|%s%d|%s%d|%s%d|`**`%s`**' % (unit['rarity'], pad_gp, unit['gp'], pad_level, unit['level'], pad_gear, unit['gear'], player_name))
+				lines.append('`|%s|%s%d|%s%d|%s%d|`**`%s`**' % (unit['rarity'], pad_gp, unit['gp'], pad_level, unit['level'], pad_gear, unit['gear'], player_name))
 
 			if not len(rosters):
 				lines.append('No units found matching your search criteria.')
