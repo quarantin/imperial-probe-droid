@@ -108,7 +108,7 @@ async def on_ready():
 	load_config(bot=bot)
 	message = compute_hello_msg()
 	for chan_id in config['hello']:
-		channel = bot.get_channel(int(chan_id))
+		channel = bot.get_channel(chan_id)
 		await channel.send(message)
 
 	print('Ready!')
