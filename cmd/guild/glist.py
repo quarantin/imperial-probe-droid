@@ -77,6 +77,7 @@ def cmd_guild_list(config, author, channel, args):
 			if str(player['allyCode']) not in ally_codes:
 				ally_codes.append(str(player['allyCode']))
 
+	urls = {}
 	matches = {}
 	players = fetch_players(config, ally_codes)
 	for ally_code, player in players.items():
@@ -84,28 +85,31 @@ def cmd_guild_list(config, author, channel, args):
 		player_name = player['name']
 		for base_unit in selected_units:
 
-			base_id = base_unit.base_id
-			if base_id not in player['roster']:
-				print('Unit is locked for: %s' % player_name)
-				continue
-
-			unit = player['roster'][base_id]
-			if not unit_is_matching(unit, selected_char_filters):
-				print('Unit does not match criteria for: %s' % player_name)
-				continue
-
 			if guild_name not in matches:
 				matches[guild_name] = {}
 
 			if player_name not in matches[guild_name]:
 				matches[guild_name][player_name] = {}
 
+			base_id = base_unit.base_id
+			if base_id not in player['roster']:
+				#print('Unit is locked for: %s' % player_name)
+				continue
+
+			unit = player['roster'][base_id]
+			if not unit_is_matching(unit, selected_char_filters):
+				#print('Unit does not match criteria for: %s' % player_name)
+				continue
+
+			urls[base_unit.name] = base_unit.get_url()
 			matches[guild_name][player_name][base_unit.name] = {
-				'gp':     unit['gp'],
-				'gear':   unit['gear'],
-				'level':  unit['level'],
-				'rarity': unit['rarity'],
+				'gp':      unit['gp'],
+				'gear':    unit['gear'],
+				'level':   unit['level'],
+				'rarity':  unit['rarity'],
+				'base_id': base_unit.base_id,
 			}
+
 	units = {}
 
 	for guild_name, players in matches.items():
@@ -125,20 +129,32 @@ def cmd_guild_list(config, author, channel, args):
 		for guild_name, player_names in guilds.items():
 
 			lines = []
-			lines.append('**`%s`**' % unit_name)
-			lines.append('')
-			lines.append('`- `**`%s`** (%d)' % (guild_name, len(player_names)))
 			lines.append(config['separator'])
 			lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % get_star())
 
 			rosters = sorted(player_names.items(), key=lambda x: x[1]['gp'], reverse=True)
 			for player_name, unit in rosters:
-				lines.append('`|%s|%d|%d|%d|`**`%s`**' % (unit['rarity'], unit['gp'], unit['level'], unit['gear'], player_name))
+				pad_gp = (5 - len(str(unit['gp']))) * '\u00a0'
+				pad_gear = (2 - len(str(unit['gear']))) * '\u00a0'
+				pad_level = (2 - len(str(unit['level']))) * '\u00a0'
+				lines.append('`|\u202F%s\u202F|%s%d|%s%d|%s%d|`**`%s`**' % (unit['rarity'], pad_gp, unit['gp'], pad_level, unit['level'], pad_gear, unit['gear'], player_name))
+
+			if not len(rosters):
+				lines.append('No units found matching your search criteria.')
 
 			msgs.append({
-				'title': 'Guild: %s' % guild_name,
+				'title': '%s (%d)' % (guild_name, len(player_names)),
+				'author': {
+					'name': unit_name,
+					'icon_url': get_avatar_url(unit['base_id']),
+				},
 				'description': '\n'.join(lines),
 			})
 
+	if not msgs:
+		msgs.append({
+			'title': 'No Matching Units',
+			'description': 'No units found matching your search criteria.',
+		})
 
 	return msgs
