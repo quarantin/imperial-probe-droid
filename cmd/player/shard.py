@@ -13,16 +13,18 @@ help_shard = {
 	'description': """Helps you to track the ranks of your shard members over time in character arena.
 
 **Syntax**
+Showing arena rank for your shard members:
+```
+%prefixshard```
 Adding members to your shard:
 ```
 %prefixshard add [players]```
 Removing members from your shard:
 ```
 %prefixshard del [players]```
-Showing arena rank for your shard members:
+Exporting ally codes from your shard:
 ```
-%prefixshard```
-
+%prefixshard export```
 **Examples**
 Add some members to your shard:
 ```
@@ -32,7 +34,10 @@ Remove some members from your shard:
 %prefixshard del 123-456-789 234567891 345678912```
 List arena ranks of all members of your shard:
 ```
-%prefixshard```"""
+%prefixshard```
+Export ally codes from your shard:
+```
+%prefixshard export```"""
 }
 
 help_fshard = {
@@ -178,6 +183,27 @@ def handle_shard_stats(config, author, args, shard_type):
 	except Player.DoesNotExist:
 		return error_no_ally_code_specified(config, author)
 
+def handle_shard_export(config, author, args, shard_type):
+
+	if args:
+		return error_unknown_parameters(args)
+
+	try:
+		player = Player.objects.get(discord_id=author.id)
+		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
+		members = ShardMember.objects.filter(shard=shard)
+		ally_codes = []
+		for member in members:
+			ally_codes.append(member.ally_code)
+
+		return [{
+			'title': 'Shard Export',
+			'description': 'Here is <@%s>\'s shard export for **%s** arena:\n`%s`' % (author.id, shard_type, ' '.join(ally_codes))
+		}]
+
+	except Player.DoesNotExist:
+		return error_no_ally_code_specified(config, author)
+
 shard_types = {
 	'c':     'char',
 	'char':  'char',
@@ -196,6 +222,7 @@ subcommands = {
 	'stat':   handle_shard_stats,
 	'stats':  handle_shard_stats,
 	'status': handle_shard_stats,
+	'export': handle_shard_export,
 }
 
 def parse_opts_subcommands(args):
