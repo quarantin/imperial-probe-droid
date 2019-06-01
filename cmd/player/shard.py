@@ -198,7 +198,7 @@ def handle_shard_export(config, author, args, shard_type):
 
 		return [{
 			'title': 'Shard Export',
-			'description': 'Here is <@%s>\'s shard export for **%s** arena:\n`%s`' % (author.id, shard_type, ' '.join(ally_codes))
+			'description': 'Here is <@%s>\'s shard export for **%s** arena:\n%s\n`%s`' % (author.id, shard_type, config['separator'], ' '.join(ally_codes))
 		}]
 
 	except Player.DoesNotExist:
