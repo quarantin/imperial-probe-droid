@@ -196,7 +196,7 @@ class BaseUnit(models.Model):
 	alignment = models.CharField(max_length=32, choices=ALIGNMENTS)
 	role = models.CharField(max_length=32, choices=ROLES)
 	power = models.IntegerField()
-	combat_type = models.CharField(max_length=32, choices=COMBAT_TYPES)
+	combat_type = models.IntegerField(choices=COMBAT_TYPES)
 	description = models.CharField(max_length=255)
 	url = models.CharField(max_length=255)
 	image = models.CharField(max_length=255)
@@ -243,13 +243,11 @@ class BaseUnit(models.Model):
 		return 'https://swgoh.gg/static/img/assets/%s' % self.image
 
 	def get_url(self):
-		return 'https://swgoh.gg/characters/%s' % self.url
+		token = 'ships'
+		if int(self.combat_type) == 1:
+			token = 'characters'
 
-	def get_char_url(self):
-		return 'https://swgoh.gg/characters/%s' % self.url
-
-	def get_ship_url(self):
-		return 'https://swgoh.gg/ships/%s' % self.url
+		return 'https://swgoh.gg/%s/%s' % (token, self.url)
 
 class BaseUnitFaction(models.Model):
 
