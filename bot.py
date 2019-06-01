@@ -38,7 +38,7 @@ PROBE_DIALOG = [
 def log_message(message):
 
 	date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-	server = 'TODO' #message.server
+	server = message.guild
 	channel = message.channel
 	content = message.content
 	author_tokens = []
