@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from opts import *
 
 help_fight = {

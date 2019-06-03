@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from utils import get_units_dict, http_get, http_post
 
 import json

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import shlex
 import string
 import random

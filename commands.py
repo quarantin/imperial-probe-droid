@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from cmd.guild.compare import *
 from cmd.guild.glist import *
 from cmd.management.alias import *

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 MODSLOTS = {
 	1: 'Square',
 	2: 'Arrow',

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from collections import OrderedDict
 
 from opts import *

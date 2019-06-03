@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from opts import *
 from errors import *
 from swgohhelp import get_player_name

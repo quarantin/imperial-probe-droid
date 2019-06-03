@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from opts import *
 from utils import lpad
 

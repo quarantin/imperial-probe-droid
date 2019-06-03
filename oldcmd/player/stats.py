@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import re
 
 from opts import *

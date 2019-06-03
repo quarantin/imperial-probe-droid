@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import os, json, requests
 
 config = {}
