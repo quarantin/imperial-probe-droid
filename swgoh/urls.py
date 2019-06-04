@@ -19,5 +19,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-	path('gear-levels/<str:base_id>/<str:ally_code>/', views.gear_levels),
+	path('gear-levels/<str:base_id>/', views.gear_levels),
 ]

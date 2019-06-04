@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from utils import http_get, ROMAN_NUMBERS
+from utils import http_get, translate
 
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_players
@@ -23,6 +23,8 @@ Show gear needed for count dooku:
 }
 
 def cmd_gear(config, author, channel, args):
+
+	language = parse_opts_lang(author)
 
 	args, selected_players, error = parse_opts_players(config, author, args, min_allies=1, max_allies=1)
 
@@ -61,7 +63,7 @@ def cmd_gear(config, author, channel, args):
 	lines = []
 	player = players[ally_code]
 	for unit in units:
-		url = 'http://%s/swgoh/gear-levels/%s/%s/' % (config['server'], unit.base_id, ally_code)
+		url = 'http://%s/swgoh/gear-levels/%s/' % (config['server'], unit.base_id)
 		response, error = http_get(url)
 		if error:
 			raise Exception('101 %s' % error)
@@ -69,17 +71,19 @@ def cmd_gear(config, author, channel, args):
 		if response.status_code != 200:
 			raise Exception('Request failed to %s' % url)
 
+		fields = []
 		json = response.json()
 		for name, data in json.items():
-			lines.append('**[%s](%s)**' % (name, data['url']))
+			unit_name = translate(unit.base_id, language)
+			lines.append('**[%s](%s)**' % (unit_name, data['url']))
 			min_gear_level = player['roster'][unit.base_id]['gear']
 			for tier in reversed(range(min_gear_level, 13)):
+				sublines = []
 				tier_str = str(tier)
-				tier_data = data['tiers'][tier_str]
-				lines.append('== Gear Lvl %s ==' % ROMAN_NUMBERS[tier])
 				for slot in sorted(data['tiers'][tier_str]):
-					gear_name = data['tiers'][tier_str][slot]['gear']
+					gear_id = data['tiers'][tier_str][slot]['gear']
 					gear_url = data['tiers'][tier_str][slot]['url']
+					gear_name = translate(gear_id, language)
 					equipped = False
 					for gear in player['roster'][unit.base_id]['equipped']:
 						if tier == player['roster'][unit.base_id]['gear']:
@@ -89,17 +93,25 @@ def cmd_gear(config, author, channel, args):
 
 					bold = not equipped and '**' or ''
 
-					lines.append('\t - %sSlot%s: [%s](%s)%s' % (bold, (int(slot)+1), gear_name, gear_url, bold))
+					sublines.append('%sSlot%s: [%s](%s)%s' % (bold, (int(slot)+1), gear_name, gear_url, bold))
 
-				lines.append('')
+				gear_tier_id = 'Unit_Tier%02d' % tier
+				gear_tier_title = translate(gear_tier_id, language)
+
+				fields.append({
+					'name': '== %s ==' % gear_tier_title,
+					'value': '\n'.join(sublines),
+				})
+
 		msgs.append({
-			'title': '== Needed Gear ==',
+			#'title': '== Needed Gear ==',
 			'description': '\n'.join(lines),
 			'author': {
 				'name': unit.name,
 				'icon_url': get_avatar_url(unit.base_id),
 			},
 			'image': unit.get_image(),
+			'fields': fields,
 		})
 
 	return msgs
