@@ -86,7 +86,21 @@ def cmd_guild_list(config, author, channel, args):
 
 	urls = {}
 	matches = {}
-	players = fetch_players(config, ally_codes)
+	players = fetch_players(config, {
+		'allycodes': ally_codes,
+		'project': {
+			'name': 1,
+			'allyCode': 1,
+			'guildName': 1,
+			'roster': {
+				'defId': 1,
+				'gp': 1,
+				'gear': 1,
+				'level': 1,
+				'rarity': 1,
+			},
+		},
+	})
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
 		player_name = player['name']
