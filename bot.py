@@ -96,7 +96,7 @@ def compute_hello_msg():
 	return (' '.join(words)).capitalize()
 
 def get_game():
-	return discord.Game(name='%shelp' % config['prefix'], type=2)
+	return discord.Activity(name='%shelp' % config['prefix'], type=discord.ActivityType.listening)
 
 @bot.event
 async def on_ready():
