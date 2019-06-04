@@ -51,7 +51,7 @@ def log_message(message):
 
 	author = '/'.join(author_tokens)
 
-	log = '[%s][server=%s][channel=%s][author=%s] %s' % (date, server, channel, author, content)
+	log = '[%s][%s - %s][user=%s] %s' % (date, server, channel, author, content)
 	print(log)
 
 	fout = open(LOGFILE, 'a+')
