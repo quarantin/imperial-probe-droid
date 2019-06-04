@@ -136,16 +136,28 @@ def parse_translations(collection, key, val, context, language):
 #	break
 
 WANTED_KEYS = [
-	'UnitStat_Accuracy',          # Potency
-	'UnitStat_Armor',             # Armor
-	'UnitStat_CriticalDamage',    # Critical Damage
-	'UnitStat_Health',            # Health
-	'UnitStat_MaxShield',         # Protection
-	'UnitStat_Offense',           # Offense
-	'UnitStat_Resistance',        # Tenacity
-	'UnitStat_Speed',             # Speed
-	'UnitStat_Suppression',       # Resistance
+	'UnitStat_Accuracy',                            # Potency
+	'UnitStat_Armor',                               # Armor
+	'UnitStat_CriticalDamage',                      # Critical Damage
+	'UnitStat_Defense',                             # Defense
+	'UnitStat_DefensePenetration',                  # Defense Penetration
+	'UnitStat_Health',                              # Health
+	'UnitStat_HealthSteal',                         # Health Steal
+	'UnitStat_MaxShield',                           # Protection
+	'UnitStat_Offense',                             # Offense
+	'UnitStat_DodgeNegateRating',                   # Physical Accuracy
+	'UnitStat_AttackCriticalNegateRating',          # Physical Critical Avoidance
+	'UnitStat_AttackCriticalRating_TU5V',           # Physical Critical Chance
+	'UnitStat_DeflectionNegateRating',              # Special Accuracy
+	'UnitStat_AbilityCriticalNegateRating',         # Special Critical Avoidance
+	'UnitStat_Resistance',                          # Tenacity
+	'UnitStat_Speed',                               # Speed
+	'UnitStat_Suppression',                         # Resistance
+	'UnitStat_SuppressionPenetration',              # Resistance Penetration
 ]
+
+for i in range(1, 13):
+	WANTED_KEYS.append('Unit_Tier%02d' % i)
 
 def parse_localization_files():
 
