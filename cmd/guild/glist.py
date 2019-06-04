@@ -23,7 +23,7 @@ Possible filters are:
 Search your guild for all player having Asajj Ventress at least Gear 12:
 ```
 %prefixglist asajj g12```
-Search your guild to see who's having Jedi Knight Reven with GP greater than 23000:
+Search your guild to see who's having Jedi Knight Revan with GP greater than 23000:
 ```
 %prefixglist jkr gp23000```"""
 }
