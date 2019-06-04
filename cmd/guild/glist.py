@@ -11,7 +11,7 @@ help_guild_list = {
 
 **Syntax**
 ```
-%prefixglist [players] [filters]
+%prefixglist [players] [filters]```
 
 **Options**
 Possible filters are:
