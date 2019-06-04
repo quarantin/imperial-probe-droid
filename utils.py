@@ -161,10 +161,8 @@ def translate(string_id, language, default=None):
 	import DJANGO
 	from swgoh.models import Translation
 
-	print("DEBUG TRANSLATE")
 	for lang in [ language, 'eng_us' ]:
 
-		print("DEBUG translate(%s, %s)" % (string_id, lang))
 		try:
 			t = Translation.objects.get(string_id=string_id, language=lang)
 			return t.translation
