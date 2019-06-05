@@ -268,9 +268,9 @@ fetch_all_collections(config)
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 	print('Parsing %s translations...' % language.lower())
-	#parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
-	#parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
-	#parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
+	parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
+	parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
+	parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
 
 parse_localization_files()
 parse_units()
