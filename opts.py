@@ -104,63 +104,79 @@ def parse_opts_format(config, opts, args):
 
 	return args, DEFAULT_FORMAT
 
-def parse_opts_mentions(config, args):
-
-	missing = []
-	ally_codes = []
-	args_cpy = list(args)
-
-	for arg in args_cpy:
-
-		m = re.search(r'^<@([0-9]+)>$', arg)
-		if m:
-			discord_id = m.group(1)
-			try:
-				p = Player.objects.get(discord_id=discord_id)
-				ally_codes.append(p.ally_code)
-				args.remove(arg)
-
-			except Player.DoesNotExist:
-				missing.append(arg)
-				args.remove(arg)
-
-	return args, ally_codes, missing
+def parse_opts_ally_code(arg):
+	regex = r'^[0-9]{9}$|^[0-9]{3}-[0-9]{3}-[0-9]{3}$'
+	m = re.search(regex, arg)
+	return m and m.group(0).replace('-', '') or False
 
 def parse_opts_ally_codes(config, author, args):
 
-	args, ally_codes, missing = parse_opts_mentions(config, args)
-
+	ally_codes = []
 	args_cpy = list(args)
-
 	for arg in args_cpy:
 
-		ally_code = Player.get_ally_code_by_nick(arg)
+		ally_code = parse_opts_ally_code(arg)
 		if ally_code:
 			args.remove(arg)
 			ally_codes.append(ally_code)
 
+	return list(set(ally_codes))
+
+def parse_opts_mentions(config, author, args):
+
+	discord_ids = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		discord_id = None
+
+		m = re.search(r'^<@([0-9]+)>$', arg)
+		if m:
+			args.remove(arg)
+			discord_ids.append(int(m.group(1)))
+
+		elif arg.lower() in [ 'me', '@me' ]:
+			args.remove(arg)
+			discord_ids.append(author.id)
+
 		else:
-			m = re.search('^[0-9]{9}|[0-9]{3}-[0-9]{3}-[0-9]{3}$', arg)
-			if m:
-				ally_code = m.group(0).replace('-', '')
-				ally_codes.append(ally_code)
+			p = Player.get_player_by_nick(arg)
+			if p:
 				args.remove(arg)
+				discord_ids.append(p.discord_id)
 
-	return args, ally_codes, missing
+	return list(set(discord_ids))
 
-def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1):
+def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1, language='eng_us'):
 
 	players = []
-	args, ally_codes, missing = parse_opts_ally_codes(config, author, args)
-	if missing:
-		return args, None, error_no_ally_code_registered(config, missing)
+	discord_ids = parse_opts_mentions(config, author, args)
+	ally_codes = parse_opts_ally_codes(config, author, args)
 
-	if len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
+	unregistered = []
+	for discord_id in discord_ids:
+
 		try:
-			player = Player.objects.get(discord_id=author.id)
-			if player.ally_code not in ally_codes:
-				ally_codes.insert(0, player.ally_code)
+			p = Player.objects.get(discord_id=discord_id)
+			if p.ally_code not in ally_codes:
+				ally_codes.append(p.ally_code)
+
 		except Player.DoesNotExist:
+			unregistered.append(discord_id)
+
+	if unregistered:
+		return args, None, error_ally_codes_not_registered(config, unregistered)
+
+	if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
+		print('Not enough ally code, trying to get ally code of author')
+		try:
+			p = Player.objects.get(discord_id=author.id)
+			if p.ally_code not in ally_codes:
+				ally_codes.insert(0, p.ally_code)
+				print('SUCCESS')
+
+		except Player.DoesNotExist:
+			print('WTF')
 			pass
 
 	if not ally_codes:
@@ -172,15 +188,10 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 	if len(ally_codes) > max_allies and max_allies != -1:
 		return args, None, error_too_many_ally_codes_specified(ally_codes, max_allies)
 
-	for ally_code in ally_codes:
-		try:
-			player = Player.objects.get(discord_id=author.id, ally_code=ally_code)
-
-		except Player.DoesNotExist:
-			player = Player(discord_id=author.id, ally_code=ally_code)
-			player.not_in_db = True
-
-		players.append(player)
+	matching_players = Player.objects.filter(ally_code__in=ally_codes)
+	for player in matching_players:
+		if player not in players:
+			players.append(player)
 
 	return args, players, None
 

@@ -111,6 +111,12 @@ COMMANDS = [
 		'help': help_lookup,
 	},
 	{
+		'command': 'me',
+		'aliases': [ 'me' ],
+		'function': cmd_me,
+		'help': help_me,
+	},
+	{
 		'command': 'meta',
 		'aliases': [ 'M', 'meta' ],
 		'function': cmd_meta,
