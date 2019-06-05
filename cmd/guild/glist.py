@@ -69,7 +69,7 @@ def cmd_guild_list(config, author, channel, args):
 	fields = []
 	ally_codes = [ p.ally_code for p in selected_players ]
 	guild_list = fetch_guilds(config, {
-		'allycodes': ally_codes,
+		'allycodes': [ str(x) for x in ally_codes ],
 		'project': {
 			'guildName': 1,
 			'roster': {
@@ -78,11 +78,10 @@ def cmd_guild_list(config, author, channel, args):
 		},
 	})
 
-	ally_codes = []
 	for root_ally_code, guild in guild_list.items():
 		for ally_code, player in guild['roster'].items():
-			if str(player['allyCode']) not in ally_codes:
-				ally_codes.append(str(player['allyCode']))
+			if int(player['allyCode']) not in ally_codes:
+				ally_codes.append(int(player['allyCode']))
 
 	urls = {}
 	matches = {}
@@ -101,6 +100,7 @@ def cmd_guild_list(config, author, channel, args):
 			},
 		},
 	})
+
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
 		player_name = player['name']
