@@ -1,3 +1,4 @@
+import json
 import discord
 from utils import now
 
@@ -17,9 +18,6 @@ def color(name):
 	return discord.Colour(color_code)
 
 def split_message(message):
-
-	if 'description' not in message or len(message['description']) <= 2048:
-		return [ message ]
 
 	title     = message.pop('title', False)
 	author    = message.pop('author', False)
@@ -51,8 +49,6 @@ def split_message(message):
 		new_desc += line + '\n'
 
 	else:
-		print(index)
-		print(len(msgs))
 		msgs[ len(msgs) - 1 ]['description'] = new_desc
 
 	if title:
@@ -62,7 +58,20 @@ def split_message(message):
 		msgs[0]['author'] = author
 
 	if fields:
-		msgs[ len(msgs) - 1 ]['fields'] = fields
+
+		last_message = msgs[ len(msgs) - 1 ]
+		last_message['fields'] = []
+		total_length = len(json.dumps(last_message))
+		for field in fields:
+			field_length = len(json.dumps(field))
+			if total_length + field_length < 6000:
+				last_message['fields'].append(field)
+			else:
+				last_message = dict(message)
+				last_message['fields'] = [ field ]
+				msgs.append(last_message)
+
+			total_length = len(json.dumps(last_message))
 
 	return msgs
 
