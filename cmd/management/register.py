@@ -28,6 +28,7 @@ Register your ally code:
 %prefixregister 123456789
 %prefixregister 234-567-891```
 Register two players at once:
+```
 %prefixregister @somePlayer @otherPlayer 123456789 234567891
 %prefixregister @somePlayer @otherPlayer 123-456-789 234-567-891```""",
 }
