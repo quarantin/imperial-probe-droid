@@ -12,7 +12,7 @@ help_me = {
 
 help_register = {
 	'title': 'Register Help',
-	'description': """Register your ally code.
+	'description': """Register yourself or your teammates to the bot.
 	
 **Syntax**
 Self registration:
