@@ -60,7 +60,6 @@ def cmd_gear(config, author, channel, args):
 
 
 	msgs = []
-	lines = []
 	player = players[ally_code]
 	for unit in units:
 		url = 'http://%s/swgoh/gear-levels/%s/' % (config['server'], unit.base_id)
@@ -71,6 +70,7 @@ def cmd_gear(config, author, channel, args):
 		if response.status_code != 200:
 			raise Exception('Request failed to %s' % url)
 
+		lines = []
 		fields = []
 		json = response.json()
 		for name, data in json.items():
