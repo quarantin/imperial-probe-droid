@@ -275,7 +275,6 @@ def cmd_player_compare(config, author, channel, args):
 	fields = []
 	ally_codes = [ player.ally_code for player in selected_players ]
 	stats, players = fetch_crinolo_stats(config, ally_codes)
-	print('Done fetching crinolo stats')
 
 	for player in players:
 		ally_code = str(player['allyCode'])
