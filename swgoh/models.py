@@ -76,10 +76,13 @@ class Player(models.Model):
 	game_nick            = models.CharField(max_length=128, default='', blank=True, null=True)
 	language             = models.CharField(max_length=128, default='eng_us', choices=LANGUAGES)
 
-	def get_ally_code(self):
-		return '%s-%s-%s' % (self.ally_code[0:3], self.ally_code[3:6], self.ally_code[6:9])
+	def format_ally_code(ally_code):
+		return '%s-%s-%s' % (ally_code[0:3], ally_code[3:6], ally_code[6:9])
 
-	def get_ally_code_by_nick(nick):
+	def get_ally_code(self):
+		return Player.format_ally_code(self.ally_code)
+
+	def get_player_by_nick(nick):
 
 		from django.db.models import Q
 		match_name = Q(discord_name=nick)
@@ -88,12 +91,14 @@ class Player(models.Model):
 		match_game_nick = Q(game_nick=nick)
 
 		try:
-
-			p = Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
-			return p.ally_code
+			return Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
 
 		except Player.DoesNotExist:
 			return None
+
+	def get_ally_code_by_nick(nick):
+		p = Player.get_player_by_nick(nick)
+		return p and p.ally_code or None
 
 	def __str__(self):
 		if self.discord_display_name:
