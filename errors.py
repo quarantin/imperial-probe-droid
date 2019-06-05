@@ -9,14 +9,14 @@ def error_no_such_command(command):
 	return [{
 		'title': 'Error: No Such Command',
 		'color': 'red',
-		'description': 'No such command \'%s\'' % command,
+		'description': 'No such command `%s`' % command,
 	}]
 
 def error_no_ally_code_specified(config, author):
 	return [{
 		'title': 'Error: Not Found',
 		'color': 'red',
-		'description': 'No ally code specified or found registered to <@%s>. Please see `%shelp register` to get help with registration.' % (author.id, config['prefix']),
+		'description': 'No ally code specified or found registered to <@%s>. Please type `%shelp register` to get help with registration.' % (author.id, config['prefix']),
 	}]
 
 def error_ally_codes_not_registered(config, discord_ids):
@@ -25,7 +25,7 @@ def error_ally_codes_not_registered(config, discord_ids):
 	return [{
 		'title': 'Error: Unknown Player%s' % plural,
 		'color': 'red',
-		'description': 'I don\'t know any ally code registered to the following user%s\n- %s.\n\nPlease see `%shelp register` for more information.' % (plural, '\n- '.join(discord_mentions), config['prefix']),
+		'description': 'I don\'t know any ally code registered to the following user%s\n- %s.\n\nPlease type `%shelp register` for more information.' % (plural, '\n- '.join(discord_mentions), config['prefix']),
 	}]
 
 def error_not_enough_ally_codes_specified(ally_codes, limit):
@@ -79,7 +79,7 @@ def error_no_mod_filter_selected(config):
 	return [{
 		'title': 'Error: No Filter Selected',
 		'color': 'red',
-		'description': 'You have to provide a mod filter.\nPlease check %shelp wntm for more information.' % config['prefix'],
+		'description': 'You have to provide a mod filter.\nPlease type `%shelp wntm` for more information on mod filters.' % config['prefix'],
 	}]
 
 def error_register_mismatch(config, author, discord_ids, ally_codes):

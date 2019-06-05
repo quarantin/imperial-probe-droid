@@ -88,7 +88,7 @@ def cmd_links(config, author, channel, args):
 			return [{
 				'title': 'Error: Invalid Parameter',
 				'color': 'red',
-				'description': 'I could not find a link with name or ID `%d`. Please see `%shelp links` for a list of valid names and IDs.' % (link_name, config['prefix']),
+				'description': 'I could not find a link with name or ID `%d`. Please type `%shelp links` for a list of valid names and IDs.' % (link_name, config['prefix']),
 			}]
 
 	elif action == 'add':
@@ -113,5 +113,5 @@ def cmd_links(config, author, channel, args):
 	return [{
 		'title': 'Error: Invalid Action',
 		'color': 'red',
-		'description': '`%s` is not a valid action. Please see `%shelp links` for a list of valid actions.' % (action, config['prefix']),
+		'description': '`%s` is not a valid action. Please type `%shelp links` for a list of valid actions.' % (action, config['prefix']),
 	}]

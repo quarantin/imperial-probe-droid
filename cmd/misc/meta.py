@@ -99,7 +99,7 @@ def cmd_meta(config, author, channel, args):
 		return [{
 			'title': 'Error: Missing Option',
 			'color': 'red',
-			'description': 'I need at least one option. Please see `%shelp meta` to see available options.' % config['prefix'],
+			'description': 'I need at least one option. Please type `%shelp meta` to see available options.' % config['prefix'],
 		}]
 
 

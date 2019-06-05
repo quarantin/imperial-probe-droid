@@ -31,7 +31,7 @@ def cmd_fight(config, author, channel, args):
 		return [{
 			'title': 'Error: Invalid Number of Parameters',
 			'color': 'red',
-			'description': 'You supplied %d parameters but I need exactly %d. Please see **`%shelp fight`** for more information.' % (len(args), 14),
+			'description': 'You supplied %d parameters but I need exactly %d. Please type `%shelp fight` for more information.' % (len(args), 14),
 		}]
 
 	status = args[0]

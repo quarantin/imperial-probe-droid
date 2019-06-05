@@ -110,5 +110,5 @@ def cmd_format(config, author, channel, args):
 	return [{
 		'title': 'Error: Invalid Action',
 		'color': 'red',
-		'description': '`%s` is not a valid action. Please see `%shelp format` for a list of valid actions.' % (action, config['prefix']),
+		'description': '`%s` is not a valid action. Please type `%shelp format` for a list of valid actions.' % (action, config['prefix']),
 	}]

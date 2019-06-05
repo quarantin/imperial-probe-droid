@@ -81,7 +81,7 @@ def cmd_alias(config, author, channel, args):
 			return [{
 				'title': 'Error: Missing Parameters',
 				'color': 'red',
-				'description': 'Please see !help alias.',
+				'description': 'Please type `%shelp alias` to get help.' % config['prefix'],
 			}]
 
 		alias_name = args[1]
@@ -100,5 +100,5 @@ def cmd_alias(config, author, channel, args):
 	return [{
 		'title': 'Error: Invalid Action',
 		'color': 'red',
-		'description': '`%s` is not a valid action. Please see `%shelp alias` for a list of valid actions.' % (action, config['prefix']),
+		'description': '`%s` is not a valid action. Please type `%shelp alias` for a list of valid actions.' % (action, config['prefix']),
 	}]
