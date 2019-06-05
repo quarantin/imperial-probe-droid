@@ -2,6 +2,7 @@ import shlex
 import string
 import random
 import discord
+import inspect
 import traceback
 from datetime import datetime
 from discord.ext import commands
@@ -140,7 +141,13 @@ async def on_message(message):
 	try:
 		for cmd in COMMANDS:
 			if command in cmd['aliases']:
-				msgs = cmd['function'](config, message.author, channel, args)
+
+				if inspect.iscoroutinefunction(cmd['function']):
+
+					msgs = await cmd['function'](config, message.author, channel, args)
+				else:
+					msgs = cmd['function'](config, message.author, channel, args)
+
 				for msg in msgs:
 					embeds = new_embeds(config, msg)
 					for embed in embeds:
