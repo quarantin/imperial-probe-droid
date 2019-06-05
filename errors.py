@@ -19,10 +19,11 @@ def error_no_ally_code_specified(config, author):
 		'description': 'No ally code specified or found registered to <@%s>. Please see `%shelp register` to get help with registration.' % (author.id, config['prefix']),
 	}]
 
-def error_no_ally_code_registered(config, discord_mentions):
-	plural = len(discord_mentions) > 1 and 's' or ''
+def error_ally_codes_not_registered(config, discord_ids):
+	plural = len(discord_ids) > 1 and 's' or ''
+	discord_mentions = [ '<@%s>' % x for x in discord_ids ]
 	return [{
-		'title': 'Error: Unknown Player',
+		'title': 'Error: Unknown Player%s' % plural,
 		'color': 'red',
 		'description': 'I don\'t know any ally code registered to the following user%s\n- %s.\n\nPlease see `%shelp register` for more information.' % (plural, '\n- '.join(discord_mentions), config['prefix']),
 	}]
@@ -81,9 +82,29 @@ def error_no_mod_filter_selected(config):
 		'description': 'You have to provide a mod filter.\nPlease check %shelp wntm for more information.' % config['prefix'],
 	}]
 
+def error_register_mismatch(config, author, discord_ids, ally_codes):
+
+	ally_codes_str = ''
+	discord_ids_str = ''
+
+	if len(discord_ids):
+		discord_ids_str = 'Here is the list of discord users:\n- %s' % '\n- '.join(discord_ids)
+		if len(ally_codes):
+			ally_codes_str = 'And the list of ally codes:\n- %s' % '\n- '.join(ally_codes)
+
+	elif len(ally_codes):
+		if len(ally_codes):
+			ally_codes_str = 'Here is the list of ally codes:\n- %s' % '\n- '.join(ally_codes)
+
+	return [{
+		'title': 'Error: Registration Failed',
+		'color': 'red',
+		'description': 'You have to supply the same number of discord users and ally codes but you supplied %d discord users and %d ally codes. %s%s' % (len(discord_ids), len(ally_codes), discord_ids_str, ally_codes_str),
+	}]
+
 def error_permission_denied():
 	return [{
-		'title': 'Permission Denied',
+		'title': 'Error: Permission Denied',
 		'color': 'red',
 		'description': 'You\'re not allowed to run this command, only an admin can.',
 	}]
