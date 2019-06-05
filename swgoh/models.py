@@ -69,7 +69,7 @@ class Player(models.Model):
 		return None
 
 	ally_code            = models.CharField(max_length=128, unique=True)
-	discord_id           = models.CharField(max_length=128, unique=True)
+	discord_id           = models.IntegerField(unique=True)
 	discord_name         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_nick         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_display_name = models.CharField(max_length=128, default='', blank=True, null=True)
