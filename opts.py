@@ -107,7 +107,7 @@ def parse_opts_format(config, opts, args):
 def parse_opts_ally_code(arg):
 	regex = r'^[0-9]{9}$|^[0-9]{3}-[0-9]{3}-[0-9]{3}$'
 	m = re.search(regex, arg)
-	return m and m.group(0).replace('-', '') or False
+	return m and int(m.group(0).replace('-', '')) or False
 
 def parse_opts_ally_codes(config, author, args):
 
