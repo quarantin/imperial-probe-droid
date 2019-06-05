@@ -15,14 +15,21 @@ help_register = {
 	'description': """Register your ally code.
 	
 **Syntax**
+Self registration:
 ```
 %prefixregister <ally-code>```
+Mass registration:
+```
+%prefixregister <players> <ally-codes>```
 
 **Examples**
 Register your ally code:
 ```
 %prefixregister 123456789
-%prefixregister 123-456-789```""",
+%prefixregister 234-567-891```
+Register two players at once:
+%prefixregister @somePlayer @otherPlayer 123456789 234567891
+%prefixregister @somePlayer @otherPlayer 123-456-789 234-567-891```""",
 }
 
 def cmd_me(config, author, channel, args):
