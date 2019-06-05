@@ -53,7 +53,7 @@ def cmd_nicks(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 1:
-			return error_missing_parameters('nicks')
+			return error_missing_parameters(config, 'nicks')
 
 		target_nick = args.pop(0)
 		if target_nick.isdigit():
@@ -82,7 +82,7 @@ def cmd_nicks(config, author, channel, args):
 	elif action == 'add':
 
 		if len(args) < 2:
-			return error_missing_parameter('nicks')
+			return error_missing_parameter(config, 'nicks')
 
 		target_nick = args.pop(0)
 		args, selected_units = parse_opts_unit_names(config, args)

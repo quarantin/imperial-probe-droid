@@ -52,7 +52,7 @@ def cmd_alias(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 2:
-			return error_missing_parameter('alias')
+			return error_missing_parameter(config, 'alias')
 
 		alias_name = args[1]
 		if alias_name.isdigit():

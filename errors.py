@@ -52,11 +52,11 @@ def error_no_unit_selected():
 	}]
 
 # TODO pass bot command prefix
-def error_missing_parameter(command):
+def error_missing_parameter(config, command):
 	return [{
 		'title': 'Error: Missing Parameter',
 		'color': 'red',
-		'description': 'Please see !help %s.' % command,
+		'description': 'Please type `%shelp %s`.' % (config['prefix'], command),
 	}]
 
 def error_unknown_parameters(args):

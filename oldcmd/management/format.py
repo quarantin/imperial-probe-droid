@@ -57,7 +57,7 @@ def cmd_format(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 2:
-			return error_missing_parameter('format')
+			return error_missing_parameter(config, 'format')
 
 		success = False
 		format_name = args[1]
@@ -92,7 +92,7 @@ def cmd_format(config, author, channel, args):
 	elif action == 'add':
 
 		if len(args) < 3:
-			return error_missing_parameter('format')
+			return error_missing_parameter(config, 'format')
 
 		format_name = args[1]
 		custom_format = ' '.join(args[2:])

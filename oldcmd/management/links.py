@@ -51,7 +51,7 @@ def cmd_links(config, author, channel, args):
 	if action == 'del':
 
 		if len(args) < 2:
-			return error_missing_parameter('links')
+			return error_missing_parameter(config, 'links')
 
 		found = False
 		link_val = None
@@ -94,7 +94,7 @@ def cmd_links(config, author, channel, args):
 	elif action == 'add':
 
 		if len(args) < 3:
-			return error_missing_parameter('links')
+			return error_missing_parameter(config, 'links')
 
 		link_name = args[1]
 		link_val = args[2]
