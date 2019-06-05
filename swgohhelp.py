@@ -134,9 +134,10 @@ def fetch_players(config, project):
 	result = {}
 	for player in players:
 
-		player['roster'] = get_units_dict(player['roster'], 'defId')
+		if 'roster' in player:
+			player['roster'] = get_units_dict(player['roster'], 'defId')
 
-		ally_code = str(player['allyCode'])
+		ally_code = player['allyCode']
 		result[ally_code] = player
 
 	return result
@@ -170,7 +171,7 @@ def fetch_crinolo_stats(config, project):
 
 	result = {}
 	for player in stats:
-		ally_code = str(player['allyCode'])
+		ally_code = player['allyCode']
 		result[ally_code] = {}
 		for unit in player['roster']:
 			base_id = unit['defId']
