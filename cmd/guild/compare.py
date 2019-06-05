@@ -172,14 +172,29 @@ def cmd_guild_compare(config, author, channel, args):
 
 	fields = []
 	ally_codes = [ player.ally_code for player in selected_players ]
-	guild_list = fetch_guilds(config, ally_codes)
+	guild_list = fetch_guilds(config, {
+		'allycodes': [ str(x) for x in ally_codes ],
+		'project': {
+			'id': 1,
+			'name': 1,
+			'guildName': 1,
+			'gp': 1,
+			'members': 1,
+			'message': 1,
+			'desc': 1,
+			'roster': {
+				'allyCode': 1,
+			},
+		},
+	})
 
-	members = []
-	for ally_code, guild in guild_list.items():
-		members.extend(list(guild['roster']))
+	for dummy, guild in guild_list.items():
+		for ally_code_str, player in guild['roster'].items():
+			if player['allyCode'] not in ally_codes:
+				ally_codes.append(player['allyCode'])
 
 	players = fetch_players(config, {
-		'allycodes': members,
+		'allycodes': ally_codes,
 		'project': {
 			'allyCode': 1,
 			'name': 1,
@@ -212,10 +227,12 @@ def cmd_guild_compare(config, author, channel, args):
 		for guild_name, guild in guilds.items():
 
 			roster = {}
-			for ally_code in guild['roster']:
+			for dummy, dummy_player in guild['roster'].items():
+				ally_code = dummy_player['allyCode']
 				if ally_code not in players:
 					print('WARN: Player missing from swgoh.help/api/players: %s' % ally_code)
 					continue
+
 				player = players[ally_code]
 				for base_id, player_unit in player['roster'].items():
 					if base_id not in roster:
