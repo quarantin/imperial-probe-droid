@@ -80,12 +80,15 @@ class Player(models.Model):
 		return '%s-%s-%s' % (self.ally_code[0:3], self.ally_code[3:6], self.ally_code[6:9])
 
 	def get_ally_code_by_nick(nick):
+
 		from django.db.models import Q
 		match_name = Q(discord_name=nick)
 		match_nick = Q(discord_nick=nick)
 		match_display_name = Q(discord_display_name=nick)
 		match_game_nick = Q(game_nick=nick)
+
 		try:
+
 			p = Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
 			return p.ally_code
 
