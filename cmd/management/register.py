@@ -123,7 +123,7 @@ async def register_users(config, author, discord_ids, ally_codes):
 
 	return [{
 		'title': '',
-		'description': 'Hello <@%s>,\n\n%s%s language is set to **%s** %s.\n%s can change it using **`%slanguage`**.' % (author.id, lines_str, your_hisher_str, language[3], language[2], you_they_str, config['prefix']),
+		'description': 'Hello <@%s>,\n\n%s%s language is set to **%s** %s.\n%s can type `%slanguage` to change it.' % (author.id, lines_str, your_hisher_str, language[3], language[2], you_they_str, config['prefix']),
 	}]
 
 async def cmd_register(config, author, channel, args):
