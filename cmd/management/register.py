@@ -37,26 +37,19 @@ def cmd_me(config, author, channel, args):
 	lines = []
 	for player in selected_players:
 
-		author_str = author.id == player.discord_id and 'Your ally code' or ('Ally code of **<@%s>**' % player.discord_id)
-		ally_code_str = Player.format_ally_code(player.ally_code)
-		ally_code_full_str = '%s is **`%s`**.' % (author_str, ally_code_str)
-
-		you_they_str = 'They'
-		your_hisher_str = 'His/Her'
-		if author.id == player.discord_id:
-			you_they_str = 'You'
-			your_hisher_str = 'Your'
+		author_str = 'Ally code of **<@%s>**' % player.discord_id
+		ally_code_full_str = '%s is **`%s`**.' % (author_str, Player.format_ally_code(player.ally_code))
+		lines.append(ally_code_full_str)
 
 		language = Player.get_language_info(player.language)
-		language_str = '%s language is set to **%s** %s' % (your_hisher_str, language[3], language[2])
-
-		lines.append(ally_code_full_str)
+		language_str = 'Language is set to **%s** %s' % (language[3], language[2])
 		lines.append(language_str)
+		lines.append('')
 
 	lines_str = '\n'.join(lines)
 	return [{
 		'title': 'Me',
-		'description': 'Hello <@%s>,\n\n%s\nYou can type **`%slanguage`** to change it.' % (author.id, lines_str, config['prefix']),
+		'description': 'Hello <@%s>,\n\n%s\nPlease type **`%slanguage`** to change your language.' % (author.id, lines_str, config['prefix']),
 	}]
 
 async def fill_user_info(player):
@@ -88,11 +81,9 @@ async def register_users(config, author, discord_ids, ally_codes):
 	lines = []
 	for discord_id, ally_code in zip(discord_ids, ally_codes):
 
-		print("WTF: %s" % type(ally_code))
 		db_player, created = Player.objects.get_or_create(discord_id=discord_id)
 
-		game_nick = players[ally_code]['name']
-		author_str = (author.id == discord_id) and 'Your ally code' or 'Ally code of **<@%s>**' % discord_id
+		author_str = 'Ally code of **<@%s>**' % discord_id
 		ally_code_str = Player.format_ally_code(ally_code)
 		ally_code_full_str = '%s is **`%s`**.' % (author_str, ally_code_str)
 		if db_player.ally_code and db_player.ally_code != ally_code:
@@ -103,27 +94,23 @@ async def register_users(config, author, discord_ids, ally_codes):
 
 		db_player.save()
 
-		registered_str = 'Player **%s** already registered.' % db_player.game_nick
+		language = Player.get_language_info(db_player.language)
+		language_str = 'Language is set to **%s** %s.' % (language[3], language[2])
+
+		registered_str = 'Player **%s** already registered!' % db_player.game_nick
 		if created:
 			registered_str = 'Registration successful for **%s**!' % db_player.game_nick
 
 		lines.append(registered_str)
-		lines.append('')
-
 		lines.append(ally_code_full_str)
+		lines.append(language_str)
 		lines.append('')
-
-	you_they_str = 'They'
-	your_hisher_str = 'His/Her'
-	if len(discord_ids) == 1 and discord_ids[0] == author.id:
-		you_they_str = 'You'
-		your_hisher_str = 'Your'
 
 	lines_str = '\n'.join(lines)
 
 	return [{
 		'title': '',
-		'description': 'Hello <@%s>,\n\n%s%s language is set to **%s** %s.\n%s can type `%slanguage` to change it.' % (author.id, lines_str, your_hisher_str, language[3], language[2], you_they_str, config['prefix']),
+		'description': 'Hello <@%s>,\n\n%s\nPlease type `%slanguage` to change your language.' % (author.id, lines_str, config['prefix']),
 	}]
 
 async def cmd_register(config, author, channel, args):
