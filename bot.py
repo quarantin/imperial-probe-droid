@@ -6,7 +6,6 @@ import inspect
 import traceback
 from datetime import datetime
 from discord.ext import commands
-from collections import OrderedDict
 from config import config, load_config
 
 from utils import *
@@ -37,24 +36,20 @@ PROBE_DIALOG = [
 def log_message(message):
 
 	date = datetime.now().strftime('%Y%m%d %H:%M:%S')
-	server = message.guild
-	channel = message.channel
+	server = str(message.guild) or ''
+	channel = str(message.channel) or ''
 	content = message.content
 	author_tokens = []
-	if message.author.id:
-		author_tokens.append(str(message.author.id))
-	if message.author.display_name:
-		author_tokens.append(message.author.display_name)
-	if hasattr(message.author, 'nick') and message.author.nick:
-		author_tokens.append(message.author.nick)
-	if message.author.name:
-		author_tokens.append(message.author.name)
-
-	author_tokens = list(OrderedDict(author_tokens))
+	for attr in [ 'id', 'display_name', 'nick', 'name' ]:
+		if hasattr(message.author, attr):
+			value = getattr(message.author, attr)
+			if value and str(value) not in author_tokens:
+				author_tokens.append(str(value))
 
 	author = '/'.join(author_tokens)
+	source = ' - '.join([ server, channel ])
 
-	log = '[%s][%s - %s][%s] %s' % (date, server, channel, author, content)
+	log = '[%s][%s][%s] %s' % (date, source, author, content)
 	print(log)
 
 	fout = open(LOGFILE, 'a+')
@@ -113,20 +108,25 @@ async def on_ready():
 
 	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
 
+def remove_prefix(prefix, mention, content):
+	return content.replace(prefix, '').replace(mention, '').strip()
+
 @bot.event
 async def on_message(message):
 
-	if not message.content.startswith(config['prefix']):
+	self_mention = '<@%s>' % bot.user.id
+	if not message.content.startswith(config['prefix']) and not message.content.startswith(self_mention):
 		return
 
 	log_message(message)
 
 	channel = message.channel
-	content = message.content.replace(config['prefix'], '', 1).strip()
+	content = remove_prefix(config['prefix'], self_mention, message.content)
 	args = shlex.split(content)
 	command = args[0]
 	if command in config['aliases']:
-		content = message.content.replace(command, config['aliases'][command]).replace(config['prefix'], '', 1).strip()
+		replaced = message.content.replace(command, config['aliases'][command])
+		content = remove_prefix(config['prefix'], self_mention, replaced)
 		args = shlex.split(content)
 		command = args[0]
 
