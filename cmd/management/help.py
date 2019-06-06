@@ -19,7 +19,7 @@ help_help = {
 %separator
 **Guild Commands**
 **`gc`**: Compare different guilds and their respective units.
-**`glist`**: List units from your guild by GP, gear, level, rarity. (**NEW**).
+**`glist`**: List guild members by unit GP, gear, level, rarity. (**NEW**).
 %separator
 **Player Commands**
 **`arena`**: Show arena squad details.
