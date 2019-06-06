@@ -19,11 +19,11 @@ help_help = {
 %separator
 **Guild Commands**
 **`gc`**: Compare different guilds and their respective units.
-**`glist`**: List guild members by unit GP, gear, level, rarity. (**NEW**).
+**`glist`**: List guild members by unit GP, gear, level, rarity (**NEW**).
 %separator
 **Player Commands**
 **`arena`**: Show arena squad details.
-**`gear`**: List needed pieces of gear for units.
+**`gear`**: List needed pieces of gear for units (**NEW**).
 **`locked`**: Show locked characters or ships.
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
