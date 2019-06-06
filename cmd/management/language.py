@@ -22,7 +22,7 @@ Configure your default language to French:
 }
 
 def get_available_languages(config, author):
-	langs = [ ' - **%s**: %s' % (lang_code, lang_name) for language, lang_code, lang_flag, lang_name in Player.LANGS ]
+	langs = [ ' - **`%s`**: %s' % (lang_code, lang_name) for language, lang_code, lang_flag, lang_name in Player.LANGS ]
 	langs.insert(0, 'Here is the list of supported languages:')
 
 	try:
