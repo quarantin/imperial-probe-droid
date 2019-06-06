@@ -29,7 +29,7 @@ def split_message(message):
 	message['description'] = ''
 
 	count, rest = divmod(len(desc), 2048)
-	if rest > 0:
+	if count == 0 or rest > 0:
 		count += 1
 
 	msgs = [ dict(message) for i in range(0, count) ]
