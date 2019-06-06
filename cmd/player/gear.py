@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 from utils import http_get, translate
 
-from swgohgg import get_avatar_url
+from swgohgg import get_avatar_url, get_full_avatar_url
 from swgohhelp import fetch_players
 
 help_gear = {
@@ -28,12 +28,12 @@ def cmd_gear(config, author, channel, args):
 
 	args, selected_players, error = parse_opts_players(config, author, args, min_allies=1, max_allies=1)
 
-	args, units = parse_opts_unit_names(config, args)
+	args, selected_units = parse_opts_unit_names(config, args)
 
 	if args:
 		return error_unknown_parameters(args)
 
-	if not units:
+	if not selected_units:
 		return error_no_unit_selected()
 
 	if error:
@@ -51,6 +51,9 @@ def cmd_gear(config, author, channel, args):
 			'roster': {
 				'defId': 1,
 				'gear': 1,
+				'level': 1,
+				'rarity': 1,
+				'skills': 1,
 				'equipped': {
 					'slot': 1,
 				},
@@ -61,7 +64,7 @@ def cmd_gear(config, author, channel, args):
 
 	msgs = []
 	player = players[ally_code]
-	for unit in units:
+	for unit in selected_units:
 		url = 'http://%s/swgoh/gear-levels/%s/' % (config['server'], unit.base_id)
 		response, error = http_get(url)
 		if error:
@@ -72,11 +75,12 @@ def cmd_gear(config, author, channel, args):
 
 		lines = []
 		fields = []
+		player_unit = unit.base_id in player['roster'] and player['roster'][unit.base_id] or {}
 		json = response.json()
 		for name, data in json.items():
 			unit_name = translate(unit.base_id, language)
 			lines.append('**[%s](%s)**' % (unit_name, data['url']))
-			min_gear_level = unit.base_id in player['roster'] and player['roster'][unit.base_id]['gear'] or 1
+			min_gear_level = player_unit and player_unit['gear'] or 1
 			for tier in reversed(range(min_gear_level, 13)):
 				sublines = []
 				tier_str = str(tier)
@@ -85,9 +89,9 @@ def cmd_gear(config, author, channel, args):
 					gear_url = data['tiers'][tier_str][slot]['url']
 					gear_name = translate(gear_id, language)
 					equipped = False
-					if unit.base_id in player['roster']:
-						for gear in player['roster'][unit.base_id]['equipped']:
-							if tier == player['roster'][unit.base_id]['gear']:
+					if player_unit:
+						for gear in player_unit['equipped']:
+							if tier == player_unit['gear']:
 								if int(slot) == gear['slot']:
 									equipped = True
 									break
@@ -111,7 +115,7 @@ def cmd_gear(config, author, channel, args):
 				'name': unit.name,
 				'icon_url': get_avatar_url(unit.base_id),
 			},
-			'image': unit.get_image(),
+			'image': get_full_avatar_url(config, unit.image, player_unit),
 			'fields': fields,
 		})
 
