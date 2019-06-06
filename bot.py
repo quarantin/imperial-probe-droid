@@ -121,11 +121,13 @@ async def on_message(message):
 	log_message(message)
 
 	channel = message.channel
-	args = shlex.split(message.content.strip())
-	command = args[0][1:]
+	content = message.content.replace(config['prefix'], '', 1).strip()
+	args = shlex.split(content)
+	command = args[0]
 	if command in config['aliases']:
-		args = shlex.split(message.content.replace(command, config['aliases'][command]))
-		command = args[0][1:]
+		content = message.content.replace(command, config['aliases'][command]).replace(config['prefix'], '', 1).strip()
+		args = shlex.split(content)
+		command = args[0]
 
 	args = args[1:]
 
@@ -134,9 +136,6 @@ async def on_message(message):
 	if 'help' in args or 'h' in args:
 		args = [ command ]
 		command = 'help'
-
-	embeds = []
-	attachment = None
 
 	try:
 		for cmd in COMMANDS:
@@ -155,7 +154,7 @@ async def on_message(message):
 				break
 		else:
 			embeds = new_embeds(config, {
-				'title': 'Error: Unknown command',
+				'title': 'Error: Unknown Command',
 				'color': 'red',
 				'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
 			})
