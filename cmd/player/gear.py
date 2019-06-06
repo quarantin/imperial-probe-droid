@@ -76,7 +76,7 @@ def cmd_gear(config, author, channel, args):
 		for name, data in json.items():
 			unit_name = translate(unit.base_id, language)
 			lines.append('**[%s](%s)**' % (unit_name, data['url']))
-			min_gear_level = player['roster'][unit.base_id]['gear']
+			min_gear_level = unit.base_id in player['roster'] and player['roster'][unit.base_id]['gear'] or 1
 			for tier in reversed(range(min_gear_level, 13)):
 				sublines = []
 				tier_str = str(tier)
@@ -85,11 +85,12 @@ def cmd_gear(config, author, channel, args):
 					gear_url = data['tiers'][tier_str][slot]['url']
 					gear_name = translate(gear_id, language)
 					equipped = False
-					for gear in player['roster'][unit.base_id]['equipped']:
-						if tier == player['roster'][unit.base_id]['gear']:
-							if int(slot) == gear['slot']:
-								equipped = True
-								break
+					if unit.base_id in player['roster']:
+						for gear in player['roster'][unit.base_id]['equipped']:
+							if tier == player['roster'][unit.base_id]['gear']:
+								if int(slot) == gear['slot']:
+									equipped = True
+									break
 
 					bold = not equipped and '**' or ''
 
