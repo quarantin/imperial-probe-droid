@@ -1,4 +1,4 @@
-import os, json, requests
+import os, sys, json, requests
 
 config = {}
 
@@ -127,6 +127,10 @@ def save_config(config_file='config.json'):
 
 	write_config_to_file(config_cpy, config_file)
 
+def dprint(message):
+	if config and 'debug' in config and config['debug'] is True:
+		print('DEBUG: %s' % message, file=sys.stderr)
+
 def load_config(bot=None, config_file='config.json'):
 
 	if not config:
@@ -144,4 +148,5 @@ def load_config(bot=None, config_file='config.json'):
 
 		parse_skills()
 
+	config.dprint = dprint
 	return config
