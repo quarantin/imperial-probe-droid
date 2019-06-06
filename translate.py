@@ -13,7 +13,8 @@ from django.db import transaction
 
 from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill
 
-"""
+collections = {
+
 	'abilityList': {
 		'project': {
 			'id': 1,
@@ -36,12 +37,11 @@ from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUni
 			'nameKey': 1,
 		},
 	},
-
-"""
-collections = {
 	'skillList': {
 		'project': {
 			'id': 1,
+			'abilitiyReference': 1,
+			'isZeta': 1,
 		},
 	},
 }
@@ -61,9 +61,6 @@ def fetch_all_collections(config):
 		fin = open(filename, 'w')
 		fin.write(response.text)
 		fin.close()
-
-	# TODO remove this line
-	return
 
 	# First download all base files
 	for collection, data in collections.items():
@@ -217,7 +214,7 @@ def parse_units():
 
 def parse_skills():
 
-	filename = 'cache/skillList.json'
+	filename = 'cache/skillList_base.json'
 	skill_list = load_json(filename)
 	skills = {}
 	for skill in skill_list:
