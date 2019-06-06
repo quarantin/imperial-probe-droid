@@ -21,7 +21,6 @@ Self registration:
 Mass registration:
 ```
 %prefixregister <players> <ally-codes>```
-
 **Examples**
 Register your ally code:
 ```
