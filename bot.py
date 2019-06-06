@@ -101,7 +101,6 @@ def get_game():
 
 @bot.event
 async def on_ready():
-	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
 	if 'env' in config and config['env'] == 'prod':
 		await bot.change_presence(activity=get_game())
 	load_config(bot=bot)
@@ -110,7 +109,7 @@ async def on_ready():
 		channel = bot.get_channel(chan_id)
 		await channel.send(message)
 
-	print('Ready!')
+	print('Logged in as %s (ID:%s)' % (bot.user.name, bot.user.id))
 
 @bot.event
 async def on_message(message):
