@@ -149,7 +149,6 @@ def parse_opts_mentions(config, author, args):
 
 def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1, language='eng_us'):
 
-	players = []
 	discord_ids = parse_opts_mentions(config, author, args)
 	ally_codes = parse_opts_ally_codes(config, author, args)
 
@@ -188,10 +187,17 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 	if len(ally_codes) > max_allies and max_allies != -1:
 		return args, None, error_too_many_ally_codes_specified(ally_codes, max_allies)
 
-	matching_players = Player.objects.filter(ally_code__in=ally_codes)
-	for player in matching_players:
-		if player not in players:
-			players.append(player)
+	players = []
+	for ally_code in ally_codes:
+		try:
+			p = Player.objects.get(ally_code=ally_code)
+			if p not in players:
+				players.append(p)
+
+		except Player.DoesNotExist:
+			p = Player(ally_code=ally_code)
+			if p not in players:
+				players.append(p)
 
 	return args, players, None
 
