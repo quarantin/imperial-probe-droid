@@ -167,15 +167,12 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 		return args, None, error_ally_codes_not_registered(config, unregistered)
 
 	if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
-		print('Not enough ally code, trying to get ally code of author')
 		try:
 			p = Player.objects.get(discord_id=author.id)
 			if p.ally_code not in ally_codes:
 				ally_codes.insert(0, p.ally_code)
-				print('SUCCESS')
 
 		except Player.DoesNotExist:
-			print('WTF')
 			pass
 
 	if not ally_codes:
