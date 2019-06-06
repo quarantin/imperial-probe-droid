@@ -64,9 +64,6 @@ def cmd_fight(config, author, channel, args):
 	player2 = args[8]
 	team2 = args[9:14]
 
-	print("DEBUG1 %s" % team1)
-	print("DEBUG2 %s" % team2)
-
 	player_one = parse_opts_ally_code(config, author, player1)
 	player_two = parse_opts_ally_code(config, author, player2)
 
@@ -75,9 +72,6 @@ def cmd_fight(config, author, channel, args):
 
 	team1_nlist = [ x['name'] for x in team1_list ]
 	team2_nlist = [ x['name'] for x in team2_list ]
-
-	print("DEBUG3 %s" % team1_nlist)
-	print("DEBUG4 %s" % team2_nlist)
 
 	player1_name = get_player_name(player_one)
 	player2_name = get_player_name(player_two)
