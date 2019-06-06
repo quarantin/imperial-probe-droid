@@ -148,5 +148,4 @@ def load_config(bot=None, config_file='config.json'):
 
 		parse_skills()
 
-	config.dprint = dprint
 	return config
