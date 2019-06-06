@@ -6,7 +6,7 @@ import inspect
 import traceback
 from datetime import datetime
 from discord.ext import commands
-
+from collections import OrderedDict
 from config import config, load_config
 
 from utils import *
@@ -36,7 +36,7 @@ PROBE_DIALOG = [
 
 def log_message(message):
 
-	date = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+	date = datetime.now().strftime('%Y%m%d %H:%M:%S')
 	server = message.guild
 	channel = message.channel
 	content = message.content
@@ -50,9 +50,11 @@ def log_message(message):
 	if message.author.name:
 		author_tokens.append(message.author.name)
 
+	author_tokens = list(OrderedDict(author_tokens))
+
 	author = '/'.join(author_tokens)
 
-	log = '[%s][%s - %s][user=%s] %s' % (date, server, channel, author, content)
+	log = '[%s][%s - %s][%s] %s' % (date, server, channel, author, content)
 	print(log)
 
 	fout = open(LOGFILE, 'a+')
