@@ -49,10 +49,10 @@ def get_avatar_url(base_id):
 
 def count_zetas(unit):
 	zetas = 0
-	for skill in unit['skills']:
-		if 'isZeta' in skill and skill['isZeta'] is True and skill['tier'] == 8:
-			zetas += 1
-
+	if 'skills' in unit:
+		for skill in unit['skills']:
+			if 'isZeta' in skill and skill['isZeta'] is True and skill['tier'] == 8:
+				zetas += 1
 	return zetas
 
 def get_full_avatar_url(config, image, unit):
