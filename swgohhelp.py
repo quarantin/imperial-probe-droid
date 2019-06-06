@@ -57,7 +57,7 @@ def get_access_token(config):
 	config['swgoh.help']['access_token'] = data['access_token']
 	config['swgoh.help']['access_token_expire'] = datetime.now() + timedelta(seconds=data['expires_in'])
 
-	config.dprint('Logged in successfully')
+	print('Logged in successfully', file=sys.stderr)
 	return config['swgoh.help']['access_token']
 
 def get_headers(config):
@@ -69,7 +69,7 @@ def get_headers(config):
 
 def call_api(config, project, url):
 	headers = get_headers(config)
-	config.dprint("CALL API: %s %s %s" % (url, headers, project))
+	print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
 	response, error = http_post(url, headers=headers, json=project)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
@@ -110,7 +110,7 @@ def api_swgoh_data(config, project):
 
 def api_crinolo(config, units):
 	url = '%s?flags=gameStyle' % CRINOLO_BETA_URL
-	config.dprint('CALL CRINOLO API: %s' % url)
+	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
 	response, error = http_post(url, json=units)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
@@ -195,7 +195,7 @@ def get_unit_name(config, base_id, language):
 	except Translation.DoesNotExist:
 		pass
 
-	config.dprint('No character name found for base id: %s' % base_id)
+	print('No character name found for base id: %s' % base_id, file=sys.stderr)
 	return None
 
 def get_ability_name(config, skill_id, language):
@@ -212,5 +212,5 @@ def get_ability_name(config, skill_id, language):
 		except Translation.DoesNotExist:
 			pass
 
-	config.dprint('No ability name found for skill id: %s' % skill_id)
+	print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
 	return None
