@@ -61,9 +61,9 @@ def cmd_me(config, author, channel, args):
 
 async def fill_user_info(player):
 
-	from bot import bot
+	from ipd import get_bot
 
-	user = await bot.fetch_user(player.discord_id)
+	user = await get_bot().fetch_user(player.discord_id)
 	for key, real_key in [ ('nick', 'discord_nick'), ('name', 'discord_name'), ('display_name', 'discord_display_name') ]:
 		if hasattr(user, key):
 			value = getattr(user, key)

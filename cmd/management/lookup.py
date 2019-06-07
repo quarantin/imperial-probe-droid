@@ -16,8 +16,8 @@ def cmd_lookup(config, author, channel, args):
 	if 'admins' not in config or author.id not in config['admins']:
 		return error_permission_denied()
 
-	from bot import bot
-	for server in bot.guilds:
+	from ipd import get_bot
+	for server in get_bot().guilds:
 		for member in server.members:
 
 			display_name = ''

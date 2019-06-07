@@ -51,30 +51,30 @@ FORMAT_LUT = {
 }
 
 STATS_LUT = {
-    '%health':                      'Health',
-    '%strength':                    'Strength',
-    '%agility':                     'Agility',
-    '%tactics':                     'Tactics',
-    '%speed':                       'Speed',
-    '%physical-damage':             'Physical Damage',
-    '%special-damage':              'Special Damage',
-    '%armor':                       'Armor',
-    '%resistance':                  'Resistance',
-    '%armor-penetration':           'Armor Penetration',
-    '%resistance-penetration':      'Resistance Penetration',
-    '%dodge-chance':                'Dodge Chance',
-    '%deflection-chance':           'Deflection Chance',
-    '%physical-critical-chance':    'Physical Critical Chance',
-    '%special-critical-chance':     'Special Critical Chance',
-    '%critical-damage':             'Critical Damage',
-    '%potency':                     'Potency',
-    '%tenacity':                    'Tenacity',
-    '%health-steal':                'Health Steal',
-    '%protection':                  'Protection',
-    '%physical-accuracy':           'Physical Accuracy',
-    '%special-accuracy':            'Special Accuracy',
-    '%physical-critical-avoidance': 'Physical Critical Avoidance',
-    '%special-critical-avoidance':  'Special Critical Avoidance',
+	'%health':                      'Health',
+	'%strength':                    'Strength',
+	'%agility':                     'Agility',
+	'%tactics':                     'Tactics',
+	'%speed':                       'Speed',
+	'%physical-damage':             'Physical Damage',
+	'%special-damage':              'Special Damage',
+	'%armor':                       'Armor',
+	'%resistance':                  'Resistance',
+	'%armor-penetration':           'Armor Penetration',
+	'%resistance-penetration':      'Resistance Penetration',
+	'%dodge-chance':                'Dodge Chance',
+	'%deflection-chance':           'Deflection Chance',
+	'%physical-critical-chance':    'Physical Critical Chance',
+	'%special-critical-chance':     'Special Critical Chance',
+	'%critical-damage':             'Critical Damage',
+	'%potency':                     'Potency',
+	'%tenacity':                    'Tenacity',
+	'%health-steal':                'Health Steal',
+	'%protection':                  'Protection',
+	'%physical-accuracy':           'Physical Accuracy',
+	'%special-accuracy':            'Special Accuracy',
+	'%physical-critical-avoidance': 'Physical Critical Avoidance',
+	'%special-critical-avoidance':  'Special Critical Avoidance',
 }
 
 def now(timezone):
@@ -225,18 +225,6 @@ def update_source_code():
 	script = 'scripts/update.sh'
 	if os.path.exists(script):
 		subprocess.call([ script ])
-
-def exit_bot():
-
-	# TODO send message on quit, like animated an
-	# gif of an explosion or something like that.
-
-	from bot import bot
-	bot.loop.stop()
-	bot.logout()
-	bot.close()
-
-	print('User initiated restart!')
 
 def roundup(number):
 	return Decimal(number).quantize(0, ROUND_HALF_UP)

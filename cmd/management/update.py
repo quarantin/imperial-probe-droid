@@ -22,9 +22,10 @@ Update the bot:
 def cmd_update(config, author, channel, args):
 
 	if 'admins' in config and author.id in config['admins']:
-		from utils import exit_bot, update_source_code
+		from utils import update_source_code
 		update_source_code()
-		exit_bot()
+		from ipd import get_bot
+		get_bot().exit()
 		return []
 
 	return error_permission_denied()

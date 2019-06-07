@@ -1,4 +1,3 @@
-from utils import exit_bot
 
 help_invite = {
 	'title': 'Invite Help',
