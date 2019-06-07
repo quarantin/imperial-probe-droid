@@ -198,24 +198,21 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 
 	return args, players, None
 
-def parse_opts_unit_names_by_faction(config, args):
+def parse_opts_unit_names_by_faction(config, arg):
 
-	factions = []
-	args_cpy = list(args)
-	for arg in args_cpy:
+	faction = []
 
-		larg = arg.lower()
-		if larg in BaseUnitFaction.FACTION_NICKS:
-			larg = BaseUnitFaction.FACTION_NICKS[larg]
+	larg = basicstrip(arg.lower())
+	if larg in BaseUnitFaction.FACTION_NICKS:
+		larg = BaseUnitFaction.FACTION_NICKS[larg]
 
-		for fac_key, fac_name in BaseUnitFaction.FACTIONS:
-			if larg in fac_key.split('_')[1]:
-				args.remove(arg)
-				if fac_key not in factions:
-					factions.append(fac_key)
-				break
+	for fac_key, fac_name in BaseUnitFaction.FACTIONS:
+		if larg in fac_key.split('_'):
+			if fac_key not in faction:
+				faction.append(fac_key)
+			break
 
-	return args, BaseUnit.get_units_by_faction(factions)
+	return BaseUnit.get_units_by_faction(faction)
 
 def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 
@@ -224,14 +221,14 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 	wild_match = []
 	loose_match = []
 
-	args, factions = parse_opts_unit_names_by_faction(config, args)
-	if factions:
-		return factions
-
 	if not args:
 		return None
 
 	arg = basicstrip(' '.join(args))
+
+	faction = parse_opts_unit_names_by_faction(config, arg)
+	if faction:
+		return faction
 
 	for unit in units:
 
