@@ -6,7 +6,7 @@ help_lookup = {
 	
 **Syntax**
 ```
-%prefixlookup <discord id>```
+%prefixlookup <discord id>|<discord nick```
 **Restrictions**
 Only administrators of this bot can use this command.```"""
 }
@@ -17,7 +17,7 @@ def cmd_lookup(config, author, channel, args):
 		return error_permission_denied()
 
 	from bot import bot
-	for server in bot.servers:
+	for server in bot.guilds:
 		for member in server.members:
 
 			display_name = ''
@@ -33,6 +33,8 @@ def cmd_lookup(config, author, channel, args):
 				name = member.name
 
 			for arg in args:
-				if arg in member.id or arg in display_name or arg in nick or arg in name:
-					print('server:%s id:%s display_name:%s nick:%s name:%s' % (member.server, member.id, display_name, nick, name))
+				arg = arg.lower()
+				if arg == str(member.id) or arg in display_name.lower() or arg in nick.lower() or arg in name.lower():
+					print('FOUND: server:%s id:%s display_name:%s nick:%s name:%s' % (member.guild, member.id, display_name, nick, name))
+	print('Done.')
 	return []
