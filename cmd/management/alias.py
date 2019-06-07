@@ -47,9 +47,13 @@ def cmd_alias(config, author, channel, args):
 			'description': '\n'.join(lines),
 		}]
 
+	if 'admins' not in config or author.id not in config['admins']:
+		return error_permission_denied()
+
 	action = args[0]
 
 	if action == 'del':
+
 
 		if len(args) < 2:
 			return error_missing_parameter(config, 'alias')

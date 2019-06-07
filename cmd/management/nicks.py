@@ -48,6 +48,9 @@ def cmd_nicks(config, author, channel, args):
 			'description': '\n'.join(lines),
 		}]
 
+	if 'admins' not in config or author.id not in config['admins']:
+		return error_permission_denied()
+
 	action = args.pop(0)
 
 	if action == 'del':
