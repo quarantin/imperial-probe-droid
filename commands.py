@@ -17,6 +17,7 @@ from cmd.player.arena import *
 from cmd.player.compare import *
 #from cmd.player.fight import *
 from cmd.player.gear import *
+from cmd.player.list import *
 from cmd.player.locked import *
 #from cmd.player.mods import *
 from cmd.player.needed import *
@@ -98,6 +99,12 @@ COMMANDS = [
 	#	'function': cmd_links,
 	#	'help': help_links,
 	#},
+	{
+		'command': 'list',
+		'aliases': [ 'list' ],
+		'function': cmd_list,
+		'help': help_list,
+	},
 	{
 		'command': 'locked',
 		'aliases': [ 'l', 'locked' ],
