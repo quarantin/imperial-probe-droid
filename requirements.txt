@@ -10,6 +10,7 @@ Django==2.2.2
 idna==2.8
 lxml==4.3.3
 multidict==4.5.2
+Pillow==6.0.0
 pytz==2019.1
 requests==2.22.0
 soupsieve==1.9.1
