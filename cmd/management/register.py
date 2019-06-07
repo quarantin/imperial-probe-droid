@@ -55,7 +55,7 @@ def cmd_me(config, author, channel, args):
 
 	lines_str = '\n'.join(lines)
 	return [{
-		'title': 'Me',
+		'title': '',
 		'description': 'Hello <@%s>,\n\n%s\nPlease type **`%slanguage`** to change your language.' % (author.id, lines_str, config['prefix']),
 	}]
 
