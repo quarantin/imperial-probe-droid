@@ -33,7 +33,6 @@ Show top 5 fleet arena squads:
 Show top 3 arena squad leaders:
 ```
 %prefixmeta l 3```
-
 Show top 3 fleet arena commanders:
 ```
 %prefixmeta c 3```
