@@ -125,7 +125,7 @@ COMMANDS = [
 	},
 	{
 		'command': 'meta',
-		'aliases': [ 'M', 'meta' ],
+		'aliases': [ 'm', 'meta' ],
 		'function': cmd_meta,
 		'help': help_meta,
 	},

@@ -22,7 +22,7 @@ You have to supply one or more options:
 
 **Aliases**
 ```
-%prefixM```
+%prefixm```
 **Examples**
 Show top 5 arena squads:
 ```
