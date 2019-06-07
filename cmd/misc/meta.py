@@ -105,20 +105,24 @@ def cmd_meta(config, author, channel, args):
 
 	compact = 'compact' in selected_opts
 	sep = config['separator'].replace('`', '')
-	header = '|---|-----|---------------------------'
+	header = '|---|-----|----------------'
 	joke = 'joke' in config and config['joke'] is True
 
 	if 'leader' in selected_opts:
 		top_leaders = get_top_rank1_squad_leaders(top_n)
 		lines = []
 
-		if compact:
-			lines.append(sep)
-			lines.append('88%')
-			lines.append('7481')
-			lines.append('Coruscant Underworld Police')
-		else:
-			lines.append('|%s|%s|%s' % (lpad('88%', 10), lpad('7481', 10000), 'Coruscant Underworld Police'))
+		if joke:
+			if compact:
+				lines.append(sep)
+				lines.append('88%')
+				lines.append('7481')
+				lines.append('Coruscant Underworld Police')
+			else:
+
+				pad1 = max(0, (3 - len('88%'))) * '\u00a0'
+				pad2 = max(0, (5 - len('7481'))) * '\u00a0'
+				lines.append('|%s%s|%s%s|%s' % (pad1, '88%', pad2, '7481', 'Coruscant Underworld Police'))
 
 		for leader in top_leaders:
 			unit, count, percent = leader
@@ -128,16 +132,17 @@ def cmd_meta(config, author, channel, args):
 				lines.append(count)
 				lines.append(unit)
 			else:
-				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), unit))
+				pad1 = max(0, (3 - len(percent))) * '\u00a0'
+				pad2 = max(0, (5 - len(count))) * '\u00a0'
+				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, unit))
 
-		desc = 'You can find the full meta report for top squad leaders at this address:\n%s#leaders' % META_UNITS_URL
+		desc = 'You can find the full meta report for top squad leaders [here](%s#leaders).' % META_UNITS_URL
 		full_desc = '%s\n```| %% |Count|Unit\n%s\n%s```' % (desc, header, '\n'.join(lines))
 		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Arena Squad Leaders' % top_n,
 			'author': {
-				'name': 'Imperial Probe Droid',
 				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
@@ -164,7 +169,10 @@ def cmd_meta(config, author, channel, args):
 				for unit in squad:
 					lines.append(unit)
 			else:
-				lines.append('|%s|%s|%s' % (lpad('88%', 10), lpad('7481', 10000), squad[0]))
+
+				pad1 = max(0, (3 - len('88%'))) * '\u00a0'
+				pad2 = max(0, (5 - len('7481'))) * '\u00a0'
+				lines.append('|%s|%s|%s' % (pad1, '88%', pad2, '7481', squad[0]))
 				for unit in squad[1:]:
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
@@ -179,19 +187,20 @@ def cmd_meta(config, author, channel, args):
 				for unit in squad:
 					lines.append(unit)
 			else:
-				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), squad[0]))
+				pad1 = max(0, (3 - len(percent))) * '\u00a0'
+				pad2 = max(0, (5 - len(count))) * '\u00a0'
+				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, squad[0]))
 				for unit in squad[1:]:
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
 
-		desc = 'You can find the full meta report for top arena squads at this address:\n%s#squads' % META_UNITS_URL
+		desc = 'You can find the full meta report for top arena squads [here](%s#squads).' % META_UNITS_URL
 		full_desc = '%s\n```| %% |Count|Squad\n%s\n%s```' % (desc, header, '\n'.join(lines))
 		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Arena Squads ' % top_n,
 			'author': {
-				'name': 'Imperial Probe Droid',
 				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
@@ -209,16 +218,17 @@ def cmd_meta(config, author, channel, args):
 				lines.append(count)
 				lines.append(unit)
 			else:
-				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), unit))
+				pad1 = max(0, (3 - len(percent))) * '\u00a0'
+				pad2 = max(0, (5 - len(count))) * '\u00a0'
+				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, unit))
 
-		desc = 'You can find the full meta report for top fleet commanders at this address:\n%s#leaders' % META_SHIPS_URL
+		desc = 'You can find the full meta report for top fleet commanders [here](%s#leaders).' % META_SHIPS_URL
 		full_desc = '%s\n```\n| %% |Count|Unit\n|---|-----|---------------------------\n%s```' % (desc, '\n'.join(lines))
 		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Commanders' % top_n,
 			'author': {
-				'name': 'Imperial Probe Droid',
 				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
@@ -227,23 +237,6 @@ def cmd_meta(config, author, channel, args):
 	if 'fleet' in selected_opts:
 		top_squads = get_top_rank1_fleet_squads(top_n)
 		lines = []
-
-		if joke:
-			squad = [
-			]
-
-			if compact:
-				lines.append(sep)
-				lines.append('88%')
-				lines.append('7481')
-				lines.append('---')
-				for unit in squad:
-					lines.append(unit)
-			else:
-				lines.append('|%s|%s|%s' % (lpad('88%', 10), lpad('7481', 10000), squad[0]))
-				for unit in squad[1:]:
-					lines.append('|   |     |%s' % unit)
-				lines.append(header)
 
 		for tupl in top_squads:
 			squad, count, percent = tupl
@@ -255,19 +248,20 @@ def cmd_meta(config, author, channel, args):
 				for unit in squad:
 					lines.append(unit)
 			else:
-				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), squad[0]))
+				pad1 = max(0, (3 - len(percent))) * '\u00a0'
+				pad2 = max(0, (5 - len(count))) * '\u00a0'
+				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, squad[0]))
 				for unit in squad[1:]:
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
 
-		desc = 'You can find the full meta report for top fleet arena squads at this address:\n%s#squads' % META_SHIPS_URL
+		desc = 'You can find the full meta report for top fleet arena squads [here](%s#squads).' % META_SHIPS_URL
 		full_desc = '%s\n```| %% |Count|Squad\n%s\n%s```' % (desc, header, '\n'.join(lines))
 		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Squads ' % top_n,
 			'author': {
-				'name': 'Imperial Probe Droid',
 				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
@@ -276,23 +270,6 @@ def cmd_meta(config, author, channel, args):
 	if 'reinforcement' in selected_opts:
 		top_reinforcements = get_top_rank1_reinforcements(top_n)
 		lines = []
-
-		if joke:
-			squad = [
-			]
-
-			if compact:
-				lines.append(sep)
-				lines.append('88%')
-				lines.append('7481')
-				lines.append('---')
-				for unit in squad:
-					lines.append(unit)
-			else:
-				lines.append('|%s|%s|%s' % (lpad('88%', 10), lpad('7481', 10000), squad[0]))
-				for unit in squad[1:]:
-					lines.append('|   |     |%s' % unit)
-				lines.append(header)
 
 		for tupl in top_reinforcements:
 			squad, count, percent = tupl
@@ -303,19 +280,20 @@ def cmd_meta(config, author, channel, args):
 				for unit in squad:
 					lines.append(unit)
 			else:
-				lines.append('|%s|%s|%s' % (lpad(percent, 10), lpad(count, 10000), squad[0]))
+				pad1 = max(0, (3 - len(percent))) * '\u00a0'
+				pad2 = max(0, (5 - len(count))) * '\u00a0'
+				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, squad[0]))
 				for unit in squad[1:]:
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
 
-		desc = 'You can find the full meta report for top fleet arena reinforcements at this address:\n%s#reinforcements' % META_SHIPS_URL
+		desc = 'You can find the full meta report for top fleet arena reinforcements [here](%s#reinforcements).' % META_SHIPS_URL
 		full_desc = '%s\n```| %% |Count|Ship\n%s\n%s```' % (desc, header, '\n'.join(lines))
 		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Reinforcements' % top_n,
 			'author': {
-				'name': 'Imperial Probe Droid',
 				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
