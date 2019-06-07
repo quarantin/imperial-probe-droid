@@ -233,13 +233,13 @@ class BaseUnit(models.Model):
 		except BaseUnitFaction.DoesNotExist:
 			pass
 
-		return selected_units
+		return sorted(selected_units, key=lambda x: x.name)
 
 	def get_all_units():
-		return list(BaseUnit.objects.filter(combat_type=1))
+		return list(BaseUnit.objects.filter(combat_type=1).order_by('name'))
 
 	def get_all_ships():
-		return list(BaseUnit.objects.filter(combat_type=2))
+		return list(BaseUnit.objects.filter(combat_type=2).order_by('name'))
 
 	def get_all_units_by_id():
 		result = {}
