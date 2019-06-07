@@ -141,7 +141,6 @@ def load_config(bot=None, config_file='config.json'):
 		config.update(json.loads(jsonstr))
 		parse_mod_primaries()
 
-	if bot:
 		config['help'] = load_help()
 		config['recos'] = parse_recommendations()
 		config['save'] = save_config

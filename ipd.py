@@ -103,7 +103,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 	async def on_ready(self):
 		if 'env' in config and config['env'] == 'prod':
 			await self.change_presence(activity=get_game())
-		load_config(bot=self)
+
 		message = compute_hello_msg()
 		for chan_id in config['hello']:
 			channel = self.get_channel(chan_id)
