@@ -22,8 +22,7 @@ Restart the bot:
 def cmd_restart(config, author, channel, args):
 
 	if 'admins' in config and author.id in config['admins']:
-		from ipd import get_bot
-		get_bot().exit()
+		config['bot'].exit()
 		return []
 
 	return error_permission_denied()

@@ -177,21 +177,13 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for embed in embeds:
 				await channel.send(embed=embed)
 
-def get_bot(command_prefix='!'):
-
-	if hasattr(get_bot, 'bot'):
-		return get_bot.bot
-
-	get_bot.bot = ImperialProbeDroid(command_prefix=config['prefix'])
-	return get_bot.bot
-
 async def __main__():
 	try:
-		config = load_config()
-		bot = get_bot(config['prefix'])
-		bot.run(config['token'])
+		load_config()
+		config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
+		config['bot'].run(config['token'])
 
-		await bot.logout()
+		await config['bot'].logout()
 		print('Bot quitting!')
 
 	except Exception as err:

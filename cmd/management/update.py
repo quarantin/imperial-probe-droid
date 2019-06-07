@@ -24,8 +24,7 @@ def cmd_update(config, author, channel, args):
 	if 'admins' in config and author.id in config['admins']:
 		from utils import update_source_code
 		update_source_code()
-		from ipd import get_bot
-		get_bot().exit()
+		config['bot'].exit()
 		return []
 
 	return error_permission_denied()

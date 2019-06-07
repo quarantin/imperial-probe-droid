@@ -59,11 +59,9 @@ def cmd_me(config, author, channel, args):
 		'description': 'Hello <@%s>,\n\n%s\nPlease type **`%slanguage`** to change your language.' % (author.id, lines_str, config['prefix']),
 	}]
 
-async def fill_user_info(player):
+async def fill_user_info(config, player):
 
-	from ipd import get_bot
-
-	user = await get_bot().fetch_user(player.discord_id)
+	user = await config['bot'].fetch_user(player.discord_id)
 	for key, real_key in [ ('nick', 'discord_nick'), ('name', 'discord_name'), ('display_name', 'discord_display_name') ]:
 		if hasattr(user, key):
 			value = getattr(user, key)
@@ -97,7 +95,7 @@ async def register_users(config, author, discord_ids, ally_codes):
 			ally_code_full_str = '%s has changed from **`%s`** to **`%s`**.' % (author_str, db_player.get_ally_code(), ally_code_str)
 		db_player.ally_code = ally_code
 		db_player.game_nick = players[ally_code]['name']
-		await fill_user_info(db_player)
+		await fill_user_info(config, db_player)
 
 		db_player.save()
 

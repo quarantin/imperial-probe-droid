@@ -107,6 +107,7 @@ def save_config(config_file='config.json'):
 	to_remove = [
 		'abilities',
 		'allies',
+		'bot',
 		'help',
 		'mod-primaries',
 		'recos',
