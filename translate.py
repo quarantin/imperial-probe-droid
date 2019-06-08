@@ -64,7 +64,7 @@ def fetch_all_collections(config):
 		fin.write(response.text)
 		fin.close()
 
-	if DEBUG is True
+	if DEBUG is True:
 		return
 
 	# First download all base files
