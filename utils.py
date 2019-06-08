@@ -313,7 +313,7 @@ def get_field_legend(config, inline=True):
 
 	return {
 		'name': '== Legend ==',
-		'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n%s\n\n' % (emoji_cg, emoji_cr, emoji_gg, config['separator']),
+		'value': '\u202F%s EA / Capital Games\n\u202F%s Crouching Rancor\n\u202F%s swgoh.gg\n' % (emoji_cg, emoji_cr, emoji_gg),
 		'inline': inline,
 	}
 
