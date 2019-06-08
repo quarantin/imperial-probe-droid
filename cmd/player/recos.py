@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend
+from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
 from constants import EMOJIS, SHORT_STATS
 
 from swgohgg import get_avatar_url, get_full_avatar_url
@@ -46,6 +46,8 @@ def cmd_recos(config, author, channel, args):
 	emoji_cr = EMOJIS['crouchingrancor']
 	emoji_gg = EMOJIS['swgoh.gg']
 
+	language = parse_opts_lang(author)
+
 	args, players, error = parse_opts_players(config, author, args)
 	args, selected_units = parse_opts_unit_names(config, args)
 
@@ -77,11 +79,12 @@ def cmd_recos(config, author, channel, args):
 
 		for ref_unit in selected_units:
 
-			name    = ref_unit.name
-			base_id = ref_unit.base_id
+			base_id   = ref_unit.base_id
+			unit_name = translate(base_id, language)
+
 			roster  = players[ally_code]['roster']
-			if name in config['recos']['by-name']:
-				recos = config['recos']['by-name'][name]
+			if ref_unit.name in config['recos']['by-name']:
+				recos = config['recos']['by-name'][ref_unit.name]
 				lines = []
 
 				for reco in recos:
@@ -131,11 +134,11 @@ def cmd_recos(config, author, channel, args):
 
 				elif base_id not in roster:
 					unit = None
-					line = '%s is still locked for %s' % (ref_unit.name, discord_id)
+					line = '**%s** is still locked for %s' % (unit_name, discord_id)
 
 				else:
 					unit = roster[base_id]
-					line = '%s has no mods for %s' % (ref_unit.name, discord_id)
+					line = '**%s** has no mods for %s' % (unit_name, discord_id)
 
 				lines.append(config['separator'])
 				lines.append(line)
@@ -146,6 +149,8 @@ def cmd_recos(config, author, channel, args):
 				lines = [ line ] + lines
 
 				field_legend = get_field_legend(config)
+
+				lines.insert(0, '**[%s](%s)**' % (unit_name, ref_unit.get_url()))
 
 				msgs.append({
 					'title': '== Recommended Mod Sets and Primary Stats ==',
@@ -160,7 +165,7 @@ def cmd_recos(config, author, channel, args):
 			else:
 				msgs.append({
 					'title': '== No Recommended Mod Sets ==',
-					'description': '%s is missing from the recommendation spreadsheet' % ref_unit.name,
+					'description': '**%s** is missing from all source of recommendations.' % unit_name,
 				})
 
 	return msgs
