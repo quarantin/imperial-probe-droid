@@ -50,7 +50,7 @@ class Player(models.Model):
 		('ita_it', 'it', '', 'Italian'),
 		('jpn_jp', 'jp', '', 'Japanese'),
 		('kor_kr', 'kr', '', 'Korean'),
-		('por_br', 'pt', '', 'Portugese (Brazil)'),
+		('por_br', 'pt', '', 'Portuguese (Brazil)'),
 		('rus_ru', 'ru', '', 'Russian'),
 		('spa_xm', 'sp', '', 'Spanish (Latino)'),
 		('tha_th', 'th', '', 'Thai'),
