@@ -101,7 +101,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		print('User initiated exit!')
 
 	async def on_ready(self):
-		parse_recommandations()
+		parse_recommendations()
 		if 'env' in config and config['env'] == 'prod':
 			await self.change_presence(activity=get_game())
 
