@@ -220,15 +220,20 @@ class BaseUnit(models.Model):
 	def get_units_by_faction(factions):
 
 		selected_units = []
-		all_units = BaseUnit.get_all_units()
 
 		try:
 			facs = BaseUnitFaction.objects.filter(faction__in=factions)
-			base_ids = [ faction.unit.base_id for faction in facs ]
-			for unit in all_units:
-				if unit.base_id in base_ids and unit not in selected_units:
+
+			base_ids = []
+			for faction in facs:
+				print(faction.faction)
+				if faction.unit.base_id not in base_ids:
+					base_ids.append(faction.unit.base_id)
+
+			units = BaseUnit.objects.filter(base_id__in=base_ids)
+			for unit in units:
+				if unit not in selected_units:
 					selected_units.append(unit)
-					base_ids.remove(unit.base_id)
 
 		except BaseUnitFaction.DoesNotExist:
 			pass
