@@ -201,16 +201,24 @@ def parse_units():
 				categories      = char.pop('categories')
 				ability_classes = char.pop('ability_classes')
 
+				if 'pk' in char:
+					char.pop('pk')
+
 				if 'ship' in char:
 					ship = char.pop('ship')
 
 				if 'gear_levels' in char:
 					gear_levels = char.pop('gear_levels')
 
-				char['url']     = os.path.basename(os.path.dirname(char['url']))
-				char['image']   = os.path.basename(char['image'])
+				if 'url' in char:
+					char['url'] = char['url'].replace('http://swgoh.gg', '').replace('https://swgoh.gg', '')
 
-				base_unit, created = BaseUnit.objects.update_or_create(**char)
+				if 'image' in char:
+					char['image'] = char['image'].replace('http://swgoh.gg', '').replace('https://swgoh.gg', '')
+
+				base_unit, created = BaseUnit.objects.update_or_create(base_id=unit['base_id'])
+
+				BaseUnit.objects.filter(pk=base_unit.pk).update(**char)
 
 				for category in categories:
 					faction = BaseUnitFaction.is_supported_faction(category)
@@ -266,14 +274,15 @@ fout.write(json.dumps(new_version))
 fout.close()
 
 config = load_config()
+
 fetch_all_collections(config)
+
+parse_units()
+parse_skills()
+parse_localization_files()
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 	print('Parsing %s translations...' % language.lower())
 	parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
 	parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
 	parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
-
-parse_localization_files()
-parse_units()
-parse_skills()
