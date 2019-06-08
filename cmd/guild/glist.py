@@ -161,7 +161,7 @@ def cmd_guild_list(config, author, channel, args):
 				lines.append('`|%s|%s%d|%s%d|%s%d|`**`%s`**' % (unit['rarity'], pad_gp, unit['gp'], pad_level, unit['level'], pad_gear, unit['gear'], player_name))
 
 			if not len(rosters):
-				lines.append('No units found matching your search criteria.')
+				lines.append('No player found with characters matching your search criteria.')
 
 			msgs.append({
 				'title': '%s (%d)' % (guild_name, len(player_names)),
@@ -174,8 +174,8 @@ def cmd_guild_list(config, author, channel, args):
 
 	if not msgs:
 		msgs.append({
-			'title': 'No Matching Units',
-			'description': 'No units found matching your search criteria.',
+			'title': 'No Matching Unit',
+			'description': 'No player found with characters matching your search criteria.',
 		})
 
 	return msgs
