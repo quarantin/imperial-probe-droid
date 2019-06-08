@@ -3,7 +3,7 @@ from errors import *
 from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
 from constants import EMOJIS, SHORT_STATS
 
-from swgohgg import get_avatar_url, get_full_avatar_url
+from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players
 
 help_recos = {
@@ -156,7 +156,7 @@ def cmd_recos(config, author, channel, args):
 					'description': '\n'.join(lines),
 					'author': {
 						'name': ref_unit.name,
-						'icon_url': get_avatar_url(base_id),
+						'icon_url': ref_unit.get_image(),
 					},
 					'image': get_full_avatar_url(config, ref_unit.image, unit),
 					'fields': [ get_field_legend(config) ],

@@ -32,21 +32,6 @@ def get_swgohgg_profile_url(ally_code):
 
 	return 'No profile found on swgoh.gg for ally code: %s' % ally_code
 
-def get_avatar_url(base_id):
-
-	units = BaseUnit.objects.all()
-	chars = { x.base_id: { 'image': x.get_image() } for x in units }
-
-	image_url = chars[base_id]['image']
-	if image_url.startswith('//'):
-		image_url = image_url.replace('//', '')
-
-	if not image_url.startswith('https://'):
-		image_url = 'https://%s' % image_url
-
-	chars[base_id]['image'] = image_url
-	return image_url
-
 def count_zetas(unit):
 	zetas = 0
 	if 'skills' in unit:

@@ -5,7 +5,6 @@ from errors import *
 from constants import EMOJIS
 from collections import OrderedDict
 from utils import get_stars_as_emojis
-from swgohgg import get_avatar_url
 from swgohhelp import fetch_crinolo_stats, get_ability_name
 
 import DJANGO
@@ -383,7 +382,7 @@ def cmd_player_compare(config, author, channel, args):
 		msgs.append({
 			'author': {
 				'name': unit.name,
-				'icon_url': get_avatar_url(unit.base_id),
+				'icon_url': unit.get_image(),
 			},
 			'description': '\n'.join(lines),
 		})

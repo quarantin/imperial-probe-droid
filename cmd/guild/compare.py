@@ -3,7 +3,6 @@ from collections import OrderedDict
 from opts import *
 from errors import *
 from utils import dotify, get_stars_as_emojis
-from swgohgg import get_avatar_url
 from swgohhelp import fetch_players, fetch_guilds, get_ability_name
 
 help_guild_compare = {
@@ -281,7 +280,7 @@ def cmd_guild_compare(config, author, channel, args):
 			'title': '%s' % unit.name,
 			'author': {
 				'name': unit.name,
-				'icon_url': get_avatar_url(unit.base_id),
+				'icon_url': unit.get_image(),
 			},
 			'description': '\n'.join(lines),
 		})

@@ -2,7 +2,6 @@ from opts import *
 from errors import *
 
 from utils import get_star
-from swgohgg import get_avatar_url
 from swgohhelp import fetch_players, fetch_guilds
 
 help_guild_list = {
@@ -83,7 +82,7 @@ def cmd_guild_list(config, author, channel, args):
 			if int(player['allyCode']) not in ally_codes:
 				ally_codes.append(int(player['allyCode']))
 
-	urls = {}
+	images = {}
 	matches = {}
 	players = fetch_players(config, {
 		'allycodes': ally_codes,
@@ -104,7 +103,7 @@ def cmd_guild_list(config, author, channel, args):
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
 		player_name = player['name']
-		for base_unit in selected_units:
+		for ref_unit in selected_units:
 
 			if guild_name not in matches:
 				matches[guild_name] = {}
@@ -112,7 +111,7 @@ def cmd_guild_list(config, author, channel, args):
 			if player_name not in matches[guild_name]:
 				matches[guild_name][player_name] = {}
 
-			base_id = base_unit.base_id
+			base_id = ref_unit.base_id
 			if base_id not in player['roster']:
 				#print('Unit is locked for: %s' % player_name)
 				continue
@@ -122,13 +121,13 @@ def cmd_guild_list(config, author, channel, args):
 				#print('Unit does not match criteria for: %s' % player_name)
 				continue
 
-			urls[base_unit.name] = base_unit.get_url()
-			matches[guild_name][player_name][base_unit.name] = {
+			images[ref_unit.name] = ref_unit.get_image()
+			matches[guild_name][player_name][ref_unit.name] = {
 				'gp':      unit['gp'],
 				'gear':    unit['gear'],
 				'level':   unit['level'],
 				'rarity':  unit['rarity'],
-				'base_id': base_unit.base_id,
+				'base_id': ref_unit.base_id,
 			}
 
 	units = {}
@@ -168,7 +167,7 @@ def cmd_guild_list(config, author, channel, args):
 				'title': '%s (%d)' % (guild_name, len(player_names)),
 				'author': {
 					'name': unit_name,
-					'icon_url': get_avatar_url(unit['base_id']),
+					'icon_url': images[unit_name]
 				},
 				'description': '\n'.join(lines),
 			})

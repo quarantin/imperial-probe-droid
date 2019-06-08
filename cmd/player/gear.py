@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 from utils import http_get, translate
 
-from swgohgg import get_avatar_url, get_full_avatar_url
+from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players
 
 help_gear = {
@@ -113,7 +113,7 @@ def cmd_gear(config, author, channel, args):
 			'description': '\n'.join(lines),
 			'author': {
 				'name': unit.name,
-				'icon_url': get_avatar_url(unit.base_id),
+				'icon_url': unit.get_image(),
 			},
 			'image': get_full_avatar_url(config, unit.image, player_unit),
 			'fields': fields,
