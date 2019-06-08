@@ -153,7 +153,7 @@ def cmd_recos(config, author, channel, args):
 
 				msgs.append({
 					'title': '',
-					'description': '\n'.join(lines)),
+					'description': '\n'.join(lines),
 					'author': {
 						'name': ref_unit.name,
 						'icon_url': get_avatar_url(base_id),
