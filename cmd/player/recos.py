@@ -1,7 +1,7 @@
 from opts import *
 from errors import *
 from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
-from constants import EMOJIS, SHORT_STATS
+from constants import EMOJIS
 
 from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players
@@ -39,6 +39,29 @@ Show recommended mods for **Darth Nihilus** on two players by ally code:
 ```
 %prefixr 123456789 234567891 nih```"""
 }
+
+SHORT_STAT_EXCEPTIONS = [
+	'Critical Avoidance',
+	'Critical Chance',
+	'Critical Damage',
+]
+
+def get_short_stat(stat_id, language):
+
+	stat_id = stat_id.strip()
+
+	stat_name = stat_id
+	if stat_name not in SHORT_STAT_EXCEPTIONS:
+		stat_name = translate(stat_name, language)
+
+	tokens = stat_name.split(' ')
+	if len(tokens) == 1:
+		return tokens[0][0:2]
+
+	elif len(tokens) == 2:
+		return '%s%s' % (tokens[0][0], tokens[1][0])
+
+	raise Exception('Invalid short stat request for %s %s (%s)' % (stat_id, language, stat_name))
 
 def cmd_recos(config, author, channel, args):
 
@@ -95,12 +118,12 @@ def cmd_recos(config, author, channel, args):
 					set2     = EMOJIS[ reco['set2'].replace(' ', '').lower() ]
 					set3     = EMOJIS[ reco['set3'].replace(' ', '').lower() ]
 
-					square   = SHORT_STATS[ reco['square'].strip()   ]
-					arrow    = SHORT_STATS[ reco['arrow'].strip()    ]
-					diamond  = SHORT_STATS[ reco['diamond'].strip()  ]
-					triangle = SHORT_STATS[ reco['triangle'].strip() ]
-					circle   = SHORT_STATS[ reco['circle'].strip()   ]
-					cross    = SHORT_STATS[ reco['cross'].strip()    ]
+					square   = get_short_stat(reco['square'], language)
+					arrow    = get_short_stat(reco['arrow'], language)
+					diamond  = get_short_stat(reco['diamond'], language)
+					triangle = get_short_stat(reco['triangle'], language)
+					circle   = get_short_stat(reco['circle'], language)
+					cross    = get_short_stat(reco['cross'], language)
 
 					info     = reco['info'].strip()
 					info     = info and ' %s' % info or ''
@@ -126,7 +149,7 @@ def cmd_recos(config, author, channel, args):
 
 					short_primaries = []
 					for primary in primaries:
-						short_primaries.append(SHORT_STATS[primary])
+						short_primaries.append(get_short_stat(primary, language))
 
 					primaries = '|'.join(short_primaries)
 

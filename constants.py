@@ -54,21 +54,6 @@ MODSPRIMARIES = {
 	'Speed',
 }
 
-SHORT_STATS = {
-	'Accuracy':           'Ac',
-	'Critical Avoidance': 'CA',
-	'Critical Chance':    'CC',
-	'Critical Damage':    'CD',
-	'Defense':            'De',
-	'Health':             'He',
-	'Offense':            'Of',
-	'Potency':            'Po',
-	'Protection':         'Pr',
-	'Speed':              'Sp',
-	'Tenacity':           'Te',
-	'NA':                 'NA',
-}
-
 EMOJIS = {
 	'':                  '<:spa:535808549264162816>',
 	'zeta':              '<:zeta:547487955476938753>',
