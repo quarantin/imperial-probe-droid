@@ -186,10 +186,10 @@ class Gear(models.Model):
 		return result
 
 	def get_image(self):
-		return 'https://swgoh.gg/%s' % self.image
+		return 'https://swgoh.gg%s' % self.image
 
 	def get_url(self):
-		return 'https://swgoh.gg/%s' % self.url
+		return 'https://swgoh.gg%s' % self.url
 
 class BaseUnit(models.Model):
 
@@ -239,6 +239,13 @@ class BaseUnit(models.Model):
 			pass
 
 		return sorted(selected_units, key=lambda x: x.name)
+
+	def is_ship(base_id):
+		try:
+			ship = BaseUnit.objects.get(base_id=base_id)
+			return ship.combat_type == 2
+		except:
+			return False
 
 	def get_all_units():
 		return list(BaseUnit.objects.filter(combat_type=1).order_by('name'))
@@ -395,20 +402,6 @@ class BaseUnitGear(models.Model):
 			for slot, gear_id in enumerate(level['gear']):
 				gear = all_gear[gear_id]
 				BaseUnitGear.objects.update_or_create(unit=base_unit, gear=gear, tier=tier, slot=slot)
-
-	def get_all_unit_gear_levels():
-		url = 'https://swgoh.gg/api/characters/'
-		units, from_cache = download(url)
-		cache_key = 'BaseUnitGear.get_all_unit_gear_levels'
-		parsed = cache_key in CACHE and not expired(CACHE[cache_key])
-		if not from_cache or not parsed:
-			with transaction.atomic():
-				for unit in units:
-					BaseUnitGear.populate_gear_level(unit)
-
-				CACHE[cache_key] = datetime.now()
-
-		return BaseUnitGear.objects.all()
 
 	def get_unit_gear_levels(base_id):
 		url = 'https://swgoh.gg/api/characters/'

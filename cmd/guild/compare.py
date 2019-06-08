@@ -2,7 +2,8 @@ from collections import OrderedDict
 
 from opts import *
 from errors import *
-from utils import dotify, get_stars_as_emojis
+from constants import EMOJIS
+from utils import dotify, get_stars_as_emojis, translate
 from swgohhelp import fetch_players, fetch_guilds, get_ability_name
 
 help_guild_compare = {
@@ -73,33 +74,36 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	res = OrderedDict()
 
+	zeta_emoji = EMOJIS['zeta']
+
 	if base_id in roster:
 
 		stats = get_guild_stats(config, roster[base_id], lang)
 
 		seven_stars = get_stars_as_emojis(7)
 
-		res['Guild']    = guild['name']
-		res['Avg. GP']  = str(int(stats['cumul-gp'] / stats['count']))
-		res['Count']    = str(stats['count'])
-		res['Level 85'] = str(stats['levels'][85])
-		res[seven_stars]    = str(7 in stats['stars'] and stats['stars'][7] or 0)
+		res['__GUILD__']  = guild['name']
+		res['**Avg.GP**'] = str(int(stats['cumul-gp'] / stats['count']))
+		res['**Locked**'] = str(guild['members'] - stats['count'])
+		res['**Count**']  = str(stats['count'])
+		res['**Lvl85**']  = str(stats['levels'][85])
+		res[seven_stars]  = str(7 in stats['stars'] and stats['stars'][7] or 0)
 
-		for gear in [ 12, 11, 10 ]:
+		if not BaseUnit.is_ship(base_id):
+			for gear in [ 12, 11, 10 ]:
 
-			count = 0
-			if gear in stats['gears']:
-				count = stats['gears'][gear]
+				count = 0
+				if gear in stats['gears']:
+					count = stats['gears'][gear]
 
-			res['Gear %d' % gear] = str(count)
+				res['**Gear %d**' % gear] = str(count)
 
-		res['Locked'] = str(guild['members'] - stats['count'])
 
 		if stats['zetas']:
-			res['Zetas'] = ''
 			for zeta_name in stats['zetas']:
 				count = stats['zetas'][zeta_name]
-				res[zeta_name] = str(count)
+				zeta_str = '%s**%s**' % (zeta_emoji, zeta_name)
+				res[zeta_str] = str(count)
 
 		"""
 		for ability in sorted(stats['abilities']):
@@ -154,7 +158,7 @@ def cmd_guild_compare(config, author, channel, args):
 
 	msgs = []
 
-	lang = parse_opts_lang(author)
+	language = parse_opts_lang(author)
 
 	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
 
@@ -222,6 +226,7 @@ def cmd_guild_compare(config, author, channel, args):
 	for unit in selected_units:
 
 		units = []
+		unit_name = translate(unit.base_id, language)
 		fields = OrderedDict()
 		for guild_name, guild in guilds.items():
 
@@ -239,7 +244,7 @@ def cmd_guild_compare(config, author, channel, args):
 
 					roster[base_id].append(player_unit)
 
-			units.append(unit_to_dict(config, guild, roster, unit.base_id, lang))
+			units.append(unit_to_dict(config, guild, roster, unit.base_id, language))
 
 		for someunit in units:
 			for key, val in someunit.items():
@@ -248,36 +253,23 @@ def cmd_guild_compare(config, author, channel, args):
 				fields[key].append(val)
 
 		lines = []
+		lines.append('**[%s](%s)**' % (unit_name, unit.get_url()))
+		lines.append(config['separator'])
 		first_time = True
+		zeta_started = False
 		for key, val in fields.items():
 
 			newval = []
 			for v in val:
-				pad = 0
-				if len(v) < 3:
-					pad = 2 - len(v)
-				newval.append('%s%s' % (pad * '\u00a0', v))
+				pad = max(0, 4 - len(str(v))) * '\u00a0'
+				newval.append('%s%s' % (pad, v))
 
-			key_str = '**`%s`**' % key
-			if key == 'Guild':
-				key_str = ''
+			if key == '__GUILD__':
+				key = ''
 
-			if first_time:
-				first_time = False
-				lines.append('**Stats**')
-				lines.append(config['separator'])
-
-			if key == 'Zetas':
-				lines.append(config['separator'])
-				lines.append('')
-				lines.append('**%s**' % key)
-				lines.append(config['separator'])
-
-			else:
-				lines.append('`|%s|`%s' % ('|'.join(newval), key_str))
+			lines.append('`|%s|`%s' % ('|'.join(newval), key))
 
 		msgs.append({
-			'title': '%s' % unit.name,
 			'author': {
 				'name': unit.name,
 				'icon_url': unit.get_image(),
