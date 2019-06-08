@@ -10,7 +10,7 @@ def load_help():
 		for alias in cmd['aliases']:
 			help_msgs[alias] = cmd['help']
 
-	return help_msgs
+	config['help'] = help_msgs
 
 def write_config_to_file(config, config_file):
 
@@ -141,7 +141,6 @@ def load_config(bot=None, config_file='config.json'):
 		config.update(json.loads(jsonstr))
 		parse_mod_primaries()
 
-		config['help'] = load_help()
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
 
