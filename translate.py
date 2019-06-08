@@ -13,6 +13,8 @@ from django.db import transaction
 
 from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill
 
+DEBUG = True
+
 collections = {
 
 	'abilityList': {
@@ -61,6 +63,9 @@ def fetch_all_collections(config):
 		fin = open(filename, 'w')
 		fin.write(response.text)
 		fin.close()
+
+	if DEBUG is True
+		return
 
 	# First download all base files
 	for collection, data in collections.items():
@@ -189,6 +194,9 @@ def load_json(filename):
 	with open(filename, 'r') as fin:
 		return json.loads(fin.read())
 
+def fix_url(url):
+	return url.replace('http://swgoh.gg', '').replace('https://swgoh.gg', '').replace('//swgoh.gg', '')
+
 def parse_units():
 
 	with transaction.atomic():
@@ -211,10 +219,10 @@ def parse_units():
 					gear_levels = char.pop('gear_levels')
 
 				if 'url' in char:
-					char['url'] = char['url'].replace('http://swgoh.gg', '').replace('https://swgoh.gg', '')
+					char['url'] = fix_url(char['url'])
 
 				if 'image' in char:
-					char['image'] = char['image'].replace('http://swgoh.gg', '').replace('https://swgoh.gg', '')
+					char['image'] = fix_url(char['image'])
 
 				base_unit, created = BaseUnit.objects.update_or_create(base_id=unit['base_id'])
 
