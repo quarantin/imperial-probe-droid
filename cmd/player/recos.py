@@ -145,22 +145,21 @@ def cmd_recos(config, author, channel, args):
 
 				spacer = EMOJIS[''] * 4
 
-				line = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-				lines = [ line ] + lines
+				header = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
+				unit_link = '**[%s](%s)**' % (unit_name, ref_unit.get_url())
 
-				field_legend = get_field_legend(config)
-
-				lines.insert(0, '**[%s](%s)**' % (unit_name, ref_unit.get_url()))
+				for line in [ header, config['separator'], unit_link ]:
+					lines.insert(0, line)
 
 				msgs.append({
-					'title': '== Recommended Mod Sets and Primary Stats ==',
-					'description': '\n'.join(lines),
+					'title': '',
+					'description': '\n'.join(lines)),
 					'author': {
 						'name': ref_unit.name,
 						'icon_url': get_avatar_url(base_id),
 					},
 					'image': get_full_avatar_url(config, ref_unit.image, unit),
-					'fields': [ field_legend ],
+					'fields': [ get_field_legend(config) ],
 				})
 			else:
 				msgs.append({
