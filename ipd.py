@@ -9,7 +9,7 @@ import string
 import traceback
 from datetime import datetime
 from discord.ext import commands
-from config import config, load_config
+from config import config, load_config, parse_recommendations
 
 from utils import *
 from embed import *
@@ -101,6 +101,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		print('User initiated exit!')
 
 	async def on_ready(self):
+		parse_recommandations()
 		if 'env' in config and config['env'] == 'prod':
 			await self.change_presence(activity=get_game())
 

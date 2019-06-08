@@ -73,7 +73,7 @@ def parse_recommendations(recos_db={}):
 		extract_modstats(stats, recos)
 
 	recos_db['stats'] = stats
-	return recos_db
+	config['recos'] = recos_db
 
 def parse_json(filename):
 	filepath = os.path.join('cache', filename)
@@ -142,7 +142,6 @@ def load_config(bot=None, config_file='config.json'):
 		parse_mod_primaries()
 
 		config['help'] = load_help()
-		config['recos'] = parse_recommendations()
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
 
