@@ -132,29 +132,30 @@ def parse_translations(collection, key, val, context, language):
 
 #	break
 
-WANTED_KEYS = [
-	'UnitStat_Accuracy',                            # Potency
-	'UnitStat_Armor',                               # Armor
-	'UnitStat_CriticalDamage',                      # Critical Damage
-	'UnitStat_Defense',                             # Defense
-	'UnitStat_DefensePenetration',                  # Defense Penetration
-	'UnitStat_Health',                              # Health
-	'UnitStat_HealthSteal',                         # Health Steal
-	'UnitStat_MaxShield',                           # Protection
-	'UnitStat_Offense',                             # Offense
-	'UnitStat_DodgeNegateRating',                   # Physical Accuracy
-	'UnitStat_AttackCriticalNegateRating',          # Physical Critical Avoidance
-	'UnitStat_AttackCriticalRating_TU5V',           # Physical Critical Chance
-	'UnitStat_DeflectionNegateRating',              # Special Accuracy
-	'UnitStat_AbilityCriticalNegateRating',         # Special Critical Avoidance
-	'UnitStat_Resistance',                          # Tenacity
-	'UnitStat_Speed',                               # Speed
-	'UnitStat_Suppression',                         # Resistance
-	'UnitStat_SuppressionPenetration',              # Resistance Penetration
-]
+WANTED_KEYS = {
+	'UnitStat_Accuracy':                    'Potency',
+	'UnitStat_Armor':                       'Armor',
+	'UnitStat_CriticalDamage':              'Critical Damage',
+	'UnitStat_Defense':                     'Defense',
+	'UnitStat_DefensePenetration':          'Defense Penetration',
+	'UnitStat_Health':                      'Health',
+	'UnitStat_HealthSteal':                 'Health Steal',
+	'UnitStat_MaxShield':                   'Protection',
+	'UnitStat_Offense':                     'Offense',
+	'UnitStat_DodgeNegateRating':           'Physical Accuracy',
+	'UnitStat_AttackCriticalNegateRating':  'Physical Critical Avoidance',
+	'UnitStat_AttackCriticalRating_TU5V':   'Physical Critical Chance',
+	'UnitStat_DeflectionNegateRating':      'Special Accuracy',
+	'UnitStat_AbilityCriticalNegateRating': 'Special Critical Avoidance',
+	'UnitStat_Resistance':                  'Tenacity',
+	'UnitStat_Speed':                       'Speed',
+	'UnitStat_Suppression':                 'Resistance',
+	'UnitStat_SuppressionPenetration':      'Resistance Penetration',
+}
 
 for i in range(1, 13):
-	WANTED_KEYS.append('Unit_Tier%02d' % i)
+	key = 'Unit_Tier%02d' % i
+	WANTED_KEYS[key] = False
 
 def parse_localization_files():
 
@@ -171,8 +172,12 @@ def parse_localization_files():
 				line = line.strip()
 				if line.startswith('#'):
 					continue
+
 				string_id, translation = line.split('|')
 				if string_id in WANTED_KEYS:
+					if WANTED_KEYS[string_id] is not False:
+						string_id = WANTED_KEYS[string_id]
+
 					obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language, )
 					if obj.translation != translation:
 						obj.translation = translation
