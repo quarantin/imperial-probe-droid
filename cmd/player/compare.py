@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS
 from collections import OrderedDict
-from utils import get_stars_as_emojis, ROMAN_NUMBERS
+from utils import get_stars_as_emojis
 from swgohgg import get_avatar_url
 from swgohhelp import fetch_crinolo_stats, get_ability_name
 

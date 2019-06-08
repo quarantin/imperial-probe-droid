@@ -8,29 +8,12 @@ from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
-ROMAN_NUMBERS = {
-	1: 'I',
-	2: 'II',
-	3: 'III',
-	4: 'IV',
-	5: 'V',
-	6: 'VI',
-	7: 'VII',
-	8: 'VIII',
-	9: 'IX',
-	10: 'X',
-	11: 'XI',
-	12: 'XII',
-}
-
 SQUAD_ROLES = {
 	1: 'Member',
 	2: 'Leader',
 	3: 'Commander',
 	5: 'Reinforcement',
 }
-
-SHORTENER_URL = 'http://thelink.la/api-shorten.php?url='
 
 PERCENT_STATS = [
 	'%armor',
@@ -84,15 +67,6 @@ def now(timezone):
 def dotify(number):
 	return '{:,}'.format(number)
 
-removable_chars = """`'"()[]{}"""
-
-replaceable_chars = {
-	'é': 'e',
-	'É': 'E',
-	'î': 'i',
-	'Î': 'I',
-}
-
 def http_get(url, headOnly=False):
 
 	try:
@@ -128,6 +102,15 @@ def http_post(url, *args, **kwargs):
 	else:
 		return response, False
 
+removable_chars = """`'"()[]{}"""
+
+replaceable_chars = {
+	'é': 'e',
+	'É': 'E',
+	'î': 'i',
+	'Î': 'I',
+}
+
 def basicstrip(string):
 
 	for char in string:
@@ -139,9 +122,6 @@ def basicstrip(string):
 			string = string.replace(char, replaceable_chars[char])
 
 	return string.lower()
-
-def emojistrip(string):
-	return string.replace(' ', '').lower()
 
 def download_spreadsheet(url, cols):
 
@@ -231,23 +211,6 @@ def roundup(number):
 
 def expired(expiration_date):
 	return expiration_date < datetime.now()
-
-def lpad(number, limit=1000):
-
-	pads = []
-
-	copy = int(number.replace('%', '').strip())
-
-	limits = []
-	while limit > 1:
-		limits.insert(0, limit)
-		limit = limit / 10
-
-	for limit in limits:
-		if copy < limit:
-			pads.append('\u202F\u202F')
-
-	return '%s%s' % (''.join(pads), number)
 
 def get_dict_by_index(dict_list, index_key):
 
