@@ -261,10 +261,10 @@ class BaseUnit(models.Model):
 		return result
 
 	def get_image(self):
-		return 'https://swgoh.gg/%s' % self.image
+		return 'https://swgoh.gg%s' % self.image
 
 	def get_url(self):
-		return 'https://swgoh.gg/%s' % self.url
+		return 'https://swgoh.gg%s' % self.url
 
 class BaseUnitFaction(models.Model):
 
