@@ -79,7 +79,12 @@ def call_api(config, project, url):
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
-	data = response.json()
+	try:
+		data = response.json()
+	except Exception as err:
+		print("Failed to decode JSON:\n%s\n---" % response.content)
+		raise err
+
 	if 'error' in data and 'error_description' in data:
 		raise Exception(data['error_description'])
 
