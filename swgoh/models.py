@@ -186,10 +186,10 @@ class Gear(models.Model):
 		return result
 
 	def get_image(self):
-		return 'https://swgoh.gg/static/img/assets/%s' % self.image
+		return 'https://swgoh.gg/%s' % self.image
 
 	def get_url(self):
-		return 'https://swgoh.gg/db/gear/%s' % self.url
+		return 'https://swgoh.gg/%s' % self.url
 
 class BaseUnit(models.Model):
 
@@ -249,14 +249,10 @@ class BaseUnit(models.Model):
 		return result
 
 	def get_image(self):
-		return 'https://swgoh.gg/static/img/assets/%s' % self.image
+		return 'https://swgoh.gg/%s' % self.image
 
 	def get_url(self):
-		token = 'ships'
-		if int(self.combat_type) == 1:
-			token = 'characters'
-
-		return 'https://swgoh.gg/%s/%s' % (token, self.url)
+		return 'https://swgoh.gg/%s' % self.url
 
 class BaseUnitFaction(models.Model):
 
