@@ -13,45 +13,60 @@ from django.db import transaction
 
 from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill
 
-DEBUG = True
+DEBUG = False
 
-collections = {
+urls = {
+	'cache/characters.json': 'https://swgoh.gg/api/characters/',
+	'cache/ships.json':      'https://swgoh.gg/api/ships/',
+}
 
-	'abilityList': {
-		'project': {
-			'id': 1,
-			'nameKey': 1,
-		},
-	},
-	'equipmentList': {
-		'project': {
-			'id': 1,
-			'nameKey': 1,
-		},
-	},
-	'unitsList': {
-		'match': {
-			'rarity': 7,
-			'obtainable': True,
-		},
-		'project': {
-			'baseId': 1,
-			'nameKey': 1,
-		},
-	},
-	'skillList': {
+base_projects = [
+
+	{
+		'collection': 'skillList',
 		'project': {
 			'id': 1,
 			'abilitiyReference': 1,
 			'isZeta': 1,
 		},
 	},
-}
+	{
+		'collection': 'unitsList',
+		'match': {
+			'rarity': 7,
+			'obtainable': True,
+		},
+	},
+]
 
-urls = {
-	'cache/characters.json': 'https://swgoh.gg/api/characters/',
-	'cache/ships.json':      'https://swgoh.gg/api/ships/',
-}
+lang_projects = [
+
+	{
+		'collection': 'abilityList',
+		'project': {
+			'id': 1,
+			'nameKey': 1,
+		},
+	},
+	{
+		'collection': 'equipmentList',
+		'project': {
+			'id': 1,
+			'nameKey': 1,
+		},
+	},
+	{
+		'collection': 'unitsList',
+		'project': {
+			'baseId': 1,
+			'nameKey': 1,
+		},
+		'match': {
+			'rarity': 7,
+			'obtainable': True,
+		},
+	},
+]
 
 def fetch_all_collections(config):
 
@@ -68,44 +83,36 @@ def fetch_all_collections(config):
 		return
 
 	# First download all base files
-	for collection, data in collections.items():
+	for base_project in base_projects:
 
-		print('Downloading base collection `%s`...' % collection)
+		project = dict(base_project)
+		if 'project' in project:
+			project.pop('project')
 
-		data = api_swgoh_data(config, {
-			'collection': collection,
-		})
+		print('Downloading base collection `%s`...' % project['collection'])
+		data = api_swgoh_data(config, project)
 
-		filename = 'cache/%s_base.json' % collection
+		filename = 'cache/%s.json' % project['collection']
 		with open(filename, 'w') as fout:
 			fout.write(json.dumps(data))
 
 	# Then download language specific information
 	for language, lang_code, lang_flag, lang_name in Player.LANGS:
-		for collection, params in collections.items():
+		for lang_project in lang_projects:
 
-			print('Downloading %s collection `%s`...' % (language, collection))
+			project = dict(lang_project)
+			project['language'] = language,
 
-			project = {
-				'collection': collection,
-				'language': language,
-			}
-
-			if 'match' in params:
-				project['match'] = params['match']
-
-			if 'project' in params:
-				project['project'] = params['project'],
-
+			print('Downloading %s collection `%s`...' % (language, project['collection']))
 			data = api_swgoh_data(config, project)
 
-			filename = 'cache/%s_%s.json' % (collection, language)
+			filename = 'cache/%s_%s.json' % (project['collection'], language)
 			with open(filename, 'w') as fout:
 				fout.write(json.dumps(data))
 
 	print('All Done!')
 
-def parse_translations(collection, key, val, context, language):
+def parse_translations(collection, key, context, language):
 
 	filename = 'cache/%s_%s.json' % (collection, language)
 	with open(filename, 'r') as fin:
@@ -114,28 +121,9 @@ def parse_translations(collection, key, val, context, language):
 			for entry in jsondata:
 
 				obj, created = Translation.objects.update_or_create(string_id=entry[key], context=context, language=language)
-				if obj.translation != entry[val]:
-					obj.translation = entry[val]
+				if obj.translation != entry['nameKey']:
+					obj.translation = entry['nameKey']
 					obj.save()
-
-#	print('Saving Results to database')
-#	with transaction.atomic():
-#		for item in result:
-#			Translation(string_id=item['id'], translation=item['nameKey'], language=language).save()
-
-#for language, lang_code, lang_flag, lang_name in Player.LANGS:
-
-#	language = 'fre_fr'
-#	lang_name = 'French'
-
-	#print('Deleting all previous translations for %s' % lang_name)
-	#Translation.objects.filter(language=language).delete()
-
-	#fetch_unit_names(config, language)
-
-	#fetch_gear_names(config, language)
-
-#	break
 
 WANTED_KEYS = {
 	'UnitStat_Accuracy':                    'Potency',
@@ -200,8 +188,8 @@ def fix_url(url):
 def parse_units():
 
 	with transaction.atomic():
-		for filename in [ 'cache/characters.json', 'cache/ships.json' ]:
-			units = load_json(filename)
+		for filename in [ 'characters.json', 'ships.json' ]:
+			units = load_json('cache/%s' % filename)
 			for unit in units:
 
 				char = dict(unit)
@@ -224,9 +212,13 @@ def parse_units():
 				if 'image' in char:
 					char['image'] = fix_url(char['image'])
 
-				base_unit, created = BaseUnit.objects.update_or_create(base_id=unit['base_id'])
+				try:
+					base_unit = BaseUnit.objects.get(base_id=unit['base_id'])
+					BaseUnit.objects.filter(pk=base_unit.pk).update(**char)
 
-				BaseUnit.objects.filter(pk=base_unit.pk).update(**char)
+				except BaseUnit.DoesNotExist:
+					base_unit = BaseUnit(**char)
+					base_unit.save()
 
 				for category in categories:
 					faction = BaseUnitFaction.is_supported_faction(category)
@@ -235,27 +227,30 @@ def parse_units():
 
 def parse_skills():
 
-	filename = 'cache/skillList_base.json'
+	filename = 'cache/skillList.json'
 	skill_list = load_json(filename)
 	skills = {}
 	for skill in skill_list:
 		skill_id = skill['id']
 		skills[skill_id] = skill['isZeta']
 
-	filename = 'cache/unitsList_base.json'
+	filename = 'cache/unitsList.json'
 	units = load_json(filename)
 	with transaction.atomic():
 		for unit in units:
 			base_id = unit['baseId']
 			try:
 				real_unit = BaseUnit.objects.get(base_id=base_id)
+				unit_skills = unit['skillReferenceList']
+				for skill in unit_skills:
+					skill_id = skill['skillId']
+					is_zeta = skills[skill_id]
+					obj, created = BaseUnitSkill.objects.update_or_create(skill_id=skill_id, is_zeta=is_zeta, unit=real_unit)
+
 			except BaseUnit.DoesNotExist:
+				if not base_id.startswith('PVE_'):
+					print("WARN: Missing unit from DB: %s" % base_id)
 				continue
-			unit_skills = unit['skillReferenceList']
-			for skill in unit_skills:
-				skill_id = skill['skillId']
-				is_zeta = skills[skill_id]
-				obj, created = BaseUnitSkill.objects.update_or_create(skill_id=skill_id, is_zeta=is_zeta, unit=real_unit)
 
 first_time = False
 version_url = 'https://api.swgoh.help/version'
@@ -290,7 +285,9 @@ parse_skills()
 parse_localization_files()
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
+
 	print('Parsing %s translations...' % language.lower())
-	parse_translations('abilityList',   'id', 'nameKey', 'abilities',  language)
-	parse_translations('equipmentList', 'id', 'nameKey', 'gear-names', language)
-	parse_translations('unitsList', 'baseId', 'nameKey', 'unit-names', language)
+
+	parse_translations('abilityList',   'id',     'abilities',  language)
+	parse_translations('equipmentList', 'id',     'gear-names', language)
+	parse_translations('unitsList',     'baseId', 'unit-names', language)
