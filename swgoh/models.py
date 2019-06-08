@@ -226,12 +226,16 @@ class BaseUnit(models.Model):
 
 			base_ids = []
 			for faction in facs:
-				print(faction.faction)
 				if faction.unit.base_id not in base_ids:
 					base_ids.append(faction.unit.base_id)
 
 			units = BaseUnit.objects.filter(base_id__in=base_ids)
 			for unit in units:
+
+				# TODO Fix filtering of ships
+				if unit.combat_type == 2:
+					continue
+
 				if unit not in selected_units:
 					selected_units.append(unit)
 
