@@ -11,7 +11,7 @@ help_guild_compare = {
 
 **Syntax**
 ```
-%prefixgc [players] [units]
+%prefixgc [players] [units]```
 **Examples**
 Compare your guild to another (assuming you're registered):
 ```
@@ -170,9 +170,8 @@ def cmd_guild_compare(config, author, channel, args):
 		return error
 
 	fields = []
-	ally_codes = [ player.ally_code for player in selected_players ]
 	guild_list = fetch_guilds(config, {
-		'allycodes': [ str(x) for x in ally_codes ],
+		'allycodes': [ str(x.ally_code) for x in selected_players ],
 		'project': {
 			'id': 1,
 			'name': 1,
@@ -187,6 +186,7 @@ def cmd_guild_compare(config, author, channel, args):
 		},
 	})
 
+	ally_codes = [ x.ally_code for x in selected_players ]
 	for dummy, guild in guild_list.items():
 		for ally_code_str, player in guild['roster'].items():
 			if player['allyCode'] not in ally_codes:
