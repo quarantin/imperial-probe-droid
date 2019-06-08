@@ -143,6 +143,7 @@ def load_config(bot=None, config_file='config.json'):
 
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
+		config['debug'] = 'debug' in config and config['debug']
 
 		parse_skills()
 

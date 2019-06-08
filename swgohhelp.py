@@ -57,7 +57,9 @@ def get_access_token(config):
 	config['swgoh.help']['access_token'] = data['access_token']
 	config['swgoh.help']['access_token_expire'] = datetime.now() + timedelta(seconds=data['expires_in'])
 
-	print('Logged in successfully', file=sys.stderr)
+	if config['debug'] is True:
+		print('Logged in successfully', file=sys.stderr)
+
 	return config['swgoh.help']['access_token']
 
 def get_headers(config):
@@ -69,7 +71,10 @@ def get_headers(config):
 
 def call_api(config, project, url):
 	headers = get_headers(config)
-	print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
+
+	if config['debug'] is True:
+		print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
+
 	response, error = http_post(url, headers=headers, json=project)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
@@ -110,7 +115,10 @@ def api_swgoh_data(config, project):
 
 def api_crinolo(config, units):
 	url = '%s?flags=gameStyle' % CRINOLO_BETA_URL
-	print('CALL CRINOLO API: %s' % url, file=sys.stderr)
+
+	if config['debug'] is True:
+		print('CALL CRINOLO API: %s' % url, file=sys.stderr)
+
 	response, error = http_post(url, json=units)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
