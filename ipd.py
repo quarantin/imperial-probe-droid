@@ -124,6 +124,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		channel = message.channel
 		content = remove_prefix(config['prefix'], self_mention, message.content)
 		args = shlex.split(content)
+		if not args:
+			return
+
 		command = args[0]
 		if command in config['aliases']:
 			replaced = message.content.replace(command, config['aliases'][command])
