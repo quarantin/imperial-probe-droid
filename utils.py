@@ -150,6 +150,7 @@ def translate(string_id, language):
 		except Translation.DoesNotExist:
 			pass
 
+	print('WARN: Missing translation for string ID: %s' % string_id)
 	return string_id
 
 def format_char_details(unit, fmt):
