@@ -42,7 +42,7 @@ def count_zetas(unit):
 
 def get_full_avatar_url(config, image, unit):
 
-	image = os.path.basename(image)
+	image = os.path.basename(os.path.dirname(image))
 
 	level, gear, rarity, zetas = 1, 1, 0, 0
 

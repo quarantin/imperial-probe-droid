@@ -15,7 +15,7 @@ def download_image(image_name):
 
 	if not os.path.exists(image_path) or os.path.getsize(image_path) == 0:
 
-		url = 'https://swgoh.gg/static/img/%s' % image_name
+		url = 'https://swgoh.gg/game-asset/u/%s/' % image_name
 
 		response = requests.get(url)
 		if response.status_code != 200:
@@ -30,11 +30,7 @@ def download_image(image_name):
 	return image_path
 
 def get_portrait(character):
-
-	image_name = 'assets/%s' % character
-	image_path = download_image(image_name)
-
-	return Image.open(image_path)
+	return Image.open(download_image(character))
 
 def get_gear(gear):
 
