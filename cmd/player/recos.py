@@ -118,12 +118,12 @@ def cmd_recos(config, author, channel, args):
 					set2     = EMOJIS[ reco['set2'].replace(' ', '').lower() ]
 					set3     = EMOJIS[ reco['set3'].replace(' ', '').lower() ]
 
-					square   = get_short_stat(reco['square'], language)
-					arrow    = get_short_stat(reco['arrow'], language)
-					diamond  = get_short_stat(reco['diamond'], language)
+					square   = get_short_stat(reco['square'],   language)
+					arrow    = get_short_stat(reco['arrow'],    language)
+					diamond  = get_short_stat(reco['diamond'],  language)
 					triangle = get_short_stat(reco['triangle'], language)
-					circle   = get_short_stat(reco['circle'], language)
-					cross    = get_short_stat(reco['cross'], language)
+					circle   = get_short_stat(reco['circle'],   language)
+					cross    = get_short_stat(reco['cross'],    language)
 
 					info     = reco['info'].strip()
 					info     = info and ' %s' % info or ''
