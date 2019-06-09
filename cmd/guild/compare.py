@@ -3,7 +3,7 @@ from collections import OrderedDict
 from opts import *
 from errors import *
 from constants import EMOJIS
-from utils import dotify, get_stars_as_emojis, translate
+from utils import dotify, get_stars_as_emojis, roundup, translate
 from swgohhelp import fetch_players, fetch_guilds, get_ability_name
 
 help_guild_compare = {
@@ -25,7 +25,7 @@ Compare guilds from two different players and show differences about Revan and T
 %prefixgc 123456789 234567891 revan traya```"""
 }
 
-def get_guild_stats(config, roster, lang):
+def get_unit_stats(config, roster, lang):
 
 	stats = {
 		'count': 0,
@@ -78,7 +78,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	if base_id in roster:
 
-		stats = get_guild_stats(config, roster[base_id], lang)
+		stats = get_unit_stats(config, roster[base_id], lang)
 
 		seven_stars = get_stars_as_emojis(7)
 
@@ -124,27 +124,88 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	return res
 
-def guild_to_embedfield(guild):
+MAX_GEAR = 12
+MAX_LEVEL = 85
+MAX_RARITY = 7
+
+def get_guild_stats(guild, players):
+
+	stats = {
+		'gpChar': 0,
+		'gpShip': 0,
+		'level': 0,
+		'omegas': 0,
+		'zetas': 0,
+		'r7-units': 0,
+		'r7-ships': 0,
+		'l85-units': 0,
+		'l85-ships': 0,
+		'g12-units': 0,
+		'g11-units': 0,
+	}
+
+	for ally_code_str, profile in guild['roster'].items():
+		ally_code = profile['allyCode']
+
+		for key in [ 'gpChar', 'gpShip', 'level' ]:
+
+			if key not in profile:
+				print('WARN: Missing key `%s` in guild roster object for ally code: %s' % (key, ally_code))
+				continue
+
+			stats[key] += profile[key]
+
+		if ally_code not in players:
+			raise Exception('Ally code not found in guild: %s' % ally_code)
+
+		player = players[ally_code]
+		for base_id, unit in player['roster'].items():
+
+			is_max_gear   = (unit['gear'] == MAX_GEAR)
+			is_max_level  = (unit['level'] == MAX_LEVEL)
+			is_max_rarity = (unit['rarity'] == MAX_RARITY)
+
+			if unit['combatType'] == 1:
+				stats['r7-units'] += (is_max_rarity and 1 or 0)
+				stats['l85-units'] += (is_max_level and 1 or 0)
+				stats['g12-units'] += (is_max_gear and 1 or 0)
+			else:
+				stats['r7-ships'] += (is_max_rarity and 1 or 0)
+				stats['l85-ships'] += (is_max_level and 1 or 0)
+
+			for skill in unit['skills']:
+				if skill['tier'] == 8:
+					key = 'omegas'
+					if skill['isZeta']:
+						key = 'zetas'
+					stats[key] += 1
+
+	guild.update(stats)
+
+def guild_to_embedfield(guild, players):
+
+	get_guild_stats(guild, players)
 
 	lines = [
-		'**Guild ID:** %s' % guild['id'],
-		'**Members: ** %s' % guild['members'],
-		'**Profiles:** %s' % len(guild['roster']),
-		#'**Avg.Levl:** %s' % guild['stats']['level'],
-		#'**Avg.Rank:** %s' % guild['stats']['arena_rank'],
-		'**Guild GP:** %s' % dotify(guild['gp']),
-		#'**Units GP:** %s' % dotify(guild['stats']['character_galactic_power']),
-		#'**Ships GP:** %s' % dotify(guild['stats']['ship_galactic_power']),
-		#'**Raid won:** %s' % dotify(guild['stats']['guild_raid_won']),
-		#'**PVP units:** %s' % dotify(guild['stats']['pvp_battles_won']),
-		#'**PVP ships:** %s' % dotify(guild['stats']['ship_battles_won']),
-		##'**PVE:** %s' % dotify(guild['stats']['pve_battles_won']),
-		#'**PVE hard:** %s' % dotify(guild['stats']['pve_hard_won']),
-		#'**Gal.Wars:** %s' % dotify(guild['stats']['galactic_war_won']),
-		#'**Contribs:** %s' % dotify(guild['stats']['guild_contribution']),
-		#'**Donations:** %s' % dotify(guild['stats']['guild_exchange_donations']),
-		'**Topic:** %s' % guild['message'],
-		'**Description:** %s' % guild['desc'],
+		'**Members: ** %s'     % guild['members'],
+		'**Profiles:** %s'     % len(guild['roster']),
+		'**Guild GP:** %s'     % dotify(guild['gp']),
+		'**Unit GP:** %s'      % dotify(guild['gpChar']),
+		'**Ship GP:** %s'      % dotify(guild['gpShip']),
+		'**GP Avg:** %s'       % dotify(guild['gp'] / len(guild['roster'])),
+		'**GP Avg Unit:** %s'  % dotify(guild['gpChar'] / len(guild['roster'])),
+		'**GP Avg Ship:** %s'  % dotify(guild['gpShip'] / len(guild['roster'])),
+		'**Avg.Lvl:** %s'      % roundup(guild['level'] / len(guild['roster'])),
+		'**7 Star Units:** %s' % guild['r7-units'],
+		'**7 Star Ships:** %s' % guild['r7-ships'],
+		'**Lvl 85 Units:** %s' % guild['l85-units'],
+		'**Lvl 85 Ships:** %s' % guild['l85-ships'],
+		'**G12 Units:** %s'    % guild['g12-units'],
+		'**Omegas:** %s'       % guild['omegas'],
+		'**Zetas:** %s'        % guild['zetas'],
+		#'**Avg.Rank:** %s'   % guild['stats']['arena_rank'],
+		'**Topic:** %s'        % guild['message'],
+		'**Description:** %s'  % guild['desc'],
 		''
 	]
 
@@ -186,6 +247,10 @@ def cmd_guild_compare(config, author, channel, args):
 			'desc': 1,
 			'roster': {
 				'allyCode': 1,
+				'gp': 1,
+				'gpChar': 1,
+				'gpShip': 1,
+				'level': 1,
 			},
 		},
 	})
@@ -208,6 +273,7 @@ def cmd_guild_compare(config, author, channel, args):
 				'level': 1,
 				'rarity': 1,
 				'skills': 1,
+				'combatType': 1,
 			},
 		},
 	})
@@ -216,7 +282,7 @@ def cmd_guild_compare(config, author, channel, args):
 	for ally_code, guild in guild_list.items():
 		guild_name = guild['name']
 		guilds[guild_name] = guild
-		fields.append(guild_to_embedfield(guild))
+		fields.append(guild_to_embedfield(guild, players))
 
 	msgs.append({
 		'title': 'Guild Comparison',
