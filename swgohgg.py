@@ -54,7 +54,7 @@ def get_full_avatar_url(config, image, unit):
 		if zetas == 0:
 			zetas = count_zetas(unit)
 
-	return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&version=2' % (config['server'], image, level, gear, rarity, zetas)
+	return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&version=3' % (config['server'], image, level, gear, rarity, zetas)
 
 def get_full_ship_avatar_url(ally_code, base_id):
 	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),
