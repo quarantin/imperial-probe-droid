@@ -65,7 +65,7 @@ def now(timezone):
 	return tz.localize(datetime.now())
 
 def dotify(number):
-	return '{:,}'.format(number)
+	return '{:,}'.format(roundup(number))
 
 def http_get(url, headOnly=False):
 
