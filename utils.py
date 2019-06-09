@@ -136,7 +136,7 @@ def download_spreadsheet(url, cols):
 
 	return iter(content)
 
-def translate(string_id, language, default=None):
+def translate(string_id, language):
 
 	import DJANGO
 	from swgoh.models import Translation
@@ -150,7 +150,7 @@ def translate(string_id, language, default=None):
 		except Translation.DoesNotExist:
 			pass
 
-	return default
+	return string_id
 
 def format_char_details(unit, fmt):
 
