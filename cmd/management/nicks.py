@@ -102,7 +102,7 @@ def cmd_nicks(config, author, channel, args):
 				'description': 'You provided %d units but you have to supply only one.' % len(selected_units)
 			}]
 
-		config['nicks'][target_nick] = selected_units.pop(0)['name']
+		config['nicks'][target_nick] = selected_units.pop(0).name
 
 		config['save']()
 		return [{
