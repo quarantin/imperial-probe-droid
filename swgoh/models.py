@@ -169,7 +169,7 @@ class Gear(models.Model):
 					stats       = gear.pop('stats')
 					ingredients = gear.pop('ingredients')
 
-					gear['url']   = gear['url'].replace('//swgoh.gg/db/gear/', '')
+					gear['url']   = gear['url'].replace('//swgoh.gg', '')
 					gear['image'] = os.path.basename(gear['image'])
 
 					Gear.objects.update_or_create(**gear)

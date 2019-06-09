@@ -79,7 +79,7 @@ def cmd_gear(config, author, channel, args):
 		json = response.json()
 		for name, data in json.items():
 			unit_name = translate(unit.base_id, language)
-			lines.append('**[%s](%s)**' % (unit_name, data['url']))
+			lines.append('**[%s](%s)**' % (unit_name, unit.get_url()))
 			min_gear_level = player_unit and player_unit['gear'] or 1
 			for tier in reversed(range(min_gear_level, 13)):
 				sublines = []
