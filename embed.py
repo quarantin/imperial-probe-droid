@@ -1,6 +1,5 @@
 import json
 import discord
-from utils import now
 
 COLORS = {
 	'blue':       0x268bd2,
@@ -78,7 +77,10 @@ def split_message(message):
 def new_embeds(config, msg, timestamp=None):
 
 	if timestamp is None:
-		timestamp = now(config['timezone'])
+		from utils import local_time
+		timestamp = local_time()
+		if 'timezone' in config and config['timezone']:
+			timestamp = local_time(timezone=config['timezone'])
 
 	if 'color' not in msg:
 		msg['color'] = 'blue'

@@ -38,7 +38,11 @@ PROBE_DIALOG = [
 
 def log_message(message):
 
-	date = datetime.now().strftime('%Y%m%d %H:%M:%S')
+	date = local_time()
+	if 'timezone' in config and config['timezone']:
+		date = local_time(timezone=config['timezone'])
+
+	date = date.strftime('%Y%m%d %H:%M:%S')
 	server = str(message.guild) or ''
 	channel = str(message.channel) or ''
 	content = message.content
