@@ -3,6 +3,7 @@ from cmd.guild.glist import *
 from cmd.management.alias import *
 #from cmd.management.format import *
 from cmd.management.help import *
+from cmd.management.ignore import *
 from cmd.management.invite import *
 from cmd.management.language import *
 #from cmd.management.links import *
@@ -80,6 +81,12 @@ COMMANDS = [
 		'aliases': [ 'h', 'help' ],
 		'function': cmd_help,
 		'help': help_help,
+	},
+	{
+		'command': 'ignore',
+		'aliases': [ 'ignore' ],
+		'function': cmd_ignore,
+		'help': help_ignore,
 	},
 	{
 		'command': 'invite',
