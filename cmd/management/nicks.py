@@ -41,7 +41,7 @@ def cmd_nicks(config, author, channel, args):
 		i = 1
 		for nick, name in sorted(config['nicks'].items()):
 			lines.append('**[%d]** **%s** `%s`' % (i, nick, name))
-			i = i + 1
+			i += 1
 
 		return [{
 			'title': 'Character Nick List',
