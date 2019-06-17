@@ -17,6 +17,8 @@
     },
     "hello": [
     ],
+    "ignored": [
+    ],
     "nicks": {
         "1337": "L3-37",
         "aa": "Admiral Ackbar",
