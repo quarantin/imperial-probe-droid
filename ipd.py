@@ -138,6 +138,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			args = shlex.split(content)
 			command = args[0]
 
+		if command.lower() in config['ignored']:
+			return
+
 		args = args[1:]
 
 		args = [ x for x in args if x ]
