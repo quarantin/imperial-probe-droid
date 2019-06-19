@@ -339,10 +339,9 @@ def cmd_guild_compare(config, author, channel, args):
 	for alist in [ names ]:
 		i = 0
 		for banner in banners:
-			clean_banner = banner.replace('`', '')
-			lines.append('%s | **__%s__**' % (clean_banner, alist[i]))
-			lines.append('%s | %s' % (clean_banner, topics[i]))
-			lines.append('%s | %s' % (clean_banner, descrs[i]))
+			lines.append('%s | **__%s__**' % (banner, alist[i]))
+			lines.append('%s | %s' % (banner, topics[i]))
+			lines.append('%s | %s' % (banner, descrs[i]))
 			i += 1
 
 	field = {
