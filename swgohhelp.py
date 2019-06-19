@@ -81,6 +81,7 @@ def call_api(config, project, url):
 
 	try:
 		data = response.json()
+
 	except Exception as err:
 		print("Failed to decode JSON:\n%s\n---" % response.content)
 		raise err
@@ -95,7 +96,18 @@ def call_api(config, project, url):
 #
 
 def api_swgoh_players(config, project):
-	return call_api(config, project, '%s/swgoh/players' % SWGOH_HELP)
+
+	result = []
+	expected_players = len(project['allycodes'])
+
+	while len(result) < expected_players:
+
+		returned = call_api(config, project, '%s/swgoh/players' % SWGOH_HELP)
+		for player in returned:
+			result.append(player)
+			project['allycodes'].remove(player['allyCode'])
+
+	return result
 
 def api_swgoh_guilds(config, project):
 	return call_api(config, project, '%s/swgoh/guilds' % SWGOH_HELP)
