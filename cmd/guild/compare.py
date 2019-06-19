@@ -25,6 +25,12 @@ Compare guilds from two different players and show differences about Revan and T
 %prefixgc 123456789 234567891 revan traya```"""
 }
 
+def get_banner_emoji(banner_logo, banner_color):
+	color = ''.join([ word[0] for word in banner_color.split('_') ]).upper()
+	banner = banner_logo.replace('guild_icon_', '').replace('.png', '')
+	emoji = banner in EMOJIS and EMOJIS[banner] or None
+	return '%s`%s`' % (emoji, color)
+
 def get_unit_stats(config, roster, lang):
 
 	stats = {
@@ -82,7 +88,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 		seven_stars = get_stars_as_emojis(7)
 
-		res['__GUILD__']  = guild['name']
+		res['__GUILD__']  = get_banner_emoji(guild['bannerLogo'], guild['bannerColor'])
 		res['**Avg.GP**'] = str(int(stats['cumul-gp'] / stats['count']))
 		res['**Locked**'] = str(guild['members'] - stats['count'])
 		res['**Count**']  = str(stats['count'])
@@ -128,6 +134,11 @@ MAX_GEAR = 12
 MAX_LEVEL = 85
 MAX_RARITY = 7
 
+MOD_STATS = {
+	5:  'speed',
+	41: 'offense',
+}
+
 def get_guild_stats(guild, players):
 
 	stats = {
@@ -142,6 +153,12 @@ def get_guild_stats(guild, players):
 		'l85-ships': 0,
 		'g12-units': 0,
 		'g11-units': 0,
+		'6-pips-mods': 0,
+		'speed-arrows': 0,
+		'speed-mods+20': 0,
+		'speed-mods+25': 0,
+		'offense-mods+100': 0,
+		'offense-mods+150': 0,
 	}
 
 	for ally_code_str, profile in guild['roster'].items():
@@ -156,7 +173,8 @@ def get_guild_stats(guild, players):
 			stats[key] += profile[key]
 
 		if ally_code not in players:
-			raise Exception('Ally code not found in guild: %s' % ally_code)
+			print('WARN: Ally code not found in guild: %s' % ally_code)
+			continue
 
 		player = players[ally_code]
 		for base_id, unit in player['roster'].items():
@@ -180,40 +198,50 @@ def get_guild_stats(guild, players):
 						key = 'zetas'
 					stats[key] += 1
 
+			if 'mods' in unit:
+				for mod in unit['mods']:
+					if mod['pips'] == 6:
+						stats['6-pips-mods'] += 1
+
 	guild.update(stats)
 
-def guild_to_embedfield(guild, players):
+def guild_to_dict(guild, players):
 
 	get_guild_stats(guild, players)
 
-	lines = [
-		'**Members: ** %s'     % guild['members'],
-		'**Profiles:** %s'     % len(guild['roster']),
-		'**Guild GP:** %s'     % dotify(guild['gp']),
-		'**Unit GP:** %s'      % dotify(guild['gpChar']),
-		'**Ship GP:** %s'      % dotify(guild['gpShip']),
-		'**GP Avg:** %s'       % dotify(guild['gp'] / len(guild['roster'])),
-		'**GP Avg Unit:** %s'  % dotify(guild['gpChar'] / len(guild['roster'])),
-		'**GP Avg Ship:** %s'  % dotify(guild['gpShip'] / len(guild['roster'])),
-		'**Avg.Lvl:** %s'      % roundup(guild['level'] / len(guild['roster'])),
-		'**7 Star Units:** %s' % guild['r7-units'],
-		'**7 Star Ships:** %s' % guild['r7-ships'],
-		'**Lvl 85 Units:** %s' % guild['l85-units'],
-		'**Lvl 85 Ships:** %s' % guild['l85-ships'],
-		'**G12 Units:** %s'    % guild['g12-units'],
-		'**Omegas:** %s'       % guild['omegas'],
-		'**Zetas:** %s'        % guild['zetas'],
-		#'**Avg.Rank:** %s'   % guild['stats']['arena_rank'],
-		'**Topic:** %s'        % guild['message'],
-		'**Description:** %s'  % guild['desc'],
-		''
-	]
+	res = OrderedDict()
 
-	return {
-		'name': guild['name'],
-		'value': '\n'.join(lines),
-		'inline': True,
-	}
+	res['**Compared Guilds**'] = OrderedDict()
+	res['**Compared Guilds**']['__GUILD__']       = '%s (%s)' % (guild['name'], guild['members'])
+	res['**Compared Guilds**']['**Banner**']      = get_banner_emoji(guild['bannerLogo'], guild['bannerColor'])
+	res['**Compared Guilds**']['**Topic**']       = guild['message']
+	res['**Compared Guilds**']['**Description**'] = guild['desc']
+
+	#'**Avg.Rank** %s'      % guild['stats']['arena_rank'],
+
+	res['**Guild GP**'] = OrderedDict()
+	res['**Guild GP**']['**Total**']      = dotify(guild['gp'])
+	res['**Guild GP**']['**Characters**'] = dotify(guild['gpChar'])
+	res['**Guild GP**']['**Ships**']      = dotify(guild['gpShip'])
+
+	res['**Avg Player GP**'] = OrderedDict()
+	res['**Avg Player GP**']['**Total**']      = dotify(guild['gp'] / len(guild['roster']))
+	res['**Avg Player GP**']['**Characters**'] = dotify(guild['gpChar'] / len(guild['roster']))
+	res['**Avg Player GP**']['**Ships**']      = dotify(guild['gpShip'] / len(guild['roster']))
+
+	res['**Characters**'] = OrderedDict()
+	res['**Characters**']['**7 Stars**']    = dotify(guild['r7-units'])
+	res['**Characters**']['**Lvl 85**']     = dotify(guild['l85-units'])
+	res['**Characters**']['**G12**']        = dotify(guild['g12-units'])
+	res['**Characters**']['**Omegas**']     = dotify(guild['omegas'])
+	res['**Characters**']['**Zetas**']      = dotify(guild['zetas'])
+	res['**Characters**']['**6 Dot Mods**'] = dotify(guild['6-pips-mods'])
+
+	res['**Ships**'] = OrderedDict()
+	res['**Ships**']['**7 Star**'] = dotify(guild['r7-ships'])
+	res['**Ships**']['**Lvl 85**'] = dotify(guild['l85-ships'])
+
+	return res
 
 def cmd_guild_compare(config, author, channel, args):
 
@@ -239,17 +267,19 @@ def cmd_guild_compare(config, author, channel, args):
 		'allycodes': [ str(x.ally_code) for x in selected_players ],
 		'project': {
 			'id': 1,
-			'name': 1,
-			'guildName': 1,
 			'gp': 1,
+			'desc': 1,
+			'name': 1,
 			'members': 1,
 			'message': 1,
-			'desc': 1,
+			'guildName': 1,
+			'bannerLogo': 1,
+			'bannerColor': 1,
 			'roster': {
-				'allyCode': 1,
 				'gp': 1,
 				'gpChar': 1,
 				'gpShip': 1,
+				'allyCode': 1,
 				'level': 1,
 			},
 		},
@@ -274,6 +304,9 @@ def cmd_guild_compare(config, author, channel, args):
 				'rarity': 1,
 				'skills': 1,
 				'combatType': 1,
+				'mods': {
+					'pips': 1,
+				},
 			},
 		},
 	})
@@ -282,7 +315,61 @@ def cmd_guild_compare(config, author, channel, args):
 	for ally_code, guild in guild_list.items():
 		guild_name = guild['name']
 		guilds[guild_name] = guild
-		fields.append(guild_to_embedfield(guild, players))
+		fields.append(guild_to_dict(guild, players))
+
+	accu = {}
+	for guild in fields:
+		for category, data in guild.items():
+			for key, line in data.items():
+				if category not in accu:
+					accu[category] = OrderedDict()
+				if key not in accu[category]:
+					accu[category][key] = []
+				if line is not None:
+					accu[category][key].append(line)
+
+	gdata = accu.pop('**Compared Guilds**')
+	names = gdata.pop('__GUILD__')
+	banners = gdata.pop('**Banner**')
+	topics = gdata.pop('**Topic**')
+	descrs = gdata.pop('**Description**')
+
+	lines = []
+
+	for alist in [ names ]:
+		i = 0
+		for banner in banners:
+			clean_banner = banner.replace('`', '')
+			lines.append('%s | **__%s__**' % (clean_banner, alist[i]))
+			lines.append('%s | %s' % (clean_banner, topics[i]))
+			lines.append('%s | %s' % (clean_banner, descrs[i]))
+			i += 1
+
+	field = {
+		'name': '**Compared Guilds**',
+		'value': '\n'.join(lines),
+	}
+
+	fields = [ field ]
+
+	for category, data in accu.items():
+		lines = []
+		lines.append('`|` %s `|`' % ' `|` '.join(banners))
+		for key, values in data.items():
+			if key == '__GUILD__':
+				key = ''
+
+			newvals = []
+			for val in values:
+				pad = max(0, 11 - len(str(val))) * '\u00a0'
+				newvals.append('%s%s' % (pad, val))
+
+			lines.append('`|%s|`%s' % ('|'.join(newvals), key))
+
+		fields.append({
+			'name': category,
+			'value': '\n'.join(lines),
+		})
 
 	msgs.append({
 		'title': 'Guild Comparison',
@@ -327,13 +414,13 @@ def cmd_guild_compare(config, author, channel, args):
 
 			newval = []
 			for v in val:
-				pad = max(0, 4 - len(str(v))) * '\u00a0'
+				pad = max(0, 5 - len(str(v))) * '\u00a0'
 				newval.append('%s%s' % (pad, v))
 
 			if key == '__GUILD__':
-				key = ''
-
-			lines.append('`|%s|`%s' % ('|'.join(newval), key))
+				lines.append('`|` %s `|`%s' % ('|'.join(newval), ''))
+			else:
+				lines.append('`| %s |`%s' % ('|'.join(newval), key))
 
 		msgs.append({
 			'author': {
