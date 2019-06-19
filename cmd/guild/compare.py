@@ -27,7 +27,7 @@ Compare guilds from two different players and show differences about Revan and T
 
 def get_banner_emoji(banner_logo, banner_color):
 	color = ''.join([ word[0] for word in banner_color.split('_') ]).upper()
-	banner = banner_logo.replace('guild_icon_', '').replace('.png', '')
+	banner = banner_logo.replace('guild_icon_', '').replace('.png', '').lower()
 	emoji = banner in EMOJIS and EMOJIS[banner] or None
 	return '%s`%s`' % (emoji, color)
 
