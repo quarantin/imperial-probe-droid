@@ -145,7 +145,7 @@ class Gear(models.Model):
 		(12, 12),
 	)
 
-	base_id = models.CharField(max_length=128, unique=True)
+	base_id = models.CharField(max_length=128, primary_key=True)
 	name = models.CharField(max_length=128)
 	tier = models.IntegerField(choices=TIERS)
 	required_level = models.IntegerField()
@@ -153,6 +153,9 @@ class Gear(models.Model):
 	cost = models.IntegerField()
 	url = models.CharField(max_length=255)
 	image = models.CharField(max_length=255)
+
+	def __str__(self):
+		return self.name
 
 	def get_all_gear():
 		url = 'https://swgoh.gg/api/gear/'
