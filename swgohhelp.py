@@ -98,14 +98,15 @@ def call_api(config, project, url):
 def api_swgoh_players(config, project):
 
 	result = []
-	expected_players = len(project['allycodes'])
+	allycodes = list(project['allycodes'])
+	expected_players = len(allycodes)
 
 	while len(result) < expected_players:
 
 		returned = call_api(config, project, '%s/swgoh/players' % SWGOH_HELP)
 		for player in returned:
 			result.append(player)
-			project['allycodes'].remove(player['allyCode'])
+			allycodes.remove(player['allyCode'])
 
 	return result
 
