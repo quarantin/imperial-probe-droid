@@ -119,7 +119,7 @@ def cmd_gear(config, author, channel, args):
 
 					bold = not equipped and '**' or ''
 
-					sublines.append('%sSlot%s: [%s](%s)%s' % (bold, (int(slot)+1), gear_name, gear_url, bold))
+					sublines.append('%sSlot%s: [%s](%s)%s' % (bold, slot, gear_name, gear_url, bold))
 
 				gear_tier_id = 'Unit_Tier%02d' % tier
 				gear_tier_title = translate(gear_tier_id, language)
