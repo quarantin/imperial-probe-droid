@@ -1,5 +1,6 @@
 from cmd.guild.compare import *
 from cmd.guild.glist import *
+from cmd.guild.ulist import *
 from cmd.management.alias import *
 #from cmd.management.format import *
 from cmd.management.help import *
@@ -196,6 +197,13 @@ COMMANDS = [
 	#	'function': cmd_stats,
 	#	'help': help_stats,
 	#},
+	{
+		'command': 'ulist',
+		'aliases': [ 'ul', 'ulist' ],
+		'function': cmd_unit_list,
+		'help': help_unit_list,
+	},
+
 	{
 		'command': 'update',
 		'aliases': [ 'U', 'update' ],
