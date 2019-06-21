@@ -11,13 +11,14 @@ import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear
 
 DEBUG = False
 
 urls = {
 	'cache/characters.json': 'https://swgoh.gg/api/characters/',
 	'cache/ships.json':      'https://swgoh.gg/api/ships/',
+	'cache/gear.json':       'https://swgoh.gg/api/gear/'
 }
 
 base_projects = [
@@ -185,6 +186,29 @@ def load_json(filename):
 def fix_url(url):
 	return url.replace('http://swgoh.gg', '').replace('https://swgoh.gg', '').replace('//swgoh.gg', '')
 
+def parse_gear():
+
+	with transaction.atomic():
+		gears = load_json('cache/gear.json')
+		for gear in gears:
+
+			stats       = gear.pop('stats')
+			recipes     = gear.pop('recipes')
+			ingredients = gear.pop('ingredients')
+
+			gear['url']   = gear['url'].replace('//swgoh.gg', '')
+			gear['image'] = os.path.basename(gear['image'])
+
+			try:
+				Gear.objects.update_or_create(**gear)
+
+			except Exception as err:
+				print(err)
+				print("PROBLEM WITH GEAR UPDATE!!!")
+				print(gear)
+				print(Gear.objects.get(base_id=gear['base_id']))
+				break
+
 def parse_units():
 
 	with transaction.atomic():
@@ -194,6 +218,7 @@ def parse_units():
 
 				char = dict(unit)
 
+				gear_levels     = []
 				categories      = char.pop('categories')
 				ability_classes = char.pop('ability_classes')
 
@@ -224,6 +249,29 @@ def parse_units():
 					faction = BaseUnitFaction.is_supported_faction(category)
 					if faction:
 						obj, created = BaseUnitFaction.objects.update_or_create(unit=base_unit, faction=faction)
+
+				for gear_level in gear_levels:
+
+					slot = 1
+					tier = gear_level['tier']
+
+					for gear_id in gear_level['gear']:
+
+						gear = Gear.objects.get(base_id=gear_id)
+
+						try:
+							created = False
+							obj = BaseUnitGear.objects.get(unit=base_unit, tier=tier, slot=slot)
+
+						except BaseUnitGear.DoesNotExist:
+							created = True
+							obj = BaseUnitGear(unit=base_unit, tier=tier, slot=slot)
+
+						if created or obj.gear != gear:
+							obj.gear = gear
+							obj.save()
+
+						slot += 1
 
 def parse_skills():
 
@@ -280,6 +328,7 @@ config = load_config()
 
 fetch_all_collections(config)
 
+parse_gear()
 parse_units()
 parse_skills()
 parse_localization_files()
