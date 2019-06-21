@@ -1,33 +1,4 @@
 from django.shortcuts import render
 from django.http import JsonResponse 
 
-from .models import Player, BaseUnitGear, Translation
-
-import json
-
-def gear_levels(request, base_id):
-
-	result = {}
-
-	gear_levels = BaseUnitGear.get_unit_gear_levels(base_id)
-	for gear_level in gear_levels:
-		unit_name = gear_level.unit.name
-		if unit_name not in result:
-			result[unit_name] = {
-				'url': gear_level.unit.get_url(),
-				'tiers': {},
-			}
-
-		tier = gear_level.tier
-		if tier not in result[unit_name]['tiers']:
-			result[unit_name]['tiers'][tier] = {}
-
-		slot = gear_level.slot
-		gear_id = gear_level.gear.base_id
-
-		result[unit_name]['tiers'][tier][slot] = {
-			'gear': gear_id,
-			'url': gear_level.gear.get_url(),
-		}
-
-	return JsonResponse(result)
+from .models import *

@@ -19,5 +19,4 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-	path('gear-levels/<str:base_id>/', views.gear_levels),
 ]
