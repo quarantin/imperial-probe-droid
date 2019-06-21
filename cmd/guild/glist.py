@@ -49,7 +49,7 @@ def cmd_guild_list(config, author, channel, args):
 
 	args, selected_char_filters = parse_opts_char_filters(args)
 
-	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
+	args, selected_players, error = parse_opts_players(config, author, args)
 
 	args, selected_units = parse_opts_unit_names(config, args)
 
