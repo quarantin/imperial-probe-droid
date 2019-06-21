@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS
 from collections import OrderedDict
-from utils import get_stars_as_emojis
+from utils import get_stars_as_emojis, roundup
 from swgohhelp import fetch_crinolo_stats, get_ability_name
 
 import DJANGO
@@ -128,7 +128,7 @@ def get_stat_detail(name, stats, percent=False):
 	if percent is True:
 
 		#return '**`%.02g%%`** (`%s`)' % (round(final_stat, 3), string_stat)
-		return '%.02g%%' % round(final_stat, 3)
+		return '%s%%' % roundup(final_stat)
 
 	else:
 		#return '**`%d`** (`%s`)' % (final_stat, string_stat)
