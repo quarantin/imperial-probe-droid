@@ -109,54 +109,49 @@ def cmd_arena(config, author, channel, args):
 
 	ally_codes = [ player.ally_code for player in selected_players ]
 	stats, players = fetch_crinolo_stats(config, ally_codes)
-	players = { player['allyCode']: player for player in players }
+	players = { str(player['allyCode']): player for player in players }
 
 	msgs = []
-	for ally_code in ally_codes:
+	for ally_code_str, player in players.items():
 
-		utc_offset = players[ally_code]['poUTCOffsetMinutes']
-		last_sync_date = datetime.fromtimestamp(int(players[ally_code]['updated']) / 1000) + timedelta(minutes=utc_offset)
+		utc_offset = player['poUTCOffsetMinutes']
+		last_sync_date = datetime.fromtimestamp(player['updated'] / 1000) + timedelta(minutes=utc_offset)
 		last_sync = last_sync_date.strftime('%Y-%m-%d at %H:%M:%S')
-		profile_url = get_swgohgg_profile_url(ally_code)
-
-		player = players[ally_code]['name']
-		if not player:
-			msgs.extend(error_ally_code_not_found(ally_code))
-			continue
+		profile_url = get_swgohgg_profile_url(player['allyCode'])
 
 		if 'chars' == selected_opts:
-			rank = players[ally_code]['arena']['char']['rank']
-			squad = players[ally_code]['arena']['char']['squad']
+			rank = player['arena']['char']['rank']
+			squad = player['arena']['char']['squad']
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				roster = { unit['defId']: unit for unit in players[ally_code]['roster'] }
+				roster = { unit['defId']: unit for unit in player['roster'] }
 				unit = roster[base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
-				line = format_char_stats(stats[ally_code][base_id], line)
+				line = format_char_stats(stats[int(ally_code_str)][base_id], line)
 				lines.append(line)
 
 			msgs.append({
-				'title': 'Arena Squad of %s (Rank: %s)\n%s' % (player, rank, profile_url),
+				'title': 'Arena Squad of %s (Rank: %s)\n%s' % (player['name'], rank, profile_url),
 				'description': 'Last Sync: %s\n%s\n%s' % (last_sync, config['separator'], ('\n'.join(lines)).strip()),
 			})
 
 		if 'ships' == selected_opts:
-			rank = players[ally_code]['arena']['ship']['rank']
-			squad = players[ally_code]['arena']['ship']['squad']
+			rank = player['arena']['ship']['rank']
+			squad = player['arena']['ship']['squad']
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				roster = { unit['defId']: unit for unit in players[ally_code]['roster'] }
+				roster = { unit['defId']: unit for unit in player['roster'] }
 				unit = roster[base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
-				line = format_char_stats(stats[ally_code][base_id], line)
+				line = format_char_stats(stats[int(ally_code_str)][base_id], line)
 				lines.append(line)
 
 			msgs.append({
-				'title': 'Fleet Arena Squad of %s (Rank: %s)\n%s' % (player, rank, profile_url),
+				'title': 'Fleet Arena Squad of %s (Rank: %s)\n%s' % (player['name'], rank, profile_url),
 				'description': 'Last Sync: %s\n%s\n%s' % (last_sync, config['separator'], ('\n'.join(lines)).strip()),
 			})
 
