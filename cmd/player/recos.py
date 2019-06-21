@@ -71,13 +71,13 @@ def cmd_recos(config, author, channel, args):
 
 	language = parse_opts_lang(author)
 
-	args, players, error = parse_opts_players(config, author, args)
+	args, selected_players, error = parse_opts_players(config, author, args)
 	args, selected_units = parse_opts_unit_names(config, args)
 
 	if error:
 		return error
 
-	if not players:
+	if not selected_players:
 		return error_no_ally_code_specified(config, author)
 
 	if not selected_units:
@@ -86,17 +86,17 @@ def cmd_recos(config, author, channel, args):
 	if args:
 		return error_unknown_parameters(args)
 
-	ally_codes = [ player.ally_code for player in players ]
+	ally_codes = [ player.ally_code for player in selected_players ]
 
 	players = fetch_players(config, ally_codes)
 
 	msgs = []
-	for ally_code in ally_codes:
+	for ally_code_str, player in players.items():
 
-		discord_id = ally_code
+		discord_id = player['allyCode']
 		try:
-			player = Player.objects.get(ally_code=ally_code)
-			discord_id = '<@%s>' % player.discord_id
+			p = Player.objects.get(ally_code=player['allyCode'])
+			discord_id = '<@%s>' % p.discord_id
 		except Player.DoesNotExist:
 			pass
 
@@ -105,7 +105,7 @@ def cmd_recos(config, author, channel, args):
 			base_id   = ref_unit.base_id
 			unit_name = translate(base_id, language)
 
-			roster  = players[ally_code]['roster']
+			roster  = player['roster']
 			if ref_unit.name in config['recos']['by-name']:
 				recos = config['recos']['by-name'][ref_unit.name]
 				lines = []
