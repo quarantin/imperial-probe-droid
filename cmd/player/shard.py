@@ -130,7 +130,7 @@ def handle_shard_stats(config, author, args, shard_type):
 		player = Player.objects.get(discord_id=author.id)
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		members = ShardMember.objects.filter(shard=shard)
-		ally_codes = [ x.ally_code for x in members ]
+		ally_codes = [ int(x.ally_code) for x in members ]
 		ally_codes.insert(0, player.ally_code)
 
 		data = api_swgoh_players(config, {
