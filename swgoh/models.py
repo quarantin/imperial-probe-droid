@@ -575,4 +575,4 @@ class Shard(models.Model):
 class ShardMember(models.Model):
 
 	shard = models.ForeignKey(Shard, on_delete=models.CASCADE)
-	ally_code = models.CharField(max_length=12)
+	ally_code = models.IntegerField()
