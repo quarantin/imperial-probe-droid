@@ -95,7 +95,7 @@ def cmd_unit_list(config, author, channel, args):
 		},
 	})
 
-	images = {}
+	allies = {}
 	matches = {}
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
@@ -118,7 +118,7 @@ def cmd_unit_list(config, author, channel, args):
 				#print('Unit does not match criteria for: %s' % player_name)
 				continue
 
-			images[ref_unit.name] = ref_unit.get_image()
+			allies[player_name] = ally_code
 			matches[guild_name][player_name][ref_unit.name] = {
 				'gp':      unit['gp'],
 				'gear':    unit['gear'],
@@ -148,7 +148,7 @@ def cmd_unit_list(config, author, channel, args):
 				lines.append('No unit found matching the search criteria.')
 
 			msgs.append({
-				'title': '%s (%d)' % (player_name, len(units)),
+				'title': '%s / %s (%d)' % (player_name, allies[player_name], len(units)),
 				'description': '\n'.join(lines),
 			})
 
