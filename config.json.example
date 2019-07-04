@@ -79,5 +79,9 @@
     "prefix": "!",
     "source": "https://github.com/quarantin/imperial-probe-droid",
     "timezone": "Europe/Paris",
-    "token": "YOUR DISCORD TOKEN"
+    "swgoh.help": {
+        "password": "YOUR-PASSWORD-FOR-SWGOH.HELP",
+        "username": "YOUR-USERNAME-FOR-SWGOH.HELP"
+    },
+    "token": "YOUR-TOKEN-FOR-DISCORD"
 }
