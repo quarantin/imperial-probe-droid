@@ -77,6 +77,11 @@
         "ylc": "Young Lando Calrissian"
     },
     "prefix": "!",
+    "sheets": {
+        "recommendations": {
+		"view": "https://docs.google.com/spreadsheets/d/1xv7Fpf54e8-BCZXjpPikfJwUcsLup9IhEzgZgjsKpJ0/export?format=csv"
+	}
+    },
     "source": "https://github.com/quarantin/imperial-probe-droid",
     "timezone": "Europe/Paris",
     "swgoh.help": {
