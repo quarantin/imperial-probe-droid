@@ -5,14 +5,6 @@ help_invite = {
 	
 **Syntax**
 ```
-%prefixinvite```
-**Aliases**
-```
-%prefixI```
-
-**Examples**
-```
-%prefixI
 %prefixinvite```""",
 }
 

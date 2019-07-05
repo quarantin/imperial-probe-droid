@@ -91,7 +91,7 @@ COMMANDS = [
 	},
 	{
 		'command': 'invite',
-		'aliases': [ 'I', 'invite' ],
+		'aliases': [ 'invite' ],
 		'function': cmd_invite,
 		'help': help_invite,
 	},
