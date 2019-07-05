@@ -18,17 +18,8 @@ help_needed = {
 %prefixn```"""
 }
 
-def pad_numbers(number):
-
-	pad = '\u202F'
-
-	if number < 10:
-		return pad * 4
-
-	if number < 100:
-		return pad * 2
-
-	return ''
+def pad_numbers(count):
+	return max(0, 3 - len(str(count))) * '\u00a0'
 
 def get_field_modset_stats(config):
 
@@ -79,13 +70,13 @@ def get_field_modset_stats(config):
 				modset_emoji = EMOJIS[ aset_name.replace(' ', '').lower() ]
 				count = roundup(count)
 				pad = pad_numbers(count)
-				counts.append('%s%s' % (pad, count))
+				counts.append('%s%d' % (pad, count))
 
 			if len(counts) < 3:
 				pad = pad_numbers(0)
 				counts.append('%s%d' % (pad, 0))
 
-			lines.append('%s `%s`' % (modset_emoji, '|'.join(counts)))
+			lines.append('%s `|%s`' % (modset_emoji, '|'.join(counts)))
 
 	lines.append(config['separator'])
 
@@ -118,26 +109,26 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 		sublines = []
 		for primary in sorted(selected_primaries):
 			if primary in stats[slot]:
-				cg_count = 0.0
+				cg_count = 0
 				if 'Capital Games' in stats[slot][primary]:
 					cg_count = roundup(stats[slot][primary]['Capital Games'])
 
-				cr_count = 0.0
+				cr_count = 0
 				if 'Crouching Rancor' in stats[slot][primary]:
 					cr_count = roundup(stats[slot][primary]['Crouching Rancor'])
 
-				gg_count = 0.0
+				gg_count = 0
 				if 'swgoh.gg' in stats[slot][primary]:
 					gg_count = roundup(stats[slot][primary]['swgoh.gg'])
 
-				ally_count = 0.0
+				ally_count = 0
 
 				pad1 = pad_numbers(cg_count)
 				pad2 = pad_numbers(cr_count)
 				pad3 = pad_numbers(gg_count)
 				pad4 = pad_numbers(ally_count)
 
-				sublines.append('%s `|%s%.3g|%s%.3g|%s%.3g|%s%.3g|%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, gg_count, pad4, ally_count, primary))
+				sublines.append('%s `|%s%d|%s%d|%s%d|%s%d|%s`' % (slot_emoji, pad1, cg_count, pad2, cr_count, pad3, gg_count, pad4, ally_count, primary))
 
 		if sublines:
 			lines += [ config['separator'] ] + sublines
