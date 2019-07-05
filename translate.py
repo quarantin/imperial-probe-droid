@@ -156,7 +156,7 @@ def parse_localization_files():
 	context = 'localization'
 	for language, lang_code, lang_flag, lang_name in Player.LANGS:
 
-		filename = 'Loc_%s.txt' % language.upper()
+		filename = 'cache/Loc_%s.txt' % language.upper()
 		if not os.path.exists(filename):
 			print('Skipping missing translation file: %s' % filename)
 			continue
