@@ -17,11 +17,6 @@ from commands import *
 
 LOGFILE = 'messages.log'
 
-SHEETS_ALIASES = {
-	'a': 'allies',
-	'r': 'recommendations',
-}
-
 PROBE_DIALOG = [
 	'bIp',
 	'bIp bIp',
