@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import sys
@@ -168,7 +169,6 @@ def fetch_crouching_rancor_recos(recos=[]):
 								recos.append({
 									'source': 'Crouching Rancor',
 									'base_id': base_id,
-									'name': real_name,
 									'set1': set1,
 									'set2': set2,
 									'set3': set3,
@@ -237,7 +237,6 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 						recos.append({
 							'source': 'swgoh.gg',
 							'base_id': base_id,
-							'name': char_name,
 							'set1': modsets[0],
 							'set2': modsets[1],
 							'set3': modsets[2],
@@ -254,56 +253,41 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 	db[expire] = datetime.now() + timeout
 	return recos
 
-def convert_cg_recos_to_json(config, recos=[]):
+def convert_cg_recos_to_json(recos=[]):
 
-	url = config['sheets']['recommendations']['view']
-
-	new_recos = download_spreadsheet(url, 13)
+	fin = open('cache/mod-recos-capital-games.json', 'r')
+	data = fin.read()
+	fin.close()
+	new_recos = json.loads(data)
 	for reco in new_recos:
 
-		source, base_id, name, set1, set2, set3, square, arrow, diamond, triangle, circle, cross, comment = reco
-		recos.append({
-			'source':   reco[0],
-			'base_id':  reco[1],
-			'name':     reco[2],
-			'set1':     reco[3],
-			'set2':     reco[4],
-			'set3':     reco[5],
-			'square':   reco[6],
-			'arrow':    reco[7],
-			'diamond':  reco[8],
-			'triangle': reco[9],
-			'circle':   reco[10],
-			'cross':    reco[11],
-			'info':     reco[12],
-		})
+		recos.append(reco)
 
 	return recos
 
-def fetch_capital_games_recos(config, recos=[]):
+def fetch_capital_games_recos(recos=[]):
 
 	if 'cg' in db and 'cg-expire' in db and not expired(db['cg-expire']):
 		return db['cg']
 
-	db['cg'] = convert_cg_recos_to_json(config, recos)
+	db['cg'] = convert_cg_recos_to_json(recos)
 	db['cg-expire'] = datetime.now() + timeout
 	return db['cg']
 
-def fetch_all_recos(config, index='base_id', index2=None):
+def fetch_all_recos(index='base_id', index2=None):
 
-	recos_cg = fetch_capital_games_recos(config)
+	recos_cg = fetch_capital_games_recos()
 	recos_cr = fetch_crouching_rancor_recos()
 	recos_gg = fetch_swgohgg_meta_recos()
 
-	result = get_dict_by_index(recos_cg + recos_cr + recos_gg, index)
+	#result = get_dict_by_index(recos_cg + recos_cr + recos_gg, index)
 
-	if index2 is not None:
-		for key in list(result):
-			result[key] = get_dict_by_index(result[key], index2)
+	#if index2 is not None:
+	#	for key in list(result):
+	#		result[key] = get_dict_by_index(result[key], index2)
+	#
+	#return result
+	return recos_cg + recos_cr + recos_gg
 
-	return result
-
-#from config import load_config
-#config = load_config()
-#test = fetch_all_recos(config, index='name', index2=None)
+#test = fetch_all_recos(index='name', index2=None)
 #print(json.dumps(test, indent=4))
