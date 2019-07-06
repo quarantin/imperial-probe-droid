@@ -5,9 +5,8 @@ FROM python:3.7.3
 # Update the package manager cache
 RUN apt-get update
 
-# Install Nginx, uWSGI, and vim
-#RUN apt-get install --yes nginx uwsgi vim
-RUN apt-get install --yes vim
+# Install Nginx, uWSGI, sqlite3 and vim
+RUN apt-get install --yes nginx uwsgi sqlite3 vim
 
 # Copy our custom Nginx configuration file
 COPY conf/nginx/swgoh.conf /etc/nginx/sites-enabled/
@@ -28,10 +27,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Copy JSON configuration
-RUN cp config.json.example config.json
-
-# Copy cache folder
-COPY cache/ cache/
+COPY config.json config.json
 
 # Create Django migrations
 RUN python manage.py makemigrations
@@ -39,11 +35,23 @@ RUN python manage.py makemigrations
 # Apply Django migrations and create database
 RUN python manage.py migrate --run-syncdb
 
+# Copy localization files to cache folder
+COPY cache/Loc_* cache/
+
+# Copy mod recommendations from Capital Games
+COPY cache/mod-recos-capital-games.json cache/
+
+# Download all static data, translations, units, gear, skills, mod recommendations, etc
+RUN ./translate.py
+
 # Restart Nginx
-#RUN /etc/init.d/nginx restart
+RUN /etc/init.d/nginx restart
 
 # Restart uWSGI
 #RUN /etc/init.d/uwsgi restart
 
-# Run bash when the container launches
+# Run the bot
+#CMD [ "./scripts/run.sh" ]
+
+# Start shell as fallback
 CMD [ "/bin/bash" ]
