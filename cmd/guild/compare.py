@@ -90,7 +90,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 		res[seven_stars]  = str(7 in stats['stars'] and stats['stars'][7] or 0)
 
 		if not BaseUnit.is_ship(base_id):
-			for gear in [ 12, 11, 10 ]:
+			for gear in reversed(range(MAX_GEAR - 2, MAX_GEAR + 1)):
 
 				count = 0
 				if gear in stats['gears']:
@@ -124,7 +124,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	return res
 
-MAX_GEAR = 12
+MAX_GEAR = 13
 MAX_LEVEL = 85
 MAX_RARITY = 7
 
@@ -145,6 +145,7 @@ def get_guild_stats(guild, players):
 		'r7-ships': 0,
 		'l85-units': 0,
 		'l85-ships': 0,
+		'g13-units': 0,
 		'g12-units': 0,
 		'g11-units': 0,
 		'6-pips-mods': 0,
@@ -173,14 +174,18 @@ def get_guild_stats(guild, players):
 		player = players[ally_code]
 		for base_id, unit in player['roster'].items():
 
-			is_max_gear   = (unit['gear'] == MAX_GEAR)
 			is_max_level  = (unit['level'] == MAX_LEVEL)
 			is_max_rarity = (unit['rarity'] == MAX_RARITY)
 
 			if unit['combatType'] == 1:
 				stats['r7-units'] += (is_max_rarity and 1 or 0)
 				stats['l85-units'] += (is_max_level and 1 or 0)
-				stats['g12-units'] += (is_max_gear and 1 or 0)
+				if unit['gear'] == 13:
+					stats['g13-units'] += 1
+				elif unit['gear'] == 12:
+					stats['g12-units'] += 1
+				elif unit['gear'] == 11:
+					stats['g11-units'] += 1
 			else:
 				stats['r7-ships'] += (is_max_rarity and 1 or 0)
 				stats['l85-ships'] += (is_max_level and 1 or 0)
@@ -226,7 +231,9 @@ def guild_to_dict(guild, players):
 	res['**Characters**'] = OrderedDict()
 	res['**Characters**']['**7 Stars**']    = dotify(guild['r7-units'])
 	res['**Characters**']['**Lvl 85**']     = dotify(guild['l85-units'])
+	res['**Characters**']['**G13**']        = dotify(guild['g13-units'])
 	res['**Characters**']['**G12**']        = dotify(guild['g12-units'])
+	res['**Characters**']['**G11**']        = dotify(guild['g11-units'])
 	res['**Characters**']['**Omegas**']     = dotify(guild['omegas'])
 	res['**Characters**']['**Zetas**']      = dotify(guild['zetas'])
 	res['**Characters**']['**6 Dot Mods**'] = dotify(guild['6-pips-mods'])

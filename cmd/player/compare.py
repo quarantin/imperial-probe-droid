@@ -239,8 +239,8 @@ def player_to_embedfield(config, player, roster, lang):
 
 	res['L85 Units'] = stats['char']['levels'][85]
 
-	gears = [ 1 ]
-	gears.extend(range(7, 12 + 1))
+	gears = []
+	gears.extend(range(9, 13 + 1))
 	for gear in reversed(gears):
 		gear_label = 'G%d Units' % gear
 		res[gear_label] = stats['gears'][gear]
