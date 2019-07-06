@@ -63,6 +63,9 @@ def extract_modstats(stats, recos):
 
 def parse_json(filename):
 	filepath = os.path.join('cache', filename)
+	if not os.path.exists(filepath):
+		return []
+
 	fin = open(filepath, 'r')
 	data = fin.read()
 	fin.close()
@@ -131,6 +134,5 @@ def load_config(bot=None, config_file='config.json'):
 		config['separator'] = '`%s`' % ('-' * 27)
 		config['debug'] = 'debug' in config and config['debug']
 
-		parse_skills()
-
+	parse_skills()
 	return config
