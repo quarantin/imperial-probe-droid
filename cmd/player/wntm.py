@@ -3,6 +3,10 @@ from errors import *
 from utils import get_field_legend
 from constants import EMOJIS, MODSLOTS
 
+import DJANGO
+
+from swgoh.models import ModRecommendation
+
 help_wntm = {
 	'title': 'Who Need This Mod Help',
 	'description': """List characters who need mods with specific criteria (mod set, mod slot, and primary stat)
@@ -72,19 +76,19 @@ def cmd_wntm(config, author, channel, args):
 	emoji_gg = EMOJIS['swgoh.gg']
 
 	matching_recos = []
+	recos = ModRecommendation.objects.all().values()
 	for modset, slot, prim in selected_filters:
-		for name, recos in sorted(config['recos']['by-name'].items()):
-			for reco in recos:
+		for reco in recos:
 
-				alist = [ reco['set1'], reco['set2'], reco['set3'] ]
-				if modset not in alist:
-					continue
+			alist = [ reco['set1'], reco['set2'], reco['set3'] ]
+			if modset not in alist:
+				continue
 
-				slot_name = MODSLOTS[slot].lower()
-				if prim != reco[slot_name]:
-					continue
+			slot_name = MODSLOTS[slot].lower()
+			if prim != reco[slot_name]:
+				continue
 
-				matching_recos.append(reco)
+			matching_recos.append(reco)
 
 	modset = EMOJIS[ modset.replace(' ', '').lower() ]
 	slot = EMOJIS[ slot ]
@@ -94,15 +98,16 @@ def cmd_wntm(config, author, channel, args):
 		lines.append('No matching recommendation for the supplied mod filter.')
 	else:
 		chars = {}
-		for recos in matching_recos:
-			char_name = recos['name']
+		for reco in matching_recos:
+			unit = BaseUnit.objects.get(id=reco['character_id'])
+			char_name = unit.name
 			if char_name.startswith('"'):
 				char_name = char_name[1:]
 			if char_name.endswith('"'):
 				char_name = char_name[:-1]
 			char_name = char_name.replace('""', '"')
 
-			source = recos['source'].replace(' ', '').lower()
+			source = reco['source'].replace(' ', '').lower()
 			source_emoji = EMOJIS[source]
 			if char_name not in chars:
 				chars[char_name] = [ spacer, spacer, spacer ]
