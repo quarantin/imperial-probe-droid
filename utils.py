@@ -60,7 +60,9 @@ STATS_LUT = {
 	'%special-critical-avoidance':  'Special Critical Avoidance',
 }
 
-def local_time(date=datetime.now(), timezone='Europe/Paris'):
+def local_time(date=None, timezone='Europe/Paris'):
+	if date is None:
+		date = datetime.now()
 	return pytz.timezone(timezone).localize(date)
 
 def dotify(number):
