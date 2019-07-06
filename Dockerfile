@@ -44,5 +44,5 @@ RUN /etc/init.d/nginx restart
 # Restart uWSGI
 #RUN /etc/init.d/uwsgi restart
 
-# Run run.sh when the container launches
+# Run bash when the container launches
 CMD [ "/bin/bash" ]
