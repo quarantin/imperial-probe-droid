@@ -6,6 +6,10 @@ from constants import EMOJIS
 from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players
 
+import DJANGO
+
+from swgoh.models import ModRecommendation
+
 help_recos = {
 	'title': 'Recommendations Help',
 	'description': """Shows recommended mods from Capital Games and Crouching Rancor.
@@ -105,89 +109,89 @@ def cmd_recos(config, author, channel, args):
 			base_id   = ref_unit.base_id
 			unit_name = translate(base_id, language)
 
-			roster  = player['roster']
-			if ref_unit.name in config['recos']['by-name']:
-				recos = config['recos']['by-name'][ref_unit.name]
-				lines = []
+			lines  = []
+			roster = player['roster']
+			recos  = ModRecommendation.objects.filter(character_id=ref_unit.id).values()
 
-				for reco in recos:
+			for reco in recos:
 
-					source   = EMOJIS[ reco['source'].replace(' ', '').lower() ]
+				source   = EMOJIS[ reco['source'].replace(' ', '').lower() ]
 
-					set1     = EMOJIS[ reco['set1'].replace(' ', '').lower() ]
-					set2     = EMOJIS[ reco['set2'].replace(' ', '').lower() ]
-					set3     = EMOJIS[ reco['set3'].replace(' ', '').lower() ]
+				set1     = EMOJIS[ reco['set1'].replace(' ', '').lower() ]
+				set2     = EMOJIS[ reco['set2'].replace(' ', '').lower() ]
+				set3     = EMOJIS[ reco['set3'].replace(' ', '').lower() ]
 
-					square   = get_short_stat(reco['square'],   language)
-					arrow    = get_short_stat(reco['arrow'],    language)
-					diamond  = get_short_stat(reco['diamond'],  language)
-					triangle = get_short_stat(reco['triangle'], language)
-					circle   = get_short_stat(reco['circle'],   language)
-					cross    = get_short_stat(reco['cross'],    language)
+				square   = get_short_stat(reco['square'],   language)
+				arrow    = get_short_stat(reco['arrow'],    language)
+				diamond  = get_short_stat(reco['diamond'],  language)
+				triangle = get_short_stat(reco['triangle'], language)
+				circle   = get_short_stat(reco['circle'],   language)
+				cross    = get_short_stat(reco['cross'],    language)
 
-					info     = reco['info'].strip()
-					info     = info and ' %s' % info or ''
+				info     = reco['info'].strip()
+				info     = info and ' %s' % info or ''
 
-					line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
-					lines.append(line)
-
-				if base_id in roster and 'mods' in roster[base_id]:
-					unit = roster[base_id]
-					spacer = EMOJIS['']
-					modsets = get_mod_sets_emojis(config, unit['mods'])
-					primaries = get_mod_primaries(config, unit['mods'])
-					del(primaries[1])
-					del(primaries[3])
-
-					primaries = [ primaries[x] for x in primaries ]
-
-					source   = EMOJIS['crimsondeathwatch']
-
-					set1     = modsets[0]
-					set2     = modsets[1]
-					set3     = modsets[2]
-
-					short_primaries = []
-					for primary in primaries:
-						short_primaries.append(get_short_stat(primary, language))
-
-					primaries = '|'.join(short_primaries)
-
-					line = '%s%s%s%s`%s` %s' % (source, set1, set2, set3, primaries, discord_id)
-
-				elif base_id not in roster:
-					unit = None
-					line = '**%s** is still locked for %s' % (unit_name, discord_id)
-
-				else:
-					unit = roster[base_id]
-					line = '**%s** has no mods for %s' % (unit_name, discord_id)
-
-				lines.append(config['separator'])
+				line = '%s%s%s%s`%s|%s|%s|%s`%s' % (source, set1, set2, set3, arrow, triangle, circle, cross, info)
 				lines.append(line)
 
-				spacer = EMOJIS[''] * 4
+			if base_id in roster and 'mods' in roster[base_id]:
+				unit = roster[base_id]
+				spacer = EMOJIS['']
+				modsets = get_mod_sets_emojis(config, unit['mods'])
+				primaries = get_mod_primaries(config, unit['mods'])
+				del(primaries[1])
+				del(primaries[3])
 
-				header = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-				unit_link = '**[%s](%s)**' % (unit_name, ref_unit.get_url())
+				primaries = [ primaries[x] for x in primaries ]
 
-				for line in [ header, config['separator'], unit_link ]:
-					lines.insert(0, line)
+				source   = EMOJIS['crimsondeathwatch']
 
-				msgs.append({
-					'title': '',
-					'description': '\n'.join(lines),
-					'author': {
-						'name': ref_unit.name,
-						'icon_url': ref_unit.get_image(),
-					},
-					'image': get_full_avatar_url(config, ref_unit.image, unit),
-					'fields': [ get_field_legend(config) ],
-				})
+				set1     = modsets[0]
+				set2     = modsets[1]
+				set3     = modsets[2]
+
+				short_primaries = []
+				for primary in primaries:
+					short_primaries.append(get_short_stat(primary, language))
+
+				primaries = '|'.join(short_primaries)
+
+				line = '%s%s%s%s`%s` %s' % (source, set1, set2, set3, primaries, discord_id)
+
+			elif base_id not in roster:
+				unit = None
+				line = '**%s** is still locked for %s' % (unit_name, discord_id)
+
 			else:
-				msgs.append({
-					'title': '== No Recommended Mod Sets ==',
-					'description': '**%s** is missing from all source of recommendations.' % unit_name,
-				})
+				unit = roster[base_id]
+				line = '**%s** has no mods for %s' % (unit_name, discord_id)
+
+			lines.append(config['separator'])
+			lines.append(line)
+
+			spacer = EMOJIS[''] * 4
+
+			header = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
+			unit_link = '**[%s](%s)**' % (unit_name, ref_unit.get_url())
+
+			for line in [ header, config['separator'], unit_link ]:
+				lines.insert(0, line)
+
+			msgs.append({
+				'title': '',
+				'description': '\n'.join(lines),
+				'author': {
+					'name': ref_unit.name,
+					'icon_url': ref_unit.get_image(),
+				},
+				'image': get_full_avatar_url(config, ref_unit.image, unit),
+				'fields': [ get_field_legend(config) ],
+			})
+
+		if not lines:
+			msgs.append({
+				'title': '== No Recommended Mod Sets ==',
+				'description': '**%s** is missing from all source of recommendations.' % unit_name,
+			})
 
 	return msgs
