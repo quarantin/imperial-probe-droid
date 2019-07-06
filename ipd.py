@@ -9,7 +9,7 @@ import string
 import traceback
 from datetime import datetime
 from discord.ext import commands
-from config import config, load_config, load_help, parse_recommendations
+from config import config, load_config, load_help
 
 from utils import *
 from embed import *
@@ -101,7 +101,6 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 	async def on_ready(self):
 		load_help()
-		parse_recommendations()
 		if 'env' in config and config['env'] == 'prod':
 			await self.change_presence(activity=get_game())
 

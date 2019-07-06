@@ -61,20 +61,6 @@ def extract_modstats(stats, recos):
 				stats[slot][primary][source] = 0.0
 			stats[slot][primary][source] += 1.0 / count
 
-def parse_recommendations(recos_db={}):
-
-	from recos import fetch_all_recos
-
-	stats = {}
-	recos_db['by-name'] = fetch_all_recos(config, index='name')
-	recos_db['by-source'] = fetch_all_recos(config, index='source', index2='name')
-
-	for unit, recos in recos_db['by-name'].items():
-		extract_modstats(stats, recos)
-
-	recos_db['stats'] = stats
-	config['recos'] = recos_db
-
 def parse_json(filename):
 	filepath = os.path.join('cache', filename)
 	fin = open(filepath, 'r')
