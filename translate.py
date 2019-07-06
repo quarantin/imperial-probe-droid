@@ -310,9 +310,11 @@ def save_all_recos():
 
 			base_id = reco.pop('base_id')
 			reco['character'] = BaseUnit.objects.get(base_id=base_id)
-			print(reco)
-
 			obj, created = ModRecommendation.objects.get_or_create(**reco)
+			# TODO Why are mod recommendations created every time, but the total count does not increase?
+			#print(reco)
+			#if created is True:
+			#	print('Added new mod recommendation for %s' % base_id)
 
 first_time = False
 version_url = 'https://api.swgoh.help/version'
