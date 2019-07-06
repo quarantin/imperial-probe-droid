@@ -1,7 +1,12 @@
 from opts import *
 from errors import *
+from config import extract_modstats
 from utils import roundup, get_field_legend
 from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
+
+import DJANGO
+
+from swgoh.models import ModRecommendation
 
 help_needed = {
 	'title': 'Needed Help',
@@ -25,7 +30,8 @@ def get_field_modset_stats(config):
 
 	modsets = {}
 	spacer = EMOJIS['']
-	sources = sorted(list(config['recos']['by-source']))
+	sources = ModRecommendation.objects.all().values('source').distinct()
+	sources = [ x['source'] for x in sources ]
 	src_emojis = []
 	for source in sources:
 		emoji_key = source.replace(' ', '').lower()
@@ -34,7 +40,20 @@ def get_field_modset_stats(config):
 
 	headers = [ '%s%s' % (spacer, '|'.join(src_emojis)) ]
 
-	for source, names in config['recos']['by-source'].items():
+	result = {}
+	recos = ModRecommendation.objects.all()
+	for reco in recos:
+		source = reco.source
+		if source not in result:
+			result[source] = {}
+
+		char_id = reco.character_id
+		if char_id not in result[source]:
+			result[source][char_id] = []
+
+		result[source][char_id].append(reco)
+
+	for source, names in result.items():
 
 		new_modsets = {}
 		for name, recos in names.items():
@@ -42,7 +61,7 @@ def get_field_modset_stats(config):
 			amount = len(recos)
 			for reco in recos:
 
-				sets = [ reco['set1'], reco['set2'], reco['set3'] ]
+				sets = [ reco.set1, reco.set2, reco.set3 ]
 
 				for aset in sets:
 					if aset not in new_modsets:
@@ -98,8 +117,21 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 	if not selected_primaries:
 		selected_primaries = MODSPRIMARIES
 
+	result = {}
+	recos = ModRecommendation.objects.all().values()
+	for reco in recos:
+		char_id = reco['character_id']
+		if char_id not in result:
+			result[char_id] = []
+
+		result[char_id].append(reco)
+
+	stats = {}
+
+	for unit, recos in result.items():
+		extract_modstats(stats, recos)
+
 	lines = []
-	stats = config['recos']['stats']
 	for slot in selected_slots:
 		slot = slot.lower()
 		slot_emoji = EMOJIS[slot]
@@ -133,7 +165,10 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 		if sublines:
 			lines += [ config['separator'] ] + sublines
 
-	sources = sorted(list(config['recos']['by-source'])) + [ 'crimsondeathwatch' ]
+	sources = ModRecommendation.objects.all().values('source').distinct()
+	sources = [ x['source'] for x in sources ]
+	sources.append('crimsondeathwatch')
+
 	emojis = []
 	for source in sources:
 		emoji_key = source.replace(' ', '').lower()
