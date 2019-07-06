@@ -77,7 +77,7 @@ def get_player_stats(config, roster, lang):
 		stats['char']['levels'][i] = 0
 		stats['ship']['levels'][i] = 0
 
-	for i in range(0, 12 + 1):
+	for i in range(0, 13 + 1):
 		stats['gears'][i] = 0
 
 
