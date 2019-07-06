@@ -5,8 +5,9 @@ FROM python:3.7.3
 # Update the package manager cache
 RUN apt-get update
 
-# Install Nginx and uWSGI
-RUN apt-get install --yes nginx uwsgi vim
+# Install Nginx, uWSGI, and vim
+#RUN apt-get install --yes nginx uwsgi vim
+RUN apt-get install --yes vim
 
 # Copy our custom Nginx configuration file
 COPY conf/nginx/swgoh.conf /etc/nginx/sites-enabled/
@@ -39,7 +40,7 @@ RUN python manage.py makemigrations
 RUN python manage.py migrate --run-syncdb
 
 # Restart Nginx
-RUN /etc/init.d/nginx restart
+#RUN /etc/init.d/nginx restart
 
 # Restart uWSGI
 #RUN /etc/init.d/uwsgi restart
