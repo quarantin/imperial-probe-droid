@@ -536,9 +536,9 @@ class ModRecommendation(models.Model):
 
 	character = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 	source = models.CharField(max_length=32, choices=SOURCES)
-	modset1 = models.CharField(max_length=32, choices=MODSETS)
-	modset2 = models.CharField(max_length=32, choices=MODSETS)
-	modset3 = models.CharField(max_length=32, choices=MODSETS)
+	set1 = models.CharField(max_length=32, choices=MODSETS)
+	set2 = models.CharField(max_length=32, choices=MODSETS)
+	set3 = models.CharField(max_length=32, choices=MODSETS)
 	square = models.CharField(max_length=32, choices=SQUARE_PRIMARIES)
 	arrow = models.CharField(max_length=32, choices=ARROW_PRIMARIES)
 	diamond = models.CharField(max_length=32, choices=DIAMOND_PRIMARIES)
