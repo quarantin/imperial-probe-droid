@@ -3,7 +3,7 @@ from collections import OrderedDict
 from opts import *
 from errors import *
 from constants import EMOJIS
-from utils import dotify, get_stars_as_emojis, roundup, translate
+from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate
 from swgohhelp import fetch_players, fetch_guilds, get_ability_name
 
 help_guild_compare = {
@@ -24,12 +24,6 @@ Compare guilds from two different players and show differences about Revan and T
 ```
 %prefixgc 123456789 234567891 revan traya```"""
 }
-
-def get_banner_emoji(banner_logo, banner_color):
-	color = ''.join([ word[0] for word in banner_color.split('_') ]).upper()
-	banner = banner_logo.replace('guild_icon_', '').replace('.png', '').lower()
-	emoji = banner in EMOJIS and EMOJIS[banner] or None
-	return '%s`%s`' % (emoji, color)
 
 def get_unit_stats(config, roster, lang):
 

@@ -237,6 +237,19 @@ def get_units_dict(units, base_id_key):
 
 	return d
 
+def get_banner_emoji(banner_logo, banner_color=None):
+	from constants import EMOJIS
+
+	if banner_color is None:
+		banner = banner_logo.replace('guild_icon_', '').replace('.png', '').lower()
+		emoji = banner in EMOJIS and EMOJIS[banner] or None
+		return '%s' % emoji
+	else:
+		color = ''.join([ word[0] for word in banner_color.split('_') ]).upper()
+		banner = banner_logo.replace('guild_icon_', '').replace('.png', '').lower()
+		emoji = banner in EMOJIS and EMOJIS[banner] or None
+		return '%s`%s`' % (emoji, color)
+
 def get_mod_sets(config, mods):
 
 	modsets = {}

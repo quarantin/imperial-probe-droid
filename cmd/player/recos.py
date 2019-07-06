@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from utils import basicstrip, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
+from utils import basicstrip, get_banner_emoji, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
 from constants import EMOJIS
 
 from swgohgg import get_full_avatar_url
@@ -98,6 +98,8 @@ def cmd_recos(config, author, channel, args):
 	for ally_code_str, player in players.items():
 
 		discord_id = player['allyCode']
+		guild_banner = get_banner_emoji(player['guildBannerLogo'])
+
 		try:
 			p = Player.objects.get(ally_code=player['allyCode'])
 			discord_id = '<@%s>' % p.discord_id
@@ -144,7 +146,7 @@ def cmd_recos(config, author, channel, args):
 
 				primaries = [ primaries[x] for x in primaries ]
 
-				source   = EMOJIS['crimsondeathwatch']
+				source   = guild_banner
 
 				set1     = modsets[0]
 				set2     = modsets[1]
