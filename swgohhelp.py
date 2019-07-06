@@ -101,6 +101,7 @@ def api_swgoh_players(config, project):
 	expected_players = len(project['allycodes'])
 
 	new_proj = dict(project)
+	new_proj['allycodes'] = list(project['allycodes'])
 
 	while len(result) < expected_players:
 
