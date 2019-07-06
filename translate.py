@@ -6,12 +6,13 @@ import json
 import requests
 from config import load_config
 from swgohhelp import api_swgoh_data
+from recos import fetch_all_recos
 
 import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation
 
 DEBUG = False
 
@@ -300,6 +301,19 @@ def parse_skills():
 					print("WARN: Missing unit from DB: %s" % base_id)
 				continue
 
+def save_all_recos():
+
+	with transaction.atomic():
+		recos = fetch_all_recos()
+		ModRecommendation.objects.all().delete()
+		for reco in recos:
+
+			base_id = reco.pop('base_id')
+			reco['character'] = BaseUnit.objects.get(base_id=base_id)
+			print(reco)
+
+			obj, created = ModRecommendation.objects.get_or_create(**reco)
+
 first_time = False
 version_url = 'https://api.swgoh.help/version'
 version_cache = 'cache/version.json'
@@ -332,6 +346,8 @@ parse_gear()
 parse_units()
 parse_skills()
 parse_localization_files()
+
+save_all_recos()
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 
