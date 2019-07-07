@@ -433,14 +433,13 @@ def parse_opts_lang(author):
 
 def parse_opts_language(args):
 
-	langs = { lang_code: language for language, lang_code, lang_flag, lang_name in Player.LANGS }
-
 	args_cpy = list(args)
 	for arg in args_cpy:
 
 		argl = arg.lower()
-		if argl in langs:
+		language = Player.get_language_info(argl)
+		if language is not None:
 			args.remove(arg)
-			return args, Player.get_language_info(argl)
+			return args, language
 
 	return args, None

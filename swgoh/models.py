@@ -62,8 +62,9 @@ class Player(models.Model):
 	LANGUAGES = ( (code, name) for code, short_code, flag, name in LANGS )
 
 	def get_language_info(lang):
+		llang = lang.lower()
 		for code, short_code, flag, name in Player.LANGS:
-			if code == lang or short_code == lang or flag == lang or name == lang:
+			if code == llang or short_code == llang or name.split()[0].lower() == llang:
 				return code, short_code, flag, name
 
 		return None
