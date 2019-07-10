@@ -116,6 +116,6 @@ EMOJIS = {
 	'seventhfleet': '<:seventhfleet:590894953610084352>',
 	'sithempire':   '<:sithempire:590894953174138920>',
 	'sith':         '<:sith:590894953131933707>',
-	'triangle':     '<:triangle:535541010424660009>',
+	'triangle-2':   '<:triangle:590894953379528790>',
 	'wolffe':       '<:wolffe:590894953329066015>',
 }
