@@ -1,5 +1,6 @@
 from django.db import models
 from django.db import transaction
+from timezone_field import TimeZoneField
 
 import os, requests
 from datetime import datetime
@@ -76,6 +77,7 @@ class Player(models.Model):
 	game_nick            = models.CharField(max_length=128, default='', blank=True, null=True)
 	ally_code            = models.IntegerField(blank=True, null=True)
 	language             = models.CharField(max_length=6, default='eng_us', choices=LANGUAGES)
+	timezone             = TimeZoneField(blank=True, null=True)
 
 	def format_ally_code(ally_code):
 		ally_code = str(ally_code)
