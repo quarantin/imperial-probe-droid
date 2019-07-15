@@ -37,6 +37,20 @@ def get_available_timezones():
 
 	return timezones
 
+def is_supported_timezone(tzinfo, timezones):
+
+	for tz in timezones:
+
+		tzl = tz.lower()
+		if tzl == tzinfo:
+			return tz
+
+		tokens = tzl.split('/')
+		if len(tokens) == 2 and tzinfo == tokens[1]:
+			return tz
+
+	return False
+
 def parse_opts_timezone(args):
 
 	args_cpy = list(args)
@@ -46,17 +60,16 @@ def parse_opts_timezone(args):
 	for arg in args_cpy:
 
 		larg = arg.lower()
-		for tz in timezones:
+		tz = is_supported_timezone(larg, timezones)
+		if tz:
+			args.remove(arg)
+			return args, tz
 
-			tzl = tz.lower()
-			if tzl == larg:
-				args.remove(arg)
-				return args, tz
-
-			tokens = tzl.split('/')
-			if len(tokens) == 2 and larg == tokens[1]:
-				args.remove(arg)
-				return args, tz
+	larg = '_'.join(args).lower()
+	tz = is_supported_timezone(larg, timezones)
+	if tz:
+		args.clear()
+		return args, tz
 
 	return args, None
 
