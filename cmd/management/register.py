@@ -101,6 +101,7 @@ async def register_users(config, author, discord_ids, ally_codes):
 			ally_code_full_str = '%s has changed from **`%s`** to **`%s`**.' % (author_str, db_player.get_ally_code(), ally_code_str)
 		db_player.ally_code = ally_code
 		db_player.game_nick = players[ally_code]['name']
+		db_player.timezone = 'Europe/London'
 		await fill_user_info(config, db_player)
 
 		db_player.save()
