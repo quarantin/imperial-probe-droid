@@ -579,4 +579,4 @@ class ShardMember(models.Model):
 
 	shard = models.ForeignKey(Shard, on_delete=models.CASCADE)
 	ally_code = models.IntegerField()
-	payout_time = models.DateTimeField(blank=True, null=True)
+	payout_time = models.TimeField(blank=True, null=True)
