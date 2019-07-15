@@ -8,7 +8,7 @@ from datetime import datetime
 
 help_shard = {
 	'title': 'Shard Help',
-	'description': """Helps you to track the ranks of your shard members over time in character arena.
+	'description': """Helps you to track the ranks and payout time of your shard members over time in character arena.
 
 **Syntax**
 Showing arena rank for your shard members:
@@ -146,7 +146,10 @@ def handle_shard_stats(config, author, args, shard_type):
 		return error_unknown_parameters(args)
 
 	try:
+		import pytz
 		player = Player.objects.get(discord_id=author.id)
+		tzname = str(player.timezone) or 'Europe/London'
+		tzinfo = pytz.timezone(tzname)
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		payout_times = get_payout_times(shard)
 		ally_codes = list(payout_times)
@@ -186,10 +189,22 @@ def handle_shard_stats(config, author, args, shard_type):
 			elif rank < 10000:
 				spacer = '\u00a0' * 1
 
-			payout_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ] or '??:??'
+			po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
+			if po_time:
+				now = datetime.now()
+				next_payout = now
+				next_payout = next_payout.replace(hour=po_time.hour)
+				next_payout = next_payout.replace(minute=po_time.minute)
+				if now > next_payout:
+					next_payout += datetime.timedelta(days=1)
+
+				next_payout = next_payout.strftime('%H:%M')
+
+			else:
+				next_payout = '??:??'
 
 			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-			lines.append('%s`|%s%s | %s | %s | %s`%s' % (bold, spacer, rank, payout_time, p['allyCode'], p['name'], bold))
+			lines.append('%s`|%s%s | %s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
 
 		lines_str = '\n'.join(lines)
 
