@@ -12,6 +12,7 @@ from cmd.management.lookup import *
 from cmd.management.nicks import *
 from cmd.management.register import *
 from cmd.management.restart import *
+from cmd.management.timezone import *
 #from cmd.management.sheets import *
 from cmd.management.update import *
 from cmd.misc.meta import *
@@ -198,12 +199,17 @@ COMMANDS = [
 	#	'help': help_stats,
 	#},
 	{
+		'command': 'timezone',
+		'aliases': [ 'tz', 'timezone' ],
+		'function': cmd_timezone,
+		'help': help_timezone,
+	},
+	{
 		'command': 'ulist',
 		'aliases': [ 'ul', 'ulist' ],
 		'function': cmd_unit_list,
 		'help': help_unit_list,
 	},
-
 	{
 		'command': 'update',
 		'aliases': [ 'U', 'update' ],
@@ -215,5 +221,5 @@ COMMANDS = [
 		'aliases': [ 'w', 'wntm' ],
 		'function': cmd_wntm,
 		'help': help_wntm,
-	}
+	},
 ]

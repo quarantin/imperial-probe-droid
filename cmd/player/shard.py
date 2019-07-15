@@ -78,8 +78,13 @@ def handle_shard_add(config, author, args, shard_type):
 		player = Player.objects.get(discord_id=author.id)
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		ally_codes = [ x.ally_code for x in players ]
+
+		# Add message author to his own shard
+		if player.ally_code not in ally_codes:
+			ally_codes.insert(0, player.ally_code)
+
 		for ally_code in ally_codes:
-			enemy, created = ShardMember.objects.get_or_create(shard=shard, ally_code=ally_code)
+			member, created = ShardMember.objects.get_or_create(shard=shard, ally_code=ally_code)
 
 		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
 		ally_code_str = '\n'.join([ '- **%s**' % x for x in ally_codes ])
@@ -107,6 +112,11 @@ def handle_shard_del(config, author, args, shard_type):
 		player = Player.objects.get(discord_id=author.id)
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		ally_codes = [ x.ally_code for x in players ]
+
+		# Never remove the message author from his own shard
+		if player.ally_code in ally_codes:
+			ally_codes.remove(player.ally_code)
+
 		ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).delete()
 		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
 		ally_code_str = '\n'.join([ '- **%s**' % x for x in ally_codes ])
@@ -121,6 +131,15 @@ def handle_shard_del(config, author, args, shard_type):
 	except Player.DoesNotExist:
 		return error_no_ally_code_specified(config, author)
 
+def get_payout_times(shard):
+
+	res = {}
+	members = ShardMember.objects.filter(shard=shard)
+	for member in members:
+		res[member.ally_code] = member.payout_time
+
+	return res
+
 def handle_shard_stats(config, author, args, shard_type):
 
 	if args:
@@ -129,9 +148,8 @@ def handle_shard_stats(config, author, args, shard_type):
 	try:
 		player = Player.objects.get(discord_id=author.id)
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
-		members = ShardMember.objects.filter(shard=shard)
-		ally_codes = [ int(x.ally_code) for x in members ]
-		ally_codes.insert(0, player.ally_code)
+		payout_times = get_payout_times(shard)
+		ally_codes = list(payout_times)
 
 		data = api_swgoh_players(config, {
 			'allycodes': ally_codes,
@@ -168,14 +186,16 @@ def handle_shard_stats(config, author, args, shard_type):
 			elif rank < 10000:
 				spacer = '\u00a0' * 1
 
+			payout_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ] or '??:??'
+
 			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-			lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, p['allyCode'], p['name'], bold))
+			lines.append('%s`|%s%s | %s | %s | %s`%s' % (bold, spacer, rank, payout_time, p['allyCode'], p['name'], bold))
 
 		lines_str = '\n'.join(lines)
 
 		return [{
 			'title': 'Shard Status',
-			'description': 'Here is <@%s>\'s shard ranks for **%s** arena:\n%s\n`| Rank | Ally Code | Name`\n%s\n%s' % (author.id, shard_type, config['separator'], config['separator'], lines_str),
+			'description': 'Here is <@%s>\'s shard ranks for **%s** arena:\n%s\n`| Rank | PO At | Ally Code | Name`\n%s\n%s' % (author.id, shard_type, config['separator'], config['separator'], lines_str),
 		}]
 
 	except Player.DoesNotExist:
@@ -202,6 +222,54 @@ def handle_shard_export(config, author, args, shard_type):
 	except Player.DoesNotExist:
 		return error_no_ally_code_specified(config, author)
 
+def parse_opts_payout_time(args):
+
+	import re
+
+	args_cpy = list(args)
+
+	for arg in args_cpy:
+		result = re.match('^[0-9][0-9]:[0-9][0-9]$', arg)
+		if result:
+			args.remove(arg)
+			return result[0]
+
+	return None
+
+def handle_shard_payout(config, author, args, shard_type):
+
+	args, players, error = parse_opts_players(config, author, args)
+	if error:
+		return error
+
+	payout_time = parse_opts_payout_time(args)
+	if not payout_time:
+		return [{
+			'title': 'Error: Missing payout time',
+			'description': 'You have to supply payout time. TODO',
+		}]
+
+	if args:
+		return error_unknown_parameters(args)
+
+	try:
+		player = Player.objects.get(discord_id=author.id)
+		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
+		ally_codes = [ x.ally_code for x in players ]
+		ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(payout_time=payout_time)
+		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
+		ally_code_str = '\n'.join([ '- **%s**' % x for x in ally_codes ])
+
+		plural = len(ally_codes) > 1 and 's' or ''
+		plural_have = len(ally_codes) > 1 and 've' or 's'
+		return [{
+			'title': 'Shard Payout Updated',
+			'description': '<@%s>\'s %s shard payout has been updated to **%s** for the following ally code%s:\n%s' % (author.id, shard_type_str, payout_time, plural, ally_code_str),
+		}]
+
+	except Player.DoesNotExist:
+		return error_no_ally_code_specified(config, author)
+
 shard_types = {
 	'c':     'char',
 	'char':  'char',
@@ -221,6 +289,7 @@ subcommands = {
 	'stats':  handle_shard_stats,
 	'status': handle_shard_stats,
 	'export': handle_shard_export,
+	'payout': handle_shard_payout,
 }
 
 def parse_opts_subcommands(args):
