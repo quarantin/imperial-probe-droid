@@ -4,6 +4,7 @@ from swgohhelp import api_swgoh_players
 
 from swgoh.models import Player, Shard, ShardMember
 
+import pytz
 from datetime import datetime
 
 help_shard = {
@@ -146,7 +147,6 @@ def handle_shard_stats(config, author, args, shard_type):
 		return error_unknown_parameters(args)
 
 	try:
-		import pytz
 		player = Player.objects.get(discord_id=author.id)
 		tzname = str(player.timezone) or 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
@@ -191,14 +191,12 @@ def handle_shard_stats(config, author, args, shard_type):
 
 			po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
 			if po_time:
-				now = datetime.now()
-				next_payout = now
-				next_payout = next_payout.replace(hour=po_time.hour)
-				next_payout = next_payout.replace(minute=po_time.minute)
+				now = datetime.now(pytz.utc)
+				next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
 				if now > next_payout:
-					next_payout += datetime.timedelta(days=1)
+					next_payout += datetime.timedelta(hours=24)
 
-				next_payout = next_payout.strftime('%H:%M')
+				next_payout = next_payout.astimezone(tzinfo).strftime('%H:%M')
 
 			else:
 				next_payout = '??:??'
@@ -237,7 +235,7 @@ def handle_shard_export(config, author, args, shard_type):
 	except Player.DoesNotExist:
 		return error_no_ally_code_specified(config, author)
 
-def parse_opts_payout_time(args):
+def parse_opts_payout_time(tz, args):
 
 	import re
 
@@ -247,31 +245,34 @@ def parse_opts_payout_time(args):
 		result = re.match('^[0-9][0-9]:[0-9][0-9]$', arg)
 		if result:
 			args.remove(arg)
-			return result[0]
+			now = datetime.now(tz)
+			tokens = result[0].split(':')
+			return now.replace(hour=int(tokens[0]), minute=int(tokens[1]), second=0, microsecond=0).astimezone(pytz.utc)
 
 	return None
 
 def handle_shard_payout(config, author, args, shard_type):
 
-	args, players, error = parse_opts_players(config, author, args)
-	if error:
-		return error
-
-	payout_time = parse_opts_payout_time(args)
-	if not payout_time:
-		return [{
-			'title': 'Error: Missing payout time',
-			'description': 'You have to supply payout time. TODO',
-		}]
-
-	if args:
-		return error_unknown_parameters(args)
-
 	try:
 		player = Player.objects.get(discord_id=author.id)
+
+		args, players, error = parse_opts_players(config, author, args)
+		if error:
+			return error
+
+		payout_time = parse_opts_payout_time(player.timezone, args)
+		if not payout_time:
+			return [{
+				'title': 'Error: Missing payout time',
+				'description': 'You have to supply payout time. TODO',
+			}]
+
+		if args:
+			return error_unknown_parameters(args)
+
 		shard, created = Shard.objects.get_or_create(player=player, type=shard_type)
 		ally_codes = [ x.ally_code for x in players ]
-		ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(payout_time=payout_time)
+		ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(payout_time=payout_time.strftime('%H:%M'))
 		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
 		ally_code_str = '\n'.join([ '- **%s**' % x for x in ally_codes ])
 
@@ -279,7 +280,7 @@ def handle_shard_payout(config, author, args, shard_type):
 		plural_have = len(ally_codes) > 1 and 've' or 's'
 		return [{
 			'title': 'Shard Payout Updated',
-			'description': '<@%s>\'s %s shard payout has been updated to **%s** for the following ally code%s:\n%s' % (author.id, shard_type_str, payout_time, plural, ally_code_str),
+			'description': '<@%s>\'s %s shard payout has been updated to **%s** for the following ally code%s:\n%s' % (author.id, shard_type_str, payout_time.astimezone(player.timezone).strftime('%H:%M'), plural, ally_code_str),
 		}]
 
 	except Player.DoesNotExist:
