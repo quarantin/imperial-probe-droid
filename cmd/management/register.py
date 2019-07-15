@@ -47,16 +47,22 @@ def cmd_me(config, author, channel, args):
 		author_str = 'Ally code of **<@%s>**' % player.discord_id
 		ally_code_full_str = '%s is **`%s`**.' % (author_str, Player.format_ally_code(player.ally_code))
 		lines.append(ally_code_full_str)
+		lines.append('')
 
 		language = Player.get_language_info(player.language)
-		language_str = 'Language is set to **%s** %s' % (language[3], language[2])
-		lines.append(language_str)
+		lines.append('Your language is set to **%s** %s.' % (language[3], language[2]))
+		lines.append('Please type **`%slanguage`** to change your language.' % config['prefix'])
+		lines.append('')
+
+		timezone = player.timezone or 'Europe/London'
+		lines.append('Your timezone is set to **%s**.' % timezone)
+		lines.append('Please type **`%stimezone`** to change your timezone.', config['prefix'])
 		lines.append('')
 
 	lines_str = '\n'.join(lines)
 	return [{
 		'title': '',
-		'description': 'Hello <@%s>,\n\n%s\nPlease type **`%slanguage`** to change your language.' % (author.id, lines_str, config['prefix']),
+		'description': 'Hello <@%s>,\n\n%s\n' % (author.id, lines_str, config['prefix']),
 	}]
 
 async def fill_user_info(config, player):
@@ -99,23 +105,29 @@ async def register_users(config, author, discord_ids, ally_codes):
 
 		db_player.save()
 
-		language = Player.get_language_info(db_player.language)
-		language_str = 'Language is set to **%s** %s.' % (language[3], language[2])
-
 		registered_str = 'Player **%s** already registered!' % db_player.game_nick
 		if created:
 			registered_str = 'Registration successful for **%s**!' % db_player.game_nick
 
 		lines.append(registered_str)
 		lines.append(ally_code_full_str)
-		lines.append(language_str)
+		lines.append('')
+
+		language = Player.get_language_info(db_player.language)
+		lines.append('Your language is set to **%s** %s.' % (language[3], language[2]))
+		lines.append('Please type **`%slanguage`** to change your language.' % config['prefix'])
+		lines.append('')
+
+		timezone = db_player.timezone or 'Europe/London'
+		lines.append('Your timezone is set to **%s**.' % timezone)
+		lines.append('Please type **`%stimezone`** to change your timezone.' % config['prefix'])
 		lines.append('')
 
 	lines_str = '\n'.join(lines)
 
 	return [{
-		'title': '',
-		'description': 'Hello <@%s>,\n\n%s\nPlease type `%slanguage` to change your language.' % (author.id, lines_str, config['prefix']),
+		'title': 'Register',
+		'description': 'Hello <@%s>,\n\n%s' % (author.id, lines_str),
 	}]
 
 async def cmd_register(config, author, channel, args):
