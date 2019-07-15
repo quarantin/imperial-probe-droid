@@ -192,7 +192,7 @@ def handle_shard_export(config, author, args, shard_type):
 		members = ShardMember.objects.filter(shard=shard)
 		ally_codes = []
 		for member in members:
-			ally_codes.append(member.ally_code)
+			ally_codes.append(str(member.ally_code))
 
 		return [{
 			'title': 'Shard Export',
