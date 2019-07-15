@@ -84,11 +84,14 @@ def handle_shard_add(config, author, args, shard_type):
 		if player.ally_code not in ally_codes:
 			ally_codes.insert(0, player.ally_code)
 
+		new_members = []
 		for ally_code in ally_codes:
 			member, created = ShardMember.objects.get_or_create(shard=shard, ally_code=ally_code)
+			if created:
+				new_members.append(ally_code)
 
 		shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
-		ally_code_str = '\n'.join([ '- **%s**' % x for x in ally_codes ])
+		ally_code_str = '\n'.join([ '- **%s**' % x for x in new_members ])
 
 		plural = len(ally_codes) > 1 and 's' or ''
 		plural_have = len(ally_codes) > 1 and 've' or 's'
