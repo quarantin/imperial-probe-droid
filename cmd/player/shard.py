@@ -5,7 +5,7 @@ from swgohhelp import api_swgoh_players
 from swgoh.models import Player, Shard, ShardMember
 
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 help_shard = {
 	'title': 'Shard Help',
@@ -194,7 +194,7 @@ def handle_shard_stats(config, author, args, shard_type):
 				now = datetime.now(pytz.utc)
 				next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
 				if now > next_payout:
-					next_payout += datetime.timedelta(hours=24)
+					next_payout += timedelta(hours=24)
 
 				next_payout = next_payout.astimezone(tzinfo).strftime('%H:%M')
 
