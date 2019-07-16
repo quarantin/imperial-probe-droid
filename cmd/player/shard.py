@@ -184,11 +184,12 @@ def handle_shard_stats(config, author, channel, args):
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
-		tzname = player.timezone
+		tzinfo = player.timezone
 
 	except Player.DoesNotExist:
 		player = None
 		tzname = 'Europe/London'
+		tzinfo = pytz.timezone(tzname)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
@@ -220,7 +221,6 @@ def handle_shard_stats(config, author, channel, args):
 	})
 
 	lines = []
-	tzinfo = pytz.timezone(tzname)
 	players = sorted([ p for p in data ], key=lambda x: x['arena'][shard.type]['rank'])
 	for p in players:
 		bold = ''
