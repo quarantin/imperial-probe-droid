@@ -564,16 +564,13 @@ class Shard(models.Model):
 
 	SHARD_TYPES = (
 		('char', 'Character Arena'),
-		('ship', 'Ship Arena'),
+		('ship', 'Fleet Arena'),
 	)
 
 	SHARD_TYPES_DICT = { x: y for x, y in SHARD_TYPES }
 
-	type = models.CharField(max_length=8, choices=SHARD_TYPES)
-	player = models.ForeignKey(Player, on_delete=models.CASCADE)
-
-	class Meta:
-		unique_together = [ 'player', 'type' ]
+	channel_id = models.IntegerField(primary_key=True)
+	type = models.CharField(max_length=4, choices=SHARD_TYPES)
 
 class ShardMember(models.Model):
 
