@@ -9,22 +9,34 @@ from datetime import datetime, timedelta
 
 help_shard = {
 	'title': 'Shard Help',
-	'description': """Helps you to track the ranks and payout time of your shard members over time in character arena.
+	'description': """Helps you to track the ranks and payout time of your shard members over time in arena.
 
 **Syntax**
-Showing arena rank for your shard members:
+Creating a shard channel for character arena:
 ```
-%prefixshard```
+%prefixshard create char```
+Creating a shard channel for fleet arena:
+```
+%prefixshard create ship```
 Adding members to your shard:
 ```
 %prefixshard add [players]```
 Removing members from your shard:
 ```
 %prefixshard del [players]```
+Setting payout time for one of your shard member:
+```
+%prefixshard payout HH:MM [players]```
+Showing arena rank and payout time of your shard members:
+```
+%prefixshard```
 Exporting ally codes from your shard:
 ```
 %prefixshard export```
 **Examples**
+Create a channel for your character arena shard:
+```
+%prefixshard create char```
 Add some members to your shard:
 ```
 %prefixshard add 123456789 234567891 345-678-912```
@@ -34,37 +46,22 @@ Remove some members from your shard:
 List arena ranks of all members of your shard:
 ```
 %prefixshard```
+Set payout time for two of your shard members:
+```
+%prefixshard payout 18:00 123456789 234567891```
 Export ally codes from your shard:
 ```
 %prefixshard export```"""
 }
 
-help_fshard = {
-	'title': 'Fshard Help',
-	'description': """Helps you to track the ranks of your shard members over time in fleet arena.
+def get_payout_times(shard):
 
-**Syntax**
-Adding members to your shard:
-```
-%prefixfshard add [players]```
-Removing members from your shard:
-```
-%prefixfshard del [players]```
-Showing arena rank for your shard members:
-```
-%prefixfshard```
+	res = {}
+	members = ShardMember.objects.filter(shard=shard)
+	for member in members:
+		res[member.ally_code] = member.payout_time
 
-**Examples**
-Add some members to your shard:
-```
-%prefixfshard add 123456789 234567891 345-678-912```
-Remove some members from your shard:
-```
-%prefixfshard del 123-456-789 234567891 345678912```
-List arena ranks of all members of your shard:
-```
-%prefixfshard```"""
-}
+	return res
 
 def parse_opts_shard_type(args):
 
@@ -78,13 +75,29 @@ def parse_opts_shard_type(args):
 
 	return None
 
+def parse_opts_payout_time(tz, args):
+
+	import re
+
+	args_cpy = list(args)
+
+	for arg in args_cpy:
+		result = re.match('^[0-9][0-9]:[0-9][0-9]$', arg)
+		if result:
+			args.remove(arg)
+			now = datetime.now(tz)
+			tokens = result[0].split(':')
+			return now.replace(hour=int(tokens[0]), minute=int(tokens[1]), second=0, microsecond=0).astimezone(pytz.utc)
+
+	return None
+
 def handle_shard_create(config, author, channel, args):
 
 	shard_type = parse_opts_shard_type(args)
 	if not shard_type:
 		return [{
-			'title': 'ERROR: TODO',
-			'description': '',
+			'title': 'Missing Shard Type',
+			'description': 'You have to specify a shard type. It can be either:\n- `char` (for character arena),\n- or `ship` (for fleet arena).\n\nPlease type `%shelp shard` to get more help.' % config['prefix'],
 		}]
 
 	try:
@@ -97,9 +110,11 @@ def handle_shard_create(config, author, channel, args):
 		shard.type = shard_type
 		shard.save()
 
+	shard_type_str = Shard.SHARD_TYPES_DICT[shard_type].lower()
+
 	return [{
 		'title': 'Shard Created',
-		'description': 'This channel is now dedicated to your shard for **%s** arena.' % shard_type,
+		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp shard` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
 def handle_shard_add(config, author, channel, args):
@@ -115,10 +130,7 @@ def handle_shard_add(config, author, channel, args):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return [{
-			'title': 'Error: No Shard Found.',
-			'description': 'No shard associated to this channel.',
-		}]
+		return error_no_shard_found(config)
 
 	ally_codes = [ x.ally_code for x in players ]
 
@@ -150,10 +162,7 @@ def handle_shard_del(config, author, channel, args):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return [{
-			'title': 'Error: No Shard Found.',
-			'description': 'No shard associated to this channel.',
-		}]
+		return error_no_shard_found(config)
 
 	ally_codes = [ x.ally_code for x in players ]
 
@@ -167,15 +176,6 @@ def handle_shard_del(config, author, channel, args):
 		'title': 'Shard Updated',
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
-
-def get_payout_times(shard):
-
-	res = {}
-	members = ShardMember.objects.filter(shard=shard)
-	for member in members:
-		res[member.ally_code] = member.payout_time
-
-	return res
 
 def handle_shard_stats(config, author, channel, args):
 
@@ -195,10 +195,7 @@ def handle_shard_stats(config, author, channel, args):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return [{
-			'title': 'Error: No Shard Found.',
-			'description': 'No shard associated to this channel.',
-		}]
+		return error_no_shard_found(config)
 
 	payout_times = get_payout_times(shard)
 	ally_codes = list(payout_times)
@@ -269,10 +266,7 @@ def handle_shard_export(config, author, channel, args):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return [{
-			'title': 'Error: No Shard Found.',
-			'description': 'No shard associated to this channel.',
-		}]
+		return error_no_shard_found(config)
 
 	members = ShardMember.objects.filter(shard=shard)
 	ally_codes = [ str(member.ally_code) for member in members ]
@@ -287,32 +281,13 @@ def handle_shard_export(config, author, channel, args):
 		'description': '`%s`' % ' '.join(ally_codes)
 	}]
 
-def parse_opts_payout_time(tz, args):
-
-	import re
-
-	args_cpy = list(args)
-
-	for arg in args_cpy:
-		result = re.match('^[0-9][0-9]:[0-9][0-9]$', arg)
-		if result:
-			args.remove(arg)
-			now = datetime.now(tz)
-			tokens = result[0].split(':')
-			return now.replace(hour=int(tokens[0]), minute=int(tokens[1]), second=0, microsecond=0).astimezone(pytz.utc)
-
-	return None
-
 def handle_shard_payout(config, author, channel, args):
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return [{
-			'title': 'Error: No Shard Found.',
-			'description': 'No shard associated to this channel.',
-		}]
+		return error_no_shard_found(config)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -330,7 +305,7 @@ def handle_shard_payout(config, author, channel, args):
 	if not payout_time:
 		return [{
 			'title': 'Error: Missing payout time',
-			'description': 'You have to supply payout time. TODO',
+			'description': 'You have to supply a payout time in the following format: `HH:MM` (for example: `18:00`). Please type `%shelp shard` to get more help.',
 		}]
 
 	if args:
@@ -358,6 +333,7 @@ shard_types = {
 }
 
 subcommands = {
+	'new':    handle_shard_create,
 	'create': handle_shard_create,
 	'add':    handle_shard_add,
 	'del':    handle_shard_del,
@@ -381,7 +357,7 @@ def parse_opts_subcommands(args):
 
 	return args, None
 
-def _cmd_shard(config, author, channel, args):
+def cmd_shard(config, author, channel, args):
 
 	args, subcommand = parse_opts_subcommands(args)
 	if not subcommand:
@@ -391,9 +367,3 @@ def _cmd_shard(config, author, channel, args):
 		return subcommands[subcommand](config, author, channel, args)
 
 	return error_generic('Unsupported Action', subcommand)
-
-def cmd_shard(config, author, channel, args):
-	return _cmd_shard(config, author, channel, args)
-
-def cmd_fshard(config, author, channel, args):
-	return _cmd_shard(config, author, channel, args)

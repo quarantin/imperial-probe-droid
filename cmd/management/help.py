@@ -21,6 +21,8 @@ help_help = {
 **`gc`**: Compare different guilds and their respective units.
 **`glist`**: List guild members by unit GP, gear, level, rarity (**NEW**).
 %separator
+**Channel Commands**
+**`shard`**: Keep track of the rank and payout time of your shard members for arena (**NEW**).
 **Player Commands**
 **`arena`**: Show arena squad details.
 **`gear`**: List needed pieces of gear for units (**NEW**).
@@ -29,8 +31,6 @@ help_help = {
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Compare different players and their respective units.
 **`recos`**: Show information about recommended mods.
-**`shard`**: Keep track of the ranks of your shard members for arena (**NEW**).
-**`fshard`**: Keep track of the ranks of your shard members for fleet arena (**NEW**).
 **`wntm`**: List characters who needs mods with specific criteria."""
 #NOT WORKING **`mods`**: Show information about mods.
 #NOT WORKING **`stats`**: Show statistics about equipped mods."""

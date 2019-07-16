@@ -1,3 +1,4 @@
+from cmd.channel.shard import *
 from cmd.guild.compare import *
 from cmd.guild.glist import *
 from cmd.guild.ulist import *
@@ -25,7 +26,6 @@ from cmd.player.locked import *
 #from cmd.player.mods import *
 from cmd.player.needed import *
 from cmd.player.recos import *
-from cmd.player.shard import *
 #from cmd.player.stats import *
 from cmd.player.wntm import *
 
@@ -185,12 +185,6 @@ COMMANDS = [
 		'aliases': [ 'shard' ],
 		'function': cmd_shard,
 		'help': help_shard,
-	},
-	{
-		'command': 'fshard',
-		'aliases': [ 'fshard' ],
-		'function': cmd_fshard,
-		'help': help_fshard,
 	},
 	#{
 	#	'command': 'stats',

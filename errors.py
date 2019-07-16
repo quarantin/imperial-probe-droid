@@ -108,3 +108,9 @@ def error_permission_denied():
 		'color': 'red',
 		'description': 'You\'re not allowed to run this command, only an admin can.',
 	}]
+
+def error_no_shard_found(config):
+	return [{
+		'title': 'Error: No Shard Found',
+		'description': 'No shard found associated to this channel. Please type `%shelp shard` to learn how to create a shard.' % config['prefix'],
+	}]
