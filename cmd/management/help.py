@@ -23,6 +23,7 @@ help_help = {
 %separator
 **Channel Commands**
 **`shard`**: Keep track of the rank and payout time of your shard members for arena (**NEW**).
+%separator
 **Player Commands**
 **`arena`**: Show arena squad details.
 **`gear`**: List needed pieces of gear for units (**NEW**).
