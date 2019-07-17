@@ -9,7 +9,7 @@ help_help = {
 %separator
 **Help Commands**
 **`help`**: This help menu.
-**`help command`**: Get help menu for command.
+**`help <command>`**: Get help menu for command.
 %separator
 **Management Commands**
 **`alias`**: Manage command aliases.
