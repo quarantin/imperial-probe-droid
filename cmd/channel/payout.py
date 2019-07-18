@@ -231,6 +231,15 @@ def handle_payout_list(config, author, channel, args):
 			bold = '**'
 
 		spacer = ''
+		rank = int(p['arena'][shard.type]['rank'])
+		if rank < 10:
+			spacer = '\u00a0' * 4
+		elif rank < 100:
+			spacer = '\u00a0' * 3
+		elif rank < 1000:
+			spacer = '\u00a0' * 2
+		elif rank < 10000:
+			spacer = '\u00a0' * 1
 
 		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
 		if po_time:
@@ -245,13 +254,13 @@ def handle_payout_list(config, author, channel, args):
 			next_payout = '--:--'
 
 		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-		lines.append('%s`| %s | %s | %s`%s' % (bold, next_payout, p['allyCode'], p['name'], bold))
+		lines.append('%s`|%s%s | %s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
 
 	lines_str = '\n'.join(lines)
 
 	return [{
 		'title': 'Shard Status',
-		'description': 'Shard payout time for **%s** arena:\n%s\n`| PO At | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+		'description': 'Shard payout time for **%s** arena:\n%s\n`| Rank | PO At | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
 def handle_payout_stats(config, author, channel, args):
