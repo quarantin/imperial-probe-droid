@@ -8,6 +8,7 @@ CairoSVG==2.4.0
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
+crontab==0.22.6
 cssselect2==0.2.1
 defusedxml==0.6.0
 discord.py==1.1.1

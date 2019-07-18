@@ -7,6 +7,7 @@ import random
 import shlex
 import string
 import traceback
+from crontab import CronTab
 from datetime import datetime
 from discord.ext import commands
 from config import config, load_config, load_help
@@ -99,6 +100,33 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		self.loop.stop()
 		print('User initiated exit!')
 
+	async def cronjob(self, shard):
+		hours_str = '*'
+		if shard.interval.hour > 1:
+			hours_str = '*/%d' % shard.interval.hour
+
+		minutes_str = '45'
+		if shard.interval.minute > 1:
+			minutes_str = '*/%d' % shard.interval.minute
+
+		crontab_entry = '%s %s * * *' % (minutes_str, hours_str)
+		print(crontab_entry)
+		cron = CronTab(crontab_entry)
+
+		await self.wait_until_ready()
+
+		channel = self.get_channel(shard.channel_id)
+		while channel:
+
+			await asyncio.sleep(cron.next())
+
+			try:
+				await channel.send('!payout')
+
+			except Exception as err:
+				print('Could not print to channel %s!' % channel)
+				print(err)
+
 	async def on_ready(self):
 		load_help()
 		if 'env' in config and config['env'] == 'prod':
@@ -110,6 +138,14 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			await channel.send(message)
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
+
+		import DJANGO
+		from swgoh.models import Shard
+		shards = Shard.objects.all()
+		for shard in shards:
+			print('Registering task for alerts in <@%s>' % shard.channel_id)
+			self.loop.create_task(self.cronjob(shard))
+		print('Done')
 
 	async def on_message(self, message):
 
