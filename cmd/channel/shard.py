@@ -177,6 +177,77 @@ def handle_shard_del(config, author, channel, args):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
+def handle_shard_list(config, author, channel, args):
+
+	if args:
+		return error_unknown_parameters(args)
+
+	try:
+		player = Player.objects.get(discord_id=author.id)
+		tzinfo = player.timezone
+
+	except Player.DoesNotExist:
+		player = None
+		tzname = 'Europe/London'
+		tzinfo = pytz.timezone(tzname)
+
+	try:
+		shard = Shard.objects.get(channel_id=channel.id)
+
+	except Shard.DoesNotExist:
+		return error_no_shard_found(config)
+
+	payout_times = get_payout_times(shard)
+	ally_codes = list(payout_times)
+
+	data = api_swgoh_players(config, {
+		'allycodes': ally_codes,
+		'project': {
+			'name': 1,
+			'allyCode': 1,
+			'updated': 1,
+			'arena': {
+				'char': {
+					'rank': 1,
+				},
+				'ship': {
+					'rank': 1,
+				},
+			},
+		},
+	})
+
+	lines = []
+	players = sorted([ p for p in data ], key=lambda x: x['arena'][shard.type]['rank'])
+	for p in players:
+		bold = ''
+		if player and player.ally_code == p['allyCode']:
+			bold = '**'
+
+		spacer = ''
+
+		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
+		if po_time:
+			now = datetime.now(pytz.utc)
+			next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
+			if now > next_payout:
+				next_payout += timedelta(hours=24)
+
+			next_payout = next_payout.astimezone(tzinfo).strftime('%H:%M')
+
+		else:
+			next_payout = '??:??'
+
+		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
+		lines.append('%s`| %s | %s | %s`%s' % (bold, next_payout, p['allyCode'], p['name'], bold))
+
+	lines_str = '\n'.join(lines)
+
+	return [{
+		'title': 'Shard Status',
+		'description': 'Shard payout time for **%s** arena:\n%s\n`| PO At | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+	}]
+
 def handle_shard_stats(config, author, channel, args):
 
 	if args:
@@ -242,13 +313,16 @@ def handle_shard_stats(config, author, channel, args):
 			if now > next_payout:
 				next_payout += timedelta(hours=24)
 
-			next_payout = next_payout.astimezone(tzinfo).strftime('%H:%M')
+			seconds_before_payout = (next_payout - now).seconds
+			hours, remain = divmod(seconds_before_payout, 3600)
+			minutes, seconds = divmod(remain, 60)
+			next_payout = '%02d:%02d' % (hours, minutes)
 
 		else:
 			next_payout = '??:??'
 
 		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-		lines.append('%s`|%s%s | %s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
+		lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['name'], bold))
 
 	lines_str = '\n'.join(lines)
 
@@ -334,12 +408,17 @@ shard_types = {
 
 subcommands = {
 	'new':    handle_shard_create,
+	'init':   handle_shard_create,
+	'conf':   handle_shard_create,
+	'config': handle_shard_create,
 	'create': handle_shard_create,
+	'set':    handle_shard_create,
 	'add':    handle_shard_add,
 	'del':    handle_shard_del,
 	'delete': handle_shard_del,
 	'rm':     handle_shard_del,
 	'remove': handle_shard_del,
+	'list':   handle_shard_list,
 	'stat':   handle_shard_stats,
 	'stats':  handle_shard_stats,
 	'status': handle_shard_stats,
