@@ -444,6 +444,7 @@ subcommands = {
 	'rm':     handle_payout_del,
 	'remove': handle_payout_del,
 	'rank':   handle_payout_rank,
+	'ranks':  handle_payout_rank,
 	'stat':   handle_payout_stats,
 	'stats':  handle_payout_stats,
 	'status': handle_payout_stats,
