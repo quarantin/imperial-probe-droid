@@ -242,7 +242,7 @@ def handle_payout_list(config, author, channel, args):
 			next_payout = next_payout.astimezone(tzinfo).strftime('%H:%M')
 
 		else:
-			next_payout = '??:??'
+			next_payout = '--:--'
 
 		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
 		lines.append('%s`| %s | %s | %s`%s' % (bold, next_payout, p['allyCode'], p['name'], bold))
@@ -339,7 +339,7 @@ def handle_payout_stats(config, author, channel, args):
 				next_payout = '%02d:%02d' % (hours, minutes)
 
 			else:
-				next_payout = '??:??'
+				next_payout = '--:--'
 
 			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
 			lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['name'], bold))
