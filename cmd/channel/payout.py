@@ -348,7 +348,7 @@ def handle_payout_stats(config, author, channel, args):
 
 	return [{
 		'title': 'Shard Status',
-		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`| Rank | PO In | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`| Rank | PO In | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
 def handle_payout_export(config, author, channel, args):
