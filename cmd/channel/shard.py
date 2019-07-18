@@ -288,41 +288,54 @@ def handle_shard_stats(config, author, channel, args):
 		},
 	})
 
-	lines = []
+	players_by_payout = {}
 	players = sorted([ p for p in data ], key=lambda x: x['arena'][shard.type]['rank'])
 	for p in players:
-		bold = ''
-		if player and player.ally_code == p['allyCode']:
-			bold = '**'
-
-		spacer = ''
-		rank = int(p['arena'][shard.type]['rank'])
-		if rank < 10:
-			spacer = '\u00a0' * 4
-		elif rank < 100:
-			spacer = '\u00a0' * 3
-		elif rank < 1000:
-			spacer = '\u00a0' * 2
-		elif rank < 10000:
-			spacer = '\u00a0' * 1
 
 		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
-		if po_time:
-			now = datetime.now(pytz.utc)
-			next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
-			if now > next_payout:
-				next_payout += timedelta(hours=24)
+		if po_time not in players_by_payout:
+			players_by_payout[po_time] = []
 
-			seconds_before_payout = (next_payout - now).seconds
-			hours, remain = divmod(seconds_before_payout, 3600)
-			minutes, seconds = divmod(remain, 60)
-			next_payout = '%02d:%02d' % (hours, minutes)
+		players_by_payout[po_time].append(p)
 
-		else:
-			next_payout = '??:??'
+	lines = []
+	po_times = list(players_by_payout)
+	po_times.reverse()
+	for po_time in po_times:
+		players = players_by_payout[po_time]
+		for p in players:
+			bold = ''
+			if player and player.ally_code == p['allyCode']:
+				bold = '**'
 
-		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-		lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['name'], bold))
+			spacer = ''
+			rank = int(p['arena'][shard.type]['rank'])
+			if rank < 10:
+				spacer = '\u00a0' * 4
+			elif rank < 100:
+				spacer = '\u00a0' * 3
+			elif rank < 1000:
+				spacer = '\u00a0' * 2
+			elif rank < 10000:
+				spacer = '\u00a0' * 1
+
+			po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
+			if po_time:
+				now = datetime.now(pytz.utc)
+				next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
+				if now > next_payout:
+					next_payout += timedelta(hours=24)
+
+				seconds_before_payout = (next_payout - now).seconds
+				hours, remain = divmod(seconds_before_payout, 3600)
+				minutes, seconds = divmod(remain, 60)
+				next_payout = '%02d:%02d' % (hours, minutes)
+
+			else:
+				next_payout = '??:??'
+
+			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
+			lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['name'], bold))
 
 	lines_str = '\n'.join(lines)
 
