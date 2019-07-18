@@ -7,51 +7,57 @@ from swgoh.models import Player, Shard, ShardMember
 import pytz
 from datetime import datetime, timedelta
 
-help_shard = {
-	'title': 'Shard Help',
-	'description': """Helps you to track the ranks and payout time of your shard members over time in arena.
+help_payout = {
+	'title': 'Payout Help',
+	'description': """Helps you to track payout time and arena rank of your shard members over time.
 
 **Syntax**
 Creating a shard channel for character arena:
 ```
-%prefixshard create char```
+%prefixpayout create char```
 Creating a shard channel for fleet arena:
 ```
-%prefixshard create ship```
+%prefixpayout create ship```
 Adding members to your shard:
 ```
-%prefixshard add [players]```
+%prefixpayout add [players]```
 Removing members from your shard:
 ```
-%prefixshard del [players]```
-Setting payout time for one of your shard member:
+%prefixpayout del [players]```
+Setting payout time for some of your shard members:
 ```
-%prefixshard payout HH:MM [players]```
-Showing arena rank and payout time of your shard members:
+%prefixpayout time HH:MM [players]```
+List members from your shard and their payout time:
 ```
-%prefixshard```
+%prefixpayout list```
+Showing arena rank and the time remaining to payout for your shard members:
+```
+%prefixpayout```
 Exporting ally codes from your shard:
 ```
-%prefixshard export```
+%prefixpayout export```
+**Aliases**
+```
+%prefixpo```
 **Examples**
 Create a channel for your character arena shard:
 ```
-%prefixshard create char```
+%prefixpayout create char```
 Add some members to your shard:
 ```
-%prefixshard add 123456789 234567891 345-678-912```
+%prefixpayout add 123456789 234567891 345-678-912```
 Remove some members from your shard:
 ```
-%prefixshard del 123-456-789 234567891 345678912```
+%prefixpayout del 123-456-789 234567891 345678912```
 List arena ranks of all members of your shard:
 ```
-%prefixshard```
+%prefixpayout```
 Set payout time for two of your shard members:
 ```
-%prefixshard payout 18:00 123456789 234567891```
+%prefixpayout time 18:00 123456789 234567891```
 Export ally codes from your shard:
 ```
-%prefixshard export```"""
+%prefixpayout export```"""
 }
 
 def get_payout_times(shard):
@@ -91,7 +97,7 @@ def parse_opts_payout_time(tz, args):
 
 	return None
 
-def handle_shard_create(config, author, channel, args):
+def handle_payout_create(config, author, channel, args):
 
 	shard_type = parse_opts_shard_type(args)
 	if not shard_type:
@@ -117,7 +123,7 @@ def handle_shard_create(config, author, channel, args):
 		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp shard` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
-def handle_shard_add(config, author, channel, args):
+def handle_payout_add(config, author, channel, args):
 
 	args, players, error = parse_opts_players(config, author, args)
 	if error:
@@ -149,7 +155,7 @@ def handle_shard_add(config, author, channel, args):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_shard_del(config, author, channel, args):
+def handle_payout_del(config, author, channel, args):
 
 	args, players, error = parse_opts_players(config, author, args)
 	if error:
@@ -177,7 +183,7 @@ def handle_shard_del(config, author, channel, args):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_shard_list(config, author, channel, args):
+def handle_payout_list(config, author, channel, args):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -248,7 +254,7 @@ def handle_shard_list(config, author, channel, args):
 		'description': 'Shard payout time for **%s** arena:\n%s\n`| PO At | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
-def handle_shard_stats(config, author, channel, args):
+def handle_payout_stats(config, author, channel, args):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -344,7 +350,7 @@ def handle_shard_stats(config, author, channel, args):
 		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`| Rank | PO At | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
-def handle_shard_export(config, author, channel, args):
+def handle_payout_export(config, author, channel, args):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -368,7 +374,7 @@ def handle_shard_export(config, author, channel, args):
 		'description': '`%s`' % ' '.join(ally_codes)
 	}]
 
-def handle_shard_payout(config, author, channel, args):
+def handle_payout_time(config, author, channel, args):
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
@@ -420,23 +426,23 @@ shard_types = {
 }
 
 subcommands = {
-	'new':    handle_shard_create,
-	'init':   handle_shard_create,
-	'conf':   handle_shard_create,
-	'config': handle_shard_create,
-	'create': handle_shard_create,
-	'set':    handle_shard_create,
-	'add':    handle_shard_add,
-	'del':    handle_shard_del,
-	'delete': handle_shard_del,
-	'rm':     handle_shard_del,
-	'remove': handle_shard_del,
-	'list':   handle_shard_list,
-	'stat':   handle_shard_stats,
-	'stats':  handle_shard_stats,
-	'status': handle_shard_stats,
-	'export': handle_shard_export,
-	'payout': handle_shard_payout,
+	'new':    handle_payout_create,
+	'init':   handle_payout_create,
+	'conf':   handle_payout_create,
+	'config': handle_payout_create,
+	'create': handle_payout_create,
+	'set':    handle_payout_create,
+	'add':    handle_payout_add,
+	'del':    handle_payout_del,
+	'delete': handle_payout_del,
+	'rm':     handle_payout_del,
+	'remove': handle_payout_del,
+	'list':   handle_payout_list,
+	'stat':   handle_payout_stats,
+	'stats':  handle_payout_stats,
+	'status': handle_payout_stats,
+	'export': handle_payout_export,
+	'time':   handle_payout_time,
 }
 
 def parse_opts_subcommands(args):
@@ -449,7 +455,7 @@ def parse_opts_subcommands(args):
 
 	return args, None
 
-def cmd_shard(config, author, channel, args):
+def cmd_payout(config, author, channel, args):
 
 	args, subcommand = parse_opts_subcommands(args)
 	if not subcommand:

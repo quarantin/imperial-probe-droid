@@ -1,4 +1,4 @@
-from cmd.channel.shard import *
+from cmd.channel.payout import *
 from cmd.guild.compare import *
 from cmd.guild.glist import *
 from cmd.guild.ulist import *
@@ -181,10 +181,10 @@ COMMANDS = [
 	#	'help': help_sheets,
 	#},
 	{
-		'command': 'shard',
-		'aliases': [ 'shard' ],
-		'function': cmd_shard,
-		'help': help_shard,
+		'command': 'payout',
+		'aliases': [ 'po', 'payout', 'payouts' ],
+		'function': cmd_payout,
+		'help': help_payout,
 	},
 	#{
 	#	'command': 'stats',
