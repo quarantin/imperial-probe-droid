@@ -299,14 +299,15 @@ def handle_payout_stats(config, author, channel, args):
 	for p in players:
 
 		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
-		if po_time not in players_by_payout:
-			players_by_payout[po_time] = []
+		po_time_str = str(po_time)
+		if po_time_str not in players_by_payout:
+			players_by_payout[po_time_str] = []
 
-		players_by_payout[po_time].append(p)
+		players_by_payout[po_time_str].append(p)
 
 	lines = []
 	po_times = list(players_by_payout)
-	po_times.reverse()
+	po_times.sort()
 	for po_time in po_times:
 		players = players_by_payout[po_time]
 		for p in players:
