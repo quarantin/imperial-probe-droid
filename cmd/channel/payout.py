@@ -27,10 +27,10 @@ Removing members from your shard:
 Setting payout time for some of your shard members:
 ```
 %prefixpayout time HH:MM [players]```
-List members from your shard and their payout time:
+Show members from your shard with their payout time sorted by rank:
 ```
-%prefixpayout list```
-Showing arena rank and the time remaining to payout for your shard members:
+%prefixpayout rank```
+Show members from your shard with their rank sorted by time left to payout:
 ```
 %prefixpayout```
 Exporting ally codes from your shard:
@@ -88,11 +88,11 @@ def parse_opts_payout_time(tz, args):
 	args_cpy = list(args)
 
 	for arg in args_cpy:
-		result = re.match('^[0-9][0-9]:[0-9][0-9]$', arg)
+		result = re.match('^[0-9][0-9][:h][0-9][0-9]$', arg)
 		if result:
 			args.remove(arg)
 			now = datetime.now(tz)
-			tokens = result[0].split(':')
+			tokens = result[0].replace('h', ':').split(':')
 			return now.replace(hour=int(tokens[0]), minute=int(tokens[1]), second=0, microsecond=0).astimezone(pytz.utc)
 
 	return None
@@ -183,7 +183,7 @@ def handle_payout_del(config, author, channel, args):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_list(config, author, channel, args):
+def handle_payout_rank(config, author, channel, args):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -233,12 +233,10 @@ def handle_payout_list(config, author, channel, args):
 		spacer = ''
 		rank = int(p['arena'][shard.type]['rank'])
 		if rank < 10:
-			spacer = '\u00a0' * 4
-		elif rank < 100:
 			spacer = '\u00a0' * 3
-		elif rank < 1000:
+		elif rank < 100:
 			spacer = '\u00a0' * 2
-		elif rank < 10000:
+		elif rank < 1000:
 			spacer = '\u00a0' * 1
 
 		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
@@ -254,13 +252,13 @@ def handle_payout_list(config, author, channel, args):
 			next_payout = '--:--'
 
 		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-		lines.append('%s`|%s%s | %s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
+		lines.append('%s`|%s%s %s %s %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
 
 	lines_str = '\n'.join(lines)
 
 	return [{
 		'title': 'Shard Status',
-		'description': 'Shard payout time for **%s** arena:\n%s\n`| Rank | PO At | Ally Code | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+		'description': 'Shard payout time for **%s** arena:\n%s\n`|Rank PO_At Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
 def handle_payout_stats(config, author, channel, args):
@@ -327,12 +325,10 @@ def handle_payout_stats(config, author, channel, args):
 			spacer = ''
 			rank = int(p['arena'][shard.type]['rank'])
 			if rank < 10:
-				spacer = '\u00a0' * 4
-			elif rank < 100:
 				spacer = '\u00a0' * 3
-			elif rank < 1000:
+			elif rank < 100:
 				spacer = '\u00a0' * 2
-			elif rank < 10000:
+			elif rank < 1000:
 				spacer = '\u00a0' * 1
 
 			po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
@@ -351,13 +347,13 @@ def handle_payout_stats(config, author, channel, args):
 				next_payout = '--:--'
 
 			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-			lines.append('%s`|%s%s | %s | %s`%s' % (bold, spacer, rank, next_payout, p['name'], bold))
+			lines.append('%s`|%s%s %s %s %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
 
 	lines_str = '\n'.join(lines)
 
 	return [{
 		'title': 'Shard Status',
-		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`| Rank | PO In | Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
 def handle_payout_export(config, author, channel, args):
@@ -447,7 +443,7 @@ subcommands = {
 	'delete': handle_payout_del,
 	'rm':     handle_payout_del,
 	'remove': handle_payout_del,
-	'list':   handle_payout_list,
+	'rank':   handle_payout_rank,
 	'stat':   handle_payout_stats,
 	'stats':  handle_payout_stats,
 	'status': handle_payout_stats,
