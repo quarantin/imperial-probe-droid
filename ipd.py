@@ -100,7 +100,10 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		self.loop.stop()
 		print('User initiated exit!')
 
-	async def cronjob(self, shard):
+	async def cronjob(self, config, shard):
+
+		config['tasks'][shard.channel_id] = True
+
 		hours_str = '*'
 		if shard.interval.hour > 1:
 			hours_str = '*/%d' % shard.interval.hour
@@ -127,7 +130,10 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				print('Could not print to channel %s!' % channel)
 				print(err)
 
+		config['tasks'][shard.channel_id] = False
+
 	async def on_ready(self):
+
 		load_help()
 		if 'env' in config and config['env'] == 'prod':
 			await self.change_presence(activity=get_game())
@@ -137,15 +143,18 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			channel = self.get_channel(chan_id)
 			await channel.send(message)
 
-		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
+		if 'tasks' not in config:
+			config['tasks'] = {}
 
 		import DJANGO
 		from swgoh.models import Shard
+
 		shards = Shard.objects.all()
 		for shard in shards:
-			print('Registering task for alerts in <@%s>' % shard.channel_id)
-			self.loop.create_task(self.cronjob(shard))
-		print('Done')
+			if shard.channel_id not in config['tasks'] or config['tasks'][shard.channel_id] is False:
+				self.loop.create_task(self.cronjob(config, shard))
+
+		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
 	async def on_message(self, message):
 
