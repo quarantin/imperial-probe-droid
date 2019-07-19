@@ -56,13 +56,13 @@ def cmd_me(config, author, channel, args):
 
 		timezone = player.timezone or 'Europe/London'
 		lines.append('Your timezone is set to **%s**.' % timezone)
-		lines.append('Please type **`%stimezone`** to change your timezone.', config['prefix'])
+		lines.append('Please type **`%stimezone`** to change your timezone.' % config['prefix'])
 		lines.append('')
 
 	lines_str = '\n'.join(lines)
 	return [{
 		'title': '',
-		'description': 'Hello <@%s>,\n\n%s\n' % (author.id, lines_str, config['prefix']),
+		'description': 'Hello <@%s>,\n\n%s\n' % (author.id, lines_str),
 	}]
 
 async def fill_user_info(config, player):
