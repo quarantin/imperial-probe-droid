@@ -118,7 +118,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		channel = self.get_channel(shard.channel_id)
 		while channel:
 
-			await asyncio.sleep(cron.next())
+			await asyncio.sleep(cron.next(default_utc=True))
 
 			try:
 				await channel.send('!payout')
