@@ -251,7 +251,7 @@ def handle_payout_rank(config, author, channel, args):
 		else:
 			next_payout = '--:--'
 
-		updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
+		#updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
 		lines.append('%s`|%s%s %s %s %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
 
 	lines_str = '\n'.join(lines)
@@ -301,22 +301,33 @@ def handle_payout_stats(config, author, channel, args):
 		},
 	})
 
+	now = datetime.now(pytz.utc)
+
 	players_by_payout = {}
 	players = sorted([ p for p in data ], key=lambda x: x['arena'][shard.type]['rank'])
 	for p in players:
 
+		diff = None
 		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
-		po_time_str = str(po_time)
-		if po_time_str not in players_by_payout:
-			players_by_payout[po_time_str] = []
+		if po_time:
+			po_time = now.replace(hour=po_time.hour, minute=po_time.minute, second=po_time.second)
+			if po_time < now:
+				po_time += timedelta(hours=24)
 
-		players_by_payout[po_time_str].append(p)
+			diff = (po_time - now).total_seconds()
+
+		if diff not in players_by_payout:
+			players_by_payout[diff] = []
+
+		players_by_payout[diff].append(p)
 
 	lines = []
 	po_times = list(players_by_payout)
+	none_entry = po_times.remove(None)
 	po_times.sort()
-	for po_time in po_times:
-		players = players_by_payout[po_time]
+	po_times.append(none_entry)
+	for diff_time in po_times:
+		players = players_by_payout[diff_time]
 		for p in players:
 			bold = ''
 			if player and player.ally_code == p['allyCode']:
@@ -331,22 +342,15 @@ def handle_payout_stats(config, author, channel, args):
 			elif rank < 1000:
 				spacer = '\u00a0' * 1
 
-			po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
-			if po_time:
-				now = datetime.now(pytz.utc)
-				next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
-				if now > next_payout:
-					next_payout += timedelta(hours=24)
-
-				seconds_before_payout = (next_payout - now).seconds
-				hours, remain = divmod(seconds_before_payout, 3600)
+			if diff_time:
+				hours, remain = divmod(diff_time, 3600)
 				minutes, seconds = divmod(remain, 60)
 				next_payout = '%02d:%02d' % (hours, minutes)
 
 			else:
 				next_payout = '--:--'
 
-			updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
+			#updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
 			lines.append('%s`|%s%s %s %s %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
 
 	lines_str = '\n'.join(lines)
