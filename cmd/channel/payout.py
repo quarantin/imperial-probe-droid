@@ -323,9 +323,12 @@ def handle_payout_stats(config, author, channel, args):
 
 	lines = []
 	po_times = list(players_by_payout)
-	none_entry = po_times.remove(None)
+	none_entry = False
+	if None in po_times:
+		none_entry = po_times.remove(None)
 	po_times.sort()
-	po_times.append(none_entry)
+	if none_entry:
+		po_times.append(none_entry)
 	for diff_time in po_times:
 		players = players_by_payout[diff_time]
 		for p in players:
