@@ -147,12 +147,14 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			config['tasks'] = {}
 
 		import DJANGO
-		from swgoh.models import Shard
+		from swgoh.models import Shard, ShardMember
 
 		shards = Shard.objects.all()
 		for shard in shards:
 			if shard.channel_id not in config['tasks'] or config['tasks'][shard.channel_id] is False:
-				self.loop.create_task(self.cronjob(config, shard))
+				members = list(ShardMember.objects.filter(shard=shard))
+				if members:
+					self.loop.create_task(self.cronjob(config, shard))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
