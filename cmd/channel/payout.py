@@ -103,7 +103,7 @@ def handle_payout_create(config, author, channel, args):
 	if not shard_type:
 		return [{
 			'title': 'Missing Shard Type',
-			'description': 'You have to specify a shard type. It can be either:\n- `char` (for character arena),\n- or `ship` (for fleet arena).\n\nPlease type `%shelp shard` to get more help.' % config['prefix'],
+			'description': 'You have to specify a shard type. It can be either:\n- `char` (for character arena),\n- or `ship` (for fleet arena).\n\nPlease type `%shelp payout` to get more help.' % config['prefix'],
 		}]
 
 	try:
@@ -120,7 +120,7 @@ def handle_payout_create(config, author, channel, args):
 
 	return [{
 		'title': 'Shard Created',
-		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp shard` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
+		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp payout` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
 def handle_payout_add(config, author, channel, args):
@@ -408,7 +408,7 @@ def handle_payout_time(config, author, channel, args):
 	if not payout_time:
 		return [{
 			'title': 'Error: Missing payout time',
-			'description': 'You have to supply a payout time in the following format: `HH:MM` (for example: `18:00`). Please type `%shelp shard` to get more help.',
+			'description': 'You have to supply a payout time in the following format: `HH:MM` (for example: `18:00`). Please type `%shelp payout` to get more help.',
 		}]
 
 	if args:
