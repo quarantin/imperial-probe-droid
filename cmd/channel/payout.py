@@ -1,8 +1,11 @@
+# -*- coding=utf-8 -*-
+
 from opts import *
 from errors import *
 from swgohgg import get_swgohgg_profile_url
 from swgohhelp import api_swgoh_players
 
+import DJANGO
 from swgoh.models import Player, Shard, ShardMember
 
 import pytz
@@ -31,6 +34,9 @@ Setting payout time for some of your shard members:
 Show members from your shard with their payout time sorted by rank:
 ```
 %prefixpayout rank```
+Set affiliation of your shard members (friendly, neutral, enemy):
+```
+%prefixpayout tag [friendly|neutral|enenmy] [players]```
 Show members from your shard with their rank sorted by time left to payout:
 ```
 %prefixpayout```
@@ -66,7 +72,7 @@ def get_payout_times(shard):
 	res = {}
 	members = ShardMember.objects.filter(shard=shard)
 	for member in members:
-		res[member.ally_code] = member.payout_time
+		res[member.ally_code] = member
 
 	return res
 
@@ -240,7 +246,7 @@ def handle_payout_rank(config, author, channel, args):
 		elif rank < 1000:
 			spacer = '\u00a0' * 1
 
-		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
+		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ].payout_time
 		if po_time:
 			now = datetime.now(pytz.utc)
 			next_payout = datetime(year=now.year, month=now.month, day=now.day, hour=po_time.hour, minute=po_time.minute, second=0, microsecond=0, tzinfo=pytz.utc)
@@ -309,13 +315,15 @@ def handle_payout_stats(config, author, channel, args):
 	for p in players:
 
 		diff = None
-		po_time = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
-		if po_time:
-			po_time = now.replace(hour=po_time.hour, minute=po_time.minute, second=po_time.second)
-			if po_time < now:
-				po_time += timedelta(hours=24)
+		member = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ]
+		if member:
+			po_time = member.payout_time
+			if po_time:
+				po_time = now.replace(hour=po_time.hour, minute=po_time.minute, second=po_time.second)
+				if po_time < now:
+					po_time += timedelta(hours=24)
 
-			diff = (po_time - now).total_seconds()
+				diff = (po_time - now).total_seconds()
 
 		if diff not in players_by_payout:
 			players_by_payout[diff] = []
@@ -354,10 +362,10 @@ def handle_payout_stats(config, author, channel, args):
 
 			else:
 				next_payout = '--:--'
-
 			#updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
+			affiliation = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ].get_affiliation_display()
 			profile_url = get_swgohgg_profile_url(p['allyCode'], no_check=True)
-			lines.append('%s`|%s%s %s `[%s](%s)%s' % (bold, spacer, rank, next_payout, p['name'], profile_url, bold))
+			lines.append('%s`|%s%s %s `%s[%s](%s)%s' % (bold, spacer, rank, next_payout, affiliation, p['name'], profile_url, bold))
 
 	lines_str = '\n'.join(lines)
 
@@ -419,7 +427,7 @@ def handle_payout_time(config, author, channel, args):
 
 	if args:
 		return error_unknown_parameters(args)
-		
+
 	ally_codes = [ x.ally_code for x in players ]
 	ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(payout_time=payout_time.strftime('%H:%M'))
 
@@ -430,6 +438,48 @@ def handle_payout_time(config, author, channel, args):
 	return [{
 		'title': 'Shard Payout Updated',
 		'description': 'Payout time has been updated to **%s** for the following ally code%s:\n%s' % (payout_time.astimezone(tzname).strftime('%H:%M'), plural, ally_code_str),
+	}]
+
+def handle_payout_tag(config, author, channel, args):
+
+	try:
+		shard = Shard.objects.get(channel_id=channel.id)
+
+	except Shard.DoesNotExist:
+		return error_no_shard_found(config)
+
+	try:
+		player = Player.objects.get(discord_id=author.id)
+		tzname = player.timezone
+
+	except Player.DoesNotExist:
+		player = None
+		tzname = 'Europe/London'
+
+	args, players, error = parse_opts_players(config, author, args)
+	if error:
+		return error
+
+	affiliation_id, affiliation_display, affiliation_name = ShardMember.parse_affiliation(args)
+	if affiliation_id is None:
+		return [{
+			'title': 'Error: Missing Affiliation',
+			'description': 'You have to supply an Affiliation. Valid affiliations are either: **`friendly`**, **`neutral`**, or **`enemy`**. Please type `%shelp payout` to get more help.',
+		}]
+
+	if args:
+		return error_unknown_parameters(args)
+
+	ally_codes = [ x.ally_code for x in players ]
+	ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(affiliation=affiliation_id)
+
+	plural = len(ally_codes) > 1 and 's' or ''
+	plural_have = len(ally_codes) > 1 and 've' or 's'
+	ally_code_str = '\n'.join([ '- **%s**' % x for x in ally_codes ])
+
+	return [{
+		'title': 'Affiliation Updated',
+		'description': 'Affiliation has been changed to **`%s`** for the following ally code%s:\n%s' % (affiliation_name, plural, ally_code_str),
 	}]
 
 shard_types = {
@@ -453,6 +503,7 @@ subcommands = {
 	'delete': handle_payout_del,
 	'rm':     handle_payout_del,
 	'remove': handle_payout_del,
+	'list':   handle_payout_rank,
 	'rank':   handle_payout_rank,
 	'ranks':  handle_payout_rank,
 	'stat':   handle_payout_stats,
@@ -460,6 +511,7 @@ subcommands = {
 	'status': handle_payout_stats,
 	'export': handle_payout_export,
 	'time':   handle_payout_time,
+	'tag':    handle_payout_tag,
 }
 
 def parse_opts_subcommands(args):

@@ -387,7 +387,7 @@ class BaseUnitAbilityClass(models.Model):
 		('Tenacity Up',          'Tenacity Up'),
 		('Thermal Detonator',    'Thermal Detonator'),
 	)
-	
+
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 	ability = models.CharField(max_length=32, choices=ABILITIES)
 
@@ -576,6 +576,43 @@ class Shard(models.Model):
 
 class ShardMember(models.Model):
 
+	AFFILIATION_ID_NEUTRAL  = 0
+	AFFILIATION_ID_FRIENDLY = 1
+	AFFILIATION_ID_ENEMY    = 2
+
+	AFFILIATION_NEUTRAL     = '😐'
+	AFFILIATION_FRIENDLY    = '😃'
+	AFFILIATION_ENEMY       = '😡'
+
+	AFFILIATIONS = (
+		(AFFILIATION_ID_NEUTRAL,  AFFILIATION_NEUTRAL),
+		(AFFILIATION_ID_FRIENDLY, AFFILIATION_FRIENDLY),
+		(AFFILIATION_ID_ENEMY,    AFFILIATION_ENEMY),
+	)
+
+	OPTS_AFFILIATIONS = {
+		'neutral':  (AFFILIATION_ID_NEUTRAL,  AFFILIATION_NEUTRAL),
+		'friend':   (AFFILIATION_ID_FRIENDLY, AFFILIATION_FRIENDLY),
+		'friendly': (AFFILIATION_ID_FRIENDLY, AFFILIATION_FRIENDLY),
+		'enemy':    (AFFILIATION_ID_ENEMY,    AFFILIATION_ENEMY),
+	}
+
 	shard = models.ForeignKey(Shard, on_delete=models.CASCADE)
 	ally_code = models.IntegerField()
+	affiliation = models.IntegerField(default=0, choices=AFFILIATIONS)
 	payout_time = models.TimeField(blank=True, null=True)
+
+	def parse_affiliation(args):
+
+		args_cpy = list(args)
+
+		for arg in args_cpy:
+
+			larg = arg.lower()
+
+			if larg in ShardMember.OPTS_AFFILIATIONS:
+				args.remove(arg)
+				affil_id, affil_display = ShardMember.OPTS_AFFILIATIONS[larg]
+				return (affil_id, affil_display, larg)
+
+		return (None, None, None)
