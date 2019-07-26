@@ -76,6 +76,32 @@ def get_payout_times(shard):
 
 	return res
 
+def get_shard(config, channel, author):
+
+	try:
+		return Shard.objects.get(channel_id=channel.id)
+
+	except Shard.DoesNotExist:
+		pass
+
+	try:
+		player = Player.objects.get(discord_id=author.id)
+		members = ShardMember.objects.filter(ally_code=player.ally_code)
+		shards = []
+		for member in members:
+			if member.shard not in shards:
+				shards.append(member.shard)
+
+		for shard in shards:
+			shard_channel = config['bot'].get_channel(shard.channel_id)
+			if shard_channel and shard_channel.guild.id == channel.guild.id:
+				return shard
+
+	except Player.DoesNotExist:
+		pass
+
+	return None
+
 def parse_opts_shard_type(args):
 
 	args_cpy = list(args)
@@ -204,10 +230,8 @@ def handle_payout_rank(config, author, channel, args):
 		tzname = 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
 
-	try:
-		shard = Shard.objects.get(channel_id=channel.id)
-
-	except Shard.DoesNotExist:
+	shard = get_shard(config, channel, author)
+	if not shard:
 		return error_no_shard_found(config)
 
 	payout_times = get_payout_times(shard)
@@ -282,10 +306,8 @@ def handle_payout_stats(config, author, channel, args):
 		tzname = 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
 
-	try:
-		shard = Shard.objects.get(channel_id=channel.id)
-
-	except Shard.DoesNotExist:
+	shard = get_shard(config, channel, author)
+	if not shard:
 		return error_no_shard_found(config)
 
 	payout_times = get_payout_times(shard)
