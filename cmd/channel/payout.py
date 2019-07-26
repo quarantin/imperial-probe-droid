@@ -365,13 +365,13 @@ def handle_payout_stats(config, author, channel, args):
 			#updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
 			affiliation = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ].get_affiliation_display()
 			profile_url = get_swgohgg_profile_url(p['allyCode'], no_check=True)
-			lines.append('%s`|%s%s %s `%s[%s](%s)%s' % (bold, spacer, rank, next_payout, affiliation, p['name'], profile_url, bold))
+			lines.append('%s`|%s%s %s %s ` [%s](%s)%s' % (bold, spacer, rank, next_payout, affiliation, p['name'], profile_url, bold))
 
 	lines_str = '\n'.join(lines)
 
 	return [{
 		'title': 'Shard Status',
-		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In Player`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In 🔫 Player`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
 def handle_payout_export(config, author, channel, args):
