@@ -1,5 +1,6 @@
 from opts import *
 from errors import *
+from swgohgg import get_swgohgg_profile_url
 from swgohhelp import api_swgoh_players
 
 from swgoh.models import Player, Shard, ShardMember
@@ -355,13 +356,14 @@ def handle_payout_stats(config, author, channel, args):
 				next_payout = '--:--'
 
 			#updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
-			lines.append('%s`|%s%s %s %s %s`%s' % (bold, spacer, rank, next_payout, p['allyCode'], p['name'], bold))
+			profile_url = get_swgohgg_profile_url(p['allyCode'], no_check=True)
+			lines.append('%s`|%s%s %s `[%s](%s)%s' % (bold, spacer, rank, next_payout, p['name'], profile_url, bold))
 
 	lines_str = '\n'.join(lines)
 
 	return [{
 		'title': 'Shard Status',
-		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
+		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In Player`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
 def handle_payout_export(config, author, channel, args):
