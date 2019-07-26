@@ -19,9 +19,11 @@ META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
 META_MODS_URL = 'https://swgoh.gg/mod-meta-report/rank_10/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
 
-def get_swgohgg_profile_url(ally_code):
+def get_swgohgg_profile_url(ally_code, no_check=False):
 
 	url = 'https://swgoh.gg/p/%s/' % ally_code
+	if no_check:
+		return url
 
 	try:
 		response, error = http_get(url, headOnly=True)
@@ -30,7 +32,7 @@ def get_swgohgg_profile_url(ally_code):
 	except:
 		pass
 
-	return 'No profile found on swgoh.gg for ally code: %s' % ally_code
+	return None
 
 def count_zetas(unit):
 	zetas = 0

@@ -118,6 +118,8 @@ def cmd_arena(config, author, channel, args):
 		last_sync_date = datetime.fromtimestamp(player['updated'] / 1000) + timedelta(minutes=utc_offset)
 		last_sync = last_sync_date.strftime('%Y-%m-%d at %H:%M:%S')
 		profile_url = get_swgohgg_profile_url(player['allyCode'])
+		if not profile_url:
+			profile_url = 'No profile found on swgoh.gg for ally code: %s' % ally_code_str
 
 		if 'chars' == selected_opts:
 			rank = player['arena']['char']['rank']
