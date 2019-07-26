@@ -21,7 +21,7 @@ META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
 
 def get_swgohgg_profile_url(ally_code, no_check=False):
 
-	url = 'https://swgoh.gg/p/%s/' % ally_code
+	url = 'https://swgoh.gg/p/%s' % ally_code
 	if no_check:
 		return url
 
