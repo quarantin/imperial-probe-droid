@@ -100,6 +100,23 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		self.loop.stop()
 		print('User initiated exit!')
 
+	async def sendmsg(self, channel, message=None, embed=None):
+
+		error = None
+		retries = 'max-retry' in config and config['max-retry'] or 3
+
+		while retries > 0:
+
+			try:
+				await channel.send(message, embed=embed)
+				return True, None
+
+			except Exception as err:
+				retries -= 1
+				error = err
+
+		return False, error
+
 	async def cronjob(self, config, shard):
 
 		config['tasks'][shard.channel_id] = True
@@ -123,12 +140,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 			await asyncio.sleep(cron.next(default_utc=True))
 
-			try:
-				await channel.send('!payout')
-
-			except Exception as err:
-				print('Could not print to channel %s!' % channel)
-				print(err)
+			status, error = await self.sendmsg(channel, message='!payout')
+			if not status:
+				print('Could not print to channel %s: %s' % (channel, error))
 
 		config['tasks'][shard.channel_id] = False
 
@@ -141,7 +155,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		message = compute_hello_msg()
 		for chan_id in config['hello']:
 			channel = self.get_channel(chan_id)
-			await channel.send(message)
+			status, error = await self.sendmsg(channel, message=message)
+			if not status:
+				print('Could not print to channel %s: %s' % (channel, error))
 
 		if 'tasks' not in config:
 			config['tasks'] = {}
@@ -203,7 +219,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					for msg in msgs:
 						embeds = new_embeds(config, msg)
 						for embed in embeds:
-							await channel.send(embed=embed)
+							status, error = await self.sendmsg(channel, message='', embed=embed)
+							if not status:
+								print('Could not print to channel %s: %s' % (channel, error))
 					break
 			else:
 				embeds = new_embeds(config, {
@@ -213,22 +231,28 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				})
 
 				for embed in embeds:
-					await channel.send(embed=embed)
+					status, error = await self.sendmsg(channel, message='', embed=embed)
+					if not status:
+						print('Could not print to channel %s: %s' % (channel, error))
 
 		except Exception as err:
 			print(traceback.format_exc())
 
 			if 'crash' in config and config['crash']:
-				await channel.send(config['crash'])
+				status, error = await self.sendmsg(channel, message=config['crash'])
+				if not status:
+					print('Could not print to channel %s: %s' % (channel, error))
 
 			embeds = new_embeds(config, {
 				'title': 'Unexpected Error',
 				'color': 'red',
-				'description': err,
+				'description': str(err),
 			})
 
 			for embed in embeds:
-				await channel.send(embed=embed)
+				status, error = await self.sendmsg(channel, message='', embed=embed)
+				if not status:
+					print('Could not print to channel %s: %s' % (channel, error))
 
 async def __main__():
 	try:
