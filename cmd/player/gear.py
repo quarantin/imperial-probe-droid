@@ -113,7 +113,8 @@ def cmd_gear(config, author, channel, args):
 					if player_unit:
 						for gear in player_unit['equipped']:
 							if tier == player_unit['gear']:
-								if int(slot) == gear['slot']:
+								# gear['slot'] is an index, so add one for comparison
+								if int(slot) == gear['slot'] + 1:
 									equipped = True
 									break
 
