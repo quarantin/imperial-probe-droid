@@ -1,7 +1,7 @@
 from opts import *
 from errors import *
 
-from utils import get_star
+from utils import get_star, translate
 from swgohhelp import fetch_players, fetch_guilds
 
 help_guild_list = {
@@ -45,7 +45,7 @@ def unit_is_matching(unit, char_filters):
 
 def cmd_guild_list(config, author, channel, args):
 
-	lang = parse_opts_lang(author)
+	language = parse_opts_lang(author)
 
 	args, selected_char_filters = parse_opts_char_filters(args)
 
@@ -122,14 +122,18 @@ def cmd_guild_list(config, author, channel, args):
 				continue
 
 			images[ref_unit.name] = ref_unit.get_image()
+			translated_unit_name = translate(ref_unit.base_id, language)
 			matches[guild_name][player_name][ref_unit.name] = {
 				'gp':      unit['gp'],
 				'gear':    unit['gear'],
 				'level':   unit['level'],
 				'rarity':  unit['rarity'],
 				'base_id': ref_unit.base_id,
+				'name':    translated_unit_name,
+				'url':     ref_unit.get_url(),
 			}
 
+	meta = {}
 	units = {}
 
 	for guild_name, players in matches.items():
@@ -137,10 +141,14 @@ def cmd_guild_list(config, author, channel, args):
 			for unit_name, unit in unit_names.items():
 
 				if unit_name not in units:
+					meta[unit_name] = {}
 					units[unit_name] = {}
 
 				if guild_name not in units[unit_name]:
 					units[unit_name][guild_name] = {}
+
+				meta[unit_name]['url']        = unit['url']
+				meta[unit_name]['translated'] = unit['name']
 
 				units[unit_name][guild_name][player_name] = unit
 
@@ -150,7 +158,6 @@ def cmd_guild_list(config, author, channel, args):
 
 			lines = []
 			lines.append(config['separator'])
-			#lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % get_star())
 			lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % '*')
 
 			rosters = sorted(player_names.items(), key=lambda x: x[1]['gp'], reverse=True)
@@ -164,12 +171,12 @@ def cmd_guild_list(config, author, channel, args):
 				lines.append('No player found with characters matching your search criteria.')
 
 			msgs.append({
-				'title': '%s (%d)' % (guild_name, len(player_names)),
+				'title': '',
 				'author': {
 					'name': unit_name,
 					'icon_url': images[unit_name]
 				},
-				'description': '\n'.join(lines),
+				'description': '**[%s](%s)**\n%s\n%s (%d)\n%s' % (meta[unit_name]['translated'], meta[unit_name]['url'], config['separator'], guild_name, len(player_names), '\n'.join(lines)),
 			})
 
 	if not msgs:
