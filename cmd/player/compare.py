@@ -202,6 +202,13 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 			if skill_tier == 8:
 				emoji = '`%s`' % (skill['isZeta'] and EMOJIS['zeta'] or EMOJIS['omega'])
 
+			if skill_id not in res:
+				skill_name = get_ability_name(config, skill_id, lang)
+				res[skill_id] = {
+					'name': skill_name,
+					'isZeta': False,
+				}
+
 			res[skill_id]['tier'] = emoji
 	else:
 		key = 'Unit still locked'

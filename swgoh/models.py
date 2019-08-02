@@ -238,10 +238,6 @@ class BaseUnit(models.Model):
 			units = BaseUnit.objects.filter(base_id__in=base_ids)
 			for unit in units:
 
-				# TODO Fix filtering of ships
-				if unit.combat_type == 2:
-					continue
-
 				if unit not in selected_units:
 					selected_units.append(unit)
 

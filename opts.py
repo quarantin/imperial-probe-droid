@@ -214,7 +214,7 @@ def parse_opts_unit_names_by_faction(config, arg):
 
 	return BaseUnit.get_units_by_faction(faction)
 
-def parse_opts_unit_names_broad(config, args, units, combat_type=1):
+def parse_opts_unit_names_broad(config, args, units):
 
 	full_match = []
 	token_match = []
@@ -231,9 +231,6 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 		return faction
 
 	for unit in units:
-
-		if int(unit.combat_type) != combat_type:
-			continue
 
 		if arg in config['nicks']:
 			arg = basicstrip(config['nicks'][arg])
@@ -266,14 +263,14 @@ def parse_opts_unit_names_broad(config, args, units, combat_type=1):
 
 	return None
 
-def parse_opts_unit_names(config, args, combat_type=1):
+def parse_opts_unit_names(config, args):
 
 	if not args:
 		return args, []
 
 	units = BaseUnit.objects.all()
 
-	match = parse_opts_unit_names_broad(config, args, units, combat_type)
+	match = parse_opts_unit_names_broad(config, args, units)
 	if match:
 		args.clear()
 		return args, match
@@ -287,7 +284,7 @@ def parse_opts_unit_names(config, args, combat_type=1):
 		if nick in config['nicks']:
 			nick = basicstrip(config['nicks'][nick])
 
-		match = parse_opts_unit_names_broad(config, [ nick ], units, combat_type)
+		match = parse_opts_unit_names_broad(config, [ nick ], units)
 		if match:
 			args.remove(arg)
 			for m in match:
@@ -296,7 +293,7 @@ def parse_opts_unit_names(config, args, combat_type=1):
 
 	return args, selected_units
 
-def parse_opts_unit_names_v1(config, args, combat_type=1):
+def parse_opts_unit_names_v1(config, args):
 
 	selected_units = []
 	new_args = list(args)
@@ -315,9 +312,6 @@ def parse_opts_unit_names_v1(config, args, combat_type=1):
 
 		new_units = []
 		for unit in units:
-
-			if unit.combat_type != combat_type:
-				continue
 
 			name1 = basicstrip(unit.name)
 			name2 = name1.replace('î', 'i').replace('Î', 'i')
