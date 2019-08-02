@@ -112,5 +112,5 @@ def cmd_nicks(config, author, channel, args):
 
 	return [{
 		'title': 'Error: Invalid Action',
-		'description': '`%s` is not a valid action. Please type `%shelp nicks` for a list of valid actions.' % (action. config['prefix']),
+		'description': '`%s` is not a valid action. Please type `%shelp nicks` for a list of valid actions.' % (action, config['prefix']),
 	}]
