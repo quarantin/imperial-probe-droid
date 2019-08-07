@@ -12,7 +12,7 @@ crontab==0.22.6
 cssselect2==0.2.1
 defusedxml==0.6.0
 discord.py==1.1.1
-Django==2.2.3
+Django==2.2.4
 django-timezone-field==3.0
 idna==2.8
 lxml==4.3.3
