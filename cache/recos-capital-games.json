@@ -1695,17 +1695,17 @@
         "arrow": "Speed"
     },
     {
-        "triangle": "Critical Damage",
+        "triangle": "Protection",
         "source": "Capital Games",
-        "set1": "Critical Chance",
+        "set1": "Potency",
         "square": "Offense",
         "diamond": "Defense",
-        "circle": "Health",
+        "circle": "Protection",
         "set3": "",
         "name": "Nute Gunray",
         "base_id": "NUTEGUNRAY",
-        "cross": "Health",
-        "set2": "Critical Damage",
+        "cross": "Potency",
+        "set2": "Speed",
         "info": "Best",
         "arrow": "Speed"
     },
