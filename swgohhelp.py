@@ -95,7 +95,7 @@ def call_api(config, project, url):
 # API
 #
 
-def api_swgoh_players(config, project):
+def api_swgoh_players(config, project, force=True):
 
 	result = []
 	expected_players = len(project['allycodes'])
@@ -109,6 +109,9 @@ def api_swgoh_players(config, project):
 		for player in returned:
 			result.append(player)
 			new_proj['allycodes'].remove(player['allyCode'])
+
+		if force is False:
+			break
 
 	return result
 

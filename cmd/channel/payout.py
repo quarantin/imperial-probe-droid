@@ -172,6 +172,36 @@ def handle_payout_add(config, author, channel, args):
 		return error_no_shard_found(config)
 
 	ally_codes = [ x.ally_code for x in players ]
+	invalid_ally_codes = []
+
+	try:
+		data = api_swgoh_players(config, {
+			'allycodes': ally_codes,
+			'project': {
+				'name': 1,
+				'allyCode': 1,
+			},
+		}, force=False)
+
+		data = { x['allyCode']: x for x in data }
+		for ally_code in ally_codes:
+			if ally_code not in data:
+				print('Missing ally code from result: %s' % ally_code)
+				invalid_ally_codes.append(str(ally_code))
+
+	except Exception as err:
+		errmsg = 'Could not find any players affiliated with these allycodes'
+		if errmsg in str(err):
+			invalid_ally_codes = [ str(x) for x in ally_codes ]
+
+	if invalid_ally_codes:
+		verb = len(invalid_ally_codes) > 1 and 'are' or 'is'
+		plural = len(invalid_ally_codes) > 1 and 's' or ''
+		return [{
+			'title': 'Invalid Ally Code%s' % plural,
+			'description': 'The following ally code%s %s **invalid**:\n- %s' % (plural, verb, '\n- '.join(invalid_ally_codes)),
+			'color': 'red',
+		}]
 
 	new_members = []
 	for ally_code in ally_codes:
