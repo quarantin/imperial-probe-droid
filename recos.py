@@ -260,7 +260,6 @@ def convert_cg_recos_to_json(recos=[]):
 	fin.close()
 	new_recos = json.loads(data)
 	for reco in new_recos:
-
 		recos.append(reco)
 
 	return recos
