@@ -56,14 +56,14 @@ def cmd_guild_list(config, author, channel, args):
 	if error:
 		return error
 
+	if args:
+		return error_unknown_parameters(args)
+
 	if not selected_players:
 		return error_no_ally_code_specified(config, author)
 
 	if not selected_units:
 		return error_no_unit_selected()
-
-	if args:
-		return error_unknown_parameters(args)
 
 	fields = []
 	ally_codes = [ p.ally_code for p in selected_players ]
