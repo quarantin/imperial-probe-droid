@@ -344,7 +344,8 @@ def parse_opts_char_filters(args):
 		'gp':     r'^(gp)([0-9]+)$',
 		'gear':   r'^(g|gear[s]{0,1})([0-9]+)$',
 		'level':  r'^(l|level[s]{0,1})([0-9]+)$',
-		'rarity': r'^(s|star[s]{0,1})([0-9]+)$',
+		'rarity': r'^(s|star[s]{0,1}|r|rarity)([0-9]+)$',
+		'stars':  r'^([0-9]+)(\*|s|star[s]{0,1})$',
 	}
 
 	args_cpy = list(args)
@@ -353,7 +354,13 @@ def parse_opts_char_filters(args):
 			m = re.search(regex, arg)
 			if m:
 				args.remove(arg)
-				selected_char_filters[key] = int(m.group(2))
+
+				group_index = 2
+				if key == 'stars':
+					group_index = 1
+					key = 'rarity'
+
+				selected_char_filters[key] = int(m.group(group_index))
 
 	return args, selected_char_filters
 
