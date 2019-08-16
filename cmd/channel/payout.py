@@ -410,7 +410,7 @@ def handle_payout_stats(config, author, channel, args):
 			if diff_time:
 				hours, remain = divmod(diff_time, 3600)
 				minutes, seconds = divmod(remain, 60)
-				next_payout = '%02d:%02d' % (hours, minutes)
+				next_payout = '%02d:%02d' % (hours, minutes + 1)
 
 			else:
 				next_payout = '--:--'
