@@ -121,7 +121,7 @@ def parse_opts_payout_time(tz, args):
 	args_cpy = list(args)
 
 	for arg in args_cpy:
-		result = re.match('^[0-9][0-9][:h][0-9][0-9]$', arg)
+		result = re.match('^[0-9]{1,2}[:h][0-9]{1,2}$', arg)
 		if result:
 			args.remove(arg)
 			now = datetime.now(tz)
