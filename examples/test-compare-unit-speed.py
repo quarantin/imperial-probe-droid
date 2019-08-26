@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import os, json
+from datetime import datetime
 from config import load_config
-from swgohhelp import fetch_guilds, fetch_crinolo_stats
+from swgohhelp import fetch_guilds, api_swgoh_players, fetch_crinolo_stats
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
@@ -34,25 +35,26 @@ else:
 	jsondata = json.dumps(guilds, indent=4)
 	save_json('custom-guilds.json', jsondata)
 
+full_ally_codes = []
+for ally_code in guilds:
+	for ally_code, player in guilds[ally_code]['roster'].items():
+		full_ally_codes.append(player['allyCode'])
 
-if os.path.exists('custom-stats.json') and os.path.exists('custom-players.json'):
-	print('Loading custom-stats.json from cache...')
-	stats = load_json('custom-stats.json')
+if os.path.exists('custom-players.json'):
 	print('Loading custom-players.json from cache...')
 	players = load_json('custom-players.json')
 else:
-	full_ally_codes = []
-	for ally_code in guilds:
-		for ally_code, player in guilds[ally_code]['roster'].items():
-			full_ally_codes.append(player['allyCode'])
-
-	stats, players = fetch_crinolo_stats(config, full_ally_codes)
-
-	jsondata = json.dumps(stats, indent=4)
-	save_json('custom-stats.json', jsondata)
-
+	players = api_swgoh_players(config, project={ 'allycodes': full_ally_codes })
 	jsondata = json.dumps(players, indent=4)
 	save_json('custom-players.json', jsondata)
+
+if os.path.exists('custom-stats.json'):
+	print('Loading custom-stats.json from cache...')
+	stats = load_json('custom-stats.json')
+else:
+	stats, players = fetch_crinolo_stats(config, full_ally_codes, players=players)
+	jsondata = json.dumps(stats, indent=4)
+	save_json('custom-stats.json', jsondata)
 
 print('Done fetching')
 players_by_allycode = { x['allyCode']: x for x in players }
@@ -76,7 +78,13 @@ for unit in base_units:
 			if unit.base_id in roster:
 				player_name = player['name']
 				ally_code = player['allyCode']
-				speed = stats[ally_code_str][unit.base_id]['stats']['final']['Speed']
+
+				speed = 0
+				if ally_code_str in stats:
+					speed = stats[ally_code_str][unit.base_id]['stats']['final']['Speed']
+				elif int(ally_code_str) in stats:
+					speed = stats[int(ally_code_str)][unit.base_id]['stats']['final']['Speed']
+
 				result[guild_name][unit.name].append({
 					'name': player_name,
 					'ally_code': ally_code,
@@ -152,4 +160,6 @@ for unit in base_units:
 		for p1, p2 in zip(g1, g2):
 			sheet.append([ p1['name'], p1['ally_code'], p1['speed'], p2['name'], p2['ally_code'], p2['speed'] ])
 
-spreadsheet.save('territory-war.xlsx')
+
+date = datetime.now().strftime('%Y%m%d')
+spreadsheet.save('territory-war-%s.xlsx' % date)
