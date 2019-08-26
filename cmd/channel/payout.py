@@ -318,7 +318,7 @@ def handle_payout_rank(config, author, channel, args):
 	lines_str = '\n'.join(lines)
 
 	return [{
-		'title': 'Shard Status',
+		'title': 'Shard Ranks',
 		'description': 'Shard payout time for **%s** arena:\n%s\n`|Rank PO_At Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
