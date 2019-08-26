@@ -1,9 +1,14 @@
-# How to setup this docker container:
+# Building this docker container:
 # mkdir crinolo
 # cd crinolo
 # curl -O http://zeroday.biz/media/Dockerfile
 # docker build .
+#
+# Running this docker container:
 # docker run --env PORT=8080 -it -p 8080:8080/tcp <container ID>
+#
+# Then you should be able to hit Crinolo API at this URL from the host running the container:
+# http://localhost:8080/statCalc/
 
 FROM node:10
 
