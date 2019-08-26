@@ -1,9 +1,9 @@
-# In order to build the docker image, you have to run the following commands:
-# $ curl http://zeroday.biz/media/Dockerfile
-# $ docker build .
-#
-# Then run this command to run the container:
-# $ docker run --env PORT=8080 -it -p 8080:8080/tcp <container ID>
+# How to setup this docker container:
+# mkdir crinolo
+# cd crinolo
+# curl -O http://zeroday.biz/media/Dockerfile
+# docker build .
+# docker run --env PORT=8080 -it -p 8080:8080/tcp <container ID>
 
 FROM node:10
 
