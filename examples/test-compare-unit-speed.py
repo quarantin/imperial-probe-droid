@@ -11,7 +11,7 @@ import DJANGO
 from swgoh.models import BaseUnit
 
 config = load_config()
-ally_codes = [ '349423868', '658835177' ]
+ally_codes = [ '349423868', '644867722' ]
 project = {
 	'allycodes': ally_codes,
 }
@@ -64,8 +64,14 @@ base_units = sorted(list(BaseUnit.objects.all()), key=lambda x: x.name)
 
 for unit in base_units:
 	for src_ally_code in ally_codes:
-		guild_name = guilds[src_ally_code]['name']
-		guild_roster = guilds[src_ally_code]['roster']
+
+		if src_ally_code in guilds:
+			guild_name = guilds[src_ally_code]['name']
+			guild_roster = guilds[src_ally_code]['roster']
+		elif int(src_ally_code) in guilds:
+			guild_name = guilds[int(src_ally_code)]['name']
+			guild_roster = guilds[int(src_ally_code)]['roster']
+
 		if guild_name not in result:
 			result[guild_name] = {}
 
