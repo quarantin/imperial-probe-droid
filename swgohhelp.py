@@ -17,7 +17,9 @@ db = {
 
 SWGOH_HELP = 'https://api.swgoh.help'
 
-CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api'
+#CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api'
+#CRINOLO_PROD_URL = 'http://localhost:8080/statCalc/api'
+CRINOLO_PROD_URL = 'https://swgoh-stat-calc.glitch.me/api'
 CRINOLO_TEST_URL = 'https://crinolo-swgoh.glitch.me/testCalc/api'
 CRINOLO_BETA_URL = 'https://crinolo-swgoh-beta.glitch.me/statCalc/api'
 
@@ -191,12 +193,13 @@ def fetch_guilds(config, project):
 
 	return result
 
-def fetch_crinolo_stats(config, project):
+def fetch_crinolo_stats(config, project, players=None):
 
 	if type(project) is list:
 		project = { 'allycodes': project }
 
-	players = api_swgoh_players(config, project)
+	if not players:
+		players = api_swgoh_players(config, project)
 
 	stats = api_crinolo(config, players)
 
