@@ -16,7 +16,7 @@ Possible filters are:
 **`gp<number>`**: To filter units by GP.
 **`gear<number>`** or **`g<number>`**: To filter units by gear level.
 **`level<number>`** or **`l<number>`**: To filter units by level.
-**`star<number>`** or **`s<number>`**: To filter units by rarity.
+**`star<number>`** or **`s<number>`** or **`<number>*`**: To filter units by rarity.
 
 **Examples**
 Search your guild for all player having Asajj Ventress at least Gear 12:
