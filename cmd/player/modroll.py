@@ -93,7 +93,7 @@ def cmd_modroll(config, author, channel, args):
 					if sec['roll'] >= MIN_ROLLS:
 						stat_name = MODSECONDARYSTATS[ sec['unitStat'] ]
 						stat_value = ('%.2f' % sec['value']).replace('.00', '')
-						lines.append('%s%s (%d) +%s %s' % (modset_emoji, slot_emoji, sec['roll'], stat_value, stat_name))
+						lines.append('%s%s %dD (%d) +%s %s' % (modset_emoji, slot_emoji, mod['pips'], sec['roll'], stat_value, stat_name))
 		msgs.append({
 			'title': '%d Roll Mods of %s' % (MIN_ROLLS, player_name),
 			'description': '\n'.join(lines),
