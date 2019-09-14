@@ -18,6 +18,23 @@ MODSETS = {
 	8: 'Tenacity',
 }
 
+# TODO This is probably incomplete.
+# See https://github.com/r3volved/scorpio/blob/master/core/SWAPI/util/enums.js#L712
+MODSECONDARYSTATS = {
+	1:  'Health',
+	5:  'Speed',
+	16: 'Critical Damage',
+	17: 'Potency',
+	18: 'Tenacity',
+	28: 'Protection',
+	41: 'Offense',
+	42: 'Defense',
+	48: 'Offense %',
+	49: 'Defense %',
+	55: 'Health %'
+	56: 'Protection %'
+}
+
 MODSETS_LIST = [
 	1,
 	3,
