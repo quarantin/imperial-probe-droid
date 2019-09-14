@@ -31,8 +31,8 @@ MODSECONDARYSTATS = {
 	42: 'Defense',
 	48: 'Offense %',
 	49: 'Defense %',
-	55: 'Health %'
-	56: 'Protection %'
+	55: 'Health %',
+	56: 'Protection %',
 }
 
 MODSETS_LIST = [
