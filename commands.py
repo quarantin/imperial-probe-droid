@@ -24,6 +24,7 @@ from cmd.player.gear import *
 from cmd.player.list import *
 from cmd.player.locked import *
 #from cmd.player.mods import *
+from cmd.player.modroll import *
 from cmd.player.needed import *
 from cmd.player.recos import *
 #from cmd.player.stats import *
@@ -144,6 +145,12 @@ COMMANDS = [
 	#	'function': cmd_mods,
 	#	'help': help_mods,
 	#},
+	{
+		'command': 'modroll',
+		'aliases': [ 'mr', 'modroll', 'modrolls' ],
+		'function': cmd_modroll,
+		'help': help_modroll,
+	},
 	{
 		'command': 'nicks',
 		'aliases': [ 'N', 'nicks' ],
