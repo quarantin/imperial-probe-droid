@@ -31,6 +31,7 @@ MODSECONDARYSTATS = {
 	42: 'Defense',
 	48: 'Offense %',
 	49: 'Defense %',
+	53: 'Critical Chance %',
 	55: 'Health %',
 	56: 'Protection %',
 }
