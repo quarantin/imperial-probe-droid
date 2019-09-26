@@ -100,6 +100,7 @@ def cmd_unit_list(config, author, channel, args):
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
 		player_name = player['name']
+		allies[player_name] = ally_code
 		for ref_unit in selected_units:
 
 			if guild_name not in matches:
@@ -118,7 +119,6 @@ def cmd_unit_list(config, author, channel, args):
 				#print('Unit does not match criteria for: %s' % player_name)
 				continue
 
-			allies[player_name] = ally_code
 			matches[guild_name][player_name][ref_unit.name] = {
 				'gp':      unit['gp'],
 				'gear':    unit['gear'],
