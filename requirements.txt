@@ -20,7 +20,7 @@ jdcal==1.4.1
 lxml==4.3.3
 multidict==4.5.2
 openpyxl==2.6.2
-Pillow==6.0.0
+Pillow==6.2.0
 pycparser==2.19
 pytz==2019.1
 requests==2.22.0
