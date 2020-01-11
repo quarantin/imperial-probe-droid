@@ -114,6 +114,7 @@ def cmd_arena(config, author, channel, args):
 	msgs = []
 	for ally_code_str, player in players.items():
 
+		ally_code = int(ally_code_str)
 		utc_offset = player['poUTCOffsetMinutes']
 		last_sync_date = datetime.fromtimestamp(player['updated'] / 1000) + timedelta(minutes=utc_offset)
 		last_sync = last_sync_date.strftime('%Y-%m-%d at %H:%M:%S')
@@ -127,11 +128,10 @@ def cmd_arena(config, author, channel, args):
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				roster = { unit['defId']: unit for unit in player['roster'] }
-				unit = roster[base_id]
+				unit = stats[ally_code][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
-				line = format_char_stats(stats[int(ally_code_str)][base_id], line)
+				line = format_char_stats(stats[ally_code][base_id], line)
 				lines.append(line)
 
 			msgs.append({
@@ -145,11 +145,10 @@ def cmd_arena(config, author, channel, args):
 			lines = []
 			for squad_unit in squad:
 				base_id = squad_unit['defId']
-				roster = { unit['defId']: unit for unit in player['roster'] }
-				unit = roster[base_id]
+				unit = stats[ally_code][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
-				line = format_char_stats(stats[int(ally_code_str)][base_id], line)
+				line = format_char_stats(stats[ally_code][base_id], line)
 				lines.append(line)
 
 			msgs.append({
