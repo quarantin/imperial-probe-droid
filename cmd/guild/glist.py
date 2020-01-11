@@ -1,7 +1,7 @@
 from opts import *
 from errors import *
 
-from utils import get_star, translate
+from utils import get_relic_tier, get_star, translate
 from swgohhelp import fetch_players, fetch_guilds
 
 help_guild_list = {
@@ -39,6 +39,9 @@ def unit_is_matching(unit, char_filters):
 		return False
 
 	if unit['rarity'] < char_filters['rarity']:
+		return False
+
+	if get_relic_tier(unit) < char_filters['relic']:
 		return False
 
 	return True
@@ -96,6 +99,7 @@ def cmd_guild_list(config, author, channel, args):
 				'gear': 1,
 				'level': 1,
 				'rarity': 1,
+				'relic': 1,
 			},
 		},
 	})
@@ -128,6 +132,7 @@ def cmd_guild_list(config, author, channel, args):
 				'gear':    unit['gear'],
 				'level':   unit['level'],
 				'rarity':  unit['rarity'],
+				'relic':   get_relic_tier(unit),
 				'base_id': ref_unit.base_id,
 				'name':    translated_unit_name,
 				'url':     ref_unit.get_url(),
@@ -158,14 +163,15 @@ def cmd_guild_list(config, author, channel, args):
 
 			lines = []
 			lines.append(config['separator'])
-			lines.append('`|%s| GP\u00a0 |Lv|GL|Player`' % '*')
+			lines.append('`|%s| GP\u00a0 |Lv|GL|RT|Player`' % '*')
 
 			rosters = sorted(player_names.items(), key=lambda x: x[1]['gp'], reverse=True)
 			for player_name, unit in rosters:
 				pad_gp = (5 - len(str(unit['gp']))) * '\u00a0'
 				pad_gear = (2 - len(str(unit['gear']))) * '\u00a0'
 				pad_level = (2 - len(str(unit['level']))) * '\u00a0'
-				lines.append('`|%s|%s%d|%s%d|%s%d|`**`%s`**' % (unit['rarity'], pad_gp, unit['gp'], pad_level, unit['level'], pad_gear, unit['gear'], player_name))
+				pad_relic = (2 - len(str(unit['relic']))) * '\u00a0'
+				lines.append('`|%s|%s%d|%s%d|%s%d|%s%d|`**`%s`**' % (unit['rarity'], pad_gp, unit['gp'], pad_level, unit['level'], pad_gear, unit['gear'], pad_relic, unit['relic'], player_name))
 
 			if not len(rosters):
 				lines.append('No player found with characters matching your search criteria.')

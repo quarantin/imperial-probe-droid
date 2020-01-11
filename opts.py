@@ -338,14 +338,16 @@ def parse_opts_char_filters(args):
 		'gear':   1,
 		'level':  1,
 		'rarity': 1,
+		'relic':  0,
 	}
 
 	rules = {
 		'gp':     r'^(gp)([0-9]+)$',
-		'gear':   r'^(g|gear[s]{0,1})([0-9]+)$',
-		'level':  r'^(l|level[s]{0,1})([0-9]+)$',
-		'rarity': r'^(s|star[s]{0,1}|r|rarity)([0-9]+)$',
-		'stars':  r'^([0-9]+)(\*|s|star[s]{0,1})$',
+		'gear':   r'^(g|gear|gears)([0-9]+)$',
+		'level':  r'^(l|level|levels)([0-9]+)$',
+		'rarity': r'^(s|star|stars|rarity)([0-9]+)$',
+		'relic':  r'^(r|relic|relics)([0-9]+)$',
+		'stars':  r'^([0-9]+)(\*|s|star|stars)$',
 	}
 
 	args_cpy = list(args)
