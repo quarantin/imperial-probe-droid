@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS
 from utils import dotify, get_banner_emoji, get_relic_tier, get_stars_as_emojis, roundup, translate
-from swgohhelp import fetch_players, fetch_guilds, get_ability_name
+from swgohhelp import fetch_players, fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
@@ -260,7 +260,7 @@ def guild_to_dict(guild, players):
 	res['**Characters**']['**G12**']        = dotify(guild['g12-units'])
 	res['**Characters**']['**G11**']        = dotify(guild['g11-units'])
 
-	for relic in reversed(range(0, MAX_RELIC + 1)):
+	for relic in reversed(range(1, MAX_RELIC + 1)):
 		res['**Characters**']['**R%d**' % relic] = dotify(guild['r%d-units' % relic])
 
 	res['**Characters**']['**Omegas**']     = dotify(guild['omegas'])
@@ -321,7 +321,8 @@ def cmd_guild_compare(config, author, channel, args):
 			if player['allyCode'] not in ally_codes:
 				ally_codes.append(player['allyCode'])
 
-	players = fetch_players(config, {
+	"""
+	players_raw = fetch_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'allyCode': 1,
@@ -340,7 +341,13 @@ def cmd_guild_compare(config, author, channel, args):
 				},
 			},
 		},
-	})
+	}, sort=False)
+
+	"""
+
+	stats, players = fetch_crinolo_stats(config, ally_codes) #, players_raw)
+
+	players = sort_players(players)
 
 	guilds = {}
 	for ally_code, guild in guild_list.items():
@@ -420,8 +427,9 @@ def cmd_guild_compare(config, author, channel, args):
 					print('WARN: Player missing from swgoh.help/api/players: %s' % ally_code)
 					continue
 
-				player = players[ally_code]
-				for base_id, player_unit in player['roster'].items():
+				#player = players[ally_code]
+				player = stats[ally_code]
+				for base_id, player_unit in player.items():
 					if base_id not in roster:
 						roster[base_id] = []
 
