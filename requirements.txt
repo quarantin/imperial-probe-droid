@@ -11,7 +11,7 @@ chardet==3.0.4
 crontab==0.22.6
 cssselect2==0.2.1
 defusedxml==0.6.0
-discord.py==1.1.1
+discord.py
 Django==2.2.4
 django-timezone-field==3.0
 et-xmlfile==1.0.1
