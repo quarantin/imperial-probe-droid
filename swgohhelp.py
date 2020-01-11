@@ -139,7 +139,7 @@ def api_swgoh_data(config, project):
 	return call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
 
 def api_crinolo(config, units):
-	url = '%s?flags=gameStyle' % CRINOLO_PROD_URL
+	url = '%s?flags=gameStyle,calcGP' % CRINOLO_PROD_URL
 
 	if config['debug'] is True:
 		print('CALL CRINOLO API: %s' % url, file=sys.stderr)
@@ -157,12 +157,7 @@ def api_crinolo(config, units):
 # Fetch functions
 #
 
-def fetch_players(config, project):
-
-	if type(project) is list:
-		project = { 'allycodes': project }
-
-	players = api_swgoh_players(config, project)
+def sort_players(players):
 
 	result = {}
 	for player in players:
@@ -174,6 +169,15 @@ def fetch_players(config, project):
 		result[ally_code] = player
 
 	return result
+
+def fetch_players(config, project):
+
+	if type(project) is list:
+		project = { 'allycodes': project }
+
+	players = api_swgoh_players(config, project)
+
+	return sort_players(players)
 
 def fetch_guilds(config, project):
 
