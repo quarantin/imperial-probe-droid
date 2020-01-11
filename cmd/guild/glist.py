@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 
 from utils import get_relic_tier, get_star, translate
-from swgohhelp import fetch_players, fetch_guilds
+from swgohhelp import sort_players, fetch_crinolo_stats, fetch_guilds
 
 help_guild_list = {
 	'title': 'Guild List Help',
@@ -87,7 +87,9 @@ def cmd_guild_list(config, author, channel, args):
 
 	images = {}
 	matches = {}
-	players = fetch_players(config, {
+	stats, players = fetch_crinolo_stats(config, ally_codes)
+	"""
+	players, old_players = fetch_crinolo_stats(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'name': 1,
@@ -103,7 +105,11 @@ def cmd_guild_list(config, author, channel, args):
 			},
 		},
 	})
+	"""
 
+	players = sort_players(players)
+
+	import json
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
 		player_name = player['name']
@@ -120,7 +126,7 @@ def cmd_guild_list(config, author, channel, args):
 				#print('Unit is locked for: %s' % player_name)
 				continue
 
-			unit = player['roster'][base_id]
+			unit = stats[ally_code][base_id]
 			if not unit_is_matching(unit, selected_char_filters):
 				#print('Unit does not match criteria for: %s' % player_name)
 				continue
