@@ -35,6 +35,7 @@ base_stats = [
 	'GP',
 	'Level',
 	'Gear',
+	'Relic',
 	'Health',
 	'Protection',
 	'Armor',
@@ -49,6 +50,19 @@ base_stats = [
 	'CC.Spec',
 	'Unit still locked',
 ]
+
+def get_relic_tier(unit):
+
+	if 'relic' not in unit:
+		return 0
+
+	if not unit['relic']:
+		return 0
+
+	if 'currentTier' not in unit['relic']:
+		return 0
+
+	return max(0, unit['relic']['currentTier'] - 2)
 
 def get_player_stats(config, roster, lang):
 
@@ -67,6 +81,7 @@ def get_player_stats(config, roster, lang):
 		},
 		'levels': {},
 		'gears': {},
+		'relics': {},
 		'stars': {},
 		'zetas': 0,
 		'omegas': 0,
@@ -82,6 +97,9 @@ def get_player_stats(config, roster, lang):
 
 
 	for i in range(0, 7 + 1):
+		stats['relics'][i] = 0
+
+	for i in range(0, 7 + 1):
 		stats['stars'][i] = 0
 		stats['char']['stars'][i] = 0
 		stats['ship']['stars'][i] = 0
@@ -94,11 +112,13 @@ def get_player_stats(config, roster, lang):
 		gear   = unit['gear']
 		stars  = unit['rarity']
 		skills = unit['skills']
+		relic  = get_relic_tier(unit)
 
 		stats['count']         += 1
 		stats['gp']            += gp
 		stats['levels'][level] += 1
 		stats['gears'][gear]   += 1
+		stats['relics'][relic] += 1
 		stats['stars'][stars]  += 1
 
 		stats[typ]['levels'][level] += 1
@@ -162,6 +182,7 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 		res['GP']    = '%d'  % unit['gp']
 		res['Level'] = '%d' % unit['level']
 		res['Gear']  = '%d' % unit['gear']
+		res['Relic'] = '%d' % get_relic_tier(unit)
 
 		# Health, Protection, Armor, Resistance
 		res['Health']     = get_stat_detail('Health',         stat)
@@ -251,6 +272,12 @@ def player_to_embedfield(config, player, roster, lang):
 	for gear in reversed(gears):
 		gear_label = 'G%d Units' % gear
 		res[gear_label] = stats['gears'][gear]
+
+	relics = []
+	relics.extend(range(1, 7 + 1))
+	for relic in reversed(relics):
+		relic_label = 'R%d Units' % relic
+		res[relic_label] = stats['relics'][relic]
 
 	res['Zetas'] = stats['zetas']
 	res['Omegas'] = stats['omegas']
@@ -382,8 +409,6 @@ def cmd_player_compare(config, author, channel, args):
 
 				ability = listval[0]['name']
 				tiers = [ x['tier'] for x in listval ]
-				print(listval)
-				print(tiers)
 				lines.append('`|%s|`**`%s`**' % ('|'.join(tiers), ability))
 
 		msgs.append({
