@@ -307,6 +307,19 @@ def get_mod_primaries(config, mods):
 
 	return res
 
+def get_relic_tier(unit):
+
+	if 'relic' not in unit:
+		return 0
+
+	if not unit['relic']:
+		return 0
+
+	if 'currentTier' not in unit['relic']:
+		return 0
+
+	return max(0, unit['relic']['currentTier'] - 2)
+
 def get_star():
 	return '★'
 

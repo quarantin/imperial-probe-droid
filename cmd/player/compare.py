@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS
 from collections import OrderedDict
-from utils import get_stars_as_emojis, roundup
+from utils import get_relic_tier, get_stars_as_emojis, roundup
 from swgohhelp import fetch_crinolo_stats, get_ability_name
 
 import DJANGO
@@ -50,19 +50,6 @@ base_stats = [
 	'CC.Spec',
 	'Unit still locked',
 ]
-
-def get_relic_tier(unit):
-
-	if 'relic' not in unit:
-		return 0
-
-	if not unit['relic']:
-		return 0
-
-	if 'currentTier' not in unit['relic']:
-		return 0
-
-	return max(0, unit['relic']['currentTier'] - 2)
 
 def get_player_stats(config, roster, lang):
 
