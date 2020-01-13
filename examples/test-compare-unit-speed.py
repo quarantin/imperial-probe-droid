@@ -11,7 +11,7 @@ import DJANGO
 from swgoh.models import BaseUnit
 
 config = load_config()
-ally_codes = [ '349423868', '644867722' ]
+ally_codes = [ '349423868', '692861775' ]
 project = {
 	'allycodes': ally_codes,
 }
