@@ -246,6 +246,19 @@ class BaseUnit(models.Model):
 
 		return sorted(selected_units, key=lambda x: x.name)
 
+	@staticmethod
+	def get_alignment(base_id):
+
+		unit = BaseUnit.objects.get(base_id=base_id)
+		align = unit.alignment
+		if align in [ 'ls', 'Light Side' ]:
+			return 'light'
+
+		if align in [ 'ds', 'Dark Side' ]:
+			return 'dark'
+
+		return 'neutral'
+
 	def is_ship(base_id):
 		try:
 			ship = BaseUnit.objects.get(base_id=base_id)
