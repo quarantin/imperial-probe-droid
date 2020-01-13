@@ -1,5 +1,8 @@
 #!/usr/bin/python3
 
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 import json
 from config import load_config
 from swgohhelp import api_swgoh_units
