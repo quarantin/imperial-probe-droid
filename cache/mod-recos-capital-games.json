@@ -2462,5 +2462,33 @@
         "circle": "Protection",
         "cross": "Potency",
         "info": "Best"
+    },
+    {
+        "source": "Capital Games",
+        "base_id": "WATTAMBOR",
+        "set1": "Speed",
+        "set2": "Tenacity",
+        "set3": "",
+        "square": "Offense",
+        "arrow": "Speed",
+        "diamond": "Defense",
+        "triangle": "Health",
+        "circle": "Health",
+        "cross": "Tenacity",
+        "info": "Best"
+    },
+    {
+        "source": "Capital Games",
+        "base_id": "GENERALSKYWALKER",
+        "set1": "Health",
+        "set2": "Speed",
+        "set3": "",
+        "square": "Offense",
+        "arrow": "Speed",
+        "diamond": "Defense",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+        "info": "Best"
     }
 ]
