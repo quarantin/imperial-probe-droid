@@ -1,1 +1,0 @@
-../swgohhelp.py

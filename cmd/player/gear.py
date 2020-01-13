@@ -130,6 +130,9 @@ def cmd_gear(config, author, channel, args):
 					'value': '\n'.join(sublines),
 				})
 
+		if not fields:
+			lines.append('Maximum gear level.')
+
 		msgs.append({
 			#'title': '== Needed Gear ==',
 			'description': '\n'.join(lines),
