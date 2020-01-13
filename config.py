@@ -2,6 +2,11 @@ import os, sys, json, requests
 
 config = {}
 
+def get_root_dir():
+	this_file = os.path.realpath(__file__)
+	this_folder = os.path.dirname(this_file)
+	return this_folder
+
 def load_help():
 
 	help_msgs = {}
@@ -25,6 +30,8 @@ def write_config_to_file(config, config_file):
 
 def parse_mod_primaries(filename='cache/mod-primaries.json'):
 
+	root = get_root_dir()
+	filename = '%s/%s' % (root, filename)
 	fin = open(filename, 'r')
 	data = fin.read()
 	fin.close()
@@ -124,7 +131,8 @@ def dprint(message):
 def load_config(bot=None, config_file='config.json'):
 
 	if not config:
-		fin = open(config_file, 'r')
+		config_path = '%s/%s' % (get_root_dir(), config_file)
+		fin = open(config_path, 'r')
 		jsonstr = fin.read()
 		fin.close()
 		config.update(json.loads(jsonstr))
