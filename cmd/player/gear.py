@@ -82,6 +82,7 @@ def cmd_gear(config, author, channel, args):
 				'gear': 1,
 				'level': 1,
 				'rarity': 1,
+				'relic': 1,
 				'skills': 1,
 				'equipped': {
 					'slot': 1,
