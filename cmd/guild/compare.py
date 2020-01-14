@@ -279,6 +279,8 @@ def cmd_guild_compare(config, author, channel, args):
 
 	language = parse_opts_lang(author)
 
+	excluded_ally_codes = parse_opts_ally_codes_excluded(config, author, args)
+
 	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
 
 	args, selected_units = parse_opts_unit_names(config, args)
@@ -318,8 +320,14 @@ def cmd_guild_compare(config, author, channel, args):
 	ally_codes = [ x.ally_code for x in selected_players ]
 	for dummy, guild in guild_list.items():
 		for ally_code_str, player in guild['roster'].items():
-			if player['allyCode'] not in ally_codes:
-				ally_codes.append(player['allyCode'])
+			ally_code = player['allyCode']
+			if ally_code not in ally_codes:
+				ally_codes.append(ally_code)
+
+	copy = list(ally_codes)
+	for ally_code in copy:
+		if ally_code in excluded_ally_codes:
+			ally_codes.remove(ally_code)
 
 	"""
 	players_raw = fetch_players(config, {
