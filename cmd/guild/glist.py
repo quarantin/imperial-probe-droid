@@ -109,7 +109,6 @@ def cmd_guild_list(config, author, channel, args):
 
 	players = sort_players(players)
 
-	import json
 	for ally_code, player in players.items():
 		guild_name = player['guildName']
 		player_name = player['name']
