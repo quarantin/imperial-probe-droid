@@ -109,6 +109,11 @@ def parse_opts_ally_code(arg):
 	m = re.search(regex, arg)
 	return m and int(m.group(0).replace('-', '')) or False
 
+def parse_opts_ally_code_excluded(arg):
+	regex = r'^-([0-9]{9}$|[0-9]{3}-[0-9]{3}-[0-9]{3})$'
+	m = re.search(regex, arg)
+	return m and int(m.group(1).replace('-', '')) or False
+
 def parse_opts_ally_codes(config, author, args):
 
 	ally_codes = []
@@ -121,6 +126,19 @@ def parse_opts_ally_codes(config, author, args):
 			ally_codes.append(ally_code)
 
 	return list(set(ally_codes))
+
+def parse_opts_ally_codes_excluded(config, author, args):
+
+	excluded = []
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		ally_code = parse_opts_ally_code_excluded(arg)
+		if ally_code:
+			args.remove(arg)
+			excluded.append(ally_code)
+
+	return list(set(excluded))
 
 def parse_opts_mentions(config, author, args):
 
