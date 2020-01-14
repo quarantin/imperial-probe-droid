@@ -14,7 +14,9 @@ import DJANGO
 from swgoh.models import BaseUnit
 
 config = load_config()
-ally_codes = [ '349423868', '692861775' ]
+ally_codes = [ '349423868', '982329852' ]
+excluded = []
+
 project = {
 	'allycodes': ally_codes,
 }
@@ -41,7 +43,13 @@ else:
 full_ally_codes = []
 for ally_code in guilds:
 	for ally_code, player in guilds[ally_code]['roster'].items():
-		full_ally_codes.append(player['allyCode'])
+		if ally_code not in full_ally_codes:
+			full_ally_codes.append(player['allyCode'])
+
+copy = list(full_ally_codes)
+for ally_code in copy:
+	if ally_code in excluded:
+		full_ally_codes.remove(ally_code)
 
 if os.path.exists('custom-players.json'):
 	print('Loading custom-players.json from cache...')
@@ -82,6 +90,8 @@ for unit in base_units:
 			result[guild_name][unit.name] = []
 
 		for ally_code_str in guild_roster:
+			if int(ally_code_str) in excluded:
+				continue
 			player = players_by_allycode[int(ally_code_str)]
 			roster = { x['defId']: x for x in player['roster'] }
 			if unit.base_id in roster:
