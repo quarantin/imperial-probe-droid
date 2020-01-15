@@ -20,14 +20,14 @@ help_help = {
 %separator
 **Guild Commands**
 **`gc`**: Compare different guilds and their respective units.
-**`glist`**: List guild members by unit GP, gear, level, rarity (**NEW**).
+**`glist`**: List guild members by unit GP, gear, level, rarity.
 %separator
 **Channel Commands**
-**`payout`**: Keep track of time left to payout for your shard members in arena (**NEW**).
+**`payout`**: Keep track of time left to payout for your shard members in arena.
 %separator
 **Player Commands**
 **`arena`**: Show arena squad details.
-**`gear`**: List needed pieces of gear for units (**NEW**).
+**`gear`**: List needed pieces of gear for units.
 **`locked`**: Show locked characters or ships.
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
