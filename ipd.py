@@ -86,6 +86,20 @@ def compute_hello_msg():
 def get_game():
 	return discord.Activity(name='%shelp' % config['prefix'], type=discord.ActivityType.listening)
 
+def get_bot_prefix(config, message):
+
+	import DJANGO
+	from swgoh.models import DiscordServer
+
+	try:
+		server = DiscordServer.objects.get(server_id=message.guild.id)
+		bot_prefix = server.bot_prefix
+
+	except DiscordServer.DoesNotExist:
+		bot_prefix = config['prefix']
+
+	return bot_prefix
+
 def remove_prefix(prefix, mention, content):
 	return content.replace(prefix, '').replace(mention, '').strip()
 
@@ -177,13 +191,14 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 	async def on_message(self, message):
 
 		self_mention = '<@%s>' % self.user.id
-		if not message.content.startswith(config['prefix']) and not message.content.startswith(self_mention):
+		bot_prefix = get_bot_prefix(config, message)
+		if not message.content.startswith(bot_prefix) and not message.content.startswith(self_mention):
 			return
 
 		log_message(message)
 
 		channel = message.channel
-		content = remove_prefix(config['prefix'], self_mention, message.content)
+		content = remove_prefix(bot_prefix, self_mention, message.content)
 		args = shlex.split(content)
 		if not args:
 			return
@@ -191,7 +206,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		command = args[0]
 		if command in config['aliases']:
 			replaced = message.content.replace(command, config['aliases'][command])
-			content = remove_prefix(config['prefix'], self_mention, replaced)
+			content = remove_prefix(bot_prefix, self_mention, replaced)
 			args = shlex.split(content)
 			command = args[0]
 

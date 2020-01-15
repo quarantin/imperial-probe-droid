@@ -625,3 +625,8 @@ class ShardMember(models.Model):
 				return (affil_id, affil_display, larg)
 
 		return (None, None, None)
+
+class DiscordServer(models.Model):
+
+	server_id = models.IntegerField(primary_key=True)
+	bot_prefix = models.CharField(max_length=32, blank=False, null=False)

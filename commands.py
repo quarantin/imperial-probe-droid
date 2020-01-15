@@ -3,6 +3,7 @@ from cmd.guild.compare import *
 from cmd.guild.glist import *
 from cmd.guild.ulist import *
 from cmd.management.alias import *
+from cmd.management.config import *
 #from cmd.management.format import *
 from cmd.management.help import *
 from cmd.management.ignore import *
@@ -42,6 +43,12 @@ COMMANDS = [
 		'aliases': [ 'a', 'arena' ],
 		'function': cmd_arena,
 		'help': help_arena,
+	},
+	{
+		'command': 'config',
+		'aliases': [ 'config' ],
+		'function': cmd_config,
+		'help': help_config,
 	},
 	{
 		'command': 'pc',
