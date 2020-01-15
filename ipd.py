@@ -92,7 +92,11 @@ def get_bot_prefix(config, message):
 	from swgoh.models import DiscordServer
 
 	try:
-		server = DiscordServer.objects.get(server_id=message.guild.id)
+		server_id = None
+		if message and message.guild:
+			server_id = message.guild.id
+
+		server = DiscordServer.objects.get(server_id=server_id)
 		bot_prefix = server.bot_prefix
 
 	except DiscordServer.DoesNotExist:
