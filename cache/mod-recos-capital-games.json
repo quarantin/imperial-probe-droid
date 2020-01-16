@@ -2569,7 +2569,7 @@
 		"secondary_stats": [
 			"Speed",
 			"Critical Chance %",
-			"Protection".
+			"Protection",
 			"Tenacity"
 		],
         "info": "Best"
