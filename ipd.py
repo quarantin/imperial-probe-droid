@@ -124,7 +124,6 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			minutes_str = '*/%d' % shard.interval.minute
 
 		crontab_entry = '%s %s * * *' % (minutes_str, hours_str)
-		print(crontab_entry)
 		cron = CronTab(crontab_entry)
 
 		await self.wait_until_ready()
