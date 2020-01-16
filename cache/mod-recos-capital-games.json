@@ -25,6 +25,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -37,8 +43,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Protection",
-        "cross": "Protection",
+        "circle": "Health",
+        "cross": "Health",
+		"secondary_stats": [
+			"Speed",
+			"Health %",
+			"Offense %",
+			"Critical Chance %"
+		],
         "info": "Best"
     },
     {
@@ -53,6 +65,13 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -81,6 +100,12 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -95,6 +120,12 @@
         "triangle": "Critical Damage",
         "circle": "Health",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -104,11 +135,17 @@
         "set2": "Potency",
         "set3": "Potency",
         "square": "Offense",
-        "arrow": "Speed",
+        "arrow": "Critical Avoidance",
         "diamond": "Defense",
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Potency",
+			"Protection %",
+			"Protection",
+			"Health %"
+		],
         "info": "Best"
     },
     {
@@ -123,6 +160,13 @@
         "triangle": "Health",
         "circle": "Protection",
         "cross": "Health",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -134,9 +178,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -151,6 +201,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -165,6 +221,13 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -177,8 +240,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Offense",
-        "circle": "Health",
+        "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense %",
+			"Offense",
+			"Potency"
+		],
         "info": "Best"
     },
     {
@@ -193,6 +262,12 @@
         "triangle": "Critical Chance",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Tenacity",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -207,6 +282,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -221,6 +302,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Critical Chance %"
+		],
         "info": "Best"
     },
     {
@@ -235,6 +322,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -246,9 +339,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -263,6 +362,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -277,6 +382,12 @@
         "triangle": "Protection",
         "circle": "Health",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection %",
+			"Health %"
+		],
         "info": "Best"
     },
     {
@@ -291,6 +402,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -305,6 +422,13 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Offense %",
+			"Offense",
+			"Critical Chance %",
+			"Protection",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -333,6 +457,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -347,6 +477,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -361,6 +497,13 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Potency",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -375,6 +518,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -389,6 +538,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -403,6 +558,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -417,6 +578,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -431,6 +598,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -445,6 +618,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -459,6 +638,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -473,6 +658,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -487,6 +678,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -501,6 +698,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -515,6 +718,13 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -529,6 +739,12 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -540,23 +756,35 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Protection",
+        "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Potency",
+			"Critical Chance %"
+		],
         "info": "Best"
     },
     {
         "source": "Capital Games",
         "base_id": "CT210408",
         "set1": "Offense",
-        "set2": "Tenacity",
+        "set2": "Critical Chance",
         "set3": "",
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Critical Damage",
-        "circle": "Protection",
-        "cross": "Protection",
+        "triangle": "Critical Chance",
+        "circle": "Health",
+        "cross": "Tenacity",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Offense %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -568,9 +796,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Critical Damage",
+        "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Protection %",
+			"Health %",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -585,6 +819,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -599,6 +839,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -613,6 +859,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Tenacity",
+		"secondary_stats": [
+			"Speed",
+			"Protection %",
+			"Tenacity",
+			"Health %"
+		],
         "info": "Best"
     },
     {
@@ -627,6 +879,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -641,6 +899,12 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense %",
+			"Offense",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -655,6 +919,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -669,6 +939,13 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Protection",
+			"Critical Chance %",
+			"Offense",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -683,6 +960,12 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -697,6 +980,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -711,6 +1000,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -725,6 +1020,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -739,6 +1040,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -753,6 +1060,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -767,6 +1080,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -781,6 +1100,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -809,6 +1134,13 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Critical Chance %",
+			"Offense",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -823,6 +1155,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -836,7 +1174,13 @@
         "diamond": "Defense",
         "triangle": "Critical Damage",
         "circle": "Protection",
-        "cross": "Offense",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -851,6 +1195,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -865,6 +1215,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -879,6 +1235,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -891,8 +1253,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -905,8 +1273,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Protection",
-        "cross": "Protection",
+        "circle": "Health",
+        "cross": "Health",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -921,6 +1295,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -935,6 +1315,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -949,6 +1335,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -977,6 +1369,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -991,6 +1389,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1000,25 +1404,37 @@
         "set2": "Health",
         "set3": "",
         "square": "Offense",
-        "arrow": "Speed",
+        "arrow": "Critical Avoidance",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Protection",
-        "cross": "Protection",
+        "circle": "Health",
+        "cross": "Health",
+		"secondary_stats": [
+			"Speed",
+			"Health %",
+			"Critical Chance %",
+			"Health"
+		],
         "info": "Best"
     },
     {
         "source": "Capital Games",
         "base_id": "GENERALKENOBI",
-        "set1": "Defense",
-        "set2": "Defense",
-        "set3": "Defense",
+        "set1": "Tenacity",
+        "set2": "Tenacity",
+        "set3": "Tenacity",
         "square": "Offense",
         "arrow": "Protection",
         "diamond": "Defense",
         "triangle": "Protection",
         "circle": "Protection",
-        "cross": "Protection",
+        "cross": "Tenacity",
+		"secondary_stats": [
+			"Speed",
+			"Tenacity",
+			"Protection %",
+			"Health %"
+		],
         "info": "Best"
     },
     {
@@ -1033,6 +1449,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1047,6 +1469,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Tenacity",
+		"secondary_stats": [
+			"Speed",
+			"Protection %",
+			"Tenacity",
+			"Health %"
+		],
         "info": "Best"
     },
     {
@@ -1061,6 +1489,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1073,8 +1507,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1089,6 +1529,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1103,6 +1549,12 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -1117,6 +1569,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1131,6 +1589,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1145,6 +1609,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1159,6 +1629,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1185,8 +1661,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1201,6 +1683,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1215,20 +1703,32 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
         "source": "Capital Games",
         "base_id": "MAGNAGUARD",
-        "set1": "Health",
-        "set2": "Health",
-        "set3": "Potency",
+        "set1": "Tenacity",
+        "set2": "Tenacity",
+        "set3": "Tenacity",
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Critical Damage",
+        "triangle": "Protection",
         "circle": "Protection",
-        "cross": "Protection",
+        "cross": "Tenacity",
+		"secondary_stats": [
+			"Speed",
+			"Tenacity",
+			"Potency",
+			"Protection %"
+		],
         "info": "Best"
     },
     {
@@ -1243,6 +1743,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1257,6 +1763,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1271,6 +1783,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1282,9 +1800,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1299,6 +1823,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1313,6 +1843,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1327,6 +1863,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1341,6 +1883,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1355,20 +1903,32 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
         "source": "Capital Games",
         "base_id": "ANAKINKNIGHT",
-        "set1": "Critical Chance",
-        "set2": "Critical Damage",
-        "set3": "",
+        "set1": "Health",
+        "set2": "Health",
+        "set3": "Health",
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Protection",
-        "cross": "Protection",
+        "circle": "Health",
+        "cross": "Health",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Offense",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1383,6 +1943,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1397,6 +1963,12 @@
         "triangle": "Critical Chance",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Offense %",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -1409,8 +1981,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1425,13 +2003,19 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Tenacity",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
         "source": "Capital Games",
         "base_id": "JYNERSO",
-        "set1": "Potency",
-        "set2": "Speed",
+        "set1": "Speed",
+        "set2": "Tenacity",
         "set3": "",
         "square": "Offense",
         "arrow": "Speed",
@@ -1439,6 +2023,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1453,6 +2043,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1467,6 +2063,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1495,6 +2097,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1509,6 +2117,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1518,11 +2132,17 @@
         "set2": "Health",
         "set3": "Health",
         "square": "Offense",
-        "arrow": "Health",
+        "arrow": "Protection",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1537,6 +2157,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1565,6 +2191,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1579,6 +2211,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1593,6 +2231,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1607,6 +2251,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1621,6 +2271,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1633,8 +2289,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1646,9 +2308,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1663,6 +2331,13 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Potency",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -1677,6 +2352,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1691,6 +2372,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1705,6 +2392,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1719,6 +2412,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1733,6 +2432,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1747,6 +2452,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1761,6 +2472,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1775,6 +2492,12 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Health %",
+			"Potency",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1803,6 +2526,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1817,6 +2546,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1831,6 +2566,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection".
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1845,6 +2586,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1856,9 +2603,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -1873,6 +2626,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1885,8 +2644,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1901,6 +2666,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1915,6 +2686,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1943,6 +2720,12 @@
         "triangle": "Critical Chance",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1957,6 +2740,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -1971,6 +2760,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -1985,6 +2780,13 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Offense",
+			"Protection",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -1999,6 +2801,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2027,6 +2835,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2041,6 +2855,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2055,6 +2875,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2069,6 +2895,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2083,6 +2915,12 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Health %",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2097,6 +2935,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2111,6 +2955,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2139,6 +2989,13 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Defense",
+			"Tenacity",
+			"Health",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -2153,6 +3010,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2167,6 +3030,13 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Defense",
+			"Protection",
+			"Health",
+			"Tenacity",
+			"??"
+		],
         "info": "Best"
     },
     {
@@ -2181,6 +3051,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2192,9 +3068,15 @@
         "square": "Offense",
         "arrow": "Critical Avoidance",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2206,9 +3088,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Protection %",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2223,6 +3111,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Health",
+			"Protection",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2237,6 +3131,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -2251,6 +3151,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2263,8 +3169,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Critical Damage",
-        "circle": "Health",
-        "cross": "Health",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2276,9 +3188,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -2290,9 +3208,15 @@
         "square": "Offense",
         "arrow": "Speed",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -2316,11 +3240,17 @@
         "set2": "Health",
         "set3": "Health",
         "square": "Offense",
-        "arrow": "Health",
+        "arrow": "Protection",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2335,6 +3265,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2349,6 +3285,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2377,6 +3319,12 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -2391,6 +3339,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2405,6 +3359,12 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection",
+			"Offense"
+		],
         "info": "Best"
     },
     {
@@ -2417,8 +3377,14 @@
         "arrow": "Speed",
         "diamond": "Defense",
         "triangle": "Offense",
-        "circle": "Health",
+        "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -2433,6 +3399,12 @@
         "triangle": "Offense",
         "circle": "Protection",
         "cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense",
+			"Critical Chance %",
+			"Protection"
+		],
         "info": "Best"
     },
     {
@@ -2442,11 +3414,17 @@
         "set2": "Health",
         "set3": "Health",
         "square": "Offense",
-        "arrow": "Health",
+        "arrow": "Protection",
         "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Protection",
+			"Health",
+			"Speed",
+			"Tenacity"
+		],
         "info": "Best"
     },
     {
@@ -2461,6 +3439,12 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Potency",
+		"secondary_stats": [
+			"Speed",
+			"Potency",
+			"Protection",
+			"Health"
+		],
         "info": "Best"
     },
     {
@@ -2475,6 +3459,12 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Tenacity",
+		"secondary_stats": [
+			"Speed",
+			"Protection",
+			"Tenacity",
+			"Health"
+		],
         "info": "Best"
     },
     {
