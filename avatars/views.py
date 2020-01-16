@@ -40,7 +40,7 @@ def get_portrait(character):
 def get_gear(gear, alignment):
 
 	if gear < 13:
-		image_name = 'gear-%d.png' % gear
+		image_name = 'gear-%02d.png' % gear
 	else:
 		image_name = 'gear-%d-%s-side.png' % (gear, alignment)
 
