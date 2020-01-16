@@ -1,3 +1,3 @@
 #!/bin/bash
 
-wget -O- swgoh.gg/api/ships/ | python3 -m json.tool  | less
+wget -q -O- swgoh.gg/api/ships/ | python -m json.tool  | less
