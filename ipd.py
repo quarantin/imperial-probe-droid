@@ -83,30 +83,6 @@ def compute_hello_msg():
 
 	return (' '.join(words)).capitalize()
 
-def get_game():
-	return discord.Activity(name='%shelp' % config['prefix'], type=discord.ActivityType.listening)
-
-def get_bot_prefix(config, message):
-
-	import DJANGO
-	from swgoh.models import DiscordServer
-
-	try:
-		server_id = None
-		if message and message.guild:
-			server_id = message.guild.id
-
-		server = DiscordServer.objects.get(server_id=server_id)
-		bot_prefix = server.bot_prefix
-
-	except DiscordServer.DoesNotExist:
-		bot_prefix = config['prefix']
-
-	return bot_prefix
-
-def remove_prefix(prefix, mention, content):
-	return content.replace(prefix, '').replace(mention, '').strip()
-
 class ImperialProbeDroid(discord.ext.commands.Bot):
 
 
@@ -159,8 +135,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			await asyncio.sleep(cron.next(default_utc=True))
 
 			status, error = await self.sendmsg(channel, message='!payout')
-			if not status:
-				print('Could not print to channel %s: %s' % (channel, error))
+			# FIXME enable this:
+			#if not status:
+			#	print('Could not print to channel %s: %s' % (channel, error))
 
 		config['tasks'][shard.channel_id] = False
 
@@ -168,14 +145,17 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		load_help()
 		if 'env' in config and config['env'] == 'prod':
-			await self.change_presence(activity=get_game())
+
+			activity = discord.Activity(name='%shelp' % config['prefix'], type=discord.ActivityType.listening)
+			await self.change_presence(activity=activity)
 
 		message = compute_hello_msg()
 		for chan_id in config['hello']:
 			channel = self.get_channel(chan_id)
 			status, error = await self.sendmsg(channel, message=message)
-			if not status:
-				print('Could not print to channel %s: %s' % (channel, error))
+			# FIXME enable this:
+			#if not status:
+			#	print('Could not print to channel %s: %s' % (channel, error))
 
 		if 'tasks' not in config:
 			config['tasks'] = {}
@@ -192,17 +172,52 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
+	def remove_prefix(self, prefix_list, content):
+
+		for prefix in prefix_list:
+			content = content.replace(prefix, '')
+
+		return content.strip()
+
+	def get_bot_prefix(self, config, message):
+
+		import DJANGO
+		from swgoh.models import DiscordServer
+
+		try:
+			server_id = None
+			if message and message.guild:
+				server_id = message.guild.id
+
+			server = DiscordServer.objects.get(server_id=server_id)
+			bot_prefix = server.bot_prefix
+
+		except DiscordServer.DoesNotExist:
+			bot_prefix = config['prefix']
+
+		return bot_prefix
+
+	def get_prefix_list(self, config, message):
+
+		return [
+			self.get_bot_prefix(config, message),
+			'<@%s>' % self.user.id,
+			'<@!%s>' % self.user.id,
+		]
+
 	async def on_message(self, message):
 
-		self_mention = '<@!%s>' % self.user.id
-		bot_prefix = get_bot_prefix(config, message)
-		if not message.content.startswith(bot_prefix) and not message.content.startswith(self_mention):
+		prefix_list = self.get_prefix_list(config, message)
+		for prefix in prefix_list:
+			if message.content.startswith(prefix):
+				break
+		else:
 			return
 
 		log_message(message)
 
 		channel = message.channel
-		content = remove_prefix(bot_prefix, self_mention, message.content)
+		content = self.remove_prefix(prefix_list, message.content)
 		args = shlex.split(content)
 		if not args:
 			return
@@ -210,7 +225,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		command = args[0]
 		if command in config['aliases']:
 			replaced = message.content.replace(command, config['aliases'][command])
-			content = remove_prefix(bot_prefix, self_mention, replaced)
+			content = self.remove_prefix(prefix_list, replaced)
 			args = shlex.split(content)
 			command = args[0]
 
