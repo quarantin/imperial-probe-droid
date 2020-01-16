@@ -43,6 +43,10 @@ Show members from your shard with their rank sorted by time left to payout:
 Exporting ally codes from your shard:
 ```
 %prefixpayout export```
+Destroy the shard in case you don't want to use it anymore:
+(WARNING: THIS CANNOT BE UNDONE, ALL DATA WILL BE LOST)
+```
+%prefixpayout destroy```
 **Aliases**
 ```
 %prefixpo```
@@ -130,7 +134,23 @@ def parse_opts_payout_time(tz, args):
 
 	return None
 
+def check_permission(config, author):
+
+	ipd_role = config['role'].lower()
+	for role in author.roles:
+		if role.name.lower() == ipd_role:
+			return True
+
+	return False
+
 def handle_payout_create(config, author, channel, args):
+
+	if not check_permission(config, author):
+		return [{
+			'title': 'Permssion Denied',
+			'color': 'red',
+			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
+		}]
 
 	shard_type = parse_opts_shard_type(args)
 	if not shard_type:
@@ -219,6 +239,13 @@ def handle_payout_add(config, author, channel, args):
 	}]
 
 def handle_payout_del(config, author, channel, args):
+
+	if not check_permission(config, author):
+		return [{
+			'title': 'Permssion Denied',
+			'color': 'red',
+			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
+		}]
 
 	args, players, error = parse_opts_players(config, author, args)
 	if error:
@@ -534,6 +561,29 @@ def handle_payout_tag(config, author, channel, args):
 		'description': 'Affiliation has been changed to **`%s`** for the following ally code%s:\n%s' % (affiliation_name, plural, ally_code_str),
 	}]
 
+def handle_payout_destroy(config, author, channel, args):
+
+	if not check_permission(config, author):
+		return [{
+			'title': 'Permssion Denied',
+			'color': 'red',
+			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
+		}]
+
+	try:
+		shard = Shard.objects.get(channel_id=channel.id)
+
+	except Shard.DoesNotExist:
+		return error_no_shard_found(config)
+
+	shard.delete()
+
+	return [{
+		'title': 'Deletion Successful',
+		'description': 'This channel is not a shard channel anymore.'
+	}]
+
+
 shard_types = {
 	'c':     'char',
 	'char':  'char',
@@ -544,26 +594,27 @@ shard_types = {
 }
 
 subcommands = {
-	'new':    handle_payout_create,
-	'init':   handle_payout_create,
-	'conf':   handle_payout_create,
-	'config': handle_payout_create,
-	'create': handle_payout_create,
-	'set':    handle_payout_create,
-	'add':    handle_payout_add,
-	'del':    handle_payout_del,
-	'delete': handle_payout_del,
-	'rm':     handle_payout_del,
-	'remove': handle_payout_del,
-	'list':   handle_payout_rank,
-	'rank':   handle_payout_rank,
-	'ranks':  handle_payout_rank,
-	'stat':   handle_payout_stats,
-	'stats':  handle_payout_stats,
-	'status': handle_payout_stats,
-	'export': handle_payout_export,
-	'time':   handle_payout_time,
-	'tag':    handle_payout_tag,
+	'new':     handle_payout_create,
+	'init':    handle_payout_create,
+	'conf':    handle_payout_create,
+	'config':  handle_payout_create,
+	'create':  handle_payout_create,
+	'set':     handle_payout_create,
+	'add':     handle_payout_add,
+	'del':     handle_payout_del,
+	'delete':  handle_payout_del,
+	'rm':      handle_payout_del,
+	'remove':  handle_payout_del,
+	'list':    handle_payout_rank,
+	'rank':    handle_payout_rank,
+	'ranks':   handle_payout_rank,
+	'stat':    handle_payout_stats,
+	'stats':   handle_payout_stats,
+	'status':  handle_payout_stats,
+	'export':  handle_payout_export,
+	'time':    handle_payout_time,
+	'tag':     handle_payout_tag,
+	'destroy': handle_payout_destroy,
 }
 
 def parse_opts_subcommands(args):
