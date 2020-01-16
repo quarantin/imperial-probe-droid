@@ -150,12 +150,13 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			await self.change_presence(activity=activity)
 
 		message = compute_hello_msg()
-		for chan_id in config['hello']:
-			channel = self.get_channel(chan_id)
-			status, error = await self.sendmsg(channel, message=message)
-			# FIXME enable this:
-			#if not status:
-			#	print('Could not print to channel %s: %s' % (channel, error))
+		if 'hello' in config:
+			for chan_id in config['hello']:
+				channel = self.get_channel(chan_id)
+				status, error = await self.sendmsg(channel, message=message)
+				# FIXME enable this:
+				#if not status:
+				#	print('Could not print to channel %s: %s' % (channel, error))
 
 		if 'tasks' not in config:
 			config['tasks'] = {}
