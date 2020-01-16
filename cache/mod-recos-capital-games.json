@@ -11,6 +11,7 @@
         "triangle": "Critical Damage",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -86,6 +87,7 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -443,6 +445,7 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -1120,6 +1123,7 @@
         "triangle": "Critical Damage",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -1355,6 +1359,7 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -1649,6 +1654,7 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -2083,6 +2089,7 @@
         "triangle": "Critical Damage",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -2177,6 +2184,7 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -2502,20 +2510,6 @@
     },
     {
         "source": "Capital Games",
-        "base_id": "PADMEAMIDALA",
-        "set1": "Health",
-        "set2": "Health",
-        "set3": "Health",
-        "square": "Offense",
-        "arrow": "Health",
-        "diamond": "Defense",
-        "triangle": "Health",
-        "circle": "Health",
-        "cross": "Health",
-        "info": "2nd Best"
-    },
-    {
-        "source": "Capital Games",
         "base_id": "PAO",
         "set1": "Offense",
         "set2": "Tenacity",
@@ -2706,6 +2700,7 @@
         "triangle": "Critical Damage",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -2821,6 +2816,7 @@
         "triangle": "Critical Damage",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -2975,6 +2971,7 @@
         "triangle": "Critical Damage",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -3231,6 +3228,7 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -3305,6 +3303,7 @@
         "triangle": "Health",
         "circle": "Health",
         "cross": "Health",
+		"secondary_stats": [],
         "info": "Best"
     },
     {
@@ -3479,6 +3478,7 @@
         "triangle": "Protection",
         "circle": "Protection",
         "cross": "Protection",
+		"secondary_stats": [],
         "info": "Best"
     }
 ]
