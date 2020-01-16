@@ -7,8 +7,6 @@ import random
 import shlex
 import string
 import traceback
-from crontab import CronTab
-from datetime import datetime
 from discord.ext import commands
 from config import config, load_config, load_help
 
@@ -111,34 +109,28 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
-	async def cronjob(self, config, shard):
+	async def schedule_payouts(self, config):
 
-		config['tasks'][shard.channel_id] = True
+		import DJANGO
+		from swgoh.models import Shard, ShardMember
+		from crontab import CronTab
 
-		hours_str = '*'
-		if shard.interval.hour > 1:
-			hours_str = '*/%d' % shard.interval.hour
-
-		minutes_str = '45'
-		if shard.interval.minute > 1:
-			minutes_str = '*/%d' % shard.interval.minute
-
-		crontab_entry = '%s %s * * *' % (minutes_str, hours_str)
-		cron = CronTab(crontab_entry)
+		cron = CronTab('45 * * * *')
 
 		await self.wait_until_ready()
 
-		channel = self.get_channel(shard.channel_id)
-		while channel:
+		while True:
 
 			await asyncio.sleep(cron.next(default_utc=True))
 
-			status, error = await self.sendmsg(channel, message='!payout')
-			# FIXME enable this:
-			#if not status:
-			#	print('Could not print to channel %s: %s' % (channel, error))
-
-		config['tasks'][shard.channel_id] = False
+			shards = Shard.objects.all()
+			for shard in shards:
+				members = list(ShardMember.objects.filter(shard=shard))
+				if members:
+					channel = self.get_channel(shard.channel_id)
+					status, error = await self.sendmsg(channel, message='!payout')
+					if not status:
+						print('Could not print to channel %s: %s' % (channel, error))
 
 	async def on_ready(self):
 
@@ -153,22 +145,10 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for chan_id in config['hello']:
 				channel = self.get_channel(chan_id)
 				status, error = await self.sendmsg(channel, message=message)
-				# FIXME enable this:
-				#if not status:
-				#	print('Could not print to channel %s: %s' % (channel, error))
+				if not status:
+					print('Could not print to channel %s: %s' % (channel, error))
 
-		if 'tasks' not in config:
-			config['tasks'] = {}
-
-		import DJANGO
-		from swgoh.models import Shard, ShardMember
-
-		shards = Shard.objects.all()
-		for shard in shards:
-			if shard.channel_id not in config['tasks'] or config['tasks'][shard.channel_id] is False:
-				members = list(ShardMember.objects.filter(shard=shard))
-				if members:
-					self.loop.create_task(self.cronjob(config, shard))
+		self.loop.create_task(self.schedule_payouts(config))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
