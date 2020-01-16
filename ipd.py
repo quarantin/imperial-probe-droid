@@ -194,7 +194,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 	async def on_message(self, message):
 
-		self_mention = '<@%s>' % self.user.id
+		self_mention = '<@!%s>' % self.user.id
 		bot_prefix = get_bot_prefix(config, message)
 		if not message.content.startswith(bot_prefix) and not message.content.startswith(self_mention):
 			return

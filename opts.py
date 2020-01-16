@@ -148,7 +148,7 @@ def parse_opts_mentions(config, author, args):
 
 		discord_id = None
 
-		m = re.search(r'^<@([0-9]+)>$', arg)
+		m = re.search(r'^<@!?([0-9]+)>$', arg)
 		if m:
 			args.remove(arg)
 			discord_ids.append(int(m.group(1)))
