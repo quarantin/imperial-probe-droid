@@ -260,6 +260,7 @@ def convert_cg_recos_to_json(recos=[]):
 	fin.close()
 	new_recos = json.loads(data)
 	for reco in new_recos:
+		secondary_stats = reco.pop('secondary_stats')
 		recos.append(reco)
 
 	return recos
@@ -288,5 +289,6 @@ def fetch_all_recos(index='base_id', index2=None):
 	#return result
 	return recos_cg + recos_cr + recos_gg
 
-#test = fetch_all_recos(index='name', index2=None)
-#print(json.dumps(test, indent=4))
+if __name__ == "__main__":
+	test = fetch_all_recos(index='name', index2=None)
+	print(json.dumps(test, indent=4))
