@@ -134,7 +134,12 @@ def parse_opts_payout_time(tz, args):
 
 	return None
 
+DEFAULT_ROLE = 'IPD Admin'
+
 def check_permission(config, author):
+
+	if 'role' not in config:
+		config['role'] = DEFAULT_ROLE
 
 	ipd_role = config['role'].lower()
 	for role in author.roles:
