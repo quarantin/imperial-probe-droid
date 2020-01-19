@@ -92,7 +92,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		self.loop.stop()
 		print('User initiated exit!')
 
-	async def sendmsg(self, channel, message=None, embed=None):
+	async def sendmsg(channel, message=None, embed=None):
 
 		error = None
 		retries = 'max-retry' in config and config['max-retry'] or 3
@@ -100,8 +100,8 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		while retries > 0:
 
 			try:
-				await channel.send(message, embed=embed)
-				return True, None
+				msg = await channel.send(message, embed=embed)
+				return True, msg.id
 
 			except Exception as err:
 				retries -= 1
@@ -146,7 +146,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		if 'hello' in config:
 			for chan_id in config['hello']:
 				channel = self.get_channel(chan_id)
-				status, error = await self.sendmsg(channel, message=message)
+				status, error = await ImperialProbeDroid.sendmsg(channel, message=message)
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
@@ -242,7 +242,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					for msg in msgs:
 						embeds = new_embeds(config, msg)
 						for embed in embeds:
-							status, error = await self.sendmsg(channel, message='', embed=embed)
+							status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
 							if not status:
 								print('Could not print to channel %s: %s' % (channel, error))
 					break
@@ -254,7 +254,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				})
 
 				for embed in embeds:
-					status, error = await self.sendmsg(channel, message='', embed=embed)
+					status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
 					if not status:
 						print('Could not print to channel %s: %s' % (channel, error))
 
@@ -262,7 +262,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			print(traceback.format_exc())
 
 			if 'crash' in config and config['crash']:
-				status, error = await self.sendmsg(channel, message=config['crash'])
+				status, error = await ImperialProbeDroid.sendmsg(channel, message=config['crash'])
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
@@ -273,7 +273,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			})
 
 			for embed in embeds:
-				status, error = await self.sendmsg(channel, message='', embed=embed)
+				status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
