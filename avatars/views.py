@@ -17,6 +17,8 @@ ALIGNMENTS = {
 def download_image(image_name):
 
 	image_path = './images/%s' % image_name
+	if not image_path.endswith('.png'):
+		image_path = '%s.png' % image_path
 
 	if not os.path.exists(image_path) or os.path.getsize(image_path) == 0:
 
