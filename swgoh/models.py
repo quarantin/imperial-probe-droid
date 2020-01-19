@@ -579,6 +579,7 @@ class Shard(models.Model):
 	SHARD_TYPES_DICT = { x: y for x, y in SHARD_TYPES }
 
 	channel_id = models.IntegerField(primary_key=True)
+	message_id = models.IntegerField(null=True)
 	type = models.CharField(max_length=4, choices=SHARD_TYPES)
 	hour_interval = models.IntegerField(default=1)
 	minute_interval = models.IntegerField(default=45)
