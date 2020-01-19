@@ -36,17 +36,6 @@ MODSECONDARYSTATS = {
 	56: 'Protection %',
 }
 
-MODSETS_LIST = [
-	1,
-	3,
-	7,
-	8,
-	5,
-	6,
-	2,
-	4,
-]
-
 MODSETS_NEEDED = {
 	1: 2, # Health
 	2: 4, # Offense
