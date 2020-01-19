@@ -580,8 +580,8 @@ class Shard(models.Model):
 
 	channel_id = models.IntegerField(primary_key=True)
 	type = models.CharField(max_length=4, choices=SHARD_TYPES)
-	interval = models.TimeField(blank=True, null=True, default='01:00')
-	last_alert = models.DateTimeField(blank=True, null=True, default=datetime(year=1970, month=1, day=1, tzinfo=pytz.utc))
+	hour_interval = models.IntegerField(default=1)
+	minute_interval = models.IntegerField(default=45)
 
 class ShardMember(models.Model):
 

@@ -115,12 +115,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		from swgoh.models import Shard, ShardMember
 		from crontab import CronTab
 
-		if 'crontab' in config:
-			return
-
-		config['crontab'] = True
-
-		cron = CronTab('45 * * * *')
+		cron = CronTab('* * * * *')
 
 		await self.wait_until_ready()
 
@@ -128,14 +123,16 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 			await asyncio.sleep(cron.next(default_utc=True))
 
+			now = datetime.now()
 			shards = Shard.objects.all()
 			for shard in shards:
-				members = list(ShardMember.objects.filter(shard=shard))
-				if members:
-					channel = self.get_channel(shard.channel_id)
-					status, error = await self.sendmsg(channel, message='!payout')
-					if not status:
-						print('Could not print to channel %s: %s' % (channel, error))
+				hour_ok = now.hour % shard.hour_interval == 0
+				minute_ok = now.minute % shard.minute_interval == 0
+				if hour_ok and minute_ok:
+					members = list(ShardMember.objects.filter(shard=shard))
+					if members:
+						channel = self.get_channel(shard.channel_id)
+						await self.on_message_handler(config, self.user, channel, 'payout', [])
 
 	async def on_ready(self):
 
@@ -153,7 +150,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
-		self.loop.create_task(self.schedule_payouts(config))
+		if 'crontab' not in config:
+			config['crontab'] = True
+			self.loop.create_task(self.schedule_payouts(config))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
@@ -221,6 +220,11 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		args = [ x for x in args if x ]
 
+		return await self.on_message_handler(config, message.author, channel, command, args)
+
+
+	async def on_message_handler(self, config, author, channel, command, args):
+
 		if 'help' in args or 'h' in args:
 			args = [ command ]
 			command = 'help'
@@ -231,9 +235,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 					if inspect.iscoroutinefunction(cmd['function']):
 
-						msgs = await cmd['function'](config, message.author, channel, args)
+						msgs = await cmd['function'](config, author, channel, args)
 					else:
-						msgs = cmd['function'](config, message.author, channel, args)
+						msgs = cmd['function'](config, author, channel, args)
 
 					for msg in msgs:
 						embeds = new_embeds(config, msg)
