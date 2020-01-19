@@ -9,6 +9,7 @@ import DJANGO
 from swgoh.models import Player, Shard, ShardMember
 
 import pytz
+import inspect
 from datetime import datetime, timedelta
 
 help_payout = {
@@ -354,7 +355,7 @@ def handle_payout_rank(config, author, channel, args):
 		'description': 'Shard payout time for **%s** arena:\n%s\n`|Rank PO_At Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
-def handle_payout_stats(config, author, channel, args):
+async def handle_payout_stats(config, author, channel, args):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -372,6 +373,7 @@ def handle_payout_stats(config, author, channel, args):
 	if not shard:
 		return error_no_shard_found(config)
 
+	shard_channel = config['bot'].get_channel(shard.channel_id)
 	payout_times = get_payout_times(shard)
 	ally_codes = list(payout_times)
 
@@ -453,10 +455,27 @@ def handle_payout_stats(config, author, channel, args):
 
 	lines_str = '\n'.join(lines)
 
-	return [{
+	from embed import new_embeds
+	embeds = new_embeds(config, {
 		'title': 'Shard Status',
 		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In 🔫 Player`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
-	}]
+	})
+
+	if shard.message_id:
+		message = await shard_channel.fetch_message(shard.message_id)
+		await message.edit(embed=embeds[0])
+
+	else:
+		from ipd import ImperialProbeDroid
+		for embed in embeds:
+			status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
+			if not status:
+				print('Could not print to channel %s: %s' % (channel, error))
+			else:
+				shard.message_id = error
+				shard.save()
+
+	return []
 
 def handle_payout_export(config, author, channel, args):
 
@@ -632,13 +651,16 @@ def parse_opts_subcommands(args):
 
 	return args, None
 
-def cmd_payout(config, author, channel, args):
+async def cmd_payout(config, author, channel, args):
 
 	args, subcommand = parse_opts_subcommands(args)
 	if not subcommand:
 		subcommand = 'stats'
 
 	if subcommand in subcommands:
-		return subcommands[subcommand](config, author, channel, args)
+		if inspect.iscoroutinefunction(subcommands[subcommand]):
+			return await subcommands[subcommand](config, author, channel, args)
+		else:
+			return subcommands[subcommand](config, author, channel, args)
 
 	return error_generic('Unsupported Action', subcommand)
