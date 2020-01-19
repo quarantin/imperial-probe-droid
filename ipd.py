@@ -115,6 +115,11 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		from swgoh.models import Shard, ShardMember
 		from crontab import CronTab
 
+		if 'crontab' in config:
+			return
+
+		config['crontab'] = True
+
 		cron = CronTab('45 * * * *')
 
 		await self.wait_until_ready()
