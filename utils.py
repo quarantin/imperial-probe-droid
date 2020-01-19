@@ -124,19 +124,6 @@ def basicstrip(string):
 
 	return string.lower()
 
-def download_spreadsheet(url, cols):
-
-	content = []
-	response = requests.get(url)
-	response.encoding = 'utf-8'
-
-	lines = response.text.split('\r\n')
-	for line in lines:
-		toks = line.split(',')
-		content.append(toks[0:cols])
-
-	return iter(content)
-
 def translate(string_id, language):
 
 	import DJANGO

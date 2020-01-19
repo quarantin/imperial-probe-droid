@@ -6,7 +6,7 @@ import json
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-from utils import download_spreadsheet, expired, get_dict_by_index, http_get, parse_modsets
+from utils import expired, get_dict_by_index, http_get, parse_modsets
 
 import DJANGO
 from swgoh.models import BaseUnit
