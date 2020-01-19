@@ -1,5 +1,5 @@
 __pycache__
-migrations
+0*.py
 *.json
 *.png
 *.svg
