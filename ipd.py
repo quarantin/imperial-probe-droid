@@ -127,7 +127,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			shards = Shard.objects.all()
 			for shard in shards:
 				hour_ok = now.hour % shard.hour_interval == 0
-				minute_ok = now.minute % shard.minute_interval == 0
+				minute_ok = now.minute > 0 and now.minute % shard.minute_interval == 0
 				if hour_ok and minute_ok:
 					members = list(ShardMember.objects.filter(shard=shard))
 					if members:
