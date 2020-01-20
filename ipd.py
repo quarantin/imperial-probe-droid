@@ -132,7 +132,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					members = list(ShardMember.objects.filter(shard=shard))
 					if members:
 						channel = self.get_channel(shard.channel_id)
-						await self.on_message_handler(config, self.user, channel, 'payout', [])
+						await self.on_message_handler(config, self.user, channel, 'payout', [], from_user=False)
 
 	async def on_ready(self):
 
@@ -223,7 +223,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		return await self.on_message_handler(config, message.author, channel, command, args)
 
 
-	async def on_message_handler(self, config, author, channel, command, args):
+	async def on_message_handler(self, config, author, channel, command, args, from_user=True):
 
 		if 'help' in args or 'h' in args:
 			args = [ command ]
@@ -235,9 +235,15 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 					if inspect.iscoroutinefunction(cmd['function']):
 
-						msgs = await cmd['function'](config, author, channel, args)
+						if cmd['command'] == 'payout':
+							msgs = await cmd['function'](config, author, channel, args, from_user=from_user)
+						else:
+							msgs = await cmd['function'](config, author, channel, args)
 					else:
-						msgs = cmd['function'](config, author, channel, args)
+						if cmd['command'] == 'payout':
+							msgs = cmd['function'](config, author, channel, args, from_user=from_user)
+						else:
+							msgs = cmd['function'](config, author, channel, args)
 
 					for msg in msgs:
 						embeds = new_embeds(config, msg)
