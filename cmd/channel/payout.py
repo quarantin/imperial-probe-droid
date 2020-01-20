@@ -149,7 +149,7 @@ def check_permission(config, author):
 
 	return False
 
-def handle_payout_create(config, author, channel, args):
+def handle_payout_create(config, author, channel, args, from_user=True):
 
 	if not check_permission(config, author):
 		return [{
@@ -182,7 +182,7 @@ def handle_payout_create(config, author, channel, args):
 		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp payout` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
-def handle_payout_add(config, author, channel, args):
+def handle_payout_add(config, author, channel, args, from_user=True):
 
 	args, players, error = parse_opts_players(config, author, args)
 	if error:
@@ -244,7 +244,7 @@ def handle_payout_add(config, author, channel, args):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_del(config, author, channel, args):
+def handle_payout_del(config, author, channel, args, from_user=True):
 
 	if not check_permission(config, author):
 		return [{
@@ -279,7 +279,7 @@ def handle_payout_del(config, author, channel, args):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_rank(config, author, channel, args):
+def handle_payout_rank(config, author, channel, args, from_user=True):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -355,7 +355,7 @@ def handle_payout_rank(config, author, channel, args):
 		'description': 'Shard payout time for **%s** arena:\n%s\n`|Rank PO_At Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
-async def handle_payout_stats(config, author, channel, args):
+async def handle_payout_stats(config, author, channel, args, from_user=True):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -462,7 +462,7 @@ async def handle_payout_stats(config, author, channel, args):
 	})
 
 	try:
-		if shard.message_id:
+		if from_user is False and shard.message_id:
 			message = await shard_channel.fetch_message(shard.message_id)
 			await message.edit(embed=embeds[0])
 			return []
@@ -480,7 +480,7 @@ async def handle_payout_stats(config, author, channel, args):
 
 	return []
 
-def handle_payout_export(config, author, channel, args):
+def handle_payout_export(config, author, channel, args, from_user=True):
 
 	if args:
 		return error_unknown_parameters(args)
@@ -504,7 +504,7 @@ def handle_payout_export(config, author, channel, args):
 		'description': '`%s`' % ' '.join(ally_codes)
 	}]
 
-def handle_payout_time(config, author, channel, args):
+def handle_payout_time(config, author, channel, args, from_user=True):
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
@@ -546,7 +546,7 @@ def handle_payout_time(config, author, channel, args):
 		'description': 'Payout time has been updated to **%s** for the following ally code%s:\n%s' % (payout_time.astimezone(tzname).strftime('%H:%M'), plural, ally_code_str),
 	}]
 
-def handle_payout_tag(config, author, channel, args):
+def handle_payout_tag(config, author, channel, args, from_user=True):
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
@@ -588,7 +588,7 @@ def handle_payout_tag(config, author, channel, args):
 		'description': 'Affiliation has been changed to **`%s`** for the following ally code%s:\n%s' % (affiliation_name, plural, ally_code_str),
 	}]
 
-def handle_payout_destroy(config, author, channel, args):
+def handle_payout_destroy(config, author, channel, args, from_user=True):
 
 	if not check_permission(config, author):
 		return [{
@@ -654,7 +654,7 @@ def parse_opts_subcommands(args):
 
 	return args, None
 
-async def cmd_payout(config, author, channel, args):
+async def cmd_payout(config, author, channel, args, from_user=True):
 
 	args, subcommand = parse_opts_subcommands(args)
 	if not subcommand:
@@ -662,8 +662,8 @@ async def cmd_payout(config, author, channel, args):
 
 	if subcommand in subcommands:
 		if inspect.iscoroutinefunction(subcommands[subcommand]):
-			return await subcommands[subcommand](config, author, channel, args)
+			return await subcommands[subcommand](config, author, channel, args, from_user=from_user)
 		else:
-			return subcommands[subcommand](config, author, channel, args)
+			return subcommands[subcommand](config, author, channel, args, from_user=from_user)
 
 	return error_generic('Unsupported Action', subcommand)
