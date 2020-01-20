@@ -461,19 +461,22 @@ async def handle_payout_stats(config, author, channel, args):
 		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In 🔫 Player`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	})
 
-	if shard.message_id:
-		message = await shard_channel.fetch_message(shard.message_id)
-		await message.edit(embed=embeds[0])
+	try:
+		if shard.message_id:
+			message = await shard_channel.fetch_message(shard.message_id)
+			await message.edit(embed=embeds[0])
+			return []
+	except:
+		pass
 
-	else:
-		from ipd import ImperialProbeDroid
-		for embed in embeds:
-			status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
-			if not status:
-				print('Could not print to channel %s: %s' % (channel, error))
-			else:
-				shard.message_id = error
-				shard.save()
+	from ipd import ImperialProbeDroid
+	for embed in embeds:
+		status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
+		if not status:
+			print('Could not print to channel %s: %s' % (channel, error))
+		else:
+			shard.message_id = error
+			shard.save()
 
 	return []
 
