@@ -102,8 +102,13 @@ def get_shard(config, channel, author):
 
 		for shard in shards:
 			shard_channel = config['bot'].get_channel(shard.channel_id)
-			if shard_channel and shard_channel.guild.id == channel.guild.id:
-				return shard
+			if shard_channel:
+
+				if channel.id == shard_channel.guild.id:
+					return shard
+
+				if hasattr(channel, 'guild') and channel.guild.id == shard_channel.guild.id:
+					return shard
 
 	except Player.DoesNotExist:
 		pass
@@ -140,7 +145,11 @@ def parse_opts_payout_time(tz, args):
 
 DEFAULT_ROLE = 'IPD Admin'
 
-def check_permission(config, author):
+def check_permission(config, author, channel):
+
+	from discord import ChannelType
+	if channel is not None and channel.type is ChannelType.private:
+		return True
 
 	if 'role' not in config:
 		config['role'] = DEFAULT_ROLE
@@ -154,7 +163,7 @@ def check_permission(config, author):
 
 def handle_payout_create(config, author, channel, args, from_user=True):
 
-	if not check_permission(config, author):
+	if not check_permission(config, author, channel):
 		return [{
 			'title': 'Permssion Denied',
 			'color': 'red',
@@ -249,7 +258,7 @@ def handle_payout_add(config, author, channel, args, from_user=True):
 
 def handle_payout_del(config, author, channel, args, from_user=True):
 
-	if not check_permission(config, author):
+	if not check_permission(config, author, channel):
 		return [{
 			'title': 'Permssion Denied',
 			'color': 'red',
@@ -593,7 +602,7 @@ def handle_payout_tag(config, author, channel, args, from_user=True):
 
 def handle_payout_destroy(config, author, channel, args, from_user=True):
 
-	if not check_permission(config, author):
+	if not check_permission(config, author, channel):
 		return [{
 			'title': 'Permssion Denied',
 			'color': 'red',
