@@ -83,6 +83,9 @@ def get_payout_times(shard):
 
 def get_shard(config, channel, author):
 
+	if channel is None:
+		return None
+
 	try:
 		return Shard.objects.get(channel_id=channel.id)
 
