@@ -573,7 +573,7 @@ def handle_payout_time(request):
 	payout_time = parse_opts_payout_time(tzname, args)
 	if not payout_time:
 		return [{
-			'title': 'Error: Missing payout time',
+			'title': 'Missing payout time',
 			'description': 'You have to supply a payout time in the following format: `HH:MM` (for example: `18:00`). Please type `%shelp payout` to get more help.',
 		}]
 
@@ -620,7 +620,7 @@ def handle_payout_tag(request):
 	affiliation_id, affiliation_display, affiliation_name = ShardMember.parse_affiliation(args)
 	if affiliation_id is None:
 		return [{
-			'title': 'Error: Missing Affiliation',
+			'title': 'Missing Affiliation',
 			'description': 'You have to supply an Affiliation. Valid affiliations are either: **`friendly`**, **`neutral`**, or **`enemy`**. Please type `%shelp payout` to get more help.',
 		}]
 
