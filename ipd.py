@@ -88,7 +88,7 @@ class UserRequest:
 		self.from_user = from_user
 		self.server = hasattr(message, 'guild') and message.guild or None
 		self.channel = hasattr(message, 'channel') and message.channel or None
-		self.bot_prefix = self.bot.get_bot_prefix(self.server)
+		self.bot_prefix = self.bot.get_bot_prefix(self.server, self.channel)
 		self.prefix_list = self.__get_prefix_list()
 		self.message = message
 		self.content = hasattr(message, 'content') and message.content or str(message)
@@ -141,8 +141,10 @@ class UserRequest:
 				if value and value not in author_tokens:
 					author_tokens.append(value)
 
+		server = hasattr(message.channel, 'guild') and message.channel.guild or None
+
 		author = '/'.join(author_tokens)
-		source = ' - '.join([ str(message.channel.guild), str(message.channel) ])
+		source = ' - '.join([ str(server), str(message.channel) ])
 
 		log = '[%s][%s][%s] %s' % (date, source, author, message.content)
 		print(log)
@@ -186,15 +188,17 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		self.loop.stop()
 		print('User initiated exit!')
 
-	def get_bot_prefix(self, server):
+	def get_bot_prefix(self, server, channel):
 
 		import DJANGO
 		from swgoh.models import DiscordServer
 
 		try:
 			server_id = None
-			if server:
+			if hasattr(server, 'id'):
 				server_id = server.id
+			elif hasattr(channel, 'id'):
+				server_id = channel.id
 
 			guild = DiscordServer.objects.get(server_id=server_id)
 			bot_prefix = guild.bot_prefix
@@ -244,7 +248,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					members = list(ShardMember.objects.filter(shard=shard))
 					if members:
 						channel = self.get_channel(shard.channel_id)
-						bot_prefix = self.get_bot_prefix(channel.guild)
+						bot_prefix = self.get_bot_prefix(channel.guild, channel)
 						message = MessageStub(channel.guild, channel, '%spayout' % bot_prefix)
 						request = UserRequest(config, message, from_user=False)
 						await self.on_message_handler(request)

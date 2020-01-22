@@ -20,10 +20,16 @@ def cmd_config(request):
 	from swgoh.models import DiscordServer
 
 	args = request.args
+	server = request.server
 	channel = request.channel
 	config = request.config
 
-	server_id = channel.guild.id
+	server_id = None
+	if hasattr(server, 'id'):
+		server_id = server.id
+	elif hasattr(channel, 'id'):
+		server_id = channel.id
+
 	try:
 		server = DiscordServer.objects.get(server_id=server_id)
 	except DiscordServer.DoesNotExist:
