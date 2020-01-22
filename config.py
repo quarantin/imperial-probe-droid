@@ -128,7 +128,7 @@ def dprint(message):
 	if config and 'debug' in config and config['debug'] is True:
 		print('DEBUG: %s' % message, file=sys.stderr)
 
-def load_config(bot=None, config_file='config.json'):
+def load_config(config_file='config.json'):
 
 	if not config:
 		config_path = '%s/%s' % (get_root_dir(), config_file)
