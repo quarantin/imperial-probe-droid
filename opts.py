@@ -86,23 +86,24 @@ MODPRIMARIES_OPTS = {
 	'tenacity':          'Tenacity',
 }
 
-def parse_opts_format(config, opts, args):
+def parse_opts_format(request, opts):
 
-	args_cpy = iter(list(args))
+	args = request.args
+	args_cpy = list(args)
 
 	for arg in args_cpy:
 
 		if arg in config['formats']:
 			args.remove(arg)
-			return args, config['formats'][arg]
+			return config['formats'][arg]
 
 		elif arg in [ 'c', 'custom' ]:
 			args.remove(arg)
 			fmt = next(args_cpy)
 			args.remove(fmt)
-			return args, fmt
+			return fmt
 
-	return args, DEFAULT_FORMAT
+	return DEFAULT_FORMAT
 
 def parse_opts_ally_code(arg):
 	regex = r'^[0-9]{9}$|^[0-9]{3}-[0-9]{3}-[0-9]{3}$'
@@ -114,9 +115,10 @@ def parse_opts_ally_code_excluded(arg):
 	m = re.search(regex, arg)
 	return m and int(m.group(1).replace('-', '')) or False
 
-def parse_opts_ally_codes(config, author, args):
+def parse_opts_ally_codes(request):
 
 	ally_codes = []
+	args = request.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -127,9 +129,10 @@ def parse_opts_ally_codes(config, author, args):
 
 	return list(set(ally_codes))
 
-def parse_opts_ally_codes_excluded(config, author, args):
+def parse_opts_ally_codes_excluded(request):
 
 	excluded = []
+	args = request.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -140,10 +143,12 @@ def parse_opts_ally_codes_excluded(config, author, args):
 
 	return list(set(excluded))
 
-def parse_opts_mentions(config, author, args):
+def parse_opts_mentions(request):
 
 	discord_ids = []
+	args = request.args
 	args_cpy = list(args)
+	author = request.author
 	for arg in args_cpy:
 
 		discord_id = None
@@ -165,10 +170,14 @@ def parse_opts_mentions(config, author, args):
 
 	return list(set(discord_ids))
 
-def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expected_allies=1, language='eng_us'):
+def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, language='eng_us'):
 
-	discord_ids = parse_opts_mentions(config, author, args)
-	ally_codes = parse_opts_ally_codes(config, author, args)
+	args = request.args
+	author = request.author
+	config = request.config
+
+	discord_ids = parse_opts_mentions(request)
+	ally_codes = parse_opts_ally_codes(request)
 
 	unregistered = []
 	for discord_id in discord_ids:
@@ -182,7 +191,7 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 			unregistered.append(discord_id)
 
 	if unregistered:
-		return args, None, error_ally_codes_not_registered(config, unregistered)
+		return None, error_ally_codes_not_registered(config, unregistered)
 
 	if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
 		try:
@@ -194,13 +203,13 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 			pass
 
 	if not ally_codes:
-		return args, None, error_no_ally_code_specified(config, author)
+		return None, error_no_ally_code_specified(config, author)
 
 	if len(ally_codes) < min_allies:
-		return args, None, error_not_enough_ally_codes_specified(ally_codes, min_allies)
+		return None, error_not_enough_ally_codes_specified(ally_codes, min_allies)
 
 	if len(ally_codes) > max_allies and max_allies != -1:
-		return args, None, error_too_many_ally_codes_specified(ally_codes, max_allies)
+		return None, error_too_many_ally_codes_specified(ally_codes, max_allies)
 
 	players = []
 	for ally_code in ally_codes:
@@ -214,7 +223,7 @@ def parse_opts_players(config, author, args, min_allies=1, max_allies=-1, expect
 			if p not in players:
 				players.append(p)
 
-	return args, players, None
+	return players, None
 
 def parse_opts_unit_names_by_faction(config, arg):
 
@@ -281,17 +290,20 @@ def parse_opts_unit_names_broad(config, args, units):
 
 	return None
 
-def parse_opts_unit_names(config, args):
+def parse_opts_unit_names(request):
+
+	args = request.args
+	config = request.config
 
 	if not args:
-		return args, []
+		return []
 
 	units = BaseUnit.objects.all()
 
 	match = parse_opts_unit_names_broad(config, args, units)
 	if match:
 		args.clear()
-		return args, match
+		return match
 
 	selected_units = []
 	args_cpy = list(args)
@@ -309,11 +321,13 @@ def parse_opts_unit_names(config, args):
 				if m not in selected_units:
 					selected_units.append(m)
 
-	return args, selected_units
+	return selected_units
 
-def parse_opts_unit_names_v1(config, args):
+def parse_opts_unit_names_v1(request):
 
 	selected_units = []
+	args = request.args
+	config = request.config
 	new_args = list(args)
 
 	for arg in new_args:
@@ -347,9 +361,9 @@ def parse_opts_unit_names_v1(config, args):
 			args.remove(arg)
 			selected_units.extend(new_units)
 
-	return args, selected_units
+	return selected_units
 
-def parse_opts_char_filters(args):
+def parse_opts_char_filters(request):
 
 	selected_char_filters = {
 		'gp':     1,
@@ -368,6 +382,7 @@ def parse_opts_char_filters(args):
 		'stars':  r'^([0-9]+)(\*|s|star|stars)$',
 	}
 
+	args = request.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		for key, regex in rules.items():
@@ -382,7 +397,7 @@ def parse_opts_char_filters(args):
 
 				selected_char_filters[key] = int(m.group(group_index))
 
-	return args, selected_char_filters
+	return selected_char_filters
 
 def parse_opts_modsets(args, ref_table):
 
@@ -395,7 +410,7 @@ def parse_opts_modsets(args, ref_table):
 			if modset not in selected_modsets:
 				selected_modsets.append(modset)
 
-	return args, selected_modsets
+	return selected_modsets
 
 def parse_opts_modslots(args):
 
@@ -408,7 +423,7 @@ def parse_opts_modslots(args):
 			if modslot not in selected_modslots:
 				selected_modslots.append(modslot)
 
-	return args, selected_modslots
+	return selected_modslots
 
 def parse_opts_modprimaries(args):
 
@@ -421,27 +436,30 @@ def parse_opts_modprimaries(args):
 			if modprimary not in selected_primaries:
 				selected_primaries.append(modprimary)
 
-	return args, selected_primaries
+	return selected_primaries
 
-def parse_opts_mod_filters(args):
+def parse_opts_mod_filters(request):
 
 	selected_filters = []
+	args = request.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		toks = arg.split('/')
 		if len(toks) == 3:
-			_, modsets = parse_opts_modsets([ toks[0] ], MODSET_OPTS_2)
-			_, slots   = parse_opts_modslots([ toks[1] ])
-			_, prims   = parse_opts_modprimaries([ toks[2] ])
+			modsets = parse_opts_modsets([ toks[0] ], MODSET_OPTS_2)
+			slots   = parse_opts_modslots([ toks[1] ])
+			prims   = parse_opts_modprimaries([ toks[2] ])
 			if modsets and slots and prims:
 				tupl = (modsets[0], slots[0], prims[0])
 				if tupl not in selected_filters:
 					args.remove(arg)
 					selected_filters.append(tupl)
 
-	return args, selected_filters
+	return selected_filters
 
-def parse_opts_lang(author):
+def parse_opts_lang(request):
+
+	author = request.author
 
 	try:
 		p = Player.objects.get(discord_id=author.id)
@@ -452,8 +470,9 @@ def parse_opts_lang(author):
 
 	return 'eng_us'
 
-def parse_opts_language(args):
+def parse_opts_language(request):
 
+	args = request.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -461,6 +480,6 @@ def parse_opts_language(args):
 		language = Player.get_language_info(argl)
 		if language is not None:
 			args.remove(arg)
-			return args, language
+			return language
 
-	return args, None
+	return None

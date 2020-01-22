@@ -19,7 +19,10 @@ Update the bot:
 %prefixu```"""
 }
 
-def cmd_update(config, author, channel, args):
+def cmd_update(request):
+
+	author = request.author
+	config = request.config
 
 	if 'admins' in config and author.id in config['admins']:
 		from utils import update_source_code

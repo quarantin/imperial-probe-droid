@@ -16,7 +16,11 @@ Remove command from ignored list:
 %prefixignore del <command>```""",
 }
 
-def cmd_ignore(config, author, channel, args):
+def cmd_ignore(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	if 'admins' not in config or author.id not in config['admins']:
 		return error_permission_denied()

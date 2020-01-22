@@ -8,7 +8,9 @@ help_invite = {
 %prefixinvite```""",
 }
 
-def cmd_invite(config, author, channel, args):
+def cmd_invite(request):
+
+	config = request.config
 
 	return [{
 		'title': 'Invite Imperial Probe Droid',

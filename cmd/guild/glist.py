@@ -46,15 +46,19 @@ def unit_is_matching(unit, char_filters):
 
 	return True
 
-def cmd_guild_list(config, author, channel, args):
+def cmd_guild_list(request):
 
-	language = parse_opts_lang(author)
+	args = request.args
+	author = request.author
+	config = request.config
 
-	args, selected_char_filters = parse_opts_char_filters(args)
+	language = parse_opts_lang(request)
 
-	args, selected_players, error = parse_opts_players(config, author, args)
+	selected_char_filters = parse_opts_char_filters(request)
 
-	args, selected_units = parse_opts_unit_names(config, args)
+	selected_players, error = parse_opts_players(request)
+
+	selected_units = parse_opts_unit_names(request)
 
 	if error:
 		return error

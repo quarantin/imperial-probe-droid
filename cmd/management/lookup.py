@@ -11,7 +11,11 @@ help_lookup = {
 Only administrators of this bot can use this command.```"""
 }
 
-def cmd_lookup(config, author, channel, args):
+def cmd_lookup(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	if 'admins' not in config or author.id not in config['admins']:
 		return error_permission_denied()

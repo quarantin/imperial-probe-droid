@@ -49,9 +49,10 @@ opts_locked = {
 	'ships': 'ships',
 }
 
-def parse_opts_locked(args):
+def parse_opts_locked(request):
 
 	opts = []
+	args = request.args
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -67,15 +68,18 @@ def parse_opts_locked(args):
 	else:
 		opts = opts.pop(0)
 
-	return args, opts
+	return opts
 	
-def cmd_locked(config, author, channel, args):
+def cmd_locked(request):
 
-	language = parse_opts_lang(author)
+	args = request.args
+	config = request.config
 
-	args, players, error = parse_opts_players(config, author, args)
+	language = parse_opts_lang(request)
 
-	args, opts = parse_opts_locked(args)
+	players, error = parse_opts_players(request)
+
+	opts = parse_opts_locked(request)
 
 	if args:
 		return error_unknown_parameters(args)

@@ -60,9 +60,12 @@ Or the shorter form:
 %prefixw de/ar/sp```"""
 }
 
-def cmd_wntm(config, author, channel, args):
+def cmd_wntm(request):
 
-	args, selected_filters = parse_opts_mod_filters(args)
+	args = request.args
+	config = request.config
+
+	selected_filters = parse_opts_mod_filters(request)
 
 	if args:
 		return error_unknown_parameters(args)

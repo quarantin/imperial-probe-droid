@@ -273,17 +273,18 @@ def guild_to_dict(guild, players):
 
 	return res
 
-def cmd_guild_compare(config, author, channel, args):
+def cmd_guild_compare(request):
 
-	msgs = []
+	args = request.args
+	config = request.config
 
-	language = parse_opts_lang(author)
+	language = parse_opts_lang(request)
 
-	excluded_ally_codes = parse_opts_ally_codes_excluded(config, author, args)
+	excluded_ally_codes = parse_opts_ally_codes_excluded(request)
 
-	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
+	selected_players, error = parse_opts_players(request, expected_allies=2)
 
-	args, selected_units = parse_opts_unit_names(config, args)
+	selected_units = parse_opts_unit_names(request)
 
 	if args:
 		return error_unknown_parameters(args)
@@ -397,6 +398,7 @@ def cmd_guild_compare(config, author, channel, args):
 
 	fields = [ field ]
 
+	msgs = []
 	for category, data in accu.items():
 		lines = []
 		lines.append('`|` %s `|`' % ' `|` '.join(banners))

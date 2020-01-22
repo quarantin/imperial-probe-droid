@@ -51,8 +51,9 @@ def is_supported_timezone(tzinfo, timezones):
 
 	return False
 
-def parse_opts_timezone(args):
+def parse_opts_timezone(request):
 
+	args = request.args
 	args_cpy = list(args)
 
 	timezones = get_available_timezones()
@@ -63,23 +64,26 @@ def parse_opts_timezone(args):
 		tz = is_supported_timezone(larg, timezones)
 		if tz:
 			args.remove(arg)
-			return args, tz
+			return tz
 
 	larg = '_'.join(args).lower()
 	tz = is_supported_timezone(larg, timezones)
 	if tz:
 		args.clear()
-		return args, tz
+		return tz
 
-	return args, None
+	return None
 
-async def cmd_timezone(config, author, channel, args):
+async def cmd_timezone(request):
 
-	args, players, error = parse_opts_players(config, author, args, max_allies=1)
+	args = request.args
+	config = request.config
+
+	players, error = parse_opts_players(request, max_allies=1)
 	if not players:
 		return error
 
-	args, timezone = parse_opts_timezone(args)
+	timezone = parse_opts_timezone(request)
 	if args:
 		return error_unknown_parameters(args)
 

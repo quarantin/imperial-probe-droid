@@ -81,7 +81,11 @@ def get_payout_times(shard):
 
 	return res
 
-def get_shard(config, channel, author):
+def get_shard(request):
+
+	author = request.author
+	channel = request.channel
+	config = request.config
 
 	if channel is None:
 		return None
@@ -143,16 +147,15 @@ def parse_opts_payout_time(tz, args):
 
 	return None
 
-DEFAULT_ROLE = 'IPD Admin'
+def check_permission(request):
 
-def check_permission(config, author, channel):
+	author = request.author
+	channel = request.channel
+	config = request.config
 
 	from discord import ChannelType
 	if channel is not None and channel.type is ChannelType.private:
 		return True
-
-	if 'role' not in config:
-		config['role'] = DEFAULT_ROLE
 
 	ipd_role = config['role'].lower()
 	for role in author.roles:
@@ -161,9 +164,13 @@ def check_permission(config, author, channel):
 
 	return False
 
-def handle_payout_create(config, author, channel, args, from_user=True):
+def handle_payout_create(request):
 
-	if not check_permission(config, author, channel):
+	args = request.args
+	channel = request.channel
+	config = request.config
+
+	if not check_permission(request):
 		return [{
 			'title': 'Permssion Denied',
 			'color': 'red',
@@ -194,9 +201,13 @@ def handle_payout_create(config, author, channel, args, from_user=True):
 		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp payout` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
-def handle_payout_add(config, author, channel, args, from_user=True):
+def handle_payout_add(request):
 
-	args, players, error = parse_opts_players(config, author, args)
+	args = request.args
+	channel = request.channel
+	config = request.config
+
+	players, error = parse_opts_players(request)
 	if error:
 		return error
 
@@ -256,16 +267,20 @@ def handle_payout_add(config, author, channel, args, from_user=True):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_del(config, author, channel, args, from_user=True):
+def handle_payout_del(request):
 
-	if not check_permission(config, author, channel):
+	args = request.args
+	channel = request.channel
+	config = request.config
+
+	if not check_permission(request):
 		return [{
 			'title': 'Permssion Denied',
 			'color': 'red',
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
 
-	args, players, error = parse_opts_players(config, author, args)
+	players, error = parse_opts_players(request)
 	if error:
 		return error
 
@@ -291,7 +306,11 @@ def handle_payout_del(config, author, channel, args, from_user=True):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_rank(config, author, channel, args, from_user=True):
+def handle_payout_rank(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	if args:
 		return error_unknown_parameters(args)
@@ -305,7 +324,7 @@ def handle_payout_rank(config, author, channel, args, from_user=True):
 		tzname = 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
 
-	shard = get_shard(config, channel, author)
+	shard = get_shard(request)
 	if not shard:
 		return error_no_shard_found(config)
 
@@ -367,7 +386,13 @@ def handle_payout_rank(config, author, channel, args, from_user=True):
 		'description': 'Shard payout time for **%s** arena:\n%s\n`|Rank PO_At Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
-async def handle_payout_stats(config, author, channel, args, from_user=True):
+async def handle_payout_stats(request):
+
+	args = request.args
+	author = request.author
+	channel = request.channel
+	config = request.config
+	from_user = request.from_user
 
 	if args:
 		return error_unknown_parameters(args)
@@ -381,7 +406,7 @@ async def handle_payout_stats(config, author, channel, args, from_user=True):
 		tzname = 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
 
-	shard = get_shard(config, channel, author)
+	shard = get_shard(request)
 	if not shard:
 		return error_no_shard_found(config)
 
@@ -483,7 +508,7 @@ async def handle_payout_stats(config, author, channel, args, from_user=True):
 
 	from ipd import ImperialProbeDroid
 	for embed in embeds:
-		status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
+		status, error = await config['bot'].sendmsg(channel, message='', embed=embed)
 		if not status:
 			print('Could not print to channel %s: %s' % (channel, error))
 		else:
@@ -492,7 +517,11 @@ async def handle_payout_stats(config, author, channel, args, from_user=True):
 
 	return []
 
-def handle_payout_export(config, author, channel, args, from_user=True):
+def handle_payout_export(request):
+
+	args = request.args
+	channel = request.channel
+	config = request.config
 
 	if args:
 		return error_unknown_parameters(args)
@@ -516,7 +545,12 @@ def handle_payout_export(config, author, channel, args, from_user=True):
 		'description': '`%s`' % ' '.join(ally_codes)
 	}]
 
-def handle_payout_time(config, author, channel, args, from_user=True):
+def handle_payout_time(request):
+
+	args = request.args
+	author = request.author
+	channel = request.channel
+	config = request.config
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
@@ -532,7 +566,7 @@ def handle_payout_time(config, author, channel, args, from_user=True):
 		player = None
 		tzname = 'Europe/London'
 
-	args, players, error = parse_opts_players(config, author, args)
+	players, error = parse_opts_players(request)
 	if error:
 		return error
 
@@ -558,7 +592,12 @@ def handle_payout_time(config, author, channel, args, from_user=True):
 		'description': 'Payout time has been updated to **%s** for the following ally code%s:\n%s' % (payout_time.astimezone(tzname).strftime('%H:%M'), plural, ally_code_str),
 	}]
 
-def handle_payout_tag(config, author, channel, args, from_user=True):
+def handle_payout_tag(request):
+
+	args = request.args
+	author = request.author
+	channel = request.channel
+	config = request.config
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
@@ -574,7 +613,7 @@ def handle_payout_tag(config, author, channel, args, from_user=True):
 		player = None
 		tzname = 'Europe/London'
 
-	args, players, error = parse_opts_players(config, author, args)
+	players, error = parse_opts_players(request)
 	if error:
 		return error
 
@@ -600,9 +639,12 @@ def handle_payout_tag(config, author, channel, args, from_user=True):
 		'description': 'Affiliation has been changed to **`%s`** for the following ally code%s:\n%s' % (affiliation_name, plural, ally_code_str),
 	}]
 
-def handle_payout_destroy(config, author, channel, args, from_user=True):
+def handle_payout_destroy(request):
 
-	if not check_permission(config, author, channel):
+	channel = request.channel
+	config = request.config
+
+	if not check_permission(request):
 		return [{
 			'title': 'Permssion Denied',
 			'color': 'red',
@@ -656,26 +698,28 @@ subcommands = {
 	'destroy': handle_payout_destroy,
 }
 
-def parse_opts_subcommands(args):
+def parse_opts_subcommands(request):
 
+	args = request.args
 	args_cpy = list(args)
 	for arg in args_cpy:
-		if arg.lower() in subcommands:
+		larg = arg.lower()
+		if larg in subcommands:
 			args.remove(arg)
-			return args, arg.lower()
+			return larg
 
-	return args, None
+	return None
 
-async def cmd_payout(config, author, channel, args, from_user=True):
+async def cmd_payout(request):
 
-	args, subcommand = parse_opts_subcommands(args)
+	subcommand = parse_opts_subcommands(request)
 	if not subcommand:
 		subcommand = 'stats'
 
 	if subcommand in subcommands:
 		if inspect.iscoroutinefunction(subcommands[subcommand]):
-			return await subcommands[subcommand](config, author, channel, args, from_user=from_user)
+			return await subcommands[subcommand](request)
 		else:
-			return subcommands[subcommand](config, author, channel, args, from_user=from_user)
+			return subcommands[subcommand](request)
 
 	return error_generic('Unsupported Action', subcommand)

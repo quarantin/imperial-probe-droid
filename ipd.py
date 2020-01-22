@@ -8,7 +8,7 @@ import shlex
 import string
 import traceback
 from discord.ext import commands
-from config import config, load_config, load_help
+from config import load_config, load_help
 
 from utils import *
 from embed import *
@@ -29,33 +29,6 @@ PROBE_DIALOG = [
 	'stZS',
 	'wOm',
 ]
-
-def log_message(message):
-
-	date = local_time()
-	if 'timezone' in config and config['timezone']:
-		date = local_time(timezone=config['timezone'])
-
-	date = date.strftime('%Y%m%d %H:%M:%S')
-	server = str(message.guild) or ''
-	channel = str(message.channel) or ''
-	content = message.content
-	author_tokens = []
-	for attr in [ 'id', 'display_name', 'nick', 'name' ]:
-		if hasattr(message.author, attr):
-			value = getattr(message.author, attr)
-			if value and str(value) not in author_tokens:
-				author_tokens.append(str(value))
-
-	author = '/'.join(author_tokens)
-	source = ' - '.join([ server, channel ])
-
-	log = '[%s][%s][%s] %s' % (date, source, author, content)
-	print(log)
-
-	fout = open(LOGFILE, 'a+')
-	fout.write('%s\n' % log)
-	fout.close()
 
 def expand_word(word):
 
@@ -81,21 +54,160 @@ def compute_hello_msg():
 
 	return (' '.join(words)).capitalize()
 
+class MessageStub:
+
+	server = None
+	channel = None
+	content = None
+
+	def __init__(self, server, channel, content):
+		self.server = server
+		self.channel = channel
+		self.content = content
+
+class UserRequest:
+
+	bot = None
+	bot_prefix = None
+	config = None
+	author = None
+	from_user = True
+	server = None
+	channel = None
+	prefix_list = None
+	message = None
+	content = None
+	is_ipd_message = False
+	command = None
+	args = None
+
+	def __init__(self, config, message, from_user=True):
+		self.bot = config['bot']
+		self.config = config
+		self.author = hasattr(message, 'author') and message.author or self.bot.user
+		self.from_user = from_user
+		self.server = hasattr(message, 'guild') and message.guild or None
+		self.channel = hasattr(message, 'channel') and message.channel or None
+		self.bot_prefix = self.bot.get_bot_prefix(self.server)
+		self.prefix_list = self.__get_prefix_list()
+		self.message = message
+		self.content = hasattr(message, 'content') and message.content or str(message)
+		self.is_ipd_message = self.__is_ipd_message()
+		if self.is_ipd_message is True and from_user is True:
+			self.__log_message(self.message)
+		self.content = self.__remove_prefix(self.content)
+		if self.is_ipd_message is False:
+			return
+
+		try:
+			args = shlex.split(self.content)
+		except:
+			print("PROBLEM WITH SHLEX: `%s`" % self.content)
+			args = self.content.split(' ')
+
+		command = args[0]
+		if command in config['aliases']:
+			new_content = self.content.replace(command, config['aliases'][command])
+			content = self.__remove_prefix(new_content)
+			args = shlex.split(content)
+			command = args[0]
+
+		if command.lower() in config['ignored']:
+			self.is_ipd_message = False
+
+		args = args[1:]
+
+		args = [ x for x in args if x ]
+
+		if 'help' in args or 'h' in args:
+			args = [ command ]
+			command = 'help'
+
+		self.command = command
+		self.args = args
+
+	def __log_message(self, message):
+
+		date = local_time()
+		if 'timezone' in self.config and self.config['timezone']:
+			date = local_time(timezone=self.config['timezone'])
+
+		date = date.strftime('%Y%m%d %H:%M:%S')
+
+		author_tokens = []
+		for attr in [ 'id', 'display_name', 'nick', 'name' ]:
+			if hasattr(self.author, attr):
+				value = str(getattr(self.author, attr))
+				if value and value not in author_tokens:
+					author_tokens.append(value)
+
+		author = '/'.join(author_tokens)
+		source = ' - '.join([ str(message.channel.guild), str(message.channel) ])
+
+		log = '[%s][%s][%s] %s' % (date, source, author, message.content)
+		print(log)
+
+		fout = open(LOGFILE, 'a+')
+		fout.write('%s\n' % log)
+		fout.close()
+
+	def __remove_prefix(self, content):
+
+		if content is None:
+			return
+
+		for prefix in self.prefix_list:
+			content = content.replace(prefix, '')
+
+		return content.strip()
+
+	def __get_prefix_list(self):
+
+		return [
+			self.bot_prefix,
+			'<@%s>' % self.bot.user.id,
+			'<@!%s>' % self.bot.user.id,
+		]
+
+	def __is_ipd_message(self):
+
+		for prefix in self.prefix_list:
+			if self.content.startswith(prefix):
+				return True
+
+		return False
+
 class ImperialProbeDroid(discord.ext.commands.Bot):
 
+	config = None
+	initialized = False
 
 	def exit(self):
-
-		# TODO send message on quit, like animated an
-		# gif of an explosion or something like that.
-
 		self.loop.stop()
 		print('User initiated exit!')
 
-	async def sendmsg(channel, message=None, embed=None):
+	def get_bot_prefix(self, server):
+
+		import DJANGO
+		from swgoh.models import DiscordServer
+
+		try:
+			server_id = None
+			if server:
+				server_id = server.id
+
+			guild = DiscordServer.objects.get(server_id=server_id)
+			bot_prefix = guild.bot_prefix
+
+		except DiscordServer.DoesNotExist:
+			bot_prefix = self.config['prefix']
+
+		return bot_prefix
+
+	async def sendmsg(self, channel, message=None, embed=None):
 
 		error = None
-		retries = 'max-retry' in config and config['max-retry'] or 3
+		retries = 'max-retry' in self.config and self.config['max-retry'] or 3
 
 		while retries > 0:
 
@@ -132,9 +244,18 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					members = list(ShardMember.objects.filter(shard=shard))
 					if members:
 						channel = self.get_channel(shard.channel_id)
-						await self.on_message_handler(config, self.user, channel, 'payout', [], from_user=False)
+						bot_prefix = self.get_bot_prefix(channel.guild)
+						message = MessageStub(channel.guild, channel, '%spayout' % bot_prefix)
+						request = UserRequest(config, message, from_user=False)
+						await self.on_message_handler(request)
 
 	async def on_ready(self):
+
+		if self.initialized is True:
+			print('Reconnection as %s (ID:%s)' % (self.user.name, self.user.id))
+			return
+
+		config = self.config
 
 		load_help()
 		if 'env' in config and config['env'] == 'prod':
@@ -146,109 +267,42 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		if 'hello' in config:
 			for chan_id in config['hello']:
 				channel = self.get_channel(chan_id)
-				status, error = await ImperialProbeDroid.sendmsg(channel, message=message)
+				status, error = await self.sendmsg(channel, message=message)
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
-		if 'crontab' not in config:
-			config['crontab'] = True
-			self.loop.create_task(self.schedule_payouts(config))
+		self.loop.create_task(self.schedule_payouts(config))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
-	def remove_prefix(self, prefix_list, content):
-
-		for prefix in prefix_list:
-			content = content.replace(prefix, '')
-
-		return content.strip()
-
-	def get_bot_prefix(self, config, message):
-
-		import DJANGO
-		from swgoh.models import DiscordServer
-
-		try:
-			server_id = None
-			if message and message.guild:
-				server_id = message.guild.id
-
-			server = DiscordServer.objects.get(server_id=server_id)
-			bot_prefix = server.bot_prefix
-
-		except DiscordServer.DoesNotExist:
-			bot_prefix = config['prefix']
-
-		return bot_prefix
-
-	def get_prefix_list(self, config, message):
-
-		return [
-			self.get_bot_prefix(config, message),
-			'<@%s>' % self.user.id,
-			'<@!%s>' % self.user.id,
-		]
-
 	async def on_message(self, message):
 
-		prefix_list = self.get_prefix_list(config, message)
-		for prefix in prefix_list:
-			if message.content.startswith(prefix):
-				break
-		else:
+		request = UserRequest(self.config, message)
+		if request.is_ipd_message is False:
 			return
 
-		log_message(message)
-
-		channel = message.channel
-		content = self.remove_prefix(prefix_list, message.content)
-		args = shlex.split(content)
-		if not args:
-			return
-
-		command = args[0]
-		if command in config['aliases']:
-			replaced = message.content.replace(command, config['aliases'][command])
-			content = self.remove_prefix(prefix_list, replaced)
-			args = shlex.split(content)
-			command = args[0]
-
-		if command.lower() in config['ignored']:
-			return
-
-		args = args[1:]
-
-		args = [ x for x in args if x ]
-
-		return await self.on_message_handler(config, message.author, channel, command, args)
+		return await self.on_message_handler(request)
 
 
-	async def on_message_handler(self, config, author, channel, command, args, from_user=True):
+	async def on_message_handler(self, request):
 
-		if 'help' in args or 'h' in args:
-			args = [ command ]
-			command = 'help'
+		channel = request.channel
+		command = request.command
+		config = request.config
 
 		try:
 			for cmd in COMMANDS:
 				if command in cmd['aliases']:
 
 					if inspect.iscoroutinefunction(cmd['function']):
-
-						if cmd['command'] == 'payout':
-							msgs = await cmd['function'](config, author, channel, args, from_user=from_user)
-						else:
-							msgs = await cmd['function'](config, author, channel, args)
+						msgs = await cmd['function'](request)
 					else:
-						if cmd['command'] == 'payout':
-							msgs = cmd['function'](config, author, channel, args, from_user=from_user)
-						else:
-							msgs = cmd['function'](config, author, channel, args)
+						msgs = cmd['function'](request)
 
 					for msg in msgs:
 						embeds = new_embeds(config, msg)
 						for embed in embeds:
-							status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
+							status, error = await self.sendmsg(channel, message='', embed=embed)
 							if not status:
 								print('Could not print to channel %s: %s' % (channel, error))
 					break
@@ -260,15 +314,16 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				})
 
 				for embed in embeds:
-					status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
+					status, error = await self.sendmsg(channel, message='', embed=embed)
 					if not status:
 						print('Could not print to channel %s: %s' % (channel, error))
 
 		except Exception as err:
+			print("Error in on_message_handler...")
 			print(traceback.format_exc())
 
 			if 'crash' in config and config['crash']:
-				status, error = await ImperialProbeDroid.sendmsg(channel, message=config['crash'])
+				status, error = await self.sendmsg(channel, message=config['crash'])
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
@@ -279,21 +334,27 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			})
 
 			for embed in embeds:
-				status, error = await ImperialProbeDroid.sendmsg(channel, message='', embed=embed)
+				status, error = await self.sendmsg(channel, message='', embed=embed)
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
 async def __main__():
 	try:
-		load_config()
-		config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
-		config['bot'].run(config['token'])
+		config = load_config()
+		bot = config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
+		bot.config = config
+		try:
+			bot.run(config['token'])
+		except:
+			print('bot.run interrupted!')
+			print(traceback.format_exc())
 
-		await config['bot'].logout()
+		await bot.logout()
 		print('Bot quitting!')
 
 	except Exception as err:
-		print(err)
+		print('bot initialization interrupted!')
+		print(traceback.format_exc())
 
 if __name__ == '__main__':
 	try:

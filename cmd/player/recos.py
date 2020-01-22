@@ -67,16 +67,20 @@ def get_short_stat(stat_id, language):
 
 	raise Exception('Invalid short stat request for %s %s (%s)' % (stat_id, language, stat_name))
 
-def cmd_recos(config, author, channel, args):
+def cmd_recos(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
 	emoji_gg = EMOJIS['swgoh.gg']
 
-	language = parse_opts_lang(author)
+	language = parse_opts_lang(request)
 
-	args, selected_players, error = parse_opts_players(config, author, args)
-	args, selected_units = parse_opts_unit_names(config, args)
+	selected_players, error = parse_opts_players(request)
+	selected_units = parse_opts_unit_names(request)
 
 	if error:
 		return error

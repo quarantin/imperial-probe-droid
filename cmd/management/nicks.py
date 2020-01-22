@@ -31,7 +31,11 @@ Delete first nick (**ep**) using its ID:
 %prefixN del 1```"""
 }
 
-def cmd_nicks(config, author, channel, args):
+def cmd_nicks(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	lines = []
 	prefix = config['prefix']
@@ -88,7 +92,7 @@ def cmd_nicks(config, author, channel, args):
 			return error_missing_parameter(config, 'nicks')
 
 		target_nick = args.pop(0)
-		args, selected_units = parse_opts_unit_names(config, args)
+		selected_units = parse_opts_unit_names(request)
 		if args:
 			return error_unknown_parameters(args)
 

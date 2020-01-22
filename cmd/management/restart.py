@@ -19,7 +19,10 @@ Restart the bot:
 %prefixR```""",
 }
 
-def cmd_restart(config, author, channel, args):
+def cmd_restart(request):
+
+	author = request.author
+	config = request.config
 
 	if 'admins' in config and author.id in config['admins']:
 		config['bot'].exit()

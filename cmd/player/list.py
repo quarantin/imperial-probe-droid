@@ -18,11 +18,14 @@ List Darth Malak and both Revan:
 %prefixlist malak revan```"""
 }
 
-def cmd_list(config, author, channel, args):
+def cmd_list(request):
 
-	language = parse_opts_lang(author)
+	args = request.args
+	config = request.config
 
-	args, selected_units = parse_opts_unit_names(config, args)
+	language = parse_opts_lang(request)
+
+	selected_units = parse_opts_unit_names(request)
 	if not selected_units:
 		return error_no_unit_selected()
 

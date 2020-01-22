@@ -278,17 +278,18 @@ def player_to_embedfield(config, player, roster, lang):
 
 	return res
 
-def cmd_player_compare(config, author, channel, args):
+def cmd_player_compare(request):
 
-	msgs = []
+	args = request.args
+	config = request.config
 
-	lang = parse_opts_lang(author)
+	lang = parse_opts_lang(request)
 
-	args, selected_players, error = parse_opts_players(config, author, args, expected_allies=2)
+	selected_players, error = parse_opts_players(request, expected_allies=2)
 	if error:
 		return error
 
-	args, selected_units = parse_opts_unit_names(config, args)
+	selected_units = parse_opts_unit_names(request)
 	if args:
 		return error_unknown_parameters(args)
 
@@ -315,6 +316,7 @@ def cmd_player_compare(config, author, channel, args):
 		if len(key) > max_key_len:
 			max_key_len = len(key)
 
+	msgs = []
 	lines = []
 	for key, listval in player_fields.items():
 		pad = (max_key_len - len(key)) + 1

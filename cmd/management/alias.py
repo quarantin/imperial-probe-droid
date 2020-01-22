@@ -30,7 +30,11 @@ Delete first alias by its ID (**`mm`**):
 %prefixA del 1```"""
 }
 
-def cmd_alias(config, author, channel, args):
+def cmd_alias(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	lines = []
 	prefix = config['prefix']

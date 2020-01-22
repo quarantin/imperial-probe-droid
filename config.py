@@ -2,6 +2,8 @@ import os, sys, json, requests
 
 config = {}
 
+DEFAULT_ROLE = 'IPD Admin'
+
 def get_root_dir():
 	this_file = os.path.realpath(__file__)
 	this_folder = os.path.dirname(this_file)
@@ -141,6 +143,7 @@ def load_config(config_file='config.json'):
 		config['save'] = save_config
 		config['separator'] = '`%s`' % ('-' * 27)
 		config['debug'] = 'debug' in config and config['debug']
+		config['role'] = DEFAULT_ROLE
 
 	parse_skills()
 	return config

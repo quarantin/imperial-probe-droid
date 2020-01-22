@@ -77,9 +77,10 @@ opts_arena = {
 	'fleet': 'ships',
 }
 
-def parse_opts_arena(args):
+def parse_opts_arena(request):
 
 	selected_opts = 'chars'
+	args = request.args
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -87,19 +88,22 @@ def parse_opts_arena(args):
 		if arg in opts_arena:
 			args.remove(arg)
 			opt = opts_arena[arg]
-			return args, opt
+			return opt
 
-	return args, selected_opts
+	return selected_opts
 
-def cmd_arena(config, author, channel, args):
+def cmd_arena(request):
 
-	args, selected_opts = parse_opts_arena(args)
+	args = request.args
+	config = request.config
+
+	selected_opts = parse_opts_arena(request)
 	if not selected_opts:
 		selected_opts.append('chars')
 
-	args, selected_players, error = parse_opts_players(config, author, args)
+	selected_players, error = parse_opts_players(request)
 
-	args, selected_format = parse_opts_format(config, selected_opts, args)
+	selected_format = parse_opts_format(request, selected_opts)
 
 	if args:
 		return error_unknown_parameters(args)

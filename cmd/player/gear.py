@@ -51,22 +51,26 @@ def get_gear_levels(base_id):
 
 	return result
 
-def cmd_gear(config, author, channel, args):
+def cmd_gear(request):
 
-	language = parse_opts_lang(author)
+	args = request.args
+	author = request.author
+	config = request.config
 
-	args, selected_players, error = parse_opts_players(config, author, args, min_allies=1, max_allies=1)
+	language = parse_opts_lang(request)
 
-	args, selected_units = parse_opts_unit_names(config, args)
+	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
 
-	if args:
-		return error_unknown_parameters(args)
-
-	if not selected_units:
-		return error_no_unit_selected()
+	selected_units = parse_opts_unit_names(request)
 
 	if error:
 		return error
+
+	if not selected_players:
+		return error_no_ally_code_specified(config, author)
+
+	if not selected_units:
+		return error_no_unit_selected()
 
 	if args:
 		return error_unknown_parameters(args)

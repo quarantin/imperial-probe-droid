@@ -14,10 +14,14 @@ To change prefix to '?':
 In case of invalid/unknown prefix, you can still address the bot using discord mentions."""
 }
 
-def cmd_config(config, author, channel, args):
+def cmd_config(request):
 
 	import DJANGO
 	from swgoh.models import DiscordServer
+
+	args = request.args
+	channel = request.channel
+	config = request.config
 
 	server_id = channel.guild.id
 	try:

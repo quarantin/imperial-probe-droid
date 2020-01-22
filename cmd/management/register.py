@@ -32,9 +32,13 @@ Register two players at once:
 %prefixregister @somePlayer @otherPlayer 123-456-789 234-567-891```""",
 }
 
-def cmd_me(config, author, channel, args):
+def cmd_me(request):
 
-	args, selected_players, error = parse_opts_players(config, author, args)
+	args = request.args
+	author = request.author
+	config = request.config
+
+	selected_players, error = parse_opts_players(request)
 	if error:
 		return error
 
@@ -73,12 +77,15 @@ async def fill_user_info(config, player):
 			value = getattr(user, key)
 			setattr(player, real_key, value)
 
-async def register_users(config, author, discord_ids, ally_codes):
+async def register_users(request, discord_ids, ally_codes):
+
+	author = request.author
+	config = request.config
 
 	if len(discord_ids) != len(ally_codes):
 		return error_register_mismatch(config, author, discord_ids, ally_codes)
 
-	lang = parse_opts_lang(author)
+	lang = parse_opts_lang(request)
 	language = Player.get_language_info(lang)
 
 	players = fetch_players(config, {
@@ -131,13 +138,17 @@ async def register_users(config, author, discord_ids, ally_codes):
 		'description': 'Hello <@%s>,\n\n%s' % (author.id, lines_str),
 	}]
 
-async def cmd_register(config, author, channel, args):
+async def cmd_register(request):
 
-	lang = parse_opts_lang(author)
+	args = request.args
+	author = request.author
+	config=  request.config
+
+	lang = parse_opts_lang(request)
 	language = Player.get_language_info(lang)
 
-	discord_ids = parse_opts_mentions(config, author, args)
-	ally_codes = parse_opts_ally_codes(config, author, args)
+	discord_ids = parse_opts_mentions(request)
+	ally_codes = parse_opts_ally_codes(request)
 
 	if not ally_codes and len(discord_ids) < 2:
 		try:
@@ -157,4 +168,4 @@ async def cmd_register(config, author, channel, args):
 	if len(ally_codes) == len(discord_ids) + 1 and author.id not in discord_ids:
 		discord_ids.append(author.id)
 
-	return await register_users(config, author, discord_ids, ally_codes)
+	return await register_users(request, discord_ids, ally_codes)

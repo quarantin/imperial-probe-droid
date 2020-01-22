@@ -21,7 +21,11 @@ Configure your default language to French:
 %prefixlanguage fr```""",
 }
 
-def get_available_languages(config, author):
+def get_available_languages(request):
+
+	author = request.author
+	config = request.config
+
 	langs = [ ' - **`%s`**: %s' % (lang_code, lang_name) for language, lang_code, lang_flag, lang_name in Player.LANGS ]
 	langs.insert(0, 'Here is the list of supported languages:')
 
@@ -39,17 +43,19 @@ def get_available_languages(config, author):
 		'description': '%s' % '\n'.join(langs),
 	}]
 
-def cmd_language(config, author, channel, args):
+def cmd_language(request):
 
-	args, players, error = parse_opts_players(config, author, args, max_allies=1)
+	args = request.args
 
-	args, language = parse_opts_language(args)
+	players, error = parse_opts_players(request, max_allies=1)
+
+	language = parse_opts_language(request)
 
 	if args:
 		return error_unknown_parameters(args)
 
 	if not language:
-		return get_available_languages(config, author)
+		return get_available_languages(request)
 
 	if not players:
 		return error

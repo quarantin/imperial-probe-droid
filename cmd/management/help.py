@@ -62,7 +62,10 @@ def substitute_tokens(config, text):
 
 	return text
 
-def cmd_help(config, author, channel, args):
+def cmd_help(request):
+
+	args = request.args
+	config = request.config
 
 	msg = help_help
 

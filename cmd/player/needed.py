@@ -181,11 +181,14 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 
 	return '\n'.join(lines)
 
-def cmd_needed(config, author, channel, args):
+def cmd_needed(request):
 
-	args, players, error = parse_opts_players(config, author, args)
-	args, selected_slots = parse_opts_modslots(args)
-	args, selected_primaries = parse_opts_modprimaries(args)
+	args = request.args
+	config = request.config
+
+	players, error = parse_opts_players(request)
+	selected_slots = parse_opts_modslots(args)
+	selected_primaries = parse_opts_modprimaries(args)
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']

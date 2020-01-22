@@ -27,13 +27,18 @@ MOD_STATS = {
 	41: 'offense',
 }
 
-def cmd_modroll(config, author, channel, args):
+def cmd_modroll(request):
+
+	args = request.args
+	author = request.author
+	config = request.config
 
 	msgs = []
 
-	language = parse_opts_lang(author)
+	language = parse_opts_lang(request)
 
-	args, selected_players, error = parse_opts_players(config, author, args)
+	selected_players, error = parse_opts_players(request)
+
 	if args:
 		return error_unknown_parameters(args)
 

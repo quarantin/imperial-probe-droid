@@ -56,10 +56,11 @@ opts_meta = {
 
 }
 
-def parse_opts_meta(args):
+def parse_opts_meta(request):
 
 	top_n = 5
 	selected_opts = []
+	args = request.args
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -79,12 +80,16 @@ def parse_opts_meta(args):
 
 			top_n = int(arg)
 
-	return args, selected_opts, top_n
+	return selected_opts, top_n
 			
-def cmd_meta(config, author, channel, args):
+def cmd_meta(request):
+
+	args = request.args
+	config = request.config
 
 	msgs = []
-	args, selected_opts, top_n = parse_opts_meta(args)
+	selected_opts, top_n = parse_opts_meta(request)
+
 	if args:
 		plural = len(args) > 1 and 's' or ''
 		return [{
