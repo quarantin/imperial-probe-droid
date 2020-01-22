@@ -111,6 +111,6 @@ def error_permission_denied():
 
 def error_no_shard_found(config):
 	return [{
-		'title': 'Error: No Shard Found',
+		'title': 'No Shard Found',
 		'description': 'No shard found associated to this channel. Please type `%shelp payouts` to learn how to create a shard.' % config['prefix'],
 	}]
