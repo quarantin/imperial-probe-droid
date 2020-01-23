@@ -279,7 +279,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		for item in items:
 			news_channel.last_news = item
-			content = '%s\n%s' % (item.feed.name, item.link)
+			content = '**%s**\n%s' % (item.feed.name, item.link)
 			await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
 		news_channel.save()
