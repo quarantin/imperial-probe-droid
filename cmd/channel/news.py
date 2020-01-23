@@ -4,10 +4,12 @@ from opts import *
 from errors import *
 
 import DJANGO
-from swgoh.models import NewsChannel
+from swgoh.models import NewsChannel, NewsEntry
 
 import inspect
 from discord import ChannelType, Forbidden, HTTPException
+
+WEBHOOK = 'SWGOH News Feed'
 
 help_news = {
 	'title': 'News Help',
@@ -19,10 +21,12 @@ Enabling news on a channel:
 %prefixnews enable```
 Disabling news on a channel:
 ```
-%prefixnews disable```"""
+%prefixnews disable```
+Populate current channel with all passed news:
+(There will be a *LOT* of entries)
+```
+%prefixnews history```"""
 }
-
-WEBHOOK = 'SWGOH News'
 
 def check_permission(request):
 
@@ -86,7 +90,8 @@ async def handle_news_enable(request):
 				'description': 'I\'m not allowed to create webhooks. I need the following permission to proceed:\n- **Manage Webhooks**',
 			}]
 
-	news_channel, created = NewsChannel.objects.get_or_create(channel_id=channel.id, webhook_id=webhook.id)
+	last_news = NewsEntry.objects.all().latest('published')
+	news_channel, created = NewsChannel.objects.get_or_create(channel_id=channel.id, webhook_id=webhook.id, last_news=last_news)
 	title = 'News Channel'
 	desc = 'News are already enabled on this channel.'
 	if created:
@@ -123,9 +128,38 @@ def handle_news_disable(request):
 		'description': 'News are now disabled on this channel.'
 	}]
 
+async def handle_news_history(request):
+
+	channel = request.channel
+	config = request.config
+
+	if not check_permission(request):
+		return [{
+			'title': 'Permission Denied',
+			'color': 'red',
+			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
+		}]
+
+	try:
+		channel = NewsChannel.objects.get(channel_id=channel.id)
+
+	except NewsChannel.DoesNotExist:
+		return error_not_a_news_channel(config)
+
+	channel.last_news = None
+	channel.save()
+
+	await config['bot'].update_news_channel(config, channel)
+
+	return [{
+		'title': 'News Channel',
+		'description': 'All passed news will be added to this channel.',
+	}]
+
 subcommands = {
 	'enable':  handle_news_enable,
 	'disable': handle_news_disable,
+	'history': handle_news_history,
 }
 
 def parse_opts_subcommands(request):
