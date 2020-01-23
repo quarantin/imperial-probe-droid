@@ -114,3 +114,9 @@ def error_no_shard_found(config):
 		'title': 'No Shard Found',
 		'description': 'No shard found associated to this channel. Please type `%shelp payouts` to learn how to create a shard.' % config['prefix'],
 	}]
+
+def error_not_a_news_channel(config):
+	return [{
+		'title': 'Not a News Channel',
+		'description': 'News are disabled on this channel. Please type `%snews enable` to enable news.' % config['prefix'],
+	}]
