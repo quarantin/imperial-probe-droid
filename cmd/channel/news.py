@@ -151,10 +151,7 @@ async def handle_news_history(request):
 
 	await config['bot'].update_news_channel(config, channel)
 
-	return [{
-		'title': 'News Channel',
-		'description': 'All passed news will be added to this channel.',
-	}]
+	return []
 
 subcommands = {
 	'enable':  handle_news_enable,
