@@ -141,11 +141,14 @@ class UserRequest:
 				value_str = str(value)
 				if value and value_str not in author_tokens:
 					author_tokens.append(value_str)
-
-		server = hasattr(message.channel, 'guild') and message.channel.guild or None
-
 		author = '/'.join(author_tokens)
-		source = ' - '.join([ str(server), str(message.channel) ])
+
+		server_tokens = []
+		server = hasattr(message.channel, 'guild') and str(message.channel.guild) or None
+		if server:
+			server_tokens.append(server)
+		server_tokens.append(str(message.channel))
+		source = ' - '.join(server_tokens)
 
 		log = '[%s][%s][%s] %s' % (date, source, author, message.content)
 		print(log)
