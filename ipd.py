@@ -137,9 +137,10 @@ class UserRequest:
 		author_tokens = []
 		for attr in [ 'id', 'display_name', 'nick', 'name' ]:
 			if hasattr(self.author, attr):
-				value = str(getattr(self.author, attr))
-				if value and value not in author_tokens:
-					author_tokens.append(value)
+				value = getattr(self.author, attr)
+				value_str = str(value)
+				if value and value_str not in author_tokens:
+					author_tokens.append(value_str)
 
 		server = hasattr(message.channel, 'guild') and message.channel.guild or None
 
