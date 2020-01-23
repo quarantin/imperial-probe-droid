@@ -23,7 +23,7 @@ Disabling news on a channel:
 ```
 %prefixnews disable```
 Populate current channel with all passed news:
-(There will be a *LOT* of entries)
+(There will be a **LOT** of entries)
 ```
 %prefixnews history```"""
 }
@@ -176,9 +176,12 @@ def parse_opts_subcommands(request):
 
 async def cmd_news(request):
 
+	command = request.command
+	config = request.config
+
 	subcommand = parse_opts_subcommands(request)
 	if not subcommand:
-		subcommand = 'read'
+		return error_missing_parameter(config, command)
 
 	if subcommand in subcommands:
 		if inspect.iscoroutinefunction(subcommands[subcommand]):
