@@ -23,6 +23,7 @@ help_help = {
 **`glist`**: List guild members by unit GP, gear, level, rarity.
 %separator
 **Channel Commands**
+**`news`**: Keep track of official news from the game developers (**NEW**).
 **`payout`**: Keep track of time left to payout for your shard members in arena.
 %separator
 **Player Commands**

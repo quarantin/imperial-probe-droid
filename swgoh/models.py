@@ -630,4 +630,21 @@ class ShardMember(models.Model):
 class DiscordServer(models.Model):
 
 	server_id = models.IntegerField(primary_key=True)
-	bot_prefix = models.CharField(max_length=32, blank=False, null=False)
+	bot_prefix = models.CharField(max_length=32)
+
+class NewsFeed(models.Model):
+
+	url = models.CharField(primary_key=True, max_length=2048)
+	name = models.CharField(max_length=32)
+
+class NewsEntry(models.Model):
+
+	link = models.CharField(primary_key=True, max_length=2048)
+	published = models.DateTimeField()
+	feed = models.ForeignKey(NewsFeed, on_delete=models.CASCADE)
+
+class NewsChannel(models.Model):
+
+	channel_id = models.IntegerField(primary_key=True)
+	webhook_id = models.IntegerField(unique=True)
+	last_news = models.ForeignKey(NewsEntry, on_delete=models.SET_NULL, null=True)

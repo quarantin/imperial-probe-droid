@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pytz
 import asyncio
 import discord
 import inspect
@@ -7,6 +8,10 @@ import random
 import shlex
 import string
 import traceback
+import feedparser
+from time import mktime
+from crontab import CronTab
+from discord import Forbidden, HTTPException, InvalidData, NotFound
 from discord.ext import commands
 from config import load_config, load_help
 
@@ -14,7 +19,8 @@ from utils import *
 from embed import *
 from commands import *
 
-LOGFILE = 'messages.log'
+import DJANGO
+from swgoh.models import DiscordServer, NewsChannel, NewsEntry, NewsFeed, Shard, ShardMember
 
 PROBE_DIALOG = [
 	'bIp',
@@ -126,7 +132,7 @@ class UserRequest:
 		self.command = command
 		self.args = args
 
-	def __log_message(self, message):
+	def __log_message(self, message, logfile='messages.log'):
 
 		date = local_time()
 		if 'timezone' in self.config and self.config['timezone']:
@@ -153,7 +159,7 @@ class UserRequest:
 		log = '[%s][%s][%s] %s' % (date, source, author, message.content)
 		print(log)
 
-		fout = open(LOGFILE, 'a+')
+		fout = open(logfile, 'a+')
 		fout.write('%s\n' % log)
 		fout.close()
 
@@ -192,10 +198,11 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		self.loop.stop()
 		print('User initiated exit!')
 
-	def get_bot_prefix(self, server, channel):
+	def get_avatar(self):
+		with open('images/imperial-probe-droid.jpg', 'rb') as image:
+			return bytearray(image.read())
 
-		import DJANGO
-		from swgoh.models import DiscordServer
+	def get_bot_prefix(self, server, channel):
 
 		try:
 			server_id = None
@@ -229,11 +236,84 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
-	async def schedule_payouts(self, config):
+	async def update_news(self, config):
 
-		import DJANGO
-		from swgoh.models import Shard, ShardMember
-		from crontab import CronTab
+		cron = CronTab('*/10 * * * *')
+
+		await self.wait_until_ready()
+
+		while True:
+
+			feed_urls = 'feeds' in config and config['feeds'] or {}
+			for feed_name, feed_url in feed_urls.items():
+
+				feed, created = NewsFeed.objects.get_or_create(name=feed_name, url=feed_url)
+				news = feedparser.parse(feed.url)
+				for entry in news.entries:
+					published = datetime.fromtimestamp(mktime(entry.published_parsed), tz=pytz.UTC)
+					entry, created = NewsEntry.objects.get_or_create(link=entry.link, published=published, feed=feed)
+
+			await asyncio.sleep(cron.next(default_utc=True))
+
+
+	async def update_news_channels(self, config):
+
+		cron = CronTab('*/10 * * * *')
+
+		await self.wait_until_ready()
+
+		while True:
+
+			news_channels = NewsChannel.objects.all()
+			for news_channel in news_channels:
+				try:
+					channel = await self.fetch_channel(news_channel.channel_id)
+
+				except NotFound:
+					print("Channel %s not found, deleting news channel" % news_channel)
+					news_channel.delete()
+					continue
+
+				except Forbidden:
+					print("I don't have permission to fetch channel %s" % news_channel)
+					continue
+
+				except HTTPException:
+					print("HTTP error occured for channel %s, will try again later" % news_channel)
+					continue
+
+				except InvalidData:
+					print("We received an unknown channel type from discord for channel %s!" % news_channel)
+					continue
+
+				try:
+					webhook = await self.fetch_webhook(news_channel.webhook_id)
+
+				except NotFound:
+					print("Webhook for channel %s not found, deleting news channel" % news_channel)
+					news_channel.delete()
+					continue
+
+				except Forbidden:
+					print("I don't have permission to fetch webhook for channel %s" % news_channel)
+					continue
+
+				except HTTPException:
+					print("HTTP error occured for channel %s, will try again later" % news_channel)
+					continue
+
+				last_news_date = news_channel.last_news and news_channel.last_news.published or datetime(1970, 1, 1)
+				items = NewsEntry.objects.filter(published__gt=last_news_date).order_by('published')
+
+				for item in items:
+					news_channel.last_news = item
+					news_channel.save()
+					content = '%s - %s' % (item.feed.name, item.link)
+					await webhook.send(content=content, avatar_url=webhook.avatar_url)
+
+			await asyncio.sleep(cron.next(default_utc=True))
+
+	async def schedule_jobs(self, config):
 
 		cron = CronTab('* * * * *')
 
@@ -280,7 +360,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
-		self.loop.create_task(self.schedule_payouts(config))
+		self.loop.create_task(self.update_news(config))
+		self.loop.create_task(self.update_news_channels(config))
+		self.loop.create_task(self.schedule_jobs(config))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
