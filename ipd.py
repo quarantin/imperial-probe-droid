@@ -236,7 +236,61 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
-	async def update_news(self, config):
+	async def update_news_channel(self, config, news_channel):
+
+		try:
+			channel = await self.fetch_channel(news_channel.channel_id)
+
+		except NotFound:
+			print("Channel %s not found, deleting news channel" % news_channel)
+			news_channel.delete()
+			return
+
+		except Forbidden:
+			print("I don't have permission to fetch channel %s" % news_channel)
+			return
+
+		except HTTPException:
+			print("HTTP error occured for channel %s, will try again later" % news_channel)
+			return
+
+		except InvalidData:
+			print("We received an unknown channel type from discord for channel %s!" % news_channel)
+			return
+
+		try:
+			webhook = await self.fetch_webhook(news_channel.webhook_id)
+
+		except NotFound:
+			print("Webhook for channel %s not found, deleting news channel" % news_channel)
+			news_channel.delete()
+			return
+
+		except Forbidden:
+			print("I don't have permission to fetch webhook for channel %s" % news_channel)
+			return
+
+		except HTTPException:
+			print("HTTP error occured for channel %s, will try again later" % news_channel)
+			return
+
+		last_news_date = news_channel.last_news and news_channel.last_news.published or datetime(1970, 1, 1, tzinfo=pytz.UTC)
+		items = NewsEntry.objects.filter(published__gt=last_news_date).order_by('published')
+
+		for item in items:
+			news_channel.last_news = item
+			content = '%s\n%s' % (item.feed.name, item.link)
+			await webhook.send(content=content, avatar_url=webhook.avatar_url)
+
+		news_channel.save()
+
+	async def update_news_channels(self, config):
+
+		news_channels = NewsChannel.objects.all()
+		for news_channel in news_channels:
+			await self.update_news_channel(config, news_channel)
+
+	async def schedule_update_news(self, config):
 
 		cron = CronTab('*/10 * * * *')
 
@@ -253,10 +307,12 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					published = datetime.fromtimestamp(mktime(entry.published_parsed), tz=pytz.UTC)
 					entry, created = NewsEntry.objects.get_or_create(link=entry.link, published=published, feed=feed)
 
+			await self.update_news_channels(config)
+
 			await asyncio.sleep(cron.next(default_utc=True))
 
 
-	async def update_news_channels(self, config):
+	async def schedule_update_news_channels(self, config):
 
 		cron = CronTab('*/10 * * * *')
 
@@ -264,56 +320,11 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		while True:
 
-			news_channels = NewsChannel.objects.all()
-			for news_channel in news_channels:
-				try:
-					channel = await self.fetch_channel(news_channel.channel_id)
-
-				except NotFound:
-					print("Channel %s not found, deleting news channel" % news_channel)
-					news_channel.delete()
-					continue
-
-				except Forbidden:
-					print("I don't have permission to fetch channel %s" % news_channel)
-					continue
-
-				except HTTPException:
-					print("HTTP error occured for channel %s, will try again later" % news_channel)
-					continue
-
-				except InvalidData:
-					print("We received an unknown channel type from discord for channel %s!" % news_channel)
-					continue
-
-				try:
-					webhook = await self.fetch_webhook(news_channel.webhook_id)
-
-				except NotFound:
-					print("Webhook for channel %s not found, deleting news channel" % news_channel)
-					news_channel.delete()
-					continue
-
-				except Forbidden:
-					print("I don't have permission to fetch webhook for channel %s" % news_channel)
-					continue
-
-				except HTTPException:
-					print("HTTP error occured for channel %s, will try again later" % news_channel)
-					continue
-
-				last_news_date = news_channel.last_news and news_channel.last_news.published or datetime(1970, 1, 1)
-				items = NewsEntry.objects.filter(published__gt=last_news_date).order_by('published')
-
-				for item in items:
-					news_channel.last_news = item
-					news_channel.save()
-					content = '%s - %s' % (item.feed.name, item.link)
-					await webhook.send(content=content, avatar_url=webhook.avatar_url)
+			await self.update_news_channels(config)
 
 			await asyncio.sleep(cron.next(default_utc=True))
 
-	async def schedule_jobs(self, config):
+	async def schedule_payouts(self, config):
 
 		cron = CronTab('* * * * *')
 
@@ -360,9 +371,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				if not status:
 					print('Could not print to channel %s: %s' % (channel, error))
 
-		self.loop.create_task(self.update_news(config))
-		self.loop.create_task(self.update_news_channels(config))
-		self.loop.create_task(self.schedule_jobs(config))
+		self.loop.create_task(self.schedule_update_news(config))
+		self.loop.create_task(self.schedule_update_news_channels(config))
+		self.loop.create_task(self.schedule_payouts(config))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
