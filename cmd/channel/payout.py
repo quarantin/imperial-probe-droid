@@ -172,7 +172,7 @@ def handle_payout_create(request):
 
 	if not check_permission(request):
 		return [{
-			'title': 'Permssion Denied',
+			'title': 'Permission Denied',
 			'color': 'red',
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
@@ -275,7 +275,7 @@ def handle_payout_del(request):
 
 	if not check_permission(request):
 		return [{
-			'title': 'Permssion Denied',
+			'title': 'Permission Denied',
 			'color': 'red',
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
@@ -646,7 +646,7 @@ def handle_payout_destroy(request):
 
 	if not check_permission(request):
 		return [{
-			'title': 'Permssion Denied',
+			'title': 'Permission Denied',
 			'color': 'red',
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
