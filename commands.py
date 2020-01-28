@@ -1,6 +1,7 @@
 from cmd.channel.news import *
 from cmd.channel.payout import *
 from cmd.guild.compare import *
+from cmd.guild.ggp import *
 from cmd.guild.glist import *
 from cmd.guild.ulist import *
 from cmd.management.alias import *
@@ -68,6 +69,12 @@ COMMANDS = [
 		'aliases': [ 'g', 'gear' ],
 		'function': cmd_gear,
 		'help': help_gear,
+	},
+	{
+		'command': 'ggp',
+		'aliases': [ 'ggp', 'guildgp' ],
+		'function': cmd_guild_gp,
+		'help': help_guild_gp,
 	},
 	{
 		'command': 'help',
