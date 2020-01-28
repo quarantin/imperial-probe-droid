@@ -104,7 +104,8 @@ def cmd_guild_gp(request):
 	lines = []
 	#[ 'Player Name;Ally Code;Total GP;Char GP;Ship GP' ]
 	for guild_name, guild in sorted(guilds.items()):
-		for player_name, player in sorted(guild.items()):
+		for player_name in sorted(guild.keys(), key=str.casefold):
+			player = guild[player_name]
 			line = '%s;%s;%s;%s;%s' % (player_name, player['allyCode'], player['gp'], player['gpChar'], player['gpShip'])
 			lines.append(line)
 
