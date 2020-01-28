@@ -9,6 +9,7 @@ import shlex
 import string
 import traceback
 import feedparser
+import threading
 from time import mktime
 from crontab import CronTab
 from discord import Forbidden, HTTPException, InvalidData, NotFound
@@ -44,6 +45,16 @@ def expand_word(word):
 			word = word.replace(c, c.lower() * rand_count, 1)
 
 	return word
+
+def synchronized(func):
+
+	func.__lock__ = threading.Lock()
+
+	def synced_func(*args, **kws):
+		with func.__lock__:
+			return func(*args, **kws)
+
+	return synced_func
 
 def compute_hello_msg():
 
@@ -236,6 +247,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
+	@synchronized
 	async def update_news_channel(self, config, news_channel):
 
 		try:
@@ -278,12 +290,12 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		items = NewsEntry.objects.filter(published__gt=last_news_date).order_by('published')
 
 		for item in items:
-			news_channel.last_news = item
 			content = '**%s**\n%s' % (item.feed.name, item.link)
 			await webhook.send(content=content, avatar_url=webhook.avatar_url)
+			news_channel.last_news = item
+			news_channel.save()
 
-		news_channel.save()
-
+	@synchronized
 	async def update_news_channels(self, config):
 
 		news_channels = NewsChannel.objects.all()
