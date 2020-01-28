@@ -287,7 +287,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			return
 
 		last_news_date = news_channel.last_news and news_channel.last_news.published or datetime(1970, 1, 1, tzinfo=pytz.UTC)
-		items = NewsEntry.objects.filter(published__gt=last_news_date).order_by('published')
+		items = NewsEntry.objects.filter(published__gt=last_news_date).distinct().order_by('published')
 
 		for item in items:
 			content = '**%s**\n%s' % (item.feed.name, item.link)
