@@ -46,16 +46,6 @@ def expand_word(word):
 
 	return word
 
-def synchronized(func):
-
-	func.__lock__ = threading.Lock()
-
-	def synced_func(*args, **kws):
-		with func.__lock__:
-			return func(*args, **kws)
-
-	return synced_func
-
 def compute_hello_msg():
 
 	words = []
@@ -247,7 +237,6 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
-	@synchronized
 	async def update_news_channel(self, config, news_channel):
 
 		try:
@@ -295,7 +284,6 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			news_channel.last_news = item
 			news_channel.save()
 
-	@synchronized
 	async def update_news_channels(self, config):
 
 		news_channels = NewsChannel.objects.all()
@@ -318,19 +306,6 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				for entry in news.entries:
 					published = datetime.fromtimestamp(mktime(entry.published_parsed), tz=pytz.UTC)
 					entry, created = NewsEntry.objects.get_or_create(link=entry.link, published=published, feed=feed)
-
-			await self.update_news_channels(config)
-
-			await asyncio.sleep(cron.next(default_utc=True))
-
-
-	async def schedule_update_news_channels(self, config):
-
-		cron = CronTab('*/10 * * * *')
-
-		await self.wait_until_ready()
-
-		while True:
 
 			await self.update_news_channels(config)
 
@@ -384,7 +359,6 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					print('Could not print to channel %s: %s' % (channel, error))
 
 		self.loop.create_task(self.schedule_update_news(config))
-		self.loop.create_task(self.schedule_update_news_channels(config))
 		self.loop.create_task(self.schedule_payouts(config))
 
 		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
