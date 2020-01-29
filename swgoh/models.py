@@ -648,3 +648,12 @@ class NewsChannel(models.Model):
 	channel_id = models.IntegerField(primary_key=True)
 	webhook_id = models.IntegerField(unique=True)
 	last_news = models.ForeignKey(NewsEntry, on_delete=models.SET_NULL, null=True)
+
+class ZetaStat(models.Model):
+
+	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
+	skill_id = models.CharField(max_length=32)
+	total_zetas = models.IntegerField()
+	of_all_zetas = models.FloatField()
+	of_all_this_unit = models.FloatField()
+	of_g11_this_unit = models.FloatField()
