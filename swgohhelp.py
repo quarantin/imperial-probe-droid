@@ -248,7 +248,7 @@ def get_ability_name(config, skill_id, language):
 			return t.translation
 
 		except Translation.DoesNotExist:
-			pass
+			print("Missing translation for string ID %s" % ability_id)
 
 	print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
 	return None
