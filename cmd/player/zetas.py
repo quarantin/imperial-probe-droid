@@ -41,6 +41,19 @@ def parse_opts_limit(request):
 
 	return 25
 
+def parse_opts_include_locked(request):
+
+	args = request.args
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		larg = arg.lower()
+		if larg == 'locked':
+			args.remove(arg)
+			return True
+
+	return False
+
 def cmd_zetas(request):
 
 	args = request.args
@@ -50,6 +63,7 @@ def cmd_zetas(request):
 	language = parse_opts_lang(request)
 
 	limit = parse_opts_limit(request)
+	include_locked = parse_opts_include_locked(request)
 
 	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
 
@@ -109,7 +123,7 @@ def cmd_zetas(request):
 		lines = []
 		for zeta_id, zeta in zetas.items():
 
-			if zeta['locked'] is True:
+			if zeta['locked'] is not include_locked:
 				continue
 
 			percent = zeta['of_all_this_unit']
