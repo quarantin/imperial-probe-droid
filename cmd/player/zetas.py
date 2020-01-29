@@ -23,6 +23,7 @@ help_zetas = {
 **Options**
 **`limit:`** The max number of zetas you want to see (default is 25).
 **`locked:`** If present, shows most popular zetas for units still locked.
+
 **Examples**
 Show top 25 most popular zetas for characters you have:
 ```
