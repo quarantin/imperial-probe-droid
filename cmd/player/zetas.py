@@ -16,14 +16,23 @@ help_zetas = {
 
 **Syntax**
 ```
-%prefixzetas [player]```
+%prefixzetas [player] [locked] [limit]```
 **Aliases**
 ```
 %prefixz```
-
+**Options**
+**`limit:`** The max number of zetas you want to see (default is 25).
+**`locked:`** If present, shows most popular zetas for units still locked.
 **Examples**
+Show top 25 most popular zetas for characters you have:
 ```
-%prefixz```"""
+%prefixz```
+Show top 5 most popular zetas:
+```
+%prefixz 5```
+Show top 25 most popular zetas for characters you don't have:
+```
+%prefixz locked```"""
 }
 
 def parse_opts_limit(request):
