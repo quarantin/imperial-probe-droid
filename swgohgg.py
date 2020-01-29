@@ -46,7 +46,7 @@ def parse_zeta_meta_report(config, language):
 		pages = int(pagination_ul.find('a').text.replace('Page 1 of ', ''))
 
 		page = 2
-		while page < pages + 1:
+		while page < pages:
 
 			lis = soup.find_all('li', { 'class': 'character' })
 			for li in lis:
