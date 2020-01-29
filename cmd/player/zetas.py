@@ -26,6 +26,21 @@ help_zetas = {
 %prefixz```"""
 }
 
+def parse_opts_limit(request):
+
+	args = request.args
+	args_cpy = list(args)
+	for arg in args_cpy:
+		try:
+			limit = int(arg)
+			args.remove(arg)
+			return limit
+
+		except:
+			pass
+
+	return 25
+
 def cmd_zetas(request):
 
 	args = request.args
@@ -34,9 +49,9 @@ def cmd_zetas(request):
 
 	language = parse_opts_lang(request)
 
-	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
+	limit = parse_opts_limit(request)
 
-	selected_units = parse_opts_unit_names(request)
+	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
 
 	if error:
 		return error
@@ -91,7 +106,6 @@ def cmd_zetas(request):
 
 				zetas[skill_id]['locked'] = False
 
-		limit = 25
 		lines = []
 		for zeta_id, zeta in zetas.items():
 
