@@ -26,6 +26,7 @@ from cmd.player.modroll import *
 from cmd.player.needed import *
 from cmd.player.recos import *
 from cmd.player.wntm import *
+from cmd.player.zetas import *
 
 COMMANDS = [
 	{
@@ -201,5 +202,11 @@ COMMANDS = [
 		'aliases': [ 'w', 'wntm' ],
 		'function': cmd_wntm,
 		'help': help_wntm,
+	},
+	{
+		'command': 'zetas',
+		'aliases': [ 'z', 'zeta', 'zetas' ],
+		'function': cmd_zetas,
+		'help': help_zetas,
 	},
 ]
