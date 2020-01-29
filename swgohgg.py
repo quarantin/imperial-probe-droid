@@ -8,7 +8,7 @@ import socket
 from bs4 import BeautifulSoup
 
 import DJANGO
-from swgoh.models import BaseUnit
+from swgoh.models import BaseUnit, ZetaStat
 
 db = {}
 
@@ -33,6 +33,67 @@ def get_swgohgg_profile_url(ally_code, no_check=False):
 		pass
 
 	return None
+
+def parse_zeta_meta_report(config, language):
+
+	from swgohhelp import get_ability_name
+
+	url = 'https://swgoh.gg/stats/ability-report/?page=%d'
+	try:
+		response, error = http_get(url % 1)
+		soup = BeautifulSoup(response.content, 'html.parser')
+		pagination_ul = soup.find('ul', { 'class': [ 'pagination', 'm-t-0' ] })
+		pages = int(pagination_ul.find('a').text.replace('Page 1 of ', ''))
+
+		page = 2
+		while page < pages + 1:
+
+			lis = soup.find_all('li', { 'class': 'character' })
+			for li in lis:
+				imgs = li.find_all('img')
+
+				base_id = os.path.basename(os.path.dirname(imgs[0]['src']))
+				skill_id = os.path.basename(os.path.dirname(imgs[1]['src']))
+				ability_name = get_ability_name(config, skill_id, language)
+
+				div = li.find('div', { 'class': 'zeta-row' })
+				zr = div.find_all('div')
+
+				total_zetas      = int(zr[0].find('h3').text.replace(',', ''))
+				of_all_zetas     = float(zr[1].find('h3').text.replace('%', ''))
+				of_all_this_unit = float(zr[2].find('h3').text.replace('%', ''))
+				of_g11_this_unit = float(zr[3].find('h3').text.replace('%', ''))
+
+				try:
+					unit = BaseUnit.objects.get(base_id=base_id)
+				except BaseUnit.DoesNotExist():
+					print("Could not find unit with base ID: %s" % base_id)
+					continue
+
+				try:
+					zeta = ZetaStat.objects.get(unit=unit, skill_id=skill_id)
+					zeta.total_zetas = total_zetas
+					zeta.of_all_zetas = of_all_zetas
+					zeta.of_all_this_unit = of_all_this_unit
+					zeta.of_g11_this_unit = of_g11_this_unit
+
+				except ZetaStat.DoesNotExist:
+					zeta = ZetaStat(unit=unit, skill_id=skill_id, total_zetas=total_zetas, of_all_zetas=of_all_zetas, of_all_this_unit=of_all_this_unit, of_g11_this_unit=of_g11_this_unit)
+
+				zeta.save()
+				#print("%s %s %s %s %s %s %s" % (base_id, skill_id, ability_name, ))
+
+			page += 1
+			response, error = http_get(url % page)
+			if not response or error:
+				print("ERROR: %s" % error)
+				return
+
+			soup = BeautifulSoup(response.content, 'lxml')
+
+	except Exception as err:
+		import traceback
+		print(traceback.format_exc())
 
 def count_zetas(unit):
 	zetas = 0
@@ -149,3 +210,7 @@ def get_top_rank1_fleet_squads(top_n):
 
 def get_top_rank1_reinforcements(top_n):
 	return get_top_rank1_squads(top_n, 'reinforcements', META_SHIPS_URL)
+
+#from config import load_config
+#config = load_config()
+#parse_zeta_meta_report(config, 'fre_fr')
