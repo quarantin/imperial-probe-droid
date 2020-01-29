@@ -16,7 +16,10 @@ def color(name):
 	color_code = name in COLORS and COLORS[name] or COLORS['red']
 	return discord.Colour(color_code)
 
-def split_message(message):
+def is_preformated(message):
+	return message['description'].startswith('```') and message['description'].endswith('```')
+
+def split_message(message, preformated):
 
 	title     = message.pop('title', False)
 	author    = message.pop('author', False)
@@ -40,7 +43,12 @@ def split_message(message):
 		if index >= count:
 			break
 
-		if len(new_desc) + len(line) + 1 > 2048:
+		if len(new_desc) + len(line) + 1 > 2048 - 6 and preformated is True:
+			msgs[index]['description'] = '```%s```' % new_desc
+			new_desc = ''
+			index += 1
+
+		elif len(new_desc) + len(line) + 1 > 2048:
 			msgs[index]['description'] = new_desc
 			new_desc = ''
 			index += 1
@@ -48,7 +56,10 @@ def split_message(message):
 		new_desc += line + '\n'
 
 	else:
-		msgs[ len(msgs) - 1 ]['description'] = new_desc
+		if preformated is True:
+			msgs[ len(msgs) - 1 ]['description'] = '```%s```' % new_desc
+		else:
+			msgs[ len(msgs) - 1 ]['description'] = new_desc
 
 	if title:
 		msgs[0]['title'] = title
@@ -90,13 +101,18 @@ def new_embeds(config, msg, timestamp=None):
 
 	if 'description' not in msg:
 		msg['description'] = ''
-	
+
+	preformated = is_preformated(msg)
+
 	if msg['description']:
 		msg['description'] = '%s\n%s' % (msg['description'], config['separator'])
 
+	if preformated is True:
+		msg['description'] = msg['description'].replace('```', '').replace('`', '')
+
 	embeds = []
 
-	msgs = split_message(msg)
+	msgs = split_message(msg, preformated)
 
 	i = 1
 	last_msg = msgs[-1]
