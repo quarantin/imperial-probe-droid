@@ -48,7 +48,7 @@ def parse_opts_include_locked(request):
 	for arg in args_cpy:
 
 		larg = arg.lower()
-		if larg == 'locked':
+		if larg == 'locked' or larg == 'l':
 			args.remove(arg)
 			return True
 
