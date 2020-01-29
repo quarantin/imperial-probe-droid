@@ -66,7 +66,7 @@ def parse_zeta_meta_report(config, language):
 
 				try:
 					unit = BaseUnit.objects.get(base_id=base_id)
-				except BaseUnit.DoesNotExist():
+				except BaseUnit.DoesNotExist:
 					print("Could not find unit with base ID: %s" % base_id)
 					continue
 
