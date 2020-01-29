@@ -3,10 +3,12 @@ from errors import *
 from utils import http_get, translate
 
 from swgohgg import get_full_avatar_url
-from swgohhelp import fetch_players
+from swgohhelp import fetch_players, get_ability_name, get_unit_name
 
 import DJANGO
-from swgoh.models import BaseUnitGear
+from swgoh.models import ZetaStat
+
+from collections import OrderedDict
 
 help_zetas = {
 	'title': 'Zetas Help',
@@ -42,9 +44,6 @@ def cmd_zetas(request):
 	if not selected_players:
 		return error_no_ally_code_specified(config, author)
 
-	if not selected_units:
-		return error_no_unit_selected()
-
 	if args:
 		return error_unknown_parameters(args)
 
@@ -68,58 +67,51 @@ def cmd_zetas(request):
 		},
 	})
 
-
 	msgs = []
-	player = players[ally_code]
-	for unit in selected_units:
+	all_zetas = OrderedDict()
+	for zeta in ZetaStat.objects.all().order_by('-of_all_this_unit').values():
+		skill_id = zeta['skill_id']
+		zeta['locked'] = True
+		all_zetas[skill_id] = zeta
 
+	for ally_code_str, player in players.items():
+
+		zetas = dict(all_zetas)
+
+		for base_id, unit in player['roster'].items():
+			for skill in unit['skills']:
+
+				skill_id = skill['id']
+				if skill_id not in zetas:
+					continue
+
+				if skill['tier'] == 8:
+					del zetas[skill_id]
+					continue
+
+				zetas[skill_id]['locked'] = False
+
+		limit = 25
 		lines = []
-		fields = []
-		player_unit = unit.base_id in player['roster'] and player['roster'][unit.base_id] or {}
-		json = get_gear_levels(unit.base_id)
-		for name, data in json.items():
-			unit_name = translate(unit.base_id, language)
-			lines.append('**[%s](%s)**' % (unit_name, unit.get_url()))
-			min_gear_level = player_unit and player_unit['gear'] or 1
-			for tier in reversed(range(min_gear_level, 13)):
-				sublines = []
-				for slot in sorted(data['tiers'][tier]):
-					gear_id = data['tiers'][tier][slot]['gear']
-					gear_url = data['tiers'][tier][slot]['url']
-					gear_name = translate(gear_id, language)
-					equipped = False
-					if player_unit:
-						for gear in player_unit['equipped']:
-							if tier == player_unit['gear']:
-								# gear['slot'] is an index, so add one for comparison
-								if int(slot) == gear['slot'] + 1:
-									equipped = True
-									break
+		for zeta_id, zeta in zetas.items():
 
-					bold = not equipped and '**' or ''
+			if zeta['locked'] is True:
+				continue
 
-					sublines.append('%sSlot%s: [%s](%s)%s' % (bold, slot, gear_name, gear_url, bold))
+			percent = zeta['of_all_this_unit']
+			unit = BaseUnit.objects.get(pk=zeta['unit_id'])
+			unit_name = get_unit_name(config, unit.base_id, language)
+			skill_name = get_ability_name(config, zeta['skill_id'], language)
 
-				gear_tier_id = 'Unit_Tier%02d' % tier
-				gear_tier_title = translate(gear_tier_id, language)
+			lines.append('`%.2f` **%s** %s' % (percent, unit_name, skill_name))
 
-				fields.append({
-					'name': '== %s ==' % gear_tier_title,
-					'value': '\n'.join(sublines),
-				})
-
-		if not fields:
-			lines.append('Maximum gear level.')
+			limit -= 1
+			if limit <= 0:
+				break
 
 		msgs.append({
-			#'title': '== Needed Gear ==',
+			'title': '',
 			'description': '\n'.join(lines),
-			'author': {
-				'name': unit.name,
-				'icon_url': unit.get_image(),
-			},
-			'image': get_full_avatar_url(config, unit.image, player_unit),
-			'fields': fields,
 		})
 
 	return msgs
