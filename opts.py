@@ -5,6 +5,7 @@ from utils import basicstrip
 
 import DJANGO
 from swgoh.models import Player, BaseUnit, BaseUnitFaction
+from django.core.exceptions import MultipleObjectsReturned
 
 DEFAULT_FORMAT = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
 
@@ -215,13 +216,21 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 	for ally_code in ally_codes:
 		try:
 			p = Player.objects.get(ally_code=ally_code)
-			if p not in players:
-				players.append(p)
+
+		except MultipleObjectsReturned:
+
+			try:
+				p = Player.objects.get(ally_code=ally_code, discord_id=author.id)
+
+			except Player.DoesNotExist:
+				p = None
+				print("Could not resolve user from allycode: %s" % ally_code)
 
 		except Player.DoesNotExist:
 			p = Player(ally_code=ally_code)
-			if p not in players:
-				players.append(p)
+
+		if p is not None and p not in players:
+			players.append(p)
 
 	return players, None
 
