@@ -34,11 +34,11 @@ def get_swgohgg_profile_url(ally_code, no_check=False):
 
 	return None
 
-def get_swgohgg_player_unit_url(config, ally_code, base_unit):
+def get_swgohgg_player_unit_url(ally_code, base_id):
 
 	from swgohhelp import get_simple_unit_name
-	simple_name = get_simple_unit_name(unit['base_id'])
-	url = 'https://swgoh.gg/p/%s/characters/%s' % (ally_code, simle_name)
+	simple_name = get_simple_unit_name(base_id)
+	url = 'https://swgoh.gg/p/%s/characters/%s' % (ally_code, simple_name)
 	return url
 
 def count_zetas(unit):
