@@ -22,6 +22,7 @@ from cmd.player.compare import *
 from cmd.player.gear import *
 from cmd.player.list import *
 from cmd.player.locked import *
+from cmd.player.modcheck import *
 from cmd.player.modroll import *
 from cmd.player.needed import *
 from cmd.player.recos import *
@@ -130,6 +131,12 @@ COMMANDS = [
 		'aliases': [ 'm', 'meta' ],
 		'function': cmd_meta,
 		'help': help_meta,
+	},
+	{
+		'command': 'modcheck',
+		'aliases': [ 'mc', 'modcheck' ],
+		'function': cmd_modcheck,
+		'help': help_modcheck,
 	},
 	{
 		'command': 'modroll',
