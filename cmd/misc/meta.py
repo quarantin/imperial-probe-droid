@@ -139,9 +139,10 @@ def cmd_meta(request):
 				pad2 = max(0, (5 - len(count))) * '\u00a0'
 				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, unit))
 
-		desc = 'You can find the full meta report for top squad leaders [here](%s#leaders).' % META_UNITS_URL
-		full_desc = '%s\n```| %% |Count|Unit\n%s\n%s```' % (desc, header, '\n'.join(lines))
-		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
+		lines = lines[0:-1]
+		desc = '' #'You can find the full meta report for top squad leaders [here](%s#leaders).' % META_UNITS_URL
+		full_desc = '%s```| %% |Count|Unit\n%s\n%s```' % (desc, header, '\n'.join(lines))
+		compact_desc = '%s```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Arena Squad Leaders' % top_n,
@@ -197,9 +198,10 @@ def cmd_meta(request):
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
 
-		desc = 'You can find the full meta report for top arena squads [here](%s#squads).' % META_UNITS_URL
-		full_desc = '%s\n```| %% |Count|Squad\n%s\n%s```' % (desc, header, '\n'.join(lines))
-		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
+		lines = lines[0:-1]
+		desc = '' #'You can find the full meta report for top arena squads [here](%s#squads).' % META_UNITS_URL
+		full_desc = '%s```| %% |Count|Squad\n%s\n%s```' % (desc, header, '\n'.join(lines))
+		compact_desc = '%s```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Arena Squads ' % top_n,
@@ -225,9 +227,10 @@ def cmd_meta(request):
 				pad2 = max(0, (5 - len(count))) * '\u00a0'
 				lines.append('|%s%s|%s%s|%s' % (pad1, percent, pad2, count, unit))
 
-		desc = 'You can find the full meta report for top fleet commanders [here](%s#leaders).' % META_SHIPS_URL
-		full_desc = '%s\n```\n| %% |Count|Unit\n|---|-----|---------------------------\n%s```' % (desc, '\n'.join(lines))
-		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
+		lines = lines[0:-1]
+		desc = '' #'You can find the full meta report for top fleet commanders [here](%s#leaders).' % META_SHIPS_URL
+		full_desc = '%s```\n| %% |Count|Unit\n%s\n%s```' % (desc, header, '\n'.join(lines))
+		compact_desc = '%s```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Commanders' % top_n,
@@ -258,9 +261,10 @@ def cmd_meta(request):
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
 
-		desc = 'You can find the full meta report for top fleet arena squads [here](%s#squads).' % META_SHIPS_URL
-		full_desc = '%s\n```| %% |Count|Squad\n%s\n%s```' % (desc, header, '\n'.join(lines))
-		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
+		lines = lines[0:-1]
+		desc = '' #'You can find the full meta report for top fleet arena squads [here](%s#squads).' % META_SHIPS_URL
+		full_desc = '%s```| %% |Count|Squad\n%s\n%s```' % (desc, header, '\n'.join(lines))
+		compact_desc = '%s```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Squads ' % top_n,
@@ -290,9 +294,10 @@ def cmd_meta(request):
 					lines.append('|   |     |%s' % unit)
 				lines.append(header)
 
-		desc = 'You can find the full meta report for top fleet arena reinforcements [here](%s#reinforcements).' % META_SHIPS_URL
-		full_desc = '%s\n```| %% |Count|Ship\n%s\n%s```' % (desc, header, '\n'.join(lines))
-		compact_desc = '%s\n```%s```' % (desc, '\n'.join(lines))
+		lines = lines[0:-1]
+		desc = '' #'You can find the full meta report for top fleet arena reinforcements [here](%s#reinforcements).' % META_SHIPS_URL
+		full_desc = '%s```| %% |Count|Ship\n%s\n%s```' % (desc, header, '\n'.join(lines))
+		compact_desc = '%s```%s```' % (desc, '\n'.join(lines))
 
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Reinforcements' % top_n,
