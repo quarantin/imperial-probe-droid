@@ -4,17 +4,18 @@ import os
 import sys
 import json
 import requests
+import traceback
 from config import load_config
-from swgohhelp import api_swgoh_data
+from swgohhelp import api_swgoh_data, get_ability_name
 from recos import fetch_all_recos
 
 import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat
 
-DEBUG = False
+DEBUG = True
 
 urls = {
 	'cache/characters.json': 'https://swgoh.gg/api/characters/',
@@ -301,6 +302,62 @@ def parse_skills():
 					print("WARN: Missing unit from DB: %s" % base_id)
 				continue
 
+def parse_zeta_report():
+
+	url = 'https://swgoh.gg/stats/ability-report/?page=%d'
+	try:
+		response, error = http_get(url % 1)
+		soup = BeautifulSoup(response.content, 'html.parser')
+		pagination_ul = soup.find('ul', { 'class': [ 'pagination', 'm-t-0' ] })
+		pages = int(pagination_ul.find('a').text.replace('Page 1 of ', ''))
+
+		page = 2
+		while page < pages:
+
+			lis = soup.find_all('li', { 'class': 'character' })
+			for li in lis:
+				imgs = li.find_all('img')
+
+				base_id = os.path.basename(os.path.dirname(imgs[0]['src']))
+				skill_id = os.path.basename(os.path.dirname(imgs[1]['src']))
+
+				div = li.find('div', { 'class': 'zeta-row' })
+				zr = div.find_all('div')
+
+				total_zetas      = int(zr[0].find('h3').text.replace(',', ''))
+				of_all_zetas     = float(zr[1].find('h3').text.replace('%', ''))
+				of_all_this_unit = float(zr[2].find('h3').text.replace('%', ''))
+				of_g11_this_unit = float(zr[3].find('h3').text.replace('%', ''))
+
+				try:
+					unit = BaseUnit.objects.get(base_id=base_id)
+				except BaseUnit.DoesNotExist:
+					print("Could not find unit with base ID: %s" % base_id)
+					continue
+
+				try:
+					zeta = ZetaStat.objects.get(unit=unit, skill_id=skill_id)
+					zeta.total_zetas = total_zetas
+					zeta.of_all_zetas = of_all_zetas
+					zeta.of_all_this_unit = of_all_this_unit
+					zeta.of_g11_this_unit = of_g11_this_unit
+
+				except ZetaStat.DoesNotExist:
+					zeta = ZetaStat(unit=unit, skill_id=skill_id, total_zetas=total_zetas, of_all_zetas=of_all_zetas, of_all_this_unit=of_all_this_unit, of_g11_this_unit=of_g11_this_unit)
+
+				zeta.save()
+
+			page += 1
+			response, error = http_get(url % page)
+			if not response or error:
+				print("ERROR: %s" % error)
+				return
+
+			soup = BeautifulSoup(response.content, 'lxml')
+
+	except Exception as err:
+		print(traceback.format_exc())
+
 def save_all_recos():
 
 	with transaction.atomic():
@@ -347,6 +404,7 @@ fetch_all_collections(config)
 parse_gear()
 parse_units()
 parse_skills()
+parse_zeta_report()
 parse_localization_files()
 
 save_all_recos()
