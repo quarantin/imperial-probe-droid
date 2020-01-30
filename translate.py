@@ -8,6 +8,8 @@ import traceback
 from config import load_config
 from swgohhelp import api_swgoh_data, get_ability_name
 from recos import fetch_all_recos
+from utils import http_get
+from bs4 import BeautifulSoup
 
 import DJANGO
 
