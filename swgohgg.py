@@ -149,7 +149,3 @@ def get_top_rank1_fleet_squads(top_n):
 
 def get_top_rank1_reinforcements(top_n):
 	return get_top_rank1_squads(top_n, 'reinforcements', META_SHIPS_URL)
-
-#from config import load_config
-#config = load_config()
-#parse_zeta_meta_report(config, 'fre_fr')
