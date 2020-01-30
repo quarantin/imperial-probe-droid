@@ -15,7 +15,7 @@ from django.db import transaction
 
 from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat
 
-DEBUG = True
+DEBUG = False
 
 urls = {
 	'cache/characters.json': 'https://swgoh.gg/api/characters/',
