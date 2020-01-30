@@ -148,7 +148,7 @@ def cmd_zetas(request):
 				break
 
 		msgs.append({
-			'title': '',
+			'title': 'Zeta Recommendations for %s' % player['name'],
 			'description': '\n'.join(lines),
 		})
 
