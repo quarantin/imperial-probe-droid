@@ -510,7 +510,11 @@ async def handle_payout_stats(request):
 	for embed in embeds:
 		status, error = await config['bot'].sendmsg(channel, message='', embed=embed)
 		if not status:
-			print('Could not print to channel %s: %s' % (channel, error))
+			if '403 FORBIDDEN' in str(error):
+				Shard.objects.get(channel_id=Shard.channel_id).delete()
+				print('Could not print to channel %s: Deleting shard.' % channel)
+			else:
+				print('Could not print to channel %s: %s' % (channel, error))
 		else:
 			shard.message_id = error
 			shard.save()
