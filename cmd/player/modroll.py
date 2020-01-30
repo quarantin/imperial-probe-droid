@@ -71,7 +71,7 @@ def cmd_modroll(request):
 	for ally_code, player in players.items():
 		player_name = player['name']
 		for def_id, unit in player['roster'].items():
-			unit_name = get_unit_name(config, def_id, language)
+			unit_name = get_unit_name(def_id, language)
 			for mod in unit['mods']:
 				for sec_stat in mod['secondaryStat']:
 					if sec_stat['roll'] >= MIN_ROLLS:

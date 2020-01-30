@@ -221,7 +221,7 @@ def fetch_crinolo_stats(config, project, players=None):
 # Localized functions
 #
 
-def get_unit_name(config, base_id, language):
+def get_unit_name(base_id, language):
 
 	import DJANGO
 	from swgoh.models import Translation
@@ -235,6 +235,9 @@ def get_unit_name(config, base_id, language):
 
 	print('No character name found for base id: %s' % base_id, file=sys.stderr)
 	return None
+
+def get_simple_unit_name(base_id):
+	return get_unit_name(base_id, 'eng_us').lower().replace(' ', '-').replace('"', '').replace('(', '').replace(')', '').replace('î', 'i').replace('Î', 'i').replace("'", '')
 
 def get_ability_name(config, skill_id, language):
 

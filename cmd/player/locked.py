@@ -106,7 +106,7 @@ def cmd_locked(request):
 			locked_chars = []
 			for base_id, char in char_list.items():
 				if base_id not in ally_units:
-					char_name = get_unit_name(config, base_id, language)
+					char_name = get_unit_name(base_id, language)
 					locked_chars.append(char_name)
 
 			if not locked_chars:
@@ -121,7 +121,7 @@ def cmd_locked(request):
 			locked_ships = []
 			for base_id, ship in ship_list.items():
 				if base_id not in ally_units:
-					ship_name = get_unit_name(config, base_id, language)
+					ship_name = get_unit_name(base_id, language)
 					locked_ships.append(ship_name)
 
 			if not locked_ships:

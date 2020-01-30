@@ -162,7 +162,7 @@ def cmd_modcheck(request):
 
 			lines = []
 			for unit in units_with_no_mods:
-				unit_name = get_unit_name(config, unit['defId'], language)
+				unit_name = get_unit_name(unit['defId'], language)
 				lines.append(' **%s**' % unit_name)
 
 			msgs.append({
@@ -174,7 +174,7 @@ def cmd_modcheck(request):
 
 			lines = []
 			for unit in units_with_missing_mods:
-				unit_name = get_unit_name(config, unit['defId'], language)
+				unit_name = get_unit_name(unit['defId'], language)
 				lines.append('**`%d`** mods missing for **%s**' % (unit['missing-mods'], unit_name))
 
 			msgs.append({
@@ -185,7 +185,7 @@ def cmd_modcheck(request):
 		if 'incomplete' in actions:
 			lines = []
 			for unit in units_with_incomplete_modsets:
-				unit_name = get_unit_name(config, unit['defId'], language)
+				unit_name = get_unit_name(unit['defId'], language)
 				lines.append('**%s**' % unit_name)
 
 			msgs.append({

@@ -35,7 +35,7 @@ def cmd_list(request):
 	msgs = []
 	translations = []
 	for unit in selected_units:
-		translated_name = get_unit_name(config, unit.base_id, language)
+		translated_name = get_unit_name(unit.base_id, language)
 		translations.append(translated_name)
 
 	unit_list = '\n- '.join(translations)

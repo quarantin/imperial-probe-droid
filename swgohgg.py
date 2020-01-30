@@ -34,6 +34,13 @@ def get_swgohgg_profile_url(ally_code, no_check=False):
 
 	return None
 
+def get_swgohgg_player_unit_url(config, ally_code, base_unit):
+
+	from swgohhelp import get_simple_unit_name
+	simple_name = get_simple_unit_name(unit['base_id'])
+	url = 'https://swgoh.gg/p/%s/characters/%s' % (ally_code, simle_name)
+	return url
+
 def count_zetas(unit):
 	zetas = 0
 	if 'skills' in unit:
