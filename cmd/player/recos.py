@@ -67,6 +67,14 @@ def get_short_stat(stat_id, language):
 
 	raise Exception('Invalid short stat request for %s %s (%s)' % (stat_id, language, stat_name))
 
+def find_player(selected_players, ally_code):
+
+	for p in selected_players:
+		if p.ally_code == ally_code:
+			return p
+
+	return None
+
 def cmd_recos(request):
 
 	args = request.args
@@ -104,11 +112,16 @@ def cmd_recos(request):
 		discord_id = player['allyCode']
 		guild_banner = get_banner_emoji(player['guildBannerLogo'])
 
-		try:
-			p = Player.objects.get(ally_code=player['allyCode'])
+		p = find_player(selected_players, player['allyCode'])
+		if p is None:
+			try:
+				p = Player.objects.get(ally_code=player['allyCode'])
+
+			except Player.DoesNotExist:
+				pass
+
+		if p is not None:
 			discord_id = '<@%s>' % p.discord_id
-		except Player.DoesNotExist:
-			pass
 
 		for ref_unit in selected_units:
 

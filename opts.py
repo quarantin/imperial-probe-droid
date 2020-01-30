@@ -179,11 +179,16 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 	discord_ids = parse_opts_mentions(request)
 	ally_codes = parse_opts_ally_codes(request)
 
+	players = []
 	unregistered = []
 	for discord_id in discord_ids:
 
 		try:
 			p = Player.objects.get(discord_id=discord_id)
+
+			if p not in players:
+				players.append(p)
+
 			if p.ally_code not in ally_codes:
 				ally_codes.append(p.ally_code)
 
@@ -196,6 +201,10 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 	if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
 		try:
 			p = Player.objects.get(discord_id=author.id)
+
+			if p not in players:
+				players.insert(0, p)
+
 			if p.ally_code not in ally_codes:
 				ally_codes.insert(0, p.ally_code)
 
@@ -211,25 +220,11 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 	if len(ally_codes) > max_allies and max_allies != -1:
 		return None, error_too_many_ally_codes_specified(ally_codes, max_allies)
 
-	players = []
 	for ally_code in ally_codes:
-		try:
-			p = Player.objects.get(ally_code=ally_code)
 
-		except Player.MultipleObjectsReturned:
-
-			try:
-				p = Player.objects.get(ally_code=ally_code, discord_id=author.id)
-
-			except Player.DoesNotExist:
-				p = None
-				print("Could not resolve user from allycode: %s" % ally_code)
-
-		except Player.DoesNotExist:
-			p = Player(ally_code=ally_code)
-
-		if p is not None and p not in players:
-			players.append(p)
+		count = Player.objects.filter(ally_code=ally_code).count()
+		if count < 1:
+			players.append(Player(ally_code=ally_code))
 
 	return players, None
 
