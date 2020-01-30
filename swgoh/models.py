@@ -348,6 +348,7 @@ class BaseUnitFaction(models.Model):
 				return fac_id
 		return False
 
+# TODO Use me
 class BaseUnitAbilityClass(models.Model):
 
 	ABILITIES = (
@@ -445,10 +446,12 @@ class BaseUnitSkill(models.Model):
 	is_zeta = models.BooleanField(default=False)
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 
-class PlayerCharacter(models.Model):
+# TODO Use me
+class PlayerUnit(models.Model):
 	player = models.ForeignKey(Player, on_delete=models.CASCADE)
 	character = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 
+# TODO Use me
 class Mod(models.Model):
 
 	SLOTS = (
@@ -479,7 +482,7 @@ class Mod(models.Model):
 		('sp', 'speed'),
 	)
 
-	character = models.ForeignKey(PlayerCharacter, on_delete=models.CASCADE)
+	character = models.ForeignKey(PlayerUnit, on_delete=models.CASCADE)
 
 	slot = models.CharField(max_length=16, choices=SLOTS)
 	modset = models.CharField(max_length=16, choices=MODSETS)
