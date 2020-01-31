@@ -88,6 +88,7 @@ MODPRIMARIES_OPTS = {
 
 def parse_opts_format(request, opts):
 
+	config = request.config
 	args = request.args
 	args_cpy = list(args)
 
