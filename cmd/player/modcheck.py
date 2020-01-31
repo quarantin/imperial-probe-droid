@@ -224,6 +224,8 @@ def cmd_modcheck(request):
 				unit_url = get_swgohgg_player_unit_url(ally_code_str, unit['defId'])
 				sublines.append('**[%s](%s)** (No mods)' % (unit_name, unit_url))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found without any mods.')
 			lines.append(config['separator'])
 
 		if 'missing' in actions:
@@ -234,6 +236,8 @@ def cmd_modcheck(request):
 				unit_url = get_swgohgg_player_unit_url(ally_code_str, unit['defId'])
 				sublines.append('**[%s](%s)** (**%d** missing)' % (unit_name, unit_url, unit['missing-mods']))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found with missing mods.')
 			lines.append(config['separator'])
 
 		if 'incomplete' in actions:
@@ -244,6 +248,8 @@ def cmd_modcheck(request):
 				unit_url = get_swgohgg_player_unit_url(ally_code_str, unit['defId'])
 				sublines.append('**[%s](%s)** (Incomplete modset)' % (unit_name, unit_url))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found with incomplete modsets.')
 			lines.append(config['separator'])
 
 		if 'level' in actions:
@@ -255,6 +261,8 @@ def cmd_modcheck(request):
 				plural = len(unit['mods-no-max-level']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < L15)' % (unit_name, unit_url, len(unit['mods-no-max-level']), plural))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found with mods less than level 15.')
 			lines.append(config['separator'])
 
 		if '5pips' in actions:
@@ -266,6 +274,8 @@ def cmd_modcheck(request):
 				plural = len(unit['mods-not-5-pips']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < 5 pips)' % (unit_name, unit_url, len(unit['mods-not-5-pips']), plural))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found with mods less than 5 pips.')
 			lines.append(config['separator'])
 
 		if '6pips' in actions:
@@ -277,6 +287,8 @@ def cmd_modcheck(request):
 				plural = len(unit['mods-not-6-pips']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < 6 pips)' % (unit_name, unit_url, len(unit['mods-not-6-pips']), plural))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found with mods less than 6 pips.')
 			lines.append(config['separator'])
 
 		if 'tier' in actions:
@@ -288,6 +300,8 @@ def cmd_modcheck(request):
 				plural = len(unit['weak-tier']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < Gold)' % (unit_name, unit_url, len(unit['weak-tier']), plural))
 			lines.extend(sorted(sublines))
+			if not lines:
+				lines.append('No units found with mods tier less than gold.')
 			lines.append(config['separator'])
 
 		lines = lines[0:-1]
