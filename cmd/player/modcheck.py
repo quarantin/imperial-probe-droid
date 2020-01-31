@@ -15,6 +15,7 @@ help_modcheck = {
 ```
 %prefixmc```
 **Options**
+**`count`** (or **`c`**): To show how many equipped mods.
 **`missing`** (or **`m`**): To show units with missing mods.
 **`nomods`** (or **`n`**): To show units with no mods.
 **`incomplete`** (or **`i`**): To show units with incomplete modsets.
@@ -22,8 +23,8 @@ help_modcheck = {
 **`5pips`** (or **`5`**): To show units with mods less than 5 pips.
 **`6pips`** (or **`6`**): To show units with mods less than 6 pips.
 **`tier`** (or **`t`**): To show units with mods less than gold quality.
-If no options is specified, the following options will be selected by default:
-Missing, nomods, incomplete, level and 5pips.
+If no option is specified, the following options will be selected by default:
+Count, missing, nomods, incomplete, level and 5pips.
 
 **Examples**
 ```
@@ -38,6 +39,17 @@ MAX_MOD_LEVEL = 15
 MAX_MODS_PER_UNIT = 6
 MIN_LEVEL_FOR_MODS = 50
 
+default_actions = [
+	'count',
+	'missing',
+	'nomods',
+	'incomplete',
+	'level',
+	'5pips',
+	#'6pips',
+	#'tier',
+]
+
 def parse_opts_actions(request):
 
 	actions = []
@@ -51,11 +63,11 @@ def parse_opts_actions(request):
 			args.remove(arg)
 			actions.append('count')
 
-		elif larg in [ 'm', 'miss', 'missing' ]:
+		elif larg in [ 'n', 'nm', 'nomods' ]:
 			args.remove(arg)
 			actions.append('missing')
 
-		elif larg in [ 'n', 'nm', 'nomods' ]:
+		elif larg in [ 'm', 'miss', 'missing' ]:
 			args.remove(arg)
 			actions.append('missing')
 
@@ -150,16 +162,6 @@ def get_mod_stats(roster):
 
 	return modcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier
 
-default_actions = [
-	'count',
-	'missing',
-	'nomods',
-	'incomplete',
-	'level',
-	'5pips',
-	#'6pips',
-	#'tier',
-]
 def cmd_modcheck(request):
 
 	args = request.args
