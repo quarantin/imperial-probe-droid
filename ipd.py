@@ -225,7 +225,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		error = None
 		retries = 'max-retry' in self.config and self.config['max-retry'] or 3
 
-		while retries > 0:
+		while channel is not None and retries > 0:
 
 			try:
 				msg = await channel.send(message, embed=embed)
@@ -377,6 +377,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		channel = request.channel
 		command = request.command
 		config = request.config
+
+		if channel is None:
+			return
 
 		try:
 			for cmd in COMMANDS:
