@@ -225,9 +225,12 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 
 		queryset = Player.objects.filter(ally_code=ally_code)
 		if queryset.count() > 0:
-			players.append(queryset.first())
+			player = queryset.first()
 		else:
-			players.append(Player(ally_code=ally_code))
+			player = Player(ally_code=ally_code)
+
+		if player not in players:
+			players.append(player)
 
 	return players, None
 
