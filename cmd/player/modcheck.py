@@ -5,36 +5,81 @@ from swgohhelp import fetch_players, get_unit_name
 from constants import MODSETS_NEEDED
 
 help_modcheck = {
-	'title': 'Mods Help',
-	'description': """Shows statistics about mods for the supplied ally codes.
+	'title': 'Modcheck Help',
+	'description': """Shows weak mod setups for the supplied ally codes.
 
 **Syntax**
 ```
-%prefixmods [ally_codes or mentions] [option]```
-
-**Options**
-```
-missing (or m): To show units with missing mods.
-nomods (or n): To show units with no mods.
-incomplete (or i): To show units with incomplete modsets.```
-
+%prefixmodcheck [ally_codes or mentions] [options]```
 **Aliases**
 ```
-%prefixm```
+%prefixmc```
+**Options**
+**`missing`** (or **`m`**): To show units with missing mods.
+**`nomods`** (or **`n`**): To show units with no mods.
+**`incomplete`** (or **`i`**): To show units with incomplete modsets.
+**`level`** (or **`l`**): To show units with mods less than level 15.
+**`5pips`** (or **`5`**): To show units with mods less than 5 pips.
+**`6pips`** (or **`6`**): To show units with mods less than 6 pips.
+**`tier`** (or **`t`**): To show units with mods less than gold quality.
+If no options is specified, the following options will be selected by default:
+Missing, nomods, incomplete, level and 5pips.
 
 **Examples**
 ```
-%prefixm
-%prefixm @Someone
-%prefixm 123456789
-%prefixm 123456789 missing
-%prefixm nomods
-%prefixm incomplete```""",
+%prefixmc
+%prefixmc @Someone
+%prefixmc 123456789 missing
+%prefixmc nomods
+%prefixmc incomplete```""",
 }
 
 MAX_MOD_LEVEL = 15
 MAX_MODS_PER_UNIT = 6
 MIN_LEVEL_FOR_MODS = 50
+
+def parse_opts_actions(request):
+
+	actions = []
+	args = request.args
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		larg = arg.lower()
+
+		if larg in [ 'c', 'count' ]:
+			args.remove(arg)
+			actions.append('count')
+
+		elif larg in [ 'm', 'miss', 'missing' ]:
+			args.remove(arg)
+			actions.append('missing')
+
+		elif larg in [ 'n', 'nm', 'nomods' ]:
+			args.remove(arg)
+			actions.append('missing')
+
+		elif larg in [ 'i', 'inc', 'incomplete' ]:
+			args.remove(arg)
+			actions.append('incomplete')
+
+		elif larg in [ 'l', 'lvl', 'level' ]:
+			args.remove(arg)
+			actions.append('level')
+
+		elif larg in [ '5', '5p', '5pip', '5pips', '5-pips' ]:
+			args.remove(arg)
+			actions.append('5pips')
+
+		elif larg in [ '6', '6p', '6pip', '6pips', '6-pips' ]:
+			args.remove(arg)
+			actions.append('6pips')
+
+		elif larg in [ 't', 'tier', 'tiers', 'color' ]:
+			args.remove(arg)
+			actions.append('tier')
+
+	return actions
 
 def get_mod_stats(roster):
 
@@ -104,49 +149,6 @@ def get_mod_stats(roster):
 				break
 
 	return modcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier
-
-def parse_opts_actions(request):
-
-	actions = []
-	args = request.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-
-		if larg in [ 'c', 'count' ]:
-			args.remove(arg)
-			actions.append('count')
-
-		elif larg in [ 'm', 'miss', 'missing' ]:
-			args.remove(arg)
-			actions.append('missing')
-
-		elif larg in [ 'n', 'nm', 'nomods' ]:
-			args.remove(arg)
-			actions.append('missing')
-
-		elif larg in [ 'i', 'inc', 'incomplete' ]:
-			args.remove(arg)
-			actions.append('incomplete')
-
-		elif larg in [ 'l', 'lvl', 'level' ]:
-			args.remove(arg)
-			actions.append('level')
-
-		elif larg in [ '5', '5p', '5pip', '5pips', '5-pips' ]:
-			args.remove(arg)
-			actions.append('5pips')
-
-		elif larg in [ '6', '6p', '6pip', '6pips', '6-pips' ]:
-			args.remove(arg)
-			actions.append('6pips')
-
-		elif larg in [ 't', 'tier', 'tiers', 'color' ]:
-			args.remove(arg)
-			actions.append('tier')
-
-	return actions
 
 default_actions = [
 	'count',
