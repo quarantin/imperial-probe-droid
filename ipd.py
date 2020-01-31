@@ -356,7 +356,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				channel = self.get_channel(chan_id)
 				status, error = await self.sendmsg(channel, message=message)
 				if not status:
-					print('Could not print to channel %s: %s' % (channel, error))
+					print('Could not print to channel %s: %s (1)' % (channel, error))
 
 		self.loop.create_task(self.schedule_update_news(config))
 		self.loop.create_task(self.schedule_payouts(config))
@@ -392,7 +392,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 						for embed in embeds:
 							status, error = await self.sendmsg(channel, message='', embed=embed)
 							if not status:
-								print('Could not print to channel %s: %s' % (channel, error))
+								print('Could not print to channel %s: %s (2)' % (channel, error))
 					break
 			else:
 				embeds = new_embeds(config, {
@@ -404,7 +404,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				for embed in embeds:
 					status, error = await self.sendmsg(channel, message='', embed=embed)
 					if not status:
-						print('Could not print to channel %s: %s' % (channel, error))
+						print('Could not print to channel %s: %s (3)' % (channel, error))
 
 		except Exception as err:
 			print("Error in on_message_handler...")
@@ -413,7 +413,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			if 'crash' in config and config['crash']:
 				status, error = await self.sendmsg(channel, message=config['crash'])
 				if not status:
-					print('Could not print to channel %s: %s' % (channel, error))
+					print('Could not print to channel %s: %s (4)' % (channel, error))
 
 			embeds = new_embeds(config, {
 				'title': 'Unexpected Error',
@@ -424,7 +424,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for embed in embeds:
 				status, error = await self.sendmsg(channel, message='', embed=embed)
 				if not status:
-					print('Could not print to channel %s: %s' % (channel, error))
+					print('Could not print to channel %s: %s (5)' % (channel, error))
 
 async def __main__():
 	try:
