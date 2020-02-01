@@ -97,24 +97,6 @@ def parse_json(filename):
 	fin.close()
 	return json.loads(data)
 
-def parse_skills(filename='skillList.json'):
-
-	skills = {}
-	skill_list = parse_json(filename)
-
-	for skill in skill_list:
-
-		skill_id          = skill['id']
-		skill_is_zeta     = skill['isZeta']
-		skill_ability_ref = skill['abilityReference']
-
-		skills[skill_id] = {
-			'isZeta': skill_is_zeta,
-			'abilityReference': skill_ability_ref,
-		}
-
-	config['skills'] = skills
-
 def save_config(config_file='config.json'):
 
 	config_cpy = dict(config)
@@ -162,5 +144,4 @@ def load_config(config_file='config.json'):
 		config['debug'] = 'debug' in config and config['debug']
 		config['role'] = DEFAULT_ROLE
 
-	parse_skills()
 	return config
