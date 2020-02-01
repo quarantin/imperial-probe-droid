@@ -239,7 +239,7 @@ def get_unit_name(base_id, language):
 def get_simple_unit_name(base_id):
 	return get_unit_name(base_id, 'eng_us').lower().replace(' ', '-').replace('"', '').replace('(', '').replace(')', '').replace('î', 'i').replace('Î', 'i').replace("'", '')
 
-def get_ability_name(config, skill_id, language):
+def get_ability_name(skill_id, language):
 
 	import DJANGO
 	from swgoh.models import BaseUnitSkill, Translation

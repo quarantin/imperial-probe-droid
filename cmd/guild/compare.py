@@ -69,7 +69,7 @@ def get_unit_stats(config, roster, lang):
 		for zeta in zetas:
 
 			zeta_id = zeta['id']
-			zeta_name = get_ability_name(config, zeta_id, lang)
+			zeta_name = get_ability_name(zeta_id, lang)
 			if zeta_name not in stats['zetas']:
 				stats['zetas'][zeta_name] = 0
 			stats['zetas'][zeta_name] += 1

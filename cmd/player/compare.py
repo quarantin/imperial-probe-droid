@@ -195,7 +195,7 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 		unit_skills = BaseUnitSkill.objects.filter(unit=real_unit)
 		for skill in unit_skills:
 			skill_id = skill.skill_id
-			skill_name = get_ability_name(config, skill_id, lang)
+			skill_name = get_ability_name(skill_id, lang)
 			res[skill_id] = {
 				'tier': ' T0 ',
 				'name': skill_name,
@@ -211,7 +211,7 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 				emoji = '`%s`' % (skill['isZeta'] and EMOJIS['zeta'] or EMOJIS['omega'])
 
 			if skill_id not in res:
-				skill_name = get_ability_name(config, skill_id, lang)
+				skill_name = get_ability_name(skill_id, lang)
 				res[skill_id] = {
 					'name': skill_name,
 					'isZeta': False,

@@ -139,7 +139,7 @@ def cmd_zetas(request):
 			percent = zeta['of_all_this_unit']
 			unit = BaseUnit.objects.get(pk=zeta['unit_id'])
 			unit_name = get_unit_name(unit.base_id, language)
-			skill_name = get_ability_name(config, zeta['skill_id'], language)
+			skill_name = get_ability_name(zeta['skill_id'], language)
 
 			lines.append('`%.2f` **%s** %s' % (percent, unit_name, skill_name))
 
