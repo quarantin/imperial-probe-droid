@@ -167,7 +167,6 @@ def new_embeds(request, msg, timestamp=None):
 
 		i += 1
 
-	print('%s%s' % (config['prefix'], request.content))
 	print('Sending %d messages to %s <%s> %s <%s>' % (len(msgs), guild, guild_id, channel, channel.id))
 	for msg in msgs:
 		print(msg)
