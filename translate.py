@@ -6,7 +6,7 @@ import json
 import requests
 import traceback
 from config import load_config
-from swgohhelp import api_swgoh_data, get_ability_name
+from swgohhelp import api_swgoh_data
 from recos import fetch_all_recos
 from utils import http_get
 from bs4 import BeautifulSoup
