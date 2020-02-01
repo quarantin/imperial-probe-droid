@@ -242,16 +242,19 @@ def get_simple_unit_name(base_id):
 def get_ability_name(config, skill_id, language):
 
 	import DJANGO
-	from swgoh.models import Translation
+	from swgoh.models import BaseUnitSkill, Translation
 
-	if skill_id in config['skills']:
-		ability_id = config['skills'][skill_id]['abilityReference']
+	try:
+		skill = BaseUnitSkill.objects.get(skill_id=skill_id)
 		try:
-			t = Translation.objects.get(string_id=ability_id, language=language)
+			t = Translation.objects.get(string_id=skill.ability_ref, language=language)
 			return t.translation
 
 		except Translation.DoesNotExist:
-			print("Missing translation for string ID %s" % ability_id)
+			print("Missing translation for string ID %s" % skill.ability_ref)
+
+	except BaseUnitSkill.DoesNotExist:
+		pass
 
 	print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
 	return None
