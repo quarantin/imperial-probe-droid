@@ -391,14 +391,14 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 						msgs = cmd['function'](request)
 
 					for msg in msgs:
-						embeds = new_embeds(config, msg)
+						embeds = new_embeds(request, msg)
 						for embed in embeds:
 							status, error = await self.sendmsg(channel, message='', embed=embed)
 							if not status:
 								print('Could not print to channel %s: %s (2)' % (channel, error))
 					break
 			else:
-				embeds = new_embeds(config, {
+				embeds = new_embeds(request, {
 					'title': 'Error: Unknown Command',
 					'color': 'red',
 					'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
@@ -418,7 +418,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				if not status:
 					print('Could not print to channel %s: %s (4)' % (channel, error))
 
-			embeds = new_embeds(config, {
+			embeds = new_embeds(request, {
 				'title': 'Unexpected Error',
 				'color': 'red',
 				'description': str(err),

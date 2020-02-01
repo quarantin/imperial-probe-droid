@@ -493,7 +493,7 @@ async def handle_payout_stats(request):
 	lines_str = '\n'.join(lines)
 
 	from embed import new_embeds
-	embeds = new_embeds(config, {
+	embeds = new_embeds(request, {
 		'title': 'Shard Status',
 		'description': 'Shard ranks and payouts for **%s** arena:\n%s\n`|Rank PO_In 🔫 Player`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	})

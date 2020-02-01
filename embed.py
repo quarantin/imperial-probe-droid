@@ -85,7 +85,12 @@ def split_message(message, preformated):
 
 	return msgs
 
-def new_embeds(config, msg, timestamp=None):
+def new_embeds(request, msg, timestamp=None):
+
+	channel = request.channel
+	config = request.config
+	guild = hasattr(channel, 'guild') and channel.guild or None
+	guild_id = hasattr(guild, 'id') and guild.id or None
 
 	if timestamp is None:
 		from utils import local_time
@@ -162,7 +167,7 @@ def new_embeds(config, msg, timestamp=None):
 
 		i += 1
 
-	print('Sending %d messages' % len(msgs))
+	print('Sending %d messages to %s <%s> %s <%s>' % (len(msgs), guild, guild_id, channel, channel.id))
 	for msg in msgs:
 		print(msg)
 		print('\n')
