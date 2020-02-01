@@ -313,8 +313,8 @@ def parse_zeta_report():
 		pagination_ul = soup.find('ul', { 'class': [ 'pagination', 'm-t-0' ] })
 		pages = int(pagination_ul.find('a').text.replace('Page 1 of ', ''))
 
-		page = 2
-		while page < pages:
+		page = 1
+		while page < pages + 1:
 
 			lis = soup.find_all('li', { 'class': 'character' })
 			for li in lis:
@@ -348,6 +348,9 @@ def parse_zeta_report():
 					zeta = ZetaStat(unit=unit, skill_id=skill_id, total_zetas=total_zetas, of_all_zetas=of_all_zetas, of_all_this_unit=of_all_this_unit, of_g11_this_unit=of_g11_this_unit)
 
 				zeta.save()
+
+			if page == pages:
+				break
 
 			page += 1
 			response, error = http_get(url % page)
