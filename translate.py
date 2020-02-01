@@ -120,6 +120,12 @@ def fetch_all_collections(config):
 def parse_translations(collection, key, context, language):
 
 	filename = 'cache/%s_%s.json' % (collection, language)
+
+	# FIXME: Why abilityList_eng_us.json does not contain skill/ability names?
+	if not os.path.exists(filename) and language == 'en':
+		filename = 'cache/%s.%s.json' % (collection, language)
+		language = 'eng_us'
+
 	with open(filename, 'r') as fin:
 		jsondata = json.loads(fin.read())
 		with transaction.atomic():
@@ -277,6 +283,14 @@ def parse_units():
 
 						slot += 1
 
+UNITS_TO_IGNORE = [
+	'GRIEVOUS_MARQUEE',
+	'FOTF_DEVASTATOR',
+	'AWAKENEDREY',
+	'FOTF_VADER',
+	'VULTUREDROID_tb',
+]
+
 def parse_skills():
 
 	filename = 'cache/skillList.json'
@@ -284,24 +298,29 @@ def parse_skills():
 	skills = {}
 	for skill in skill_list:
 		skill_id = skill['id']
-		skills[skill_id] = skill['isZeta']
+		skills[skill_id] = skill
 
 	filename = 'cache/unitsList.json'
 	units = load_json(filename)
 	with transaction.atomic():
 		for unit in units:
 			base_id = unit['baseId']
+
+			if base_id.startswith('PVE_') or base_id in UNITS_TO_IGNORE:
+				continue
+
 			try:
 				real_unit = BaseUnit.objects.get(base_id=base_id)
 				unit_skills = unit['skillReferenceList']
 				for skill in unit_skills:
 					skill_id = skill['skillId']
-					is_zeta = skills[skill_id]
-					obj, created = BaseUnitSkill.objects.update_or_create(skill_id=skill_id, is_zeta=is_zeta, unit=real_unit)
+					ability = skills[skill_id]
+					ability_ref = ability['abilityReference']
+					is_zeta = ability['isZeta']
+					obj, created = BaseUnitSkill.objects.update_or_create(skill_id=skill_id, ability_ref=ability_ref, is_zeta=is_zeta, unit=real_unit)
 
 			except BaseUnit.DoesNotExist:
-				if not base_id.startswith('PVE_'):
-					print("WARN: Missing unit from DB: %s" % base_id)
+				print("WARN: Missing unit from DB: %s" % base_id)
 				continue
 
 def parse_zeta_report():
@@ -413,6 +432,9 @@ parse_zeta_report()
 parse_localization_files()
 
 save_all_recos()
+
+# FIXME: Why abilityList_eng_us.json does not contain skill/ability names?
+parse_translations('abilityList', 'id', 'abilities', 'en')
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 
