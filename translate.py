@@ -17,7 +17,7 @@ from django.db import transaction
 
 from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat
 
-DEBUG = False
+DEBUG = True
 
 urls = {
 	'cache/characters.json': 'https://swgoh.gg/api/characters/',
@@ -120,12 +120,6 @@ def fetch_all_collections(config):
 def parse_translations(collection, key, context, language):
 
 	filename = 'cache/%s_%s.json' % (collection, language)
-
-	# FIXME: Why abilityList_eng_us.json does not contain skill/ability names?
-	if not os.path.exists(filename) and language == 'en':
-		filename = 'cache/%s.%s.json' % (collection, language)
-		language = 'eng_us'
-
 	with open(filename, 'r') as fin:
 		jsondata = json.loads(fin.read())
 		with transaction.atomic():
@@ -432,9 +426,6 @@ parse_zeta_report()
 parse_localization_files()
 
 save_all_recos()
-
-# FIXME: Why abilityList_eng_us.json does not contain skill/ability names?
-parse_translations('abilityList', 'id', 'abilities', 'en')
 
 for language, lang_code, lang_flag, lang_name in Player.LANGS:
 
