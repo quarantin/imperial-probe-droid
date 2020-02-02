@@ -35,6 +35,7 @@ help_help = {
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Compare different players and their respective units.
 **`recos`**: Show information about recommended mods.
+**`relics`**: List most popular characters with relics (**NEW**).
 **`wntm`**: List characters who needs mods with specific criteria.
 **`zetas`**: List most popular zetas for your characters (**NEW**)."""
 #NOT WORKING **`mods`**: Show information about mods.
