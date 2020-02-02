@@ -27,6 +27,7 @@ from cmd.player.modcheck import *
 from cmd.player.modroll import *
 from cmd.player.needed import *
 from cmd.player.recos import *
+from cmd.player.relic import *
 from cmd.player.wntm import *
 from cmd.player.zetas import *
 
@@ -193,6 +194,12 @@ COMMANDS = [
 		'aliases': [ 'po', 'payout', 'payouts' ],
 		'function': cmd_payout,
 		'help': help_payout,
+	},
+	{
+		'command': 'relic',
+		'aliases': [ 'rr', 'relic', 'relics' ],
+		'function': cmd_relic,
+		'help': help_relic,
 	},
 	{
 		'command': 'timezone',

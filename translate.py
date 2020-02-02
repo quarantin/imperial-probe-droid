@@ -15,7 +15,7 @@ import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat, Gear13Stat
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat, Gear13Stat, RelicStat
 
 DEBUG = True
 
@@ -414,6 +414,47 @@ def parse_gear13_report():
 	except:
 		print(traceback.format_exc())
 
+def parse_relic_report():
+
+	url = 'https://swgoh.gg/characters/data/relics/'
+	try:
+		response, error = http_get(url)
+		soup = BeautifulSoup(response.content, 'html.parser')
+		rows = soup.find(id='characters').find('tbody').find_all('tr')
+		for row in rows:
+
+			cols = row.find_all('td')
+
+			unit_name = cols[0].text.strip()
+			unit = BaseUnit.objects.get(name=unit_name)
+			try:
+				s = RelicStat.objects.get(unit=unit)
+
+			except RelicStat.DoesNotExist:
+				s = RelicStat(unit=unit)
+
+			s.relic1 = int(cols[1].text)
+			s.relic2 = int(cols[2].text)
+			s.relic3 = int(cols[3].text)
+			s.relic4 = int(cols[4].text)
+			s.relic5 = int(cols[5].text)
+			s.relic6 = int(cols[6].text)
+			s.relic7 = int(cols[7].text)
+			s.g13_units = int(cols[22].text) or 1
+
+			s.relic7_percentage = 100 * ((s.relic7) / s.g13_units)
+			s.relic6_percentage = 100 * ((s.relic7 + s.relic6) / s.g13_units)
+			s.relic5_percentage = 100 * ((s.relic7 + s.relic6 + s.relic5) / s.g13_units)
+			s.relic4_percentage = 100 * ((s.relic7 + s.relic6 + s.relic5 + s.relic4) / s.g13_units)
+			s.relic3_percentage = 100 * ((s.relic7 + s.relic6 + s.relic5 + s.relic4 + s.relic3) / s.g13_units)
+			s.relic2_percentage = 100 * ((s.relic7 + s.relic6 + s.relic5 + s.relic4 + s.relic3 + s.relic2) / s.g13_units)
+			s.relic1_percentage = 100 * ((s.relic7 + s.relic6 + s.relic5 + s.relic4 + s.relic3 + s.relic2 + s.relic1) / s.g13_units)
+
+			s.save()
+
+	except:
+		print(traceback.format_exc())
+
 def save_all_recos():
 
 	with transaction.atomic():
@@ -462,6 +503,7 @@ parse_units()
 parse_skills()
 parse_zeta_report()
 parse_gear13_report()
+parse_relic_report()
 parse_localization_files()
 
 save_all_recos()
