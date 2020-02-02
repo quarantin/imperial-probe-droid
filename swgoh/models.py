@@ -661,3 +661,10 @@ class ZetaStat(models.Model):
 	of_all_zetas = models.FloatField()
 	of_all_this_unit = models.FloatField()
 	of_g11_this_unit = models.FloatField()
+
+class Gear13Stat(models.Model):
+
+	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
+	g13_count = models.IntegerField()
+	total_count = models.IntegerField()
+	percentage = models.FloatField()
