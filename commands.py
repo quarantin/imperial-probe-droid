@@ -20,6 +20,7 @@ from cmd.misc.meta import *
 from cmd.player.arena import *
 from cmd.player.compare import *
 from cmd.player.gear import *
+from cmd.player.gear13 import *
 from cmd.player.list import *
 from cmd.player.locked import *
 from cmd.player.modcheck import *
@@ -72,6 +73,13 @@ COMMANDS = [
 		'function': cmd_gear,
 		'help': help_gear,
 	},
+	{
+		'command': 'gear13',
+		'aliases': [ 'g13', 'gear13' ],
+		'function': cmd_gear13,
+		'help': help_gear13,
+	},
+
 	{
 		'command': 'ggp',
 		'aliases': [ 'ggp', 'guildgp' ],

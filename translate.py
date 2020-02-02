@@ -15,7 +15,7 @@ import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat
+from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat, Gear13Stat
 
 DEBUG = True
 
@@ -371,9 +371,47 @@ def parse_zeta_report():
 				print("ERROR: %s" % error)
 				return
 
-			soup = BeautifulSoup(response.content, 'lxml')
+			soup = BeautifulSoup(response.content, 'html.parser')
 
-	except Exception as err:
+	except:
+		print(traceback.format_exc())
+
+def parse_gear13_report():
+
+	url = 'https://swgoh.gg/characters/data/g13/'
+	try:
+		response, error = http_get(url)
+		soup = BeautifulSoup(response.content, 'html.parser')
+		rows = soup.find(id='characters').find('tbody').find_all('tr')
+		for row in rows:
+
+			cols = row.find_all('td')
+
+			unit_name   = cols[0].text.strip()
+			g13_count   = int(cols[1].text)
+			total_count = int(cols[2].text)
+			percentage  = float(cols[3].text.replace('%', ''))
+
+			print("Processing %s..." % unit_name)
+			try:
+				unit = BaseUnit.objects.get(name=unit_name)
+
+			except BaseUnit.DoesNotExist:
+				print("Could not find unit with name '%s'. Skipping." % unit_name)
+				continue
+
+			try:
+				g13_stat = Gear13Stat.objects.get(unit=unit)
+				g13_stat.g13_count = g13_count
+				g13_stat.total_count = total_count
+				g13_stat.percentage = percentage
+
+			except Gear13Stat.DoesNotExist:
+				g13_stat = Gear13Stat(unit=unit, g13_count=g13_count, total_count=total_count, percentage=percentage)
+
+			g13_stat.save()
+
+	except:
 		print(traceback.format_exc())
 
 def save_all_recos():
@@ -423,6 +461,7 @@ parse_gear()
 parse_units()
 parse_skills()
 parse_zeta_report()
+parse_gear13_report()
 parse_localization_files()
 
 save_all_recos()

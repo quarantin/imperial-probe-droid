@@ -29,6 +29,7 @@ help_help = {
 **Player Commands**
 **`arena`**: Show arena squad details.
 **`gear`**: List needed pieces of gear for units.
+**`gear13`**: List most popular gear 13 for your characters (**NEW**).
 **`locked`**: Show locked characters or ships.
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
