@@ -668,3 +668,22 @@ class Gear13Stat(models.Model):
 	g13_count = models.IntegerField()
 	total_count = models.IntegerField()
 	percentage = models.FloatField()
+
+class RelicStat(models.Model):
+
+	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
+	g13_units = models.IntegerField()
+	relic1 = models.IntegerField()
+	relic2 = models.IntegerField()
+	relic3 = models.IntegerField()
+	relic4 = models.IntegerField()
+	relic5 = models.IntegerField()
+	relic6 = models.IntegerField()
+	relic7 = models.IntegerField()
+	relic1_percentage = models.FloatField()
+	relic2_percentage = models.FloatField()
+	relic3_percentage = models.FloatField()
+	relic4_percentage = models.FloatField()
+	relic5_percentage = models.FloatField()
+	relic6_percentage = models.FloatField()
+	relic7_percentage = models.FloatField()
