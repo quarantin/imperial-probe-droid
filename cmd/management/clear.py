@@ -15,6 +15,7 @@ async def cmd_clear(request):
 	author = request.author
 	bot = request.bot
 	channel = request.channel
+	config = request.config
 
 	perms = channel.permissions_for(channel.guild.me)
 	if not perms.manage_messages:
