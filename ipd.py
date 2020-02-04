@@ -311,7 +311,13 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				news = feedparser.parse(feed.url)
 				for entry in news.entries:
 					published = datetime.fromtimestamp(mktime(entry.published_parsed), tz=pytz.UTC)
-					entry, created = NewsEntry.objects.get_or_create(link=entry.link, published=published, feed=feed)
+
+					try:
+						entry = NewsEntry.objects.get(link=entry.link, published=published, feed=feed)
+
+					except NewsEntry.DoesNotExist:
+						entry = NewsEntry(link=entry.link, published=published, feed=feed)
+						entry.save()
 
 			await self.update_news_channels(config)
 
