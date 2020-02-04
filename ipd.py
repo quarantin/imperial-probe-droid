@@ -205,13 +205,13 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 	def get_bot_prefix(self, server, channel):
 
-		try:
-			server_id = None
-			if hasattr(server, 'id'):
-				server_id = server.id
-			elif hasattr(channel, 'id'):
-				server_id = channel.id
+		server_id = None
+		if hasattr(server, 'id'):
+			server_id = server.id
+		elif hasattr(channel, 'id'):
+			server_id = channel.id
 
+		try:
 			guild = DiscordServer.objects.get(server_id=server_id)
 			bot_prefix = guild.bot_prefix
 
