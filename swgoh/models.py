@@ -638,13 +638,13 @@ class DiscordServer(models.Model):
 
 class NewsFeed(models.Model):
 
-	id = models.IntegerField(primary_key=True)
+	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=32, unique=True)
 	url = models.CharField(max_length=2048, unique=True)
 
 class NewsEntry(models.Model):
 
-	id = models.IntegerField(primary_key=True)
+	id = models.AutoField(primary_key=True)
 	link = models.CharField(unique=True, max_length=2048)
 	published = models.DateTimeField()
 	feed = models.ForeignKey(NewsFeed, on_delete=models.CASCADE)
