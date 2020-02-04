@@ -643,7 +643,8 @@ class NewsFeed(models.Model):
 
 class NewsEntry(models.Model):
 
-	link = models.CharField(primary_key=True, max_length=2048)
+	id = models.IntegerField(primary_key=True)
+	link = models.CharField(unique=True, max_length=2048)
 	published = models.DateTimeField()
 	feed = models.ForeignKey(NewsFeed, on_delete=models.CASCADE)
 
