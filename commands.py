@@ -5,6 +5,7 @@ from cmd.guild.ggp import *
 from cmd.guild.glist import *
 from cmd.guild.ulist import *
 from cmd.management.alias import *
+from cmd.management.clear import *
 from cmd.management.config import *
 from cmd.management.help import *
 from cmd.management.ignore import *
@@ -43,6 +44,12 @@ COMMANDS = [
 		'aliases': [ 'a', 'arena' ],
 		'function': cmd_arena,
 		'help': help_arena,
+	},
+	{
+		'command': 'clear',
+		'aliases': [ 'clear' ],
+		'function': cmd_clear,
+		'help': help_clear,
 	},
 	{
 		'command': 'config',
