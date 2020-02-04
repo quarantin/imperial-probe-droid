@@ -301,23 +301,11 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			feed_urls = 'feeds' in config and config['feeds'] or {}
 			for feed_name, feed_url in feed_urls.items():
 
-				try:
-					feed = NewsFeed.objects.get(name=feed_name, url=feed_url)
-
-				except NewsFeed.DoesNotExist:
-					feed = NewsFeed(name=feed_name, url=feed_url)
-					feed.save()
-
+				feed, created = NewsFeed.objects.get_or_create(name=feed_name, url=feed_url)
 				news = feedparser.parse(feed.url)
 				for entry in news.entries:
 					published = datetime.fromtimestamp(mktime(entry.published_parsed), tz=pytz.UTC)
-
-					try:
-						entry = NewsEntry.objects.get(link=entry.link, published=published, feed=feed)
-
-					except NewsEntry.DoesNotExist:
-						entry = NewsEntry(link=entry.link, published=published, feed=feed)
-						entry.save()
+					entry, created = NewsEntry.objects.get_or_create(link=entry.link, published=published, feed=feed)
 
 			await self.update_news_channels(config)
 
