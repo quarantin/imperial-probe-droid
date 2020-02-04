@@ -638,8 +638,9 @@ class DiscordServer(models.Model):
 
 class NewsFeed(models.Model):
 
-	url = models.CharField(primary_key=True, max_length=2048)
-	name = models.CharField(max_length=32)
+	id = models.IntegerField(primary_key=True)
+	name = models.CharField(max_length=32, unique=True)
+	url = models.CharField(max_length=2048, unique=True)
 
 class NewsEntry(models.Model):
 
