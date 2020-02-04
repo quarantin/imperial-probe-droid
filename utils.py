@@ -343,3 +343,23 @@ def parse_modsets(td):
 	modsets += [''] * (3 - len(modsets))
 
 	return modsets
+
+def check_permission(request):
+
+	author = request.author
+	channel = request.channel
+	config = request.config
+
+	from discord import ChannelType
+	if channel is not None and channel.type is ChannelType.private:
+		return True
+
+	ipd_role = config['role'].lower()
+	for role in author.roles:
+		if role.name.lower() == ipd_role:
+			return True
+
+	if 'admins' in config and author.id in config['admins']:
+		return True
+
+	return False

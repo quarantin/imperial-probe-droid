@@ -2,6 +2,7 @@
 
 from opts import *
 from errors import *
+from utils import check_permission
 
 import DJANGO
 from swgoh.models import NewsChannel, NewsEntry
@@ -27,22 +28,6 @@ Populate current channel with all passed news:
 ```
 %prefixnews history```"""
 }
-
-def check_permission(request):
-
-	author = request.author
-	channel = request.channel
-	config = request.config
-
-	if channel is not None and channel.type is ChannelType.private:
-		return True
-
-	ipd_role = config['role'].lower()
-	for role in author.roles:
-		if role.name.lower() == ipd_role:
-			return True
-
-	return False
 
 async def handle_news_enable(request):
 

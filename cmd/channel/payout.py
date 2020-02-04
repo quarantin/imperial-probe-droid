@@ -2,6 +2,7 @@
 
 from opts import *
 from errors import *
+from utils import check_permission
 from swgohgg import get_swgohgg_profile_url
 from swgohhelp import api_swgoh_players
 
@@ -146,23 +147,6 @@ def parse_opts_payout_time(tz, args):
 			return now.replace(hour=int(tokens[0]), minute=int(tokens[1]), second=0, microsecond=0).astimezone(pytz.utc)
 
 	return None
-
-def check_permission(request):
-
-	author = request.author
-	channel = request.channel
-	config = request.config
-
-	from discord import ChannelType
-	if channel is not None and channel.type is ChannelType.private:
-		return True
-
-	ipd_role = config['role'].lower()
-	for role in author.roles:
-		if role.name.lower() == ipd_role:
-			return True
-
-	return False
 
 def handle_payout_create(request):
 
