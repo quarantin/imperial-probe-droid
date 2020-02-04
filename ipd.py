@@ -63,12 +63,12 @@ def compute_hello_msg():
 
 class MessageStub:
 
-	server = None
+	guild = None
 	channel = None
 	content = None
 
-	def __init__(self, server, channel, content):
-		self.server = server
+	def __init__(self, guild, channel, content):
+		self.guild = guild
 		self.channel = channel
 		self.content = content
 
