@@ -90,7 +90,12 @@ async def handle_news_enable(request):
 				'description': 'I\'m not allowed to create webhooks. I need the following permission to proceed:\n- **Manage Webhooks**',
 			}]
 
-	last_news = NewsEntry.objects.all().latest('published')
+	try:
+		last_news = NewsEntry.objects.all().latest('published')
+
+	except NewsEntry.DoesNotExist:
+		last_news = None
+
 	news_channel, created = NewsChannel.objects.get_or_create(channel_id=channel.id, webhook_id=webhook.id, last_news=last_news)
 	title = 'News Channel'
 	desc = 'News are already enabled on this channel.'
