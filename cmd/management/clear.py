@@ -49,7 +49,4 @@ async def cmd_clear(request):
 
 	await channel.delete_messages(messages)
 
-	return [{
-		'title': 'Success',
-		'description': 'Successfuly deleted %d messages.' % limit,
-	}]
+	return []
