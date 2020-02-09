@@ -125,6 +125,9 @@ def cmd_recos(request):
 
 		for ref_unit in selected_units:
 
+			if ref_unit.combat_type != 1:
+				continue
+
 			base_id   = ref_unit.base_id
 			unit_name = translate(base_id, language)
 
