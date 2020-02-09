@@ -296,6 +296,8 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		await self.wait_until_ready()
 
+		print("Scheduling news update.")
+
 		while True:
 
 			feed_urls = 'feeds' in config and config['feeds'] or {}
@@ -316,6 +318,8 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		cron = CronTab('* * * * *')
 
 		await self.wait_until_ready()
+
+		print("Scheduling arena payouts.")
 
 		while True:
 
@@ -341,6 +345,8 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		if self.initialized is True:
 			print('Reconnection as %s (ID:%s)' % (self.user.name, self.user.id))
 			return
+
+		self.initialized = True
 
 		config = self.config
 
