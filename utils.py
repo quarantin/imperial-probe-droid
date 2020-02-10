@@ -344,6 +344,33 @@ def parse_modsets(td):
 
 	return modsets
 
+def get_available_timezones():
+
+	from pytz import common_timezones
+
+	timezones = list(common_timezones)
+
+	# We don't want users to select GMT or UTC because these
+	# timezones don't take daylight saving times into account.
+	timezones.remove('GMT')
+	timezones.remove('UTC')
+
+	return timezones
+
+def is_supported_timezone(tzinfo, timezones):
+
+	for tz in timezones:
+
+		tzl = tz.lower()
+		if tzl == tzinfo:
+			return tz
+
+		tokens = tzl.split('/')
+		if len(tokens) == 2 and tzinfo == tokens[1]:
+			return tz
+
+	return False
+
 def check_permission(request):
 
 	author = request.author

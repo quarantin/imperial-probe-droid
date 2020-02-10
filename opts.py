@@ -1,7 +1,7 @@
 import re
 
 from errors import *
-from utils import basicstrip
+from utils import basicstrip, get_available_timezones, is_supported_timezone
 
 import DJANGO
 from swgoh.models import Player, BaseUnit, BaseUnitFaction
@@ -490,5 +490,28 @@ def parse_opts_language(request):
 		if language is not None:
 			args.remove(arg)
 			return language
+
+	return None
+
+def parse_opts_timezone(request):
+
+	args = request.args
+	args_cpy = list(args)
+
+	timezones = get_available_timezones()
+
+	for arg in args_cpy:
+
+		larg = arg.lower()
+		tz = is_supported_timezone(larg, timezones)
+		if tz:
+			args.remove(arg)
+			return tz
+
+	larg = '_'.join(args).lower()
+	tz = is_supported_timezone(larg, timezones)
+	if tz:
+		args.clear()
+		return tz
 
 	return None
