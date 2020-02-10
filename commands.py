@@ -6,6 +6,7 @@ from cmd.guild.glist import *
 from cmd.guild.ulist import *
 from cmd.management.alias import *
 from cmd.management.clear import *
+from cmd.management.clock import *
 from cmd.management.config import *
 from cmd.management.help import *
 from cmd.management.ignore import *
@@ -50,6 +51,12 @@ COMMANDS = [
 		'aliases': [ 'clear' ],
 		'function': cmd_clear,
 		'help': help_clear,
+	},
+	{
+		'command': 'clock',
+		'aliases': [ 'clock' ],
+		'function': cmd_clock,
+		'help': help_clock,
 	},
 	{
 		'command': 'config',
