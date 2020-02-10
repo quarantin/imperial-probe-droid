@@ -33,23 +33,29 @@ async def cmd_timezone(request):
 	if not players:
 		return error
 
-	timezone = parse_opts_timezone(request)
+	timezones = parse_opts_timezones(request)
 	if args:
 		return error_unknown_parameters(args)
 
 	player = players[0]
 
-	if not timezone:
+	if not timezones:
 		timezones_url = 'http://%s/media/timezones.txt' % config['server']
 		return [{
 			'title': 'Available Timezones',
 			'description': 'Your timezone is set to **%s**.\n%s\nThe list of supported timezones can be found [here](%s)' % (player.timezone, config['separator'], timezones_url),
 		}]
 
-	player.timezone = timezone
+	if len(timezones) > 1:
+		return [{
+			'title': 'More than one timezone selected',
+			'description': 'You cannot supply more than one timezone but we found %d:\n- %s' % (len(timezones), '\n- '.join(timezones)),
+		}]
+
+	player.timezone = timezones[0]
 	player.save()
 
 	return [{
 		'title': 'Operation Successful',
-		'description': 'Timezone for <@%s> has been changed to **%s**.' % (player.discord_id, timezone),
+		'description': 'Timezone for <@%s> has been changed to **%s**.' % (player.discord_id, player.timezone),
 	}]

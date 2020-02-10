@@ -493,25 +493,28 @@ def parse_opts_language(request):
 
 	return None
 
-def parse_opts_timezone(request):
+def parse_opts_timezones(request):
 
 	args = request.args
 	args_cpy = list(args)
 
-	timezones = get_available_timezones()
+	timezones = []
+	all_timezones = get_available_timezones()
 
 	for arg in args_cpy:
 
 		larg = arg.lower()
-		tz = is_supported_timezone(larg, timezones)
+		tz = is_supported_timezone(larg, all_timezones)
 		if tz:
 			args.remove(arg)
-			return tz
+			if tz not in timezones:
+				timezones.append(tz)
 
 	larg = '_'.join(args).lower()
-	tz = is_supported_timezone(larg, timezones)
+	tz = is_supported_timezone(larg, all_timezones)
 	if tz:
 		args.clear()
-		return tz
+		if tz not in timezones:
+			timezones.append(tz)
 
-	return None
+	return timezones
