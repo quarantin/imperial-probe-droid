@@ -455,6 +455,22 @@ def parse_relic_report():
 	except:
 		print(traceback.format_exc())
 
+def parse_rss_feeds(config):
+
+	if 'feeds' not in config:
+		print('No RSS feed defined in config.json')
+		return
+
+	for feed_name, feed_url in config['feeds'].items():
+
+		try:
+			feed = NewsFeed.objects.get(name=feed_name, url=feed_url)
+
+		except NewsFeed.DoesNotExist:
+			print("Saving RSS feed %s (%s)" % (feed_name, feed_url))
+			feed = NewsFeed(name=feed_name, url=feed_url)
+			feed.save()
+
 def save_all_recos():
 
 	with transaction.atomic():
@@ -504,6 +520,7 @@ config = load_config()
 
 fetch_all_collections(config)
 
+parse_rss_feeds(config)
 parse_gear()
 parse_units()
 parse_skills()
