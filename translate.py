@@ -15,9 +15,9 @@ import DJANGO
 
 from django.db import transaction
 
-from swgoh.models import Player, Translation, BaseUnit, BaseUnitFaction, BaseUnitSkill, BaseUnitGear, Gear, ModRecommendation, ZetaStat, Gear13Stat, RelicStat
+from swgoh.models import *
 
-DEBUG = True
+DEBUG = False
 
 urls = {
 	'cache/characters.json': 'https://swgoh.gg/api/characters/',
@@ -470,6 +470,8 @@ def save_all_recos():
 			#if created is True:
 			#	print('Added new mod recommendation for %s' % base_id)
 
+forced_update = len(sys.argv) > 1 and sys.argv[1] == '--force'
+
 first_time = False
 version_url = 'https://api.swgoh.help/version'
 version_cache = 'cache/version.json'
@@ -484,12 +486,16 @@ else:
 	old_version = json.loads(fin.read())
 	fin.close()
 
-if old_version == new_version and not first_time:
+if old_version == new_version and not first_time and not forced_update:
 	print('Up-to-date: %s' % new_version)
-	# TODO Uncomment this line
-	#sys.exit()
+	sys.exit()
 
-print('New version found, updating: %s' % new_version)
+if forced_update:
+	print('Forcing update: %s' % new_version)
+
+else:
+	print('New version found, updating: %s' % new_version)
+
 fout = open(version_cache, 'w')
 fout.write(json.dumps(new_version))
 fout.close()
