@@ -16,6 +16,7 @@ from cmd.management.lookup import *
 from cmd.management.nicks import *
 from cmd.management.register import *
 from cmd.management.restart import *
+from cmd.management.servers import *
 from cmd.management.timezone import *
 from cmd.management.update import *
 from cmd.misc.meta import *
@@ -214,6 +215,12 @@ COMMANDS = [
 		'aliases': [ 'rr', 'relic', 'relics' ],
 		'function': cmd_relic,
 		'help': help_relic,
+	},
+	{
+		'command': 'servers',
+		'aliases': [ 'servers' ],
+		'function': cmd_servers,
+		'help': help_servers,
 	},
 	{
 		'command': 'timezone',
