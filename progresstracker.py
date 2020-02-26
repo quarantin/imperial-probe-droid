@@ -214,7 +214,7 @@ class GuildTrackerThread(asyncio.Future):
 					messages = self.update_player(ally_code, profile)
 					for message in messages:
 						print(message)
-						guild_tracker.channel.send(message)
+						await guild_tracker.channel.send(message)
 
 			await asyncio.sleep(60)
 
@@ -233,9 +233,6 @@ class GuildTracker(discord.Client):
 			setattr(self, 'initialized', True)
 
 			self.loop.create_task(GuildTrackerThread().run(self))
-
-		async def on_message(self, message):
-			print(message.author)
 
 config_file = 'config.json'
 fin = open(config_file, 'r')
