@@ -4,6 +4,26 @@ import sys
 import json
 import asyncio
 import discord
+from utils import translate
+from swgohhelp import get_unit_name, get_ability_name
+
+MAX_SKILL_TIER = 8
+
+ROMAN = {
+	1: 'I',
+	2: 'II',
+	3: 'II',
+	4: 'IV',
+	5: 'V',
+	6: 'VI',
+	7: 'VII',
+	8: 'VIII',
+	9: 'IX',
+	10: 'X',
+	11: 'XI',
+	12: 'XII',
+	13: 'XIII',
+}
 
 my_guild = {
 	'channel_id': 682302185085730910,
@@ -67,22 +87,22 @@ class GuildTrackerThread(asyncio.Future):
 
 	def check_diff_player_units(self, old_profile, new_profile, messages):
 
+		lang = 'eng_us'
 		old_roster = old_profile['roster']
 
 		old_player_name = old_profile['profile']['name']
 		new_player_name = new_profile['profile']['name']
 		if old_player_name != new_player_name:
-			messages.append('Player **%s** has changed nickname to **%s**.' % (old_player_name, new_player_name))
+			messages.append('**%s** has changed nickname to **%s**.' % (old_player_name, new_player_name))
 
 		for base_id, new_unit in new_profile['roster'].items():
 
-			# TODO Retrieve localized unit name.
-			unit_name = base_id
+			unit_name = get_unit_name(base_id, lang)
 
 			# Handle new units unlocked.
 
 			if base_id not in old_roster:
-				messages.append('Player **%s** unlocked **%s**.' % (new_player_name, unit_name))
+				messages.append('**%s** unlocked **%s**.' % (new_player_name, unit_name))
 				continue
 
 			# Handle unit level increase.
@@ -90,28 +110,29 @@ class GuildTrackerThread(asyncio.Future):
 			old_level = old_roster[base_id]['level']
 			new_level = new_unit['level']
 			if old_level < new_level:
-				messages.append('Player **%s** promoted **%s** to level %d.' % (new_player_name, unit_name, new_level))
+				messages.append('**%s** promoted **%s** to level %d.' % (new_player_name, unit_name, new_level))
 
 			# Handle unit rarity increase.
 
 			old_rarity = old_roster[base_id]['rarity']
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity:
-				messages.append('Player **%s** promoted **%s** to %d stars.' % (new_player_name, unit_name, new_rarity))
+				messages.append('**%s** promoted **%s** to %d stars.' % (new_player_name, unit_name, new_rarity))
 
 			# Handle gear level increase.
 
 			old_gear_level = old_roster[base_id]['gear']
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level:
-				messages.append('Player **%s** increased **%s** to gear %d.' % (new_player_name, unit_name, new_gear_level))
+				roman_gear = ROMAN[new_gear_level]
+				messages.append('**%s** increased **%s**\'s gear to level %s.' % (new_player_name, unit_name, roman_gear))
 
 			# Handle relic increase.
 
 			old_relic = self.get_relic(old_roster[base_id])
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
-				messages.append('Player **%s** increased **%s** to relic %d.' % (new_player_name, unit_name, new_relic))
+				messages.append('**%s** increased **%s** to relic %d.' % (new_player_name, unit_name, new_relic))
 
 			# TODO Handle when there was a gear level change because in that case we need to do things differently
 			old_equipped = old_roster[base_id]['equipped']
@@ -120,19 +141,18 @@ class GuildTrackerThread(asyncio.Future):
 			if diff_equipped:
 				for gear in diff_equipped:
 					# TODO Retrieve localized gear name.
-					gear_name = gear['equipmentId']
-					messages.append('Player **%s** set **%s** on **%s**.' % (new_player_name, gear_name, unit_name))
+					gear_name = translate(gear['equipmentId'], lang)
+					messages.append('**%s** set **%s** on **%s**.' % (new_player_name, gear_name, unit_name))
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
 			new_skills = { x['id']: x for x in new_unit['skills'] }
 
 			for new_skill_id, new_skill in new_skills.items():
 
-				# TODO Retrieve localized skill name.
-				skill_name = new_skill_id
+				skill_name = get_ability_name(new_skill_id, lang)
 
 				if new_skill_id not in old_skills:
-					messages.append('Player **%s** unlocked new skill **%s** for **%s**.' % (new_player_name, skill_name, unit_name))
+					messages.append('**%s** unlocked new skill **%s** for **%s**.' % (new_player_name, skill_name, unit_name))
 					continue
 
 				# TODO Check if omega or zeta and print different message in that case.
@@ -145,16 +165,33 @@ class GuildTrackerThread(asyncio.Future):
 					new_skill['tier'] = 0
 
 				if old_skill['tier'] < new_skill['tier']:
-					messages.append('Player **%s** increased skill **%s** for **%s** to tier %d.' % (new_player_name, skill_name, unit_name, new_skill['tier']))
 
-		
+					try:
+						unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
+
+						if new_skill['tier'] >= MAX_SKILL_TIER:
+
+							if unit_skill.is_zeta:
+								messages.append('**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
+							else:
+								messages.append('**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
+						else:
+							messages.append('**%s** increased skill **%s** for **%s** to tier %d.' % (new_player_name, skill_name, unit_name, new_skill['tier']))
+
+					except BaseUnitSkill.DoesNotExist:
+						print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
+
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
-		new_player_level = new_profile['profile']['level']
-		old_player_level = old_profile['profile']['level']
+		try:
+			new_player_level = new_profile['profile']['level']
+			old_player_level = old_profile['profile']['level']
 
-		if old_player_level < new_player_level:
-			messages.append('Player %s reached level %d.' % (profile['profile']['name'], new_player_level))
+			if old_player_level < new_player_level:
+				messages.append('Player %s reached level %d.' % (profile['profile']['name'], new_player_level))
+
+		except Exception as err:
+			print('ERROR: check_diff_player_level: %s' % err)
 
 	def check_diff(self, old_profile, new_profile, messages):
 
@@ -165,6 +202,11 @@ class GuildTrackerThread(asyncio.Future):
 		return messages
 		
 	def update_player(self, ally_code, profile):
+
+		if 'level' not in profile:
+			print('ERROR: Problem with profile of %s' % ally_code)
+			#print(json.dumps(profile, indent=4))
+			return []
 
 		roster = {}
 		if 'roster' in profile:
@@ -189,7 +231,7 @@ class GuildTrackerThread(asyncio.Future):
 	async def run(self, guild_tracker):
 
 		import DJANGO
-		from swgoh.models import Shard, ShardMember
+		from swgoh.models import BaseUnitSkill, Shard, ShardMember
 		import libswgoh
 		import libprotobuf
 
