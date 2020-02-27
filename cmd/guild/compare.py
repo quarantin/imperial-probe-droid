@@ -74,6 +74,9 @@ def get_unit_stats(config, roster, lang):
 				stats['zetas'][zeta_name] = 0
 			stats['zetas'][zeta_name] += 1
 
+		if 85 not in stats['levels']:
+			stats['levels'][85] = 0
+
 	return stats
 
 def unit_to_dict(config, guild, roster, base_id, lang):
