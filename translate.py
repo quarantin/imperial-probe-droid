@@ -306,6 +306,11 @@ def parse_skills():
 			try:
 				real_unit = BaseUnit.objects.get(base_id=base_id)
 				unit_skills = unit['skillReferenceList']
+
+				if 'crewList' in unit:
+					for crew_member in unit['crewList']:
+						unit_skills.extend(crew_member['skillReferenceList'])
+
 				for skill in unit_skills:
 					skill_id = skill['skillId']
 					ability = skills[skill_id]
