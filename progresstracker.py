@@ -4,8 +4,13 @@ import sys
 import json
 import asyncio
 import discord
+import libswgoh
+import libprotobuf
 from utils import translate
 from swgohhelp import get_unit_name, get_ability_name
+
+import DJANGO
+from swgoh.models import BaseUnitSkill
 
 MAX_SKILL_TIER = 8
 
@@ -166,20 +171,19 @@ class GuildTrackerThread(asyncio.Future):
 
 				if old_skill['tier'] < new_skill['tier']:
 
-					try:
-						unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
+					if new_skill['tier'] >= MAX_SKILL_TIER:
 
-						if new_skill['tier'] >= MAX_SKILL_TIER:
-
+						try:
+							unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
 							if unit_skill.is_zeta:
 								messages.append('**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
 							else:
 								messages.append('**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
-						else:
-							messages.append('**%s** increased skill **%s** for **%s** to tier %d.' % (new_player_name, skill_name, unit_name, new_skill['tier']))
 
-					except BaseUnitSkill.DoesNotExist:
-						print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
+						except BaseUnitSkill.DoesNotExist:
+							print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
+					else:
+						messages.append('**%s** increased skill **%s** for **%s** to tier %d.' % (new_player_name, skill_name, unit_name, new_skill['tier']))
 
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
@@ -230,11 +234,6 @@ class GuildTrackerThread(asyncio.Future):
 
 	async def run(self, guild_tracker):
 
-		import DJANGO
-		from swgoh.models import BaseUnitSkill, Shard, ShardMember
-		import libswgoh
-		import libprotobuf
-
 		self.db = {}
 
 		first_pass = True
@@ -244,11 +243,11 @@ class GuildTrackerThread(asyncio.Future):
 			session = await libswgoh.get_auth_guest()
 
 			# TODO Retrieve guild mates in a dynamic way.
-			shards = [ my_guild ]
-			for shard in shards:
+			guilds = [ my_guild ]
+			for guild in guilds:
 
 				messages = []
-				members = shard['members']
+				members = guild['members']
 
 				for member in members:
 
