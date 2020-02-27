@@ -98,7 +98,7 @@ class GuildTrackerThread(asyncio.Future):
 		old_player_name = old_profile['profile']['name']
 		new_player_name = new_profile['profile']['name']
 		if old_player_name != new_player_name:
-			messages.append('**%s** has changed nickname to **%s**.' % (old_player_name, new_player_name))
+			messages.append('**%s** has changed nickname to **%s**' % (old_player_name, new_player_name))
 
 		for base_id, new_unit in new_profile['roster'].items():
 
@@ -107,7 +107,7 @@ class GuildTrackerThread(asyncio.Future):
 			# Handle new units unlocked.
 
 			if base_id not in old_roster:
-				messages.append('**%s** unlocked **%s**.' % (new_player_name, unit_name))
+				messages.append('**%s** unlocked **%s**' % (new_player_name, unit_name))
 				continue
 
 			# Handle unit level increase.
@@ -115,14 +115,14 @@ class GuildTrackerThread(asyncio.Future):
 			old_level = old_roster[base_id]['level']
 			new_level = new_unit['level']
 			if old_level < new_level:
-				messages.append('**%s** promoted **%s** to level %d.' % (new_player_name, unit_name, new_level))
+				messages.append('**%s** promoted **%s** to level %d' % (new_player_name, unit_name, new_level))
 
 			# Handle unit rarity increase.
 
 			old_rarity = old_roster[base_id]['rarity']
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity:
-				messages.append('**%s** promoted **%s** to %d stars.' % (new_player_name, unit_name, new_rarity))
+				messages.append('**%s** promoted **%s** to %d stars' % (new_player_name, unit_name, new_rarity))
 
 			# Handle gear level increase.
 
@@ -130,14 +130,14 @@ class GuildTrackerThread(asyncio.Future):
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level:
 				roman_gear = ROMAN[new_gear_level]
-				messages.append('**%s** increased **%s**\'s gear to level %s.' % (new_player_name, unit_name, roman_gear))
+				messages.append('**%s** increased **%s**\'s gear to level %s' % (new_player_name, unit_name, roman_gear))
 
 			# Handle relic increase.
 
 			old_relic = self.get_relic(old_roster[base_id])
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
-				messages.append('**%s** increased **%s** to relic %d.' % (new_player_name, unit_name, new_relic))
+				messages.append('**%s** increased **%s** to relic %d' % (new_player_name, unit_name, new_relic))
 
 			# TODO Handle when there was a gear level change because in that case we need to do things differently
 			old_equipped = old_roster[base_id]['equipped']
@@ -147,7 +147,7 @@ class GuildTrackerThread(asyncio.Future):
 				for gear in diff_equipped:
 					# TODO Retrieve localized gear name.
 					gear_name = translate(gear['equipmentId'], lang)
-					messages.append('**%s** set **%s** on **%s**.' % (new_player_name, gear_name, unit_name))
+					messages.append('**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name))
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
 			new_skills = { x['id']: x for x in new_unit['skills'] }
@@ -157,7 +157,7 @@ class GuildTrackerThread(asyncio.Future):
 				skill_name = get_ability_name(new_skill_id, lang)
 
 				if new_skill_id not in old_skills:
-					messages.append('**%s** unlocked new skill **%s** for **%s**.' % (new_player_name, skill_name, unit_name))
+					messages.append('**%s** unlocked new skill **%s** for **%s**' % (new_player_name, skill_name, unit_name))
 					continue
 
 				# TODO Check if omega or zeta and print different message in that case.
@@ -183,7 +183,7 @@ class GuildTrackerThread(asyncio.Future):
 						except BaseUnitSkill.DoesNotExist:
 							print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
 					else:
-						messages.append('**%s** increased skill **%s** for **%s** to tier %d.' % (new_player_name, skill_name, unit_name, new_skill['tier']))
+						messages.append('**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier']))
 
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
@@ -192,7 +192,7 @@ class GuildTrackerThread(asyncio.Future):
 			old_player_level = old_profile['profile']['level']
 
 			if old_player_level < new_player_level:
-				messages.append('Player %s reached level %d.' % (profile['profile']['name'], new_player_level))
+				messages.append('Player %s reached level %d' % (profile['profile']['name'], new_player_level))
 
 		except Exception as err:
 			print('ERROR: check_diff_player_level: %s' % err)
