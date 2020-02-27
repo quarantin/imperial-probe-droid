@@ -31,6 +31,7 @@ help_help = {
 **`gear`**: List needed pieces of gear for units.
 **`gear13`**: List most popular gear 13 for your characters (**NEW**).
 **`locked`**: Show locked characters or ships.
+**`mc`**: Show characters with missing mods or having weak mods (**NEW**).
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Compare different players and their respective units.
