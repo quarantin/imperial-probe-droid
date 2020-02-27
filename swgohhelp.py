@@ -256,5 +256,6 @@ def get_ability_name(skill_id, language):
 	except BaseUnitSkill.DoesNotExist:
 		pass
 
-	print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
+	# TODO
+	#print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
 	return None
