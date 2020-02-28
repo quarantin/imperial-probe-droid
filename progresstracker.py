@@ -86,7 +86,7 @@ class GuildTrackerThread(asyncio.Future):
 	def get_relic(self, unit):
 
 		if 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic']:
-			return unit['relic']['currentTier']
+			return max(0, unit['relic']['currentTier'] - 2)
 
 		return 0
 
