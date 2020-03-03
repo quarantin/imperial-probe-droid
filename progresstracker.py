@@ -83,7 +83,7 @@ my_guild = {
 
 class GuildTrackerThread(asyncio.Future):
 
-	show_gear_piece = False
+	show_gear_pieces = False
 	show_min_gear_level = 8
 	show_min_level = 85
 	show_min_stars = 5
