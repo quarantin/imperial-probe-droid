@@ -238,7 +238,7 @@ class GuildTrackerThread(asyncio.Future):
 
 			self.last_notify[ally_code] = now
 			last_activity = delta - timedelta(microseconds=delta.microseconds)
-			messages.append('**%s** has been inactive for %s' % (profile['name'], last_activity))
+			messages.append('**%s** has been inactive for **%s**' % (profile['name'], last_activity))
 
 	def check_diff(self, old_profile, new_profile, messages):
 
