@@ -7,12 +7,16 @@ import discord
 import libswgoh
 import libprotobuf
 from utils import translate
+from datetime import datetime, timedelta
 from swgohhelp import get_unit_name, get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
 
 MAX_SKILL_TIER = 8
+
+LAST_SEEN_MAX_HOURS = 24
+LAST_SEEN_MAX_HOURS_INTERVAL = 24
 
 ROMAN = {
 	1: 'I',
@@ -91,6 +95,8 @@ class GuildTrackerThread(asyncio.Future):
 	show_omegas = True
 	show_skills = False
 
+	last_notify = {}
+
 	def get_relic(self, unit):
 
 		if 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic']:
@@ -153,7 +159,6 @@ class GuildTrackerThread(asyncio.Future):
 			diff_equipped = [ x for x in new_equipped if x not in old_equipped ]
 			if diff_equipped:
 				for gear in diff_equipped:
-					# TODO Retrieve localized gear name.
 					gear_name = translate(gear['equipmentId'], lang)
 					if self.show_gear_pieces:
 						messages.append('**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name))
@@ -169,7 +174,6 @@ class GuildTrackerThread(asyncio.Future):
 					messages.append('**%s** unlocked new skill **%s** for **%s**' % (new_player_name, skill_name, unit_name))
 					continue
 
-				# TODO Check if omega or zeta and print different message in that case.
 				old_skill = old_skills[new_skill_id]
 
 				if 'tier' not in old_skill:
@@ -207,11 +211,34 @@ class GuildTrackerThread(asyncio.Future):
 		except Exception as err:
 			print('ERROR: check_diff_player_level: %s' % err)
 
+	def check_last_seen(self, new_profile, messages):
+
+		now = datetime.now()
+		profile = new_profile['profile']
+		updated = int(profile['updated'])
+		last_sync = datetime.fromtimestamp(updated / 1000)
+		delta = now - last_sync
+		hours = LAST_SEEN_MAX_HOURS
+		if delta > timedelta(hours=hours):
+
+			ally_code = profile['allyCode']
+			if ally_code in self.last_notify:
+				last_notify = self.last_notify[ally_code]
+				diff_to_now = now - last_notify
+				if diff_to_now < timedelta(hours=LAST_SEEN_MAX_HOURS_INTERVAL):
+					return
+
+			self.last_notify[ally_code] = now
+			last_activity = delta - timedelta(microseconds=delta.microseconds)
+			messages.append('**%s** has been inactive for %s' % (profile['name'], last_activity))
+
 	def check_diff(self, old_profile, new_profile, messages):
 
 		self.check_diff_player_level(old_profile, new_profile, messages)
 
 		self.check_diff_player_units(old_profile, new_profile, messages)
+
+		self.check_last_seen(new_profile, messages)
 
 		return messages
 		
@@ -261,6 +288,7 @@ class GuildTrackerThread(asyncio.Future):
 
 				for member in members:
 
+					print('.', end='', flush=True)
 					ally_code = str(member)
 					profile = await libswgoh.get_player_profile(ally_code=ally_code, session=session)
 
@@ -268,6 +296,8 @@ class GuildTrackerThread(asyncio.Future):
 					for message in messages:
 						print(message)
 						await guild_tracker.channel.send(message)
+
+				print('')
 
 			if first_pass is True:
 				first_pass = False
@@ -289,6 +319,7 @@ class GuildTracker(discord.Client):
 
 			setattr(self, 'initialized', True)
 
+			print("Starting new thread.")
 			self.loop.create_task(GuildTrackerThread().run(self))
 
 config_file = 'config.json'
