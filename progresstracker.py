@@ -83,6 +83,14 @@ my_guild = {
 
 class GuildTrackerThread(asyncio.Future):
 
+	show_gear_piece = False
+	show_min_gear_level = 8
+	show_min_level = 85
+	show_min_stars = 5
+	show_zetas = True
+	show_omegas = True
+	show_skills = False
+
 	def get_relic(self, unit):
 
 		if 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic']:
@@ -114,21 +122,21 @@ class GuildTrackerThread(asyncio.Future):
 			
 			old_level = old_roster[base_id]['level']
 			new_level = new_unit['level']
-			if old_level < new_level:
+			if old_level < new_level and new_level >= self.show_min_level:
 				messages.append('**%s** promoted **%s** to level %d' % (new_player_name, unit_name, new_level))
 
 			# Handle unit rarity increase.
 
 			old_rarity = old_roster[base_id]['rarity']
 			new_rarity = new_unit['rarity']
-			if old_rarity < new_rarity:
+			if old_rarity < new_rarity and new_rarity >= self.show_min_stars:
 				messages.append('**%s** promoted **%s** to %d stars' % (new_player_name, unit_name, new_rarity))
 
 			# Handle gear level increase.
 
 			old_gear_level = old_roster[base_id]['gear']
 			new_gear_level = new_unit['gear']
-			if old_gear_level < new_gear_level:
+			if old_gear_level < new_gear_level and new_gear_level >= self.show_min_gear_level:
 				roman_gear = ROMAN[new_gear_level]
 				messages.append('**%s** increased **%s**\'s gear to level %s' % (new_player_name, unit_name, roman_gear))
 
@@ -147,7 +155,8 @@ class GuildTrackerThread(asyncio.Future):
 				for gear in diff_equipped:
 					# TODO Retrieve localized gear name.
 					gear_name = translate(gear['equipmentId'], lang)
-					messages.append('**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name))
+					if self.show_gear_pieces:
+						messages.append('**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name))
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
 			new_skills = { x['id']: x for x in new_unit['skills'] }
@@ -175,15 +184,16 @@ class GuildTrackerThread(asyncio.Future):
 
 						try:
 							unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
-							if unit_skill.is_zeta:
+							if unit_skill.is_zeta and self.show_zetas:
 								messages.append('**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
-							else:
+							elif self.show_omegas:
 								messages.append('**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
 
 						except BaseUnitSkill.DoesNotExist:
 							print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
 					else:
-						messages.append('**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier']))
+						if self.show_skills:
+							messages.append('**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier']))
 
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
