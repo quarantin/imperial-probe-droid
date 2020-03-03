@@ -21,5 +21,5 @@ from . import views
 
 urlpatterns = [
 	path('login', TemplateView.as_view(template_name='swgoh/login.html')),
-	path('success', TemplateView.as_view(template_name='swgoh/success.html')),
+	path('success', views.login_success),
 ]
