@@ -1,7 +1,4 @@
-from django.shortcuts import render
-from django.http import JsonResponse 
-
-from .models import *
+from django.http import HttpResponse
 
 def login_success(request):
 
@@ -13,4 +10,4 @@ def login_success(request):
 		if 'code' in request.GET:
 			google_code = request.GET['code']
 
-	return google_code
+	return HttpResponse(google_code)
