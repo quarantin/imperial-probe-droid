@@ -34,9 +34,13 @@ ROMAN = {
 	13: 'XIII',
 }
 
-my_guild = {
-	'channel_id': 682302185085730910,
-	'members': [
+my_short_guild = [
+		'791187582',
+		'349423868',
+		'939217396',
+]
+
+my_real_guild = [
 		'717952293',
 		'823138241',
 		'679953994',
@@ -83,6 +87,10 @@ my_guild = {
 		'349423868',
 		'746734837',
 	]
+
+my_guild = {
+	'channel_id': 682302185085730910,
+	'members': my_real_guild,
 }
 
 class GuildTrackerThread(asyncio.Future):
