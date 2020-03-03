@@ -15,7 +15,7 @@ from swgoh.models import BaseUnitSkill
 
 MAX_SKILL_TIER = 8
 
-LAST_SEEN_MAX_HOURS = 24
+LAST_SEEN_MAX_HOURS = 48
 LAST_SEEN_MAX_HOURS_INTERVAL = 24
 
 ROMAN = {
