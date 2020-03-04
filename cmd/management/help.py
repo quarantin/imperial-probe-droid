@@ -16,6 +16,7 @@ help_help = {
 **`invite`**: Invite this bot.
 **`nicks`**: Manage nicknames for units and ships.
 **`register`**: Register your ally code.
+**`gregister`**: Register your guild (**NEW**).
 **`config`**: Configure server settings such as bot prefix (**NEW**).
 %separator
 **Guild Commands**

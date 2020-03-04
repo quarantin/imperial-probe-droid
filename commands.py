@@ -19,6 +19,7 @@ from cmd.management.restart import *
 from cmd.management.servers import *
 from cmd.management.timezone import *
 from cmd.management.update import *
+from cmd.management.gregister import *
 from cmd.misc.meta import *
 from cmd.player.arena import *
 from cmd.player.compare import *
@@ -239,6 +240,12 @@ COMMANDS = [
 		'aliases': [ 'U', 'update' ],
 		'function': cmd_update,
 		'help': help_update,
+	},
+	{
+		'command': 'gregister',
+		'aliases': [ 'gr', 'greg', 'gregister', 'gregistered' ],
+		'function': cmd_gregister,
+		'help': help_gregister,
 	},
 	{
 		'command': 'wntm',
