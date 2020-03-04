@@ -121,15 +121,15 @@ async def register_users(request, discord_ids, ally_codes):
 		lines.append(ally_code_full_str)
 		lines.append('')
 
-		language = Player.get_language_info(db_player.language)
-		lines.append('Your language is set to **%s** %s.' % (language[3], language[2]))
-		lines.append('Please type **`%slanguage`** to change your language.' % config['prefix'])
-		lines.append('')
+		#language = Player.get_language_info(db_player.language)
+		#lines.append('Your language is set to **%s** %s.' % (language[3], language[2]))
+		#lines.append('Please type **`%slanguage`** to change your language.' % config['prefix'])
+		#lines.append('')
 
-		timezone = db_player.timezone or 'Europe/London'
-		lines.append('Your timezone is set to **%s**.' % timezone)
-		lines.append('Please type **`%stimezone`** to change your timezone.' % config['prefix'])
-		lines.append('')
+		#timezone = db_player.timezone or 'Europe/London'
+		#lines.append('Your timezone is set to **%s**.' % timezone)
+		#lines.append('Please type **`%stimezone`** to change your timezone.' % config['prefix'])
+		#lines.append('')
 
 	lines_str = '\n'.join(lines)
 
