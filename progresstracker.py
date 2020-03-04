@@ -93,6 +93,71 @@ my_guild = {
 	'members': my_real_guild,
 }
 
+def strip_text(text):
+	return text.replace('**', '')
+
+def to_colored_text(text, lang='', prefix=''):
+	return '```%s\n%s %s```' % (lang, prefix, strip_text(text))
+
+def to_color_none(text):
+	return text
+
+def to_color_default(text):
+	return to_colored_text(text)
+
+def to_color_quote(text):
+	return to_colored_text(text, 'brainfuck')
+
+def to_color_green(text):
+	return to_colored_text(text, 'CSS')
+
+def to_color_cyan(text):
+	return to_colored_text(text, 'yaml')
+
+def to_color_blue(text):
+	return to_colored_text(text, 'md')
+
+def to_color_yellow(text):
+	return to_colored_text(text, 'fix')
+
+def to_color_orange(text):
+	return to_colored_text(text, 'glsl')
+
+def to_color_red(text):
+	return to_colored_text(text, 'diff', '-')
+
+colors = {
+	'default': to_color_default,
+	'quote':   to_color_quote,
+	'green':   to_color_green,
+	'cyan':    to_color_cyan,
+	'blue':    to_color_blue,
+	'yellow':  to_color_yellow,
+	'orange':  to_color_orange,
+	'red':     to_color_red,
+}
+
+def get_color_func(msg_type):
+
+	if msg_type == 'zetas':
+		return to_color_cyan
+
+	if msg_type == 'omegas':
+		return to_color_yellow
+
+	if msg_type == 'relics':
+		return to_color_green
+
+	if msg_type == 'inactivity':
+		return to_color_red
+
+	return to_color_none
+
+def colorize(msg, msg_type):
+
+	color_func = get_color_func(msg_type)
+	return color_func(msg)
+
 class GuildTrackerThread(asyncio.Future):
 
 	show_gear_pieces = False
@@ -120,7 +185,8 @@ class GuildTrackerThread(asyncio.Future):
 		old_player_name = old_profile['profile']['name']
 		new_player_name = new_profile['profile']['name']
 		if old_player_name != new_player_name:
-			messages.append('**%s** has changed nickname to **%s**' % (old_player_name, new_player_name))
+			msg = '**%s** has changed nickname to **%s**' % (old_player_name, new_player_name)
+			messages.append(colorize(msg, 'nicks'))
 
 		for base_id, new_unit in new_profile['roster'].items():
 
@@ -129,7 +195,8 @@ class GuildTrackerThread(asyncio.Future):
 			# Handle new units unlocked.
 
 			if base_id not in old_roster:
-				messages.append('**%s** unlocked **%s**' % (new_player_name, unit_name))
+				msg = '**%s** unlocked **%s**' % (new_player_name, unit_name)
+				messages.append(colorize(msg, 'unlock-unit'))
 				continue
 
 			# Handle unit level increase.
@@ -137,14 +204,16 @@ class GuildTrackerThread(asyncio.Future):
 			old_level = old_roster[base_id]['level']
 			new_level = new_unit['level']
 			if old_level < new_level and new_level >= self.show_min_level:
-				messages.append('**%s** promoted **%s** to level %d' % (new_player_name, unit_name, new_level))
+				msg = '**%s** promoted **%s** to level %d' % (new_player_name, unit_name, new_level)
+				messages.append(colorize(msg, 'unit-level'))
 
 			# Handle unit rarity increase.
 
 			old_rarity = old_roster[base_id]['rarity']
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity and new_rarity >= self.show_min_stars:
-				messages.append('**%s** promoted **%s** to %d stars' % (new_player_name, unit_name, new_rarity))
+				msg = '**%s** promoted **%s** to %d stars' % (new_player_name, unit_name, new_rarity)
+				messages.append(colorize(msg, 'rarity'))
 
 			# Handle gear level increase.
 
@@ -152,14 +221,16 @@ class GuildTrackerThread(asyncio.Future):
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level and new_gear_level >= self.show_min_gear_level:
 				roman_gear = ROMAN[new_gear_level]
-				messages.append('**%s** increased **%s**\'s gear to level %s' % (new_player_name, unit_name, roman_gear))
+				msg = '**%s** increased **%s**\'s gear to level %s' % (new_player_name, unit_name, roman_gear)
+				messages.append(colorize(msg, 'gear-level'))
 
 			# Handle relic increase.
 
 			old_relic = self.get_relic(old_roster[base_id])
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
-				messages.append('**%s** increased **%s** to relic %d' % (new_player_name, unit_name, new_relic))
+				msg = '**%s** increased **%s** to relic %d' % (new_player_name, unit_name, new_relic)
+				messages.append(colorize(msg, 'relics'))
 
 			# TODO Handle when there was a gear level change because in that case we need to do things differently
 			old_equipped = old_roster[base_id]['equipped']
@@ -169,7 +240,8 @@ class GuildTrackerThread(asyncio.Future):
 				for gear in diff_equipped:
 					gear_name = translate(gear['equipmentId'], lang)
 					if self.show_gear_pieces:
-						messages.append('**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name))
+						msg = '**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name)
+						messages.append(colorize(msg, 'gear-piece'))
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
 			new_skills = { x['id']: x for x in new_unit['skills'] }
@@ -179,7 +251,8 @@ class GuildTrackerThread(asyncio.Future):
 				skill_name = get_ability_name(new_skill_id, lang)
 
 				if new_skill_id not in old_skills:
-					messages.append('**%s** unlocked new skill **%s** for **%s**' % (new_player_name, skill_name, unit_name))
+					msg = '**%s** unlocked new skill **%s** for **%s**' % (new_player_name, skill_name, unit_name)
+					messages.append(colorize(msg, 'unlock-skill'))
 					continue
 
 				old_skill = old_skills[new_skill_id]
@@ -197,15 +270,19 @@ class GuildTrackerThread(asyncio.Future):
 						try:
 							unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
 							if unit_skill.is_zeta and self.show_zetas:
-								messages.append('**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
+								msg = '**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name)
+								messages.append(colorize(msg, 'zetas'))
+
 							elif self.show_omegas:
-								messages.append('**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name))
+								msg = '**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name)
+								messages.append(colorize(msg, 'omegas'))
 
 						except BaseUnitSkill.DoesNotExist:
 							print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
 					else:
 						if self.show_skills:
-							messages.append('**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier']))
+							msg = '**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier'])
+							messages.append(colorize(msg, 'skill-increase'))
 
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
@@ -214,7 +291,8 @@ class GuildTrackerThread(asyncio.Future):
 			old_player_level = old_profile['profile']['level']
 
 			if old_player_level < new_player_level:
-				messages.append('Player %s reached level %d' % (profile['profile']['name'], new_player_level))
+				msg = 'Player %s reached level %d' % (profile['profile']['name'], new_player_level)
+				messages.append(colorize(msg, 'player-level'))
 
 		except Exception as err:
 			print('ERROR: check_diff_player_level: %s' % err)
@@ -238,7 +316,8 @@ class GuildTrackerThread(asyncio.Future):
 
 			self.last_notify[ally_code] = now
 			last_activity = delta - timedelta(microseconds=delta.microseconds)
-			messages.append('**%s** has been inactive for **%s**' % (profile['name'], last_activity))
+			msg = '**%s** has been inactive for **%s**' % (profile['name'], last_activity)
+			messages.append(colorize(msg, 'inactivity'))
 
 	def check_diff(self, old_profile, new_profile, messages):
 
