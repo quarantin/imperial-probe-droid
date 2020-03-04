@@ -110,5 +110,5 @@ async def cmd_gregister(request):
 
 	return msgs + [{
 		'title': 'Who is Registered',
-		'description': 'Add `auto` to automatically register missing members.\n\n%s' % '\n'.join(lines),
+		'description': 'Add `auto` to automatically register missing members marked with *auto*.\n\n%s' % '\n'.join(lines),
 	}]
