@@ -360,8 +360,6 @@ class GuildTrackerThread(asyncio.Future):
 
 		self.db = {}
 
-		first_pass = True
-
 		while True:
 
 			session = await libswgoh.get_auth_guest()
@@ -375,7 +373,6 @@ class GuildTrackerThread(asyncio.Future):
 
 				for member in members:
 
-					print('.', end='', flush=True)
 					ally_code = str(member)
 					profile = await libswgoh.get_player_profile(ally_code=ally_code, session=session)
 
@@ -384,11 +381,9 @@ class GuildTrackerThread(asyncio.Future):
 						print(message)
 						await guild_tracker.channel.send(message)
 
-				print('')
+				print('end of guild')
 
-			if first_pass is True:
-				first_pass = False
-				print('Done with first pass!')
+			print('end of pass')
 
 			await asyncio.sleep(60)
 
