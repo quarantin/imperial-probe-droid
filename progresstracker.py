@@ -381,8 +381,6 @@ class GuildTrackerThread(asyncio.Future):
 						print(message)
 						await guild_tracker.channel.send(message)
 
-				print('end of guild')
-
 			print('end of pass')
 
 			await asyncio.sleep(60)
