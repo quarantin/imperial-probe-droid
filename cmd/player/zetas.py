@@ -1,6 +1,5 @@
 from opts import *
 from errors import *
-from utils import http_get, translate
 
 from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players, get_ability_name, get_unit_name
