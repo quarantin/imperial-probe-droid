@@ -185,7 +185,7 @@ def handle_payout_create(request):
 		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp payout` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
-def handle_payout_add(request):
+async def handle_payout_add(request):
 
 	args = request.args
 	channel = request.channel
@@ -208,7 +208,7 @@ def handle_payout_add(request):
 	invalid_ally_codes = []
 
 	try:
-		data = api_swgoh_players(config, {
+		data = await api_swgoh_players(config, {
 			'allycodes': ally_codes,
 			'project': {
 				'name': 1,
@@ -290,7 +290,7 @@ def handle_payout_del(request):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_rank(request):
+async def handle_payout_rank(request):
 
 	args = request.args
 	author = request.author
@@ -315,7 +315,7 @@ def handle_payout_rank(request):
 	payout_times = get_payout_times(shard)
 	ally_codes = list(payout_times)
 
-	data = api_swgoh_players(config, {
+	data = await api_swgoh_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'name': 1,
@@ -398,7 +398,7 @@ async def handle_payout_stats(request):
 	payout_times = get_payout_times(shard)
 	ally_codes = list(payout_times)
 
-	data = api_swgoh_players(config, {
+	data = await api_swgoh_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'name': 1,

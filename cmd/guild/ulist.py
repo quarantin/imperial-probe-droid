@@ -40,7 +40,7 @@ def unit_is_matching(unit, char_filters):
 
 	return True
 
-def cmd_unit_list(request):
+async def cmd_unit_list(request):
 
 	args = request.args
 	author = request.author
@@ -68,7 +68,7 @@ def cmd_unit_list(request):
 
 	fields = []
 	ally_codes = [ p.ally_code for p in selected_players ]
-	unit_list = fetch_guilds(config, {
+	unit_list = await fetch_guilds(config, {
 		'allycodes': [ str(x) for x in ally_codes ],
 		'project': {
 			'guildName': 1,
@@ -83,7 +83,7 @@ def cmd_unit_list(request):
 			if int(player['allyCode']) not in ally_codes:
 				ally_codes.append(int(player['allyCode']))
 
-	players = fetch_players(config, {
+	players = await fetch_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'name': 1,

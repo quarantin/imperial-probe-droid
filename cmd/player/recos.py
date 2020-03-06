@@ -75,7 +75,7 @@ def find_player(selected_players, ally_code):
 
 	return None
 
-def cmd_recos(request):
+async def cmd_recos(request):
 
 	args = request.args
 	author = request.author
@@ -104,7 +104,7 @@ def cmd_recos(request):
 
 	ally_codes = [ player.ally_code for player in selected_players ]
 
-	players = fetch_players(config, ally_codes)
+	players = await fetch_players(config, ally_codes)
 
 	msgs = []
 	for ally_code_str, player in players.items():

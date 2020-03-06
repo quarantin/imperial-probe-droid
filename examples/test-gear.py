@@ -7,13 +7,18 @@ import json
 from config import load_config
 from swgohhelp import api_swgoh_data
 
-config = load_config()
+async def __main__():
+	config = load_config()
 
-test = api_swgoh_data(config, {
-	'collection': 'equipmentList',
-	#'language': 'eng_us',
-	'language': 'fre_fr',
-})
-print(json.dumps(test, indent=4))
-#for data in test:
-#	print(data)
+	test = await api_swgoh_data(config, {
+		'collection': 'equipmentList',
+		#'language': 'eng_us',
+		'language': 'fre_fr',
+	})
+	print(json.dumps(test, indent=4))
+	#for data in test:
+	#	print(data)
+
+if __name__ == '__main__':
+	import asyncio
+	asyncio.get_event_loop().run_until_complete(__main__())

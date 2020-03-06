@@ -276,7 +276,7 @@ def guild_to_dict(guild, players):
 
 	return res
 
-def cmd_guild_compare(request):
+async def cmd_guild_compare(request):
 
 	args = request.args
 	config = request.config
@@ -299,7 +299,7 @@ def cmd_guild_compare(request):
 		return error
 
 	fields = []
-	guild_list = fetch_guilds(config, {
+	guild_list = await fetch_guilds(config, {
 		'allycodes': [ str(x.ally_code) for x in selected_players ],
 		'project': {
 			'id': 1,
@@ -334,7 +334,7 @@ def cmd_guild_compare(request):
 			ally_codes.remove(ally_code)
 
 	"""
-	players_raw = fetch_players(config, {
+	players_raw = await fetch_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'allyCode': 1,
@@ -357,7 +357,7 @@ def cmd_guild_compare(request):
 
 	"""
 
-	stats, players = fetch_crinolo_stats(config, ally_codes) #, players_raw)
+	stats, players = await fetch_crinolo_stats(config, ally_codes) #, players_raw)
 
 	players = sort_players(players)
 

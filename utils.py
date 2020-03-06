@@ -68,7 +68,7 @@ def local_time(date=None, timezone='Europe/Paris'):
 def dotify(number):
 	return '{:,}'.format(roundup(number))
 
-def http_get(url, headOnly=False):
+async def http_get(url, headOnly=False):
 
 	try:
 		if headOnly is True:
@@ -87,7 +87,7 @@ def http_get(url, headOnly=False):
 	else:
 		return response, False
 
-def http_post(url, *args, **kwargs):
+async def http_post(url, *args, **kwargs):
 
 	try:
 		response = requests.post(url, *args, **kwargs)

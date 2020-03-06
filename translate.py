@@ -3,7 +3,6 @@
 import os
 import sys
 import json
-import requests
 import traceback
 from config import load_config
 from swgohhelp import api_swgoh_data
@@ -73,12 +72,12 @@ lang_projects = [
 	},
 ]
 
-def fetch_all_collections(config):
+async def fetch_all_collections(config):
 
 	for filename, url in urls.items():
-		response = requests.get(url)
-		if response.status_code != 200:
-			raise Exception('requests.get failed!')
+		response, error = await http_get(url)
+		if not response:
+			raise Exception('http_get failed!')
 
 		fin = open(filename, 'w')
 		fin.write(response.text)
@@ -95,7 +94,7 @@ def fetch_all_collections(config):
 			project.pop('project')
 
 		print('Downloading base collection `%s`...' % project['collection'])
-		data = api_swgoh_data(config, project)
+		data = await api_swgoh_data(config, project)
 
 		filename = 'cache/%s.json' % project['collection']
 		with open(filename, 'w') as fout:
@@ -109,7 +108,7 @@ def fetch_all_collections(config):
 			project['language'] = language,
 
 			print('Downloading %s collection `%s`...' % (language, project['collection']))
-			data = api_swgoh_data(config, project)
+			data = await api_swgoh_data(config, project)
 
 			filename = 'cache/%s_%s.json' % (project['collection'], language)
 			with open(filename, 'w') as fout:
@@ -326,11 +325,11 @@ def parse_skills():
 				print("WARN: Missing unit from DB: %s" % base_id)
 				continue
 
-def parse_zeta_report():
+async def parse_zeta_report():
 
 	url = 'https://swgoh.gg/stats/ability-report/?page=%d'
 	try:
-		response, error = http_get(url % 1)
+		response, error = await http_get(url % 1)
 		soup = BeautifulSoup(response.content, 'html.parser')
 		pagination_ul = soup.find('ul', { 'class': [ 'pagination', 'm-t-0' ] })
 		pages = int(pagination_ul.find('a').text.replace('Page 1 of ', ''))
@@ -375,7 +374,7 @@ def parse_zeta_report():
 				break
 
 			page += 1
-			response, error = http_get(url % page)
+			response, error = await http_get(url % page)
 			if not response or error:
 				print("ERROR: %s" % error)
 				return
@@ -385,11 +384,11 @@ def parse_zeta_report():
 	except:
 		print(traceback.format_exc())
 
-def parse_gear13_report():
+async def parse_gear13_report():
 
 	url = 'https://swgoh.gg/characters/data/g13/'
 	try:
-		response, error = http_get(url)
+		response, error = await http_get(url)
 		soup = BeautifulSoup(response.content, 'html.parser')
 		rows = soup.find(id='characters').find('tbody').find_all('tr')
 		for row in rows:
@@ -423,11 +422,11 @@ def parse_gear13_report():
 	except:
 		print(traceback.format_exc())
 
-def parse_relic_report():
+async def parse_relic_report():
 
 	url = 'https://swgoh.gg/characters/data/relics/'
 	try:
-		response, error = http_get(url)
+		response, error = await http_get(url)
 		soup = BeautifulSoup(response.content, 'html.parser')
 		rows = soup.find(id='characters').find('tbody').find_all('tr')
 		for row in rows:
@@ -480,10 +479,10 @@ def parse_rss_feeds(config):
 			feed = NewsFeed(name=feed_name, url=feed_url)
 			feed.save()
 
-def save_all_recos():
+async def save_all_recos():
 
 	with transaction.atomic():
-		recos = fetch_all_recos()
+		recos = await fetch_all_recos()
 		ModRecommendation.objects.all().delete()
 		for reco in recos:
 
@@ -495,55 +494,61 @@ def save_all_recos():
 			#if created is True:
 			#	print('Added new mod recommendation for %s' % base_id)
 
-forced_update = len(sys.argv) > 1 and sys.argv[1] == '--force'
+async def __main__():
 
-first_time = False
-version_url = 'https://api.swgoh.help/version'
-version_cache = 'cache/version.json'
-response = requests.get(version_url)
-new_version = response.json()
+	forced_update = len(sys.argv) > 1 and sys.argv[1] == '--force'
 
-if not os.path.exists(version_cache):
-	first_time = True
-	old_version = new_version
-else:
-	fin = open(version_cache)
-	old_version = json.loads(fin.read())
-	fin.close()
+	first_time = False
+	version_url = 'https://api.swgoh.help/version'
+	version_cache = 'cache/version.json'
+	response, error = await http_get(version_url)
+	new_version = json.loads(response.content)
 
-if old_version == new_version and not first_time and not forced_update:
-	print('Up-to-date: %s' % new_version)
-	sys.exit()
+	if not os.path.exists(version_cache):
+		first_time = True
+		old_version = new_version
+	else:
+		fin = open(version_cache)
+		old_version = json.loads(fin.read())
+		fin.close()
 
-if forced_update:
-	print('Forcing update: %s' % new_version)
+	if old_version == new_version and not first_time and not forced_update:
+		print('Up-to-date: %s' % new_version)
+		sys.exit()
 
-else:
-	print('New version found, updating: %s' % new_version)
+	if forced_update:
+		print('Forcing update: %s' % new_version)
 
-fout = open(version_cache, 'w')
-fout.write(json.dumps(new_version))
-fout.close()
+	else:
+		print('New version found, updating: %s' % new_version)
 
-config = load_config()
+	fout = open(version_cache, 'w')
+	fout.write(json.dumps(new_version))
+	fout.close()
 
-fetch_all_collections(config)
+	config = load_config()
 
-parse_rss_feeds(config)
-parse_gear()
-parse_units()
-parse_skills()
-parse_zeta_report()
-parse_gear13_report()
-parse_relic_report()
-parse_localization_files()
+	await fetch_all_collections(config)
 
-save_all_recos()
+	parse_rss_feeds(config)
+	parse_gear()
+	parse_units()
+	parse_skills()
+	await parse_zeta_report()
+	await parse_gear13_report()
+	await parse_relic_report()
+	parse_localization_files()
 
-for language, lang_code, lang_flag, lang_name in Player.LANGS:
+	await save_all_recos()
 
-	print('Parsing %s translations...' % language.lower())
+	for language, lang_code, lang_flag, lang_name in Player.LANGS:
 
-	parse_translations('abilityList',   'id',     'abilities',  language)
-	parse_translations('equipmentList', 'id',     'gear-names', language)
-	parse_translations('unitsList',     'baseId', 'unit-names', language)
+		print('Parsing %s translations...' % language.lower())
+
+		parse_translations('abilityList',   'id',     'abilities',  language)
+		parse_translations('equipmentList', 'id',     'gear-names', language)
+		parse_translations('unitsList',     'baseId', 'unit-names', language)
+
+if __name__ == '__main__':
+	import asyncio
+	asyncio.get_event_loop().run_until_complete(__main__())

@@ -48,7 +48,7 @@ def unit_is_matching(unit, char_filters):
 
 	return True
 
-def cmd_guild_gp(request):
+async def cmd_guild_gp(request):
 
 	args = request.args
 	author = request.author
@@ -71,7 +71,7 @@ def cmd_guild_gp(request):
 
 	fields = []
 	ally_codes = [ p.ally_code for p in selected_players ]
-	guild_list = fetch_guilds(config, {
+	guild_list = await fetch_guilds(config, {
 		'allycodes': [ str(x) for x in ally_codes ],
 		'project': {
 			'name': 1,

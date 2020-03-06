@@ -88,7 +88,7 @@ async def register_users(request, discord_ids, ally_codes):
 	lang = parse_opts_lang(request)
 	language = Player.get_language_info(lang)
 
-	players = fetch_players(config, {
+	players = await fetch_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'name': 1,

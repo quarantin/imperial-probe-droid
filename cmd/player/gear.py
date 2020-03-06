@@ -51,7 +51,7 @@ def get_gear_levels(base_id):
 
 	return result
 
-def cmd_gear(request):
+async def cmd_gear(request):
 
 	args = request.args
 	author = request.author
@@ -76,7 +76,7 @@ def cmd_gear(request):
 		return error_unknown_parameters(args)
 
 	ally_code = selected_players[0].ally_code
-	players = fetch_players(config, {
+	players = await fetch_players(config, {
 		'allycodes': [ ally_code ],
 		'project': {
 			'allyCode': 1,

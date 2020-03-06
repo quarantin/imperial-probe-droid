@@ -162,7 +162,7 @@ def get_mod_stats(roster):
 
 	return modcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier
 
-def cmd_modcheck(request):
+async def cmd_modcheck(request):
 
 	args = request.args
 	author = request.author
@@ -191,7 +191,7 @@ def cmd_modcheck(request):
 		return error_unknown_parameters(args)
 
 	ally_codes = [ p.ally_code for p in selected_players ]
-	players = fetch_players(config, {
+	players = await fetch_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'allyCode': 1,

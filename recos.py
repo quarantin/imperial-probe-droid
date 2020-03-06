@@ -93,14 +93,14 @@ def split_stats(stat):
 
 	return res
 
-def fetch_crouching_rancor_recos(recos=[]):
+async def fetch_crouching_rancor_recos(recos=[]):
 
 	if 'cr' in db and 'cr-expire' in db and not expired(db['cr-expire']):
 		return db['cr']
 
 	url = 'http://apps.crouchingrancor.com/mods/advisor.json'
 
-	response, error = http_get(url)
+	response, error = await http_get(url)
 	if error:
 		raise Exception('http_get(%s) failed: %s' % (url, error))
 
@@ -185,7 +185,7 @@ def fetch_crouching_rancor_recos(recos=[]):
 	db['cr-expire'] = datetime.now() + timeout
 	return recos
 
-def fetch_swgohgg_meta_recos(recos=[], rank=1):
+async def fetch_swgohgg_meta_recos(recos=[], rank=1):
 
 	if rank not in [ 1, 10, 100 ]:
 		rank = 1
@@ -199,7 +199,7 @@ def fetch_swgohgg_meta_recos(recos=[], rank=1):
 	units = BaseUnit.objects.all().values('name', 'base_id')
 	char_list = { x['name']: { 'base_id': x['base_id'] } for x in units }
 	url = 'https://swgoh.gg/mod-meta-report/rank_%d/' % rank
-	response, error = http_get(url)
+	response, error = await http_get(url)
 	if error:
 		raise Exception('http_get(%s) failed: %s' % (url, error))
 
@@ -274,11 +274,11 @@ def fetch_capital_games_recos(recos=[]):
 	db['cg-expire'] = datetime.now() + timeout
 	return db['cg']
 
-def fetch_all_recos(index='base_id', index2=None):
+async def fetch_all_recos(index='base_id', index2=None):
 
 	recos_cg = fetch_capital_games_recos()
-	recos_cr = fetch_crouching_rancor_recos()
-	recos_gg = fetch_swgohgg_meta_recos()
+	recos_cr = await fetch_crouching_rancor_recos()
+	recos_gg = await fetch_swgohgg_meta_recos()
 
 	#result = get_dict_by_index(recos_cg + recos_cr + recos_gg, index)
 
@@ -289,6 +289,10 @@ def fetch_all_recos(index='base_id', index2=None):
 	#return result
 	return recos_cg + recos_cr + recos_gg
 
-if __name__ == "__main__":
-	test = fetch_all_recos(index='name', index2=None)
+async def __main__():
+	test = await fetch_all_recos(index='name', index2=None)
 	print(json.dumps(test, indent=4))
+
+if __name__ == "__main__":
+	import asyncio
+	asyncio.get_event_loop().run_until_complete(__main__())

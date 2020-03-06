@@ -27,7 +27,7 @@ CRINOLO_BETA_URL = 'https://crinolo-swgoh-beta.glitch.me/statCalc/api'
 # Internal - Do not call yourself
 #
 
-def get_access_token(config):
+async def get_access_token(config):
 
 	if 'access_token' in config['swgoh.help']:
 		expire = config['swgoh.help']['access_token_expire']
@@ -48,7 +48,7 @@ def get_access_token(config):
 	}
 
 	auth_url = '%s/auth/signin' % SWGOH_HELP
-	response, error = http_post(auth_url, headers=headers, data=data)
+	response, error = await http_post(auth_url, headers=headers, data=data)
 	if error:
 		raise Exception('Authentication failed to swgohhelp API: %s' % error)
 
@@ -64,20 +64,20 @@ def get_access_token(config):
 
 	return config['swgoh.help']['access_token']
 
-def get_headers(config):
+async def get_headers(config):
 	return {
 		'method': 'post',
 		'content-type': 'application/json',
-		'authorization': 'Bearer %s' % get_access_token(config),
+		'authorization': 'Bearer %s' % await get_access_token(config),
 	}
 
-def call_api(config, project, url):
-	headers = get_headers(config)
+async def call_api(config, project, url):
+	headers = await get_headers(config)
 
 	if 'debug' in config and config['debug'] is True:
 		print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
 
-	response, error = http_post(url, headers=headers, json=project)
+	response, error = await http_post(url, headers=headers, json=project)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
@@ -97,7 +97,7 @@ def call_api(config, project, url):
 # API
 #
 
-def api_swgoh_players(config, project, force=True):
+async def api_swgoh_players(config, project, force=True):
 
 	result = []
 	expected_players = len(project['allycodes'])
@@ -107,7 +107,7 @@ def api_swgoh_players(config, project, force=True):
 
 	while len(result) < expected_players:
 
-		returned = call_api(config, new_proj, '%s/swgoh/players' % SWGOH_HELP)
+		returned = await call_api(config, new_proj, '%s/swgoh/players' % SWGOH_HELP)
 		for player in returned:
 			result.append(player)
 			new_proj['allycodes'].remove(player['allyCode'])
@@ -117,34 +117,34 @@ def api_swgoh_players(config, project, force=True):
 
 	return result
 
-def api_swgoh_guilds(config, project):
-	return call_api(config, project, '%s/swgoh/guilds' % SWGOH_HELP)
+async def api_swgoh_guilds(config, project):
+	return await call_api(config, project, '%s/swgoh/guilds' % SWGOH_HELP)
 
-def api_swgoh_roster(config, project):
-	return call_api(config, project, '%s/swgoh/roster' % SWGOH_HELP)
+async def api_swgoh_roster(config, project):
+	return await call_api(config, project, '%s/swgoh/roster' % SWGOH_HELP)
 
-def api_swgoh_units(config, project):
-	return call_api(config, project, '%s/swgoh/units' % SWGOH_HELP)
+async def api_swgoh_units(config, project):
+	return await call_api(config, project, '%s/swgoh/units' % SWGOH_HELP)
 
-def api_swgoh_zetas(config, project):
-	return call_api(config, project, '%s/swgoh/zetas' % SWGOH_HELP)
+async def api_swgoh_zetas(config, project):
+	return await call_api(config, project, '%s/swgoh/zetas' % SWGOH_HELP)
 
-def api_swgoh_squads(config, project):
-	return call_api(config, project, '%s/swgoh/squads' % SWGOH_HELP)
+async def api_swgoh_squads(config, project):
+	return await call_api(config, project, '%s/swgoh/squads' % SWGOH_HELP)
 
-def api_swgoh_events(config, project):
-	return call_api(config, project, '%s/swgoh/events' % SWGOH_HELP)
+async def api_swgoh_events(config, project):
+	return await call_api(config, project, '%s/swgoh/events' % SWGOH_HELP)
 
-def api_swgoh_data(config, project):
-	return call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
+async def api_swgoh_data(config, project):
+	return await call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
 
-def api_crinolo(config, units):
+async def api_crinolo(config, units):
 	url = '%s?flags=gameStyle,calcGP' % CRINOLO_PROD_URL
 
 	if 'debug' in config and config['debug'] is True:
 		print('CALL CRINOLO API: %s' % url, file=sys.stderr)
 
-	response, error = http_post(url, json=units)
+	response, error = await http_post(url, json=units)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
@@ -170,22 +170,22 @@ def sort_players(players):
 
 	return result
 
-def fetch_players(config, project):
+async def fetch_players(config, project):
 
 	if type(project) is list:
 		project = { 'allycodes': project }
 
-	players = api_swgoh_players(config, project)
+	players = await api_swgoh_players(config, project)
 
 	return sort_players(players)
 
-def fetch_guilds(config, project):
+async def fetch_guilds(config, project):
 
 	if type(project) is list:
 		project = { 'allycodes': project }
 
 	ally_codes = project['allycodes']
-	guilds = api_swgoh_guilds(config, project)
+	guilds = await api_swgoh_guilds(config, project)
 
 	result = {}
 	for guild in guilds:
@@ -197,15 +197,15 @@ def fetch_guilds(config, project):
 
 	return result
 
-def fetch_crinolo_stats(config, project, players=None):
+async def fetch_crinolo_stats(config, project, players=None):
 
 	if type(project) is list:
 		project = { 'allycodes': project }
 
 	if not players:
-		players = api_swgoh_players(config, project)
+		players = await api_swgoh_players(config, project)
 
-	stats = api_crinolo(config, players)
+	stats = await api_crinolo(config, players)
 
 	result = {}
 	for player in stats:

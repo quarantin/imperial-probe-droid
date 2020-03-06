@@ -11,6 +11,8 @@ from config import load_config
 
 allycode = 349423868
 
+SNAPSHOTS_DIR = './snapshots'
+
 def write_result(name, result):
 
 	date = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -20,46 +22,51 @@ def write_result(name, result):
 	fout.write(json.dumps(result))
 	fout.close()
 
-results = {}
+async def __main__():
 
-methods = {
-	'guilds': api_swgoh_guilds,
-	'players': api_swgoh_players,
-	'roster': api_swgoh_roster,
-	'units': api_swgoh_units,
-}
+	results = {}
 
-project = {
-	'allycodes': [
-		allycode,
-	],
-}
+	methods = {
+		'guilds': api_swgoh_guilds,
+		'players': api_swgoh_players,
+		'roster': api_swgoh_roster,
+		'units': api_swgoh_units,
+	}
 
-SNAPSHOTS_DIR = './snapshots'
-if not os.path.exists(SNAPSHOTS_DIR):
-	os.mkdir(SNAPSHOTS_DIR)
+	project = {
+		'allycodes': [
+			allycode,
+		],
+	}
 
-config = load_config()
+	if not os.path.exists(SNAPSHOTS_DIR):
+		os.mkdir(SNAPSHOTS_DIR)
 
-for name, api_method in methods.items():
+	config = load_config()
 
-	print('Calling api.swgoh.help/%s...' % name, file=sys.stderr)
+	for name, api_method in methods.items():
 
-	result = api_method(config, project)
+		print('Calling api.swgoh.help/%s...' % name, file=sys.stderr)
+
+		result = await api_method(config, project)
+
+		results[name] = result
+
+		write_result(name, result)
+
+	name = 'crinolo'
+	api_method = api_crinolo
+
+	print('Calling Crinolo stats', file=sys.stderr)
+
+	result = await api_method(config, results['units'])
 
 	results[name] = result
 
 	write_result(name, result)
 
-name = 'crinolo'
-api_method = api_crinolo
+	print('Done.', file=sys.stderr)
 
-print('Calling Crinolo stats', file=sys.stderr)
-
-result = api_method(config, results['units'])
-
-results[name] = result
-
-write_result(name, result)
-
-print('Done.', file=sys.stderr)
+if __name__ == '__main__':
+	import asyncio
+	asyncio.get_event_loop().run_until_complete(__main__())

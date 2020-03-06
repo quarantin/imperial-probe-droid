@@ -70,7 +70,7 @@ def parse_opts_locked(request):
 
 	return opts
 	
-def cmd_locked(request):
+async def cmd_locked(request):
 
 	args = request.args
 	config = request.config
@@ -88,7 +88,7 @@ def cmd_locked(request):
 		return error
 
 	ally_codes = [ player.ally_code for player in players ]
-	players = fetch_players(config, ally_codes)
+	players = await fetch_players(config, ally_codes)
 
 	units = BaseUnit.objects.filter(combat_type=1).values()
 	ships = BaseUnit.objects.filter(combat_type=2).values()

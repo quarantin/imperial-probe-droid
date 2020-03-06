@@ -19,14 +19,14 @@ META_SHIPS_URL = 'https://swgoh.gg/fleet-meta-report/'
 META_MODS_URL = 'https://swgoh.gg/mod-meta-report/rank_10/'
 META_ZETAS_URL = 'https://swgoh.gg/ability-report/'
 
-def get_swgohgg_profile_url(ally_code, no_check=False):
+async def get_swgohgg_profile_url(ally_code, no_check=False):
 
 	url = 'https://swgoh.gg/p/%s/' % ally_code
 	if no_check:
 		return url
 
 	try:
-		response, error = http_get(url, headOnly=True)
+		response, error = await http_get(url, headOnly=True)
 		if not error and response.status_code == 200:
 			return url
 	except:
@@ -76,11 +76,11 @@ def get_full_ship_avatar_url(ally_code, base_id):
 # Meta Reports
 #
 
-def get_top_rank1_leaders(top_n, html_id, url):
+async def get_top_rank1_leaders(top_n, html_id, url):
 
 	top_leaders = []
 
-	response, error = http_get(url)
+	response, error = await http_get(url)
 	if error:
 		raise Exception('http_get(%s) failed: %s' % (url, error))
 
@@ -107,11 +107,11 @@ def get_top_rank1_leaders(top_n, html_id, url):
 
 	return top_leaders
 
-def get_top_rank1_squads(top_n, html_id, url):
+async def get_top_rank1_squads(top_n, html_id, url):
 
 	top_squads = []
 
-	response, error = http_get(url)
+	response, error = await http_get(url)
 	if error:
 		raise Exception('http_get(%s) failed: %s' % (url, error))
 

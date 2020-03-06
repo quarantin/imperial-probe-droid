@@ -92,7 +92,7 @@ def parse_opts_arena(request):
 
 	return selected_opts
 
-def cmd_arena(request):
+async def cmd_arena(request):
 
 	args = request.args
 	config = request.config
@@ -112,7 +112,7 @@ def cmd_arena(request):
 		return error
 
 	ally_codes = [ player.ally_code for player in selected_players ]
-	stats, players = fetch_crinolo_stats(config, ally_codes)
+	stats, players = await fetch_crinolo_stats(config, ally_codes)
 	players = { str(player['allyCode']): player for player in players }
 
 	msgs = []

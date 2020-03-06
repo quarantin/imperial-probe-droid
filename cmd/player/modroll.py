@@ -27,7 +27,7 @@ MOD_STATS = {
 	41: 'offense',
 }
 
-def cmd_modroll(request):
+async def cmd_modroll(request):
 
 	args = request.args
 	author = request.author
@@ -50,7 +50,7 @@ def cmd_modroll(request):
 
 	ally_codes = [ p.ally_code for p in selected_players ]
 
-	data = fetch_players(config, {
+	data = await fetch_players(config, {
 		'allycodes': ally_codes,
 		'project': {
 			'allyCode': 1,

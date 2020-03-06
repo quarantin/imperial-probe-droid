@@ -57,7 +57,7 @@ async def cmd_gregister(request):
 
 	ally_codes = [ str(p.ally_code) for p in selected_players ]
 
-	guilds = fetch_guilds(config, ally_codes)
+	guilds = await fetch_guilds(config, ally_codes)
 
 	for selector_allycode, guild in guilds.items():
 

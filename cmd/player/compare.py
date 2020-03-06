@@ -278,7 +278,7 @@ def player_to_embedfield(config, player, roster, lang):
 
 	return res
 
-def cmd_player_compare(request):
+async def cmd_player_compare(request):
 
 	args = request.args
 	config = request.config
@@ -295,7 +295,7 @@ def cmd_player_compare(request):
 
 	fields = []
 	ally_codes = [ player.ally_code for player in selected_players ]
-	stats, players = fetch_crinolo_stats(config, ally_codes)
+	stats, players = await fetch_crinolo_stats(config, ally_codes)
 
 	for player in players:
 		ally_code = player['allyCode']

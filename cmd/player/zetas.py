@@ -63,7 +63,7 @@ def parse_opts_include_locked(request):
 
 	return False
 
-def cmd_zetas(request):
+async def cmd_zetas(request):
 
 	args = request.args
 	author = request.author
@@ -86,7 +86,7 @@ def cmd_zetas(request):
 		return error_unknown_parameters(args)
 
 	ally_code = selected_players[0].ally_code
-	players = fetch_players(config, {
+	players = await fetch_players(config, {
 		'allycodes': [ ally_code ],
 		'project': {
 			'allyCode': 1,
