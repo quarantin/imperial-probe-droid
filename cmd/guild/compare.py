@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS
 from utils import dotify, get_banner_emoji, get_relic_tier, get_stars_as_emojis, roundup, translate
-from swgohhelp import fetch_players, fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
+from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
