@@ -471,7 +471,7 @@ async def handle_payout_stats(request):
 				next_payout = '--:--'
 			#updated = datetime.fromtimestamp(int(p['updated']) / 1000).strftime('%H:%M')
 			affiliation = p['allyCode'] in payout_times and payout_times[ p['allyCode'] ].get_affiliation_display()
-			profile_url = get_swgohgg_profile_url(p['allyCode'], no_check=True)
+			profile_url = await get_swgohgg_profile_url(p['allyCode'], no_check=True)
 			lines.append('%s`|%s%s %s` %s [%s](%s)%s' % (bold, spacer, rank, next_payout, affiliation, p['name'], profile_url, bold))
 
 	lines_str = '\n'.join(lines)
