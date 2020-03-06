@@ -490,7 +490,6 @@ async def handle_payout_stats(request):
 	except:
 		pass
 
-	from ipd import ImperialProbeDroid
 	for embed in embeds:
 		status, error = await config['bot'].sendmsg(channel, message='', embed=embed)
 		if not status:
