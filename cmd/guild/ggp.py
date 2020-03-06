@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 
 from utils import get_relic_tier, get_star, translate
-from swgohhelp import sort_players, fetch_crinolo_stats, fetch_guilds
+from swgohhelp import fetch_guilds
 
 import json
 
