@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from utils import http_get, translate
+from utils import translate
 
 from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players
