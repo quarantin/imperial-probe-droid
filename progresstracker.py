@@ -7,6 +7,7 @@ import discord
 import libswgoh
 import libprotobuf
 from utils import translate
+from constants import ROMAN
 from datetime import datetime, timedelta
 from swgohhelp import get_unit_name, get_ability_name
 
@@ -17,22 +18,6 @@ MAX_SKILL_TIER = 8
 
 LAST_SEEN_MAX_HOURS = 48
 LAST_SEEN_MAX_HOURS_INTERVAL = 24
-
-ROMAN = {
-	1: 'I',
-	2: 'II',
-	3: 'II',
-	4: 'IV',
-	5: 'V',
-	6: 'VI',
-	7: 'VII',
-	8: 'VIII',
-	9: 'IX',
-	10: 'X',
-	11: 'XI',
-	12: 'XII',
-	13: 'XIII',
-}
 
 my_short_guild = [
 		'791187582',
