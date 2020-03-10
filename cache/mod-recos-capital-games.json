@@ -3480,5 +3480,25 @@
         "cross": "Protection",
 		"secondary_stats": [],
         "info": "Best"
+    },
+    {
+        "source": "Capital Games",
+        "base_id": "GENERALHUX",
+        "set1": "Speed",
+        "set2": "Tenacity",
+        "set3": "",
+        "square": "Offense",
+        "arrow": "Speed",
+        "diamond": "Defense",
+        "triangle": "Protection",
+        "circle": "Protection",
+        "cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Tenacity",
+			"Protection %",
+			"Defense %"
+		],
+        "info": "Best"
     }
 ]
