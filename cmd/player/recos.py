@@ -109,7 +109,7 @@ async def cmd_recos(request):
 	msgs = []
 	for ally_code_str, player in players.items():
 
-		discord_id = player['allyCode']
+		discord_id = player['name']
 		guild_banner = get_banner_emoji(player['guildBannerLogo'])
 
 		p = find_player(selected_players, player['allyCode'])
@@ -120,7 +120,7 @@ async def cmd_recos(request):
 			except Player.DoesNotExist:
 				pass
 
-		if p is not None:
+		if p is not None and p.discord_id is not None:
 			discord_id = '<@%s>' % p.discord_id
 
 		for ref_unit in selected_units:
