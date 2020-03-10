@@ -3,3 +3,7 @@ __pycache__
 *.png
 *.svg
 *.pyc
+libswgoh.py
+libprotobuf.py
+protobuf
+protos
