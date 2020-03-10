@@ -2,406 +2,286 @@
 
 import sys
 import json
+import redis
 import asyncio
 import discord
 import libswgoh
-import libprotobuf
-from utils import translate
-from constants import ROMAN
-from datetime import datetime, timedelta
-from swgohhelp import get_unit_name, get_ability_name
+import traceback
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
+
+from utils import translate
+from constants import ROMAN
+from swgohhelp import get_unit_name, get_ability_name
 
 MAX_SKILL_TIER = 8
 
 LAST_SEEN_MAX_HOURS = 48
 LAST_SEEN_MAX_HOURS_INTERVAL = 24
 
-my_short_guild = [
-		'791187582',
-		'349423868',
-		'939217396',
-]
+class GuildConfig:
 
-my_real_guild = [
-		'717952293',
-		'823138241',
-		'679953994',
-		'285791283',
-		'151522739',
-		'791187582',
-		'796768616',
-		'963851733',
-		'249146726',
-		'764433286',
-		'349916511',
-		'313811128',
-		'299618942',
-		'841628554',
-		'689384858',
-		'432487688',
-		'159773229',
-		'386333955',
-		'183566241',
-		'939217396',
-		'679624581',
-		'841136222',
-		'861695949',
-		'788498477',
-		'679283652',
-		'835375258',
-		'364187935',
-		'919446723',
-		'439553819',
-		'622536847',
-		'693322138',
-		'721916843',
-		'243118455',
-		'577321579',
-		'859732948',
-		'423694941',
-		'473387221',
-		'126851788',
-		'674676931',
-		'275786885',
-		'158895788',
-		'896688629',
-		'361119762',
-		'349423868',
-		'746734837',
-	]
-
-my_guild = {
-	'channel_id': 682302185085730910,
-	'members': my_real_guild,
-}
-
-def strip_text(text):
-	return text.replace('**', '')
-
-def to_colored_text(text, lang='', prefix=''):
-	return '```%s\n%s %s```' % (lang, prefix, strip_text(text))
-
-def to_color_none(text):
-	return text
-
-def to_color_default(text):
-	return to_colored_text(text)
-
-def to_color_quote(text):
-	return to_colored_text(text, 'brainfuck')
-
-def to_color_green(text):
-	return to_colored_text(text, 'CSS')
-
-def to_color_cyan(text):
-	return to_colored_text(text, 'yaml')
-
-def to_color_blue(text):
-	return to_colored_text(text, 'md')
-
-def to_color_yellow(text):
-	return to_colored_text(text, 'fix')
-
-def to_color_orange(text):
-	return to_colored_text(text, 'glsl')
-
-def to_color_red(text):
-	return to_colored_text(text, 'diff', '-')
-
-colors = {
-	'default': to_color_default,
-	'quote':   to_color_quote,
-	'green':   to_color_green,
-	'cyan':    to_color_cyan,
-	'blue':    to_color_blue,
-	'yellow':  to_color_yellow,
-	'orange':  to_color_orange,
-	'red':     to_color_red,
-}
-
-def get_color_func(msg_type):
-
-	if msg_type == 'zetas':
-		return to_color_cyan
-
-	if msg_type == 'omegas':
-		return to_color_yellow
-
-	if msg_type == 'relics':
-		return to_color_green
-
-	if msg_type == 'inactivity':
-		return to_color_red
-
-	return to_color_none
-
-def colorize(msg, msg_type):
-
-	color_func = get_color_func(msg_type)
-	return color_func(msg)
+	language = 'eng_us'
+	show_gear_level = True
+	show_gear_level_min = 0 # 8
+	show_gear_piece = True
+	show_inactivity = True
+	show_inactivity_min = 48
+	show_inactivity_repeat = 24
+	show_nick_change = True
+	show_player_level = True
+	show_player_level_min = 0
+	show_relic = True
+	show_relic_min = 0
+	show_skill_unlocked = True
+	show_skill_increased = True
+	show_skill_increased_min = 0 # MAX_SKILL_TIER
+	show_skill_increased_omega = True
+	show_skill_increased_zeta = True
+	show_unit_level = True
+	show_unit_level_min = 0 # 85
+	show_unit_rarity = True
+	show_unit_rarity_min = 0
+	show_unit_unlocked = True
 
 class GuildTrackerThread(asyncio.Future):
 
-	show_gear_pieces = False
-	show_min_gear_level = 8
-	show_min_level = 85
-	show_min_stars = 5
-	show_zetas = True
-	show_omegas = True
-	show_skills = False
+	bot = None
 
-	last_notify = {}
-
-	def get_relic(self, unit):
-
-		if 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic']:
-			return max(0, unit['relic']['currentTier'] - 2)
-
-		return 0
-
-	def check_diff_player_units(self, old_profile, new_profile, messages):
-
-		lang = 'eng_us'
-		old_roster = old_profile['roster']
-
-		old_player_name = old_profile['profile']['name']
-		new_player_name = new_profile['profile']['name']
-		if old_player_name != new_player_name:
-			msg = '**%s** has changed nickname to **%s**' % (old_player_name, new_player_name)
-			messages.append(colorize(msg, 'nicks'))
-
-		for base_id, new_unit in new_profile['roster'].items():
-
-			unit_name = get_unit_name(base_id, lang)
-
-			# Handle new units unlocked.
-
-			if base_id not in old_roster:
-				msg = '**%s** unlocked **%s**' % (new_player_name, unit_name)
-				messages.append(colorize(msg, 'unlock-unit'))
-				continue
-
-			# Handle unit level increase.
-			
-			old_level = old_roster[base_id]['level']
-			new_level = new_unit['level']
-			if old_level < new_level and new_level >= self.show_min_level:
-				msg = '**%s** promoted **%s** to level %d' % (new_player_name, unit_name, new_level)
-				messages.append(colorize(msg, 'unit-level'))
-
-			# Handle unit rarity increase.
-
-			old_rarity = old_roster[base_id]['rarity']
-			new_rarity = new_unit['rarity']
-			if old_rarity < new_rarity and new_rarity >= self.show_min_stars:
-				msg = '**%s** promoted **%s** to %d stars' % (new_player_name, unit_name, new_rarity)
-				messages.append(colorize(msg, 'rarity'))
-
-			# Handle gear level increase.
-
-			old_gear_level = old_roster[base_id]['gear']
-			new_gear_level = new_unit['gear']
-			if old_gear_level < new_gear_level and new_gear_level >= self.show_min_gear_level:
-				roman_gear = ROMAN[new_gear_level]
-				msg = '**%s** increased **%s**\'s gear to level %s' % (new_player_name, unit_name, roman_gear)
-				messages.append(colorize(msg, 'gear-level'))
-
-			# Handle relic increase.
-
-			old_relic = self.get_relic(old_roster[base_id])
-			new_relic = self.get_relic(new_unit)
-			if old_relic < new_relic:
-				msg = '**%s** increased **%s** to relic %d' % (new_player_name, unit_name, new_relic)
-				messages.append(colorize(msg, 'relics'))
-
-			# TODO Handle when there was a gear level change because in that case we need to do things differently
-			old_equipped = old_roster[base_id]['equipped']
-			new_equipped = new_unit['equipped']
-			diff_equipped = [ x for x in new_equipped if x not in old_equipped ]
-			if diff_equipped:
-				for gear in diff_equipped:
-					gear_name = translate(gear['equipmentId'], lang)
-					if self.show_gear_pieces:
-						msg = '**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name)
-						messages.append(colorize(msg, 'gear-piece'))
-
-			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
-			new_skills = { x['id']: x for x in new_unit['skills'] }
-
-			for new_skill_id, new_skill in new_skills.items():
-
-				skill_name = get_ability_name(new_skill_id, lang)
-
-				if new_skill_id not in old_skills:
-					msg = '**%s** unlocked new skill **%s** for **%s**' % (new_player_name, skill_name, unit_name)
-					messages.append(colorize(msg, 'unlock-skill'))
-					continue
-
-				old_skill = old_skills[new_skill_id]
-
-				if 'tier' not in old_skill:
-					old_skill['tier'] = 0
-
-				if 'tier' not in new_skill:
-					new_skill['tier'] = 0
-
-				if old_skill['tier'] < new_skill['tier']:
-
-					if new_skill['tier'] >= MAX_SKILL_TIER:
-
-						try:
-							unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
-							if unit_skill.is_zeta and self.show_zetas:
-								msg = '**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name)
-								messages.append(colorize(msg, 'zetas'))
-
-							elif self.show_omegas:
-								msg = '**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name)
-								messages.append(colorize(msg, 'omegas'))
-
-						except BaseUnitSkill.DoesNotExist:
-							print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
-					else:
-						if self.show_skills:
-							msg = '**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier'])
-							messages.append(colorize(msg, 'skill-increase'))
-
-	def check_diff_player_level(self, old_profile, new_profile, messages):
+	async def send_msg(self, channel, message):
 
 		try:
-			new_player_level = new_profile['profile']['level']
-			old_player_level = old_profile['profile']['level']
+			print(message)
+			await channel.send(message)
 
-			if old_player_level < new_player_level:
-				msg = 'Player %s reached level %d' % (profile['profile']['name'], new_player_level)
-				messages.append(colorize(msg, 'player-level'))
+		except:
+			print('Failed sending to channel #%s (%s)' % (channel, channel.id))
+			print(traceback.format_exc())
 
-		except Exception as err:
-			print('ERROR: check_diff_player_level: %s' % err)
+	async def handle_gear_level(self, config, message):
 
-	def check_last_seen(self, new_profile, messages):
+		if config.show_gear_level is False:
+			return
 
-		now = datetime.now()
-		profile = new_profile['profile']
-		updated = int(profile['updated'])
-		last_sync = datetime.fromtimestamp(updated / 1000)
-		delta = now - last_sync
-		hours = LAST_SEEN_MAX_HOURS
-		if delta > timedelta(hours=hours):
+		gear_level = message['gear-level']
+		if gear_level < config.show_gear_level_min:
+			return
 
-			ally_code = profile['allyCode']
-			if ally_code in self.last_notify:
-				last_notify = self.last_notify[ally_code]
-				diff_to_now = now - last_notify
-				if diff_to_now < timedelta(hours=LAST_SEEN_MAX_HOURS_INTERVAL):
-					return
+		roman_gear = ROMAN[gear_level]
+		msg = '**%s** increased **%s**\'s gear to level **%s**' % (message['nick'], message['unit'], roman_gear)
+		await self.send_msg(config.channel, msg)
 
-			self.last_notify[ally_code] = now
-			last_activity = delta - timedelta(microseconds=delta.microseconds)
-			msg = '**%s** has been inactive for **%s**' % (profile['name'], last_activity)
-			messages.append(colorize(msg, 'inactivity'))
+	async def handle_gear_piece(self, config, message):
 
-	def check_diff(self, old_profile, new_profile, messages):
+		if config.show_gear_piece is False:
+			return
 
-		self.check_diff_player_level(old_profile, new_profile, messages)
+		gear_piece = message['gear-piece']
+		msg = '**%s** set **%s** on **%s**' % (message['nick'], gear_piece, message['unit'])
+		await self.send_msg(config.channel, msg)
 
-		self.check_diff_player_units(old_profile, new_profile, messages)
+	async def handle_inactivity(self, config, message):
 
-		self.check_last_seen(new_profile, messages)
+		if config.show_inactivity is False:
+			return
 
-		return messages
-		
-	def update_player(self, ally_code, profile):
+		msg = '**%s** has been inactive for **%s**' % (message['nick'], message['last_seen'])
+		await self.send_msg(config.channel, msg)
 
-		if 'level' not in profile:
-			print('ERROR: Problem with profile of %s' % ally_code)
-			#print(json.dumps(profile, indent=4))
-			return []
+	async def handle_nick_change(self, config, message):
 
-		roster = {}
-		if 'roster' in profile:
-			roster = { x['defId']: x for x in profile['roster'] }
+		if config.show_nick_change is False:
+			return
 
-		new_profile = {
-			'profile': profile,
-			'roster': roster,
+		msg = '**%s** is now known as **%s**' % (message['nick'], message['new_nick'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_player_level(self, config, message):
+
+		if config.show_player_level is False:
+			return
+
+		if message['level'] < config.show_player_level_min:
+			return
+
+		msg = '**%s** reached level **%s**' % (message['nick'], message['level'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_skill_unlocked(self, config, message):
+
+		if config.show_skill_unlocked is False:
+			return
+
+		msg = '**%s** unlocked **%s**\'s new skill **%s**' % (message['nick'], message['unit'], message['skill'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_skill_increased(self, config, message):
+
+		if config.show_skill_increased is False:
+			return
+
+		if message['tier'] < config.show_skill_increased_min:
+			return
+
+		if message['type'] == 'omega':
+			msg = '**%s** applied **Omega** to **%s**\'s skill **%s**' % (message['nick'], message['unit'], message['skill'])
+
+		elif message['type'] == 'zeta':
+			msg = '**%s** applied **Zeta** to **%s**\'s skill **%s**' % (message['nick'], message['unit'], message['skill'])
+
+		else:
+			msg = '**%s** increased **%s**\'s skill **%s** to tier **%s**' % (message['nick'], message['unit'], message['skill'], message['tier'])
+
+		await self.send_msg(config.channel, msg)
+
+	async def handle_unit_level(self, config, message):
+
+		if config.show_unit_level is False:
+			return
+
+		if message['level'] < config.show_unit_level_min:
+			return
+
+		msg = '**%s** increased **%s**\'s to level **%s**' % (message['nick'], message['unit'], message['level'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_unit_rarity(self, config, message):
+
+		if config.show_unit_rarity is False:
+			return
+
+		if message['rarity'] < config.show_unit_rarity_min:
+			return
+
+		msg = '**%s** promoted **%s** to **%s** stars' % (message['nick'], message['unit'], message['rarity'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_unit_relic(self, config, message):
+
+		if config.show_relic is False:
+			return
+
+		if message['relic'] < config.show_relic_min:
+			return
+
+		msg = '**%s** increased **%s** to relic **%s**' % (message['nick'], message['unit'], message['relic'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_unit_unlocked(self, config, message):
+
+		if config.show_unit_unlocked is False:
+			return
+
+		msg = '**%s** unlocked **%s**' % (message['nick'], message['unit'])
+		await self.send_msg(config.channel, msg)
+
+	def prepare_message(self, config, message):
+
+		if 'unit' in message:
+			message['unit'] = get_unit_name(message['unit'], config.language)
+
+		if 'gear-piece' in message:
+			message['gear-piece'] = translate(message['gear-piece'], config.language)
+
+		if 'skill' in message:
+			message['skill-id'] = message['skill']
+			message['skill'] = get_ability_name(message['skill'], config.language)
+
+		if 'tier' in message:
+
+			message['type'] = ''
+			if message['tier'] >= MAX_SKILL_TIER:
+				try:
+					skill = BaseUnitSkill.objects.get(skill_id=message['skill-id'])
+					message['type'] = skill.is_zeta
+
+				except BaseUnitSkill.DoesNotExist:
+					print('ERROR: Could not find base unit skill with id: %s' % message['skill'])
+
+		return message
+
+	async def run(self, bot):
+
+		self.bot = bot
+		self.redis = redis.Redis()
+		self.guilds = [ ('349423868', 575654803099746325, GuildConfig() ) ]
+
+		self.mapping = {
+			'gear level': self.handle_gear_level,
+			'gear piece': self.handle_gear_piece,
+			'inactivity': self.handle_inactivity,
+			'nick change': self.handle_nick_change,
+			'player level': self.handle_player_level,
+			'skill unlocked': self.handle_skill_unlocked,
+			'skill increased': self.handle_skill_increased,
+			'unit level': self.handle_unit_level,
+			'unit rarity': self.handle_unit_rarity,
+			'unit relic': self.handle_unit_relic,
+			'unit unlocked': self.handle_unit_unlocked,
 		}
-
-		if ally_code not in self.db:
-			self.db[ally_code] = new_profile
-
-		old_profile = self.db[ally_code]
-
-		messages = self.check_diff(old_profile, new_profile, [])
-
-		self.db[ally_code] = new_profile
-
-		return messages
-
-	async def run(self, guild_tracker):
-
-		self.db = {}
 
 		while True:
 
-			session = await libswgoh.get_auth_guest()
+			for ally_code, channel_id, config in self.guilds:
 
-			# TODO Retrieve guild mates in a dynamic way.
-			guilds = [ my_guild ]
-			for guild in guilds:
+				config.channel = self.bot.get_channel(channel_id)
+				#print("WTF: %s" % config.channel)
 
-				messages = []
-				members = guild['members']
+				messages_key = 'messages|%s' % channel_id
+				count = self.redis.llen(messages_key)
+				if count > 0:
+					messages = self.redis.lrange(messages_key, 0, count)
 
-				for member in members:
-
-					ally_code = str(member)
-					profile = await libswgoh.get_player_profile(ally_code=ally_code, session=session)
-
-					messages = self.update_player(ally_code, profile)
 					for message in messages:
+
+						message = json.loads(message)
 						print(message)
-						await guild_tracker.channel.send(message)
+						tag = message['tag']
+						if tag in self.mapping:
+							await self.mapping[tag](config, self.prepare_message(config, message))
 
-			print('end of pass')
+					ok = self.redis.ltrim(messages_key, count + 1, -1)
+					if not ok:
+						print('redis.ltrim failed! Returned: %s' % ok)
 
-			await asyncio.sleep(60)
+
+			await asyncio.sleep(1)
 
 class GuildTracker(discord.Client):
 
-		channel = None
+	async def on_ready(self):
 
-		async def on_ready(self):
-
-			self.channel = self.get_channel(my_guild['channel_id'])
-
-			print("Guild tracker bot ready!")
-			if hasattr(self, 'initialized'):
-				return
+		if not hasattr(self, 'initialized'):
 
 			setattr(self, 'initialized', True)
 
-			print("Starting new thread.")
+			print('Starting new thread')
 			self.loop.create_task(GuildTrackerThread().run(self))
 
-config_file = 'config.json'
-fin = open(config_file, 'r')
-config = json.loads(fin.read())
-fin.close()
+		print('Guild tracker bot ready!')
+		await self.get_channel(575654803099746325,).send('Guild tracker bot ready!')
 
-if 'tokens' not in config:
-	print('Key "tokens" missing from config %s' % config_file, file=sys.stderr)
-	sys.exit(-1)
+if __name__ == '__main__':
 
-if 'arena-tracker' not in config['tokens']:
-	print('Key "arena-tracker" missing from config %s' % config_file, file=sys.stderr)
-	sys.exit(-1)
+	config_file = 'config.json'
+	fin = open(config_file, 'r')
+	config = json.loads(fin.read())
+	fin.close()
+
+	if 'tokens' not in config:
+		print('Key "tokens" missing from config %s' % config_file, file=sys.stderr)
+		sys.exit(-1)
+
+	if 'tracker' not in config['tokens']:
+		print('Key "tracker" missing from config %s' % config_file, file=sys.stderr)
+		sys.exit(-1)
 
 
-import logging
-logging.basicConfig(level=logging.INFO)
+	import logging
+	logging.basicConfig(level=logging.INFO)
 
-GuildTracker().run(config['tokens']['arena-tracker'])
+	try:
+		GuildTracker().run(config['tokens']['tracker'])
+	except:
+		print(traceback.format_exc())

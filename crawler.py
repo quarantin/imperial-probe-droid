@@ -5,16 +5,10 @@ import json
 import redis
 import asyncio
 import discord
-import jsondiff
 from datetime import datetime, timedelta
 
-import DJANGO
-from swgoh.models import BaseUnitSkill
-
 import libswgoh
-from utils import translate
-from constants import ROMAN
-from swgohhelp import fetch_guilds, get_unit_name, get_ability_name
+from swgohhelp import fetch_guilds
 
 JSON_INDENT = 4
 MAX_SKILL_TIER = 8
@@ -38,79 +32,96 @@ class CrawlerThread(asyncio.Future):
 
 	def check_diff_player_units(self, old_profile, new_profile, messages):
 
-		lang = 'eng_us'
 		old_roster = old_profile['roster']
-
 		old_player_name = old_profile['profile']['name']
 		new_player_name = new_profile['profile']['name']
 		if old_player_name != new_player_name:
-			msg = '**%s** has changed nickname to **%s**' % (old_player_name, new_player_name)
-			messages.append(('nicks', msg))
+			messages.append({
+				'tag': 'nick change',
+				'nick': old_player_name,
+				'new_nick': new_player_name,
+			})
 
 		for base_id, new_unit in new_profile['roster'].items():
 
-			unit_name = get_unit_name(base_id, lang)
-
 			# Handle new units unlocked.
-
 			if base_id not in old_roster:
-				msg = '**%s** unlocked **%s**' % (new_player_name, unit_name)
-				messages.append(('unlock-unit', msg))
+				messages.append({
+					'tag': 'unit unlocked',
+					'nick': new_player_name,
+					'unit': base_id,
+				})
 				continue
 
 			# Handle unit level increase.
-			
 			old_level = old_roster[base_id]['level']
 			new_level = new_unit['level']
 			if old_level < new_level:
-				msg = '**%s** promoted **%s** to level %d' % (new_player_name, unit_name, new_level)
-				messages.append(('unit-level', msg))
+				messages.append({
+					'tag': 'unit level',
+					'nick': new_player_name,
+					'unit': base_id,
+					'level': new_level,
+				})
 
 			# Handle unit rarity increase.
-
 			old_rarity = old_roster[base_id]['rarity']
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity:
-				msg = '**%s** promoted **%s** to %d stars' % (new_player_name, unit_name, new_rarity)
-				messages.append(('rarity', msg))
+				messages.append({
+					'tag': 'unit rarity',
+					'nick': new_player_name,
+					'unit': base_id,
+					'rarity': new_rarity,
+				})
 
 			# Handle gear level increase.
-
 			old_gear_level = old_roster[base_id]['gear']
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level:
-				roman_gear = ROMAN[new_gear_level]
-				msg = '**%s** increased **%s**\'s gear to level %s' % (new_player_name, unit_name, roman_gear)
-				messages.append(('gear-level', msg))
+				messages.append({
+					'tag': 'gear level',
+					'nick': new_player_name,
+					'unit': base_id,
+					'gear-level': new_gear_level,
+				})
 
 			# Handle relic increase.
-
 			old_relic = self.get_relic(old_roster[base_id])
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
-				msg = '**%s** increased **%s** to relic %d' % (new_player_name, unit_name, new_relic)
-				messages.append(('relics', msg))
+				messages.append({
+					'tag': 'unit relic',
+					'nick': new_player_name,
+					'unit': base_id,
+					'relic': new_relic,
+				})
 
-			# TODO Handle when there was a gear level change because in that case we need to do things differently
+			# TODO Handle case when there was a gear level change because in that case we need to do things differently
 			old_equipped = old_roster[base_id]['equipped']
 			new_equipped = new_unit['equipped']
 			diff_equipped = [ x for x in new_equipped if x not in old_equipped ]
 			if diff_equipped:
 				for gear in diff_equipped:
-					gear_name = translate(gear['equipmentId'], lang)
-					msg = '**%s** set **%s** on **%s**' % (new_player_name, gear_name, unit_name)
-					messages.append(('gear-piece', msg))
+					messages.append({
+						'tag': 'gear piece',
+						'nick': new_player_name,
+						'unit': base_id,
+						'gear-piece': gear['equipmentId']
+					})
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
 			new_skills = { x['id']: x for x in new_unit['skills'] }
 
 			for new_skill_id, new_skill in new_skills.items():
 
-				skill_name = get_ability_name(new_skill_id, lang)
-
 				if new_skill_id not in old_skills:
-					msg = '**%s** unlocked new skill **%s** for **%s**' % (new_player_name, skill_name, unit_name)
-					messages.append(('unlock-skill', msg))
+					messages.append({
+						'tag': 'skill unlocked',
+						'nick': new_player_name,
+						'unit': base_id,
+						'skill': new_skill_id,
+					})
 					continue
 
 				old_skill = old_skills[new_skill_id]
@@ -123,23 +134,13 @@ class CrawlerThread(asyncio.Future):
 
 				if old_skill['tier'] < new_skill['tier']:
 
-					if new_skill['tier'] >= MAX_SKILL_TIER:
-
-						try:
-							unit_skill = BaseUnitSkill.objects.get(skill_id=new_skill_id)
-							if unit_skill.is_zeta:
-								msg = '**%s** applied Zeta upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name)
-								messages.append(('zetas', msg))
-
-							else:
-								msg = '**%s** applied Omega upgrade **%s** (**%s**)' % (new_player_name, skill_name, unit_name)
-								messages.append(('omegas', msg))
-
-						except BaseUnitSkill.DoesNotExist:
-							print('ERROR: Could not find base unit skill with skill ID: %s' % new_skill_id)
-					else:
-						msg = '**%s** increased skill **%s** for **%s** to tier %d' % (new_player_name, skill_name, unit_name, new_skill['tier'])
-						messages.append(('skill-increase', msg))
+					messages.append({
+						'tag': 'skill increased',
+						'nick': new_player_name,
+						'unit': base_id,
+						'skill': new_skill_id,
+						'tier': new_skill['tier']
+					})
 
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
@@ -148,8 +149,11 @@ class CrawlerThread(asyncio.Future):
 			old_player_level = old_profile['profile']['level']
 
 			if old_player_level < new_player_level:
-				msg = 'Player %s reached level %d' % (profile['profile']['name'], new_player_level)
-				messages.append(('player-level', msg))
+				messages.append({
+					'tag': 'player level',
+					'nick': new_profile['profile']['name'],
+					'level': new_player_level,
+				})
 
 		except Exception as err:
 			print('ERROR: check_diff_player_level: %s' % err)
@@ -161,8 +165,7 @@ class CrawlerThread(asyncio.Future):
 		updated = int(profile['updated'])
 		last_sync = datetime.fromtimestamp(updated / 1000)
 		delta = now - last_sync
-		hours = LAST_SEEN_MAX_HOURS
-		if delta > timedelta(hours=hours):
+		if delta > timedelta(hours=LAST_SEEN_MAX_HOURS):
 
 			ally_code = profile['allyCode']
 			if ally_code in self.last_notify:
@@ -173,8 +176,11 @@ class CrawlerThread(asyncio.Future):
 
 			self.last_notify[ally_code] = now
 			last_activity = delta - timedelta(microseconds=delta.microseconds)
-			msg = '**%s** has been inactive for **%s**' % (profile['name'], last_activity)
-			messages.append(('inactivity', msg))
+			messages.append({
+				'tag': 'inactivity',
+				'nick': profile['name'],
+				'last_seen': last_activity,
+			})
 
 	def check_diff(self, old_profile, new_profile):
 
@@ -220,8 +226,8 @@ class CrawlerThread(asyncio.Future):
 		if messages:
 
 			formated = []
-			for tag, message in messages:
-				formated.append('|'.join([ tag, message ]))
+			for message in messages:
+				formated.append(json.dumps(message))
 
 			messages_key = 'messages|%s' % channel_id
 			self.redis.rpush(messages_key, *formated)
