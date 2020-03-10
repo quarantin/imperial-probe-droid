@@ -271,7 +271,7 @@ class CrawlerThread(asyncio.Future):
 	async def get_allycodes_to_refresh(self):
 
 		needed = []
-		ally_codes = [ str(guild['allycode']) for guild in self.guilds ]
+		ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
 		for ally_code in ally_codes:
 			player = await self.ensure_player(ally_code)
 			guild_key = 'guild|%s' % player['guildRefId']
@@ -294,8 +294,8 @@ class CrawlerThread(asyncio.Future):
 		self.guilds = list(PremiumGuild.objects.all())
 		self.session = await libswgoh.get_auth_guest()
 
-		ally_codes = [ str(guild['allycode']) for guild in self.guilds ]
-		channels   = [ guild['channel'] for guild in self.guilds ]
+		ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
+		channels   = [ guild.channel_id for guild in self.guilds ]
 
 		while True:
 
