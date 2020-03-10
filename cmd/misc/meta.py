@@ -82,7 +82,7 @@ def parse_opts_meta(request):
 
 	return selected_opts, top_n
 			
-def cmd_meta(request):
+async def cmd_meta(request):
 
 	args = request.args
 	config = request.config
@@ -112,7 +112,7 @@ def cmd_meta(request):
 	joke = 'joke' in config and config['joke'] is True
 
 	if 'leader' in selected_opts:
-		top_leaders = get_top_rank1_squad_leaders(top_n)
+		top_leaders = await get_top_rank1_squad_leaders(top_n)
 		lines = []
 
 		if joke:
@@ -153,7 +153,7 @@ def cmd_meta(request):
 		})
 
 	if 'arena' in selected_opts:
-		top_squads = get_top_rank1_arena_squads(top_n)
+		top_squads = await get_top_rank1_arena_squads(top_n)
 		lines = []
 
 		if joke:
@@ -212,7 +212,7 @@ def cmd_meta(request):
 		})
 
 	if 'commander' in selected_opts:
-		top_commanders = get_top_rank1_fleet_commanders(top_n)
+		top_commanders = await get_top_rank1_fleet_commanders(top_n)
 		lines = []
 
 		for commander in top_commanders:
@@ -241,7 +241,7 @@ def cmd_meta(request):
 		})
 
 	if 'fleet' in selected_opts:
-		top_squads = get_top_rank1_fleet_squads(top_n)
+		top_squads = await get_top_rank1_fleet_squads(top_n)
 		lines = []
 
 		for tupl in top_squads:
@@ -275,7 +275,7 @@ def cmd_meta(request):
 		})
 
 	if 'reinforcement' in selected_opts:
-		top_reinforcements = get_top_rank1_reinforcements(top_n)
+		top_reinforcements = await get_top_rank1_reinforcements(top_n)
 		lines = []
 
 		for tupl in top_reinforcements:
