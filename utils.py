@@ -2,6 +2,7 @@
 
 import os
 import pytz
+import aiohttp
 import requests
 import subprocess
 from requests.exceptions import HTTPError
@@ -102,6 +103,15 @@ async def http_post(url, *args, **kwargs):
 
 	else:
 		return response, False
+
+async def http_post_aiohttp(url, *args, **kwargs):
+	async with aiohttp.ClientSession() as session:
+		async with session.post(url, *args, **kwargs) as r:
+				data = await r.content.read()
+				if data:
+					return data, False
+
+	return None, 'Unknown Error'
 
 removable_chars = """`'"()[]{}"""
 
