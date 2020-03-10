@@ -107,6 +107,7 @@ def save_config(config_file='config.json'):
 		'bot',
 		'help',
 		'mod-primaries',
+		'redis',
 		'recos',
 		'save',
 		'separator',
@@ -132,6 +133,7 @@ def dprint(message):
 def load_config(config_file='config.json'):
 
 	if not config:
+
 		config_path = '%s/%s' % (get_root_dir(), config_file)
 		fin = open(config_path, 'r')
 		jsonstr = fin.read()
@@ -143,5 +145,8 @@ def load_config(config_file='config.json'):
 		config['separator'] = '`%s`' % ('-' * 27)
 		config['debug'] = 'debug' in config and config['debug']
 		config['role'] = DEFAULT_ROLE
+
+		import redis
+		config['redis'] = redis.Redis()
 
 	return config
