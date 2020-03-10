@@ -14,6 +14,10 @@ SQUAD_ROLES = {
 	2: 'Leader',
 	3: 'Commander',
 	5: 'Reinforcement',
+	'Member': 'Member',
+	'Leader': 'Leader',
+	'Commander': 'Commander',
+	'Reinforcement': 'Reinforcement',
 }
 
 PERCENT_STATS = [
