@@ -192,10 +192,10 @@ class GuildTrackerThread(asyncio.Future):
 			if message['tier'] >= MAX_SKILL_TIER:
 				try:
 					skill = BaseUnitSkill.objects.get(skill_id=message['skill-id'])
-					message['type'] = skill.is_zeta
+					message['type'] = skill.is_zeta and 'zeta' or 'omega'
 
 				except BaseUnitSkill.DoesNotExist:
-					print('ERROR: Could not find base unit skill with id: %s' % message['skill'])
+					print('ERROR: Could not find base unit skill with id: %s' % message['skill-id'])
 
 		return message
 
