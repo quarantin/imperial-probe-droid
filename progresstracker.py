@@ -12,10 +12,8 @@ import DJANGO
 from swgoh.models import BaseUnitSkill
 
 from utils import translate
-from constants import ROMAN
+from constants import ROMAN, MAX_SKILL_TIER
 from swgohhelp import get_unit_name, get_ability_name
-
-MAX_SKILL_TIER = 8
 
 LAST_SEEN_MAX_HOURS = 48
 LAST_SEEN_MAX_HOURS_INTERVAL = 24
