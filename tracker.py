@@ -201,9 +201,14 @@ class GuildTrackerThread(asyncio.Future):
 
 	async def run(self, bot):
 
+		from config import load_config
+		config = load_config()
+
 		self.bot = bot
 		self.redis = redis.Redis()
-		self.guilds = [ ('349423868', 575654803099746325, GuildConfig() ) ]
+		#self.guilds = [ ('349423868', 575654803099746325, GuildConfig() ) ]
+		self.guilds = config['tracker']['guilds']
+		self.guilds[0]['config'] = GuildConfig()
 
 		self.mapping = {
 			'gear level': self.handle_gear_level,
@@ -221,12 +226,23 @@ class GuildTrackerThread(asyncio.Future):
 
 		while True:
 
-			for ally_code, channel_id, config in self.guilds:
+			for guild in self.guilds:
+			#for ally_code, channel_id, gconfig in self.guilds:
 
-				config.channel = self.bot.get_channel(channel_id)
-				#print("WTF: %s" % config.channel)
+				ally_code = guild['allycode']
+				channel_id = guild['channel']
+				gconfig = guild['config']
 
-				messages_key = 'messages|%s' % channel_id
+				gconfig.channel = self.bot.get_channel(channel_id)
+
+				player_key = 'player|%s' % ally_code
+				player = config['redis'].get(player_key)
+				if not player:
+					print('ERROR: Could not find profile in redis: %s' % ally_code)
+					continue
+
+				player = json.loads(player.decode('utf-8'))
+				messages_key = 'messages|%s' % player['guildRefId']
 				count = self.redis.llen(messages_key)
 				if count > 0:
 					messages = self.redis.lrange(messages_key, 0, count)
@@ -237,7 +253,7 @@ class GuildTrackerThread(asyncio.Future):
 						print(message)
 						tag = message['tag']
 						if tag in self.mapping:
-							await self.mapping[tag](config, self.prepare_message(config, message))
+							await self.mapping[tag](gconfig, self.prepare_message(gconfig, message))
 
 					ok = self.redis.ltrim(messages_key, count + 1, -1)
 					if not ok:
