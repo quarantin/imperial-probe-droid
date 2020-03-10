@@ -225,12 +225,10 @@ class GuildTrackerThread(asyncio.Future):
 		while True:
 
 			for guild in self.guilds:
-			#for ally_code, channel_id, gconfig in self.guilds:
 
-				ally_code = guild.allycode
-				channel_id = guild.channel
+				ally_code = guild.ally_code
 				gconfig = GuildConfig()
-				gconfig.channel = self.bot.get_channel(guild.channel)
+				gconfig.channel = self.bot.get_channel(guild.channel_id)
 
 				player_key = 'player|%s' % ally_code
 				player = config['redis'].get(player_key)
