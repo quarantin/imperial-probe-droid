@@ -10,6 +10,8 @@ from swgohhelp import fetch_crinolo_stats, get_ability_name
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
 
+MAX_TIER = 8
+
 help_player_compare = {
 	'title': 'Player Compare Help',
 	'description': """Compare different players, optionally comparing their respective units.
@@ -114,7 +116,7 @@ def get_player_stats(config, roster, lang):
 
 		for skill in skills:
 
-			if skill['tier'] != 8:
+			if 'tier' not in skill or skill['tier'] != MAX_TIER:
 				continue
 
 			key = skill['isZeta'] and 'zetas' or 'omegas'
