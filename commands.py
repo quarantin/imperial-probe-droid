@@ -68,13 +68,13 @@ COMMANDS = [
 	},
 	{
 		'command': 'pc',
-		'aliases': [ 'pc' ],
+		'aliases': [ 'pc', 'pcompare', 'playercompare' ],
 		'function': cmd_player_compare,
 		'help': help_player_compare,
 	},
 	{
 		'command': 'gc',
-		'aliases': [ 'gc' ],
+		'aliases': [ 'gc', 'gcompare', 'guildcompare' ],
 		'function': cmd_guild_compare,
 		'help': help_guild_compare,
 	},
