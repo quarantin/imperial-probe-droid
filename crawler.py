@@ -291,19 +291,20 @@ class CrawlerThread(asyncio.Future):
 		from swgoh.models import PremiumGuild
 
 		self.redis = redis.Redis()
-		self.guilds = list(PremiumGuild.objects.all())
 		self.session = await libswgoh.get_auth_guest()
 
-		ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
-		channels   = [ guild.channel_id for guild in self.guilds ]
-
 		while True:
+
+			self.guilds = list(PremiumGuild.objects.all())
+
+			ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
+			channels   = [ guild.channel_id for guild in self.guilds ]
 
 			to_refresh = await self.get_allycodes_to_refresh()
 			if to_refresh:
 				await self.refresh_guilds(to_refresh)
 
-			print(datetime.now())
+			print('%s start' % datetime.now())
 			for ally_code, channel in zip(ally_codes, channels):
 
 				player = await self.ensure_player(ally_code)
@@ -318,6 +319,7 @@ class CrawlerThread(asyncio.Future):
 				for member in guild['roster']:
 					await self.update_player(member['allyCode'], player['guildRefId'])
 
+			print('%s end' % datetime.now())
 			await asyncio.sleep(600)
 
 class Crawler(discord.Client):
