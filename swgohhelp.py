@@ -18,10 +18,10 @@ db = {
 SWGOH_HELP = 'https://api.swgoh.help'
 
 #CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api'
-#CRINOLO_PROD_URL = 'http://localhost:8080/statCalc/api'
-CRINOLO_PROD_URL = 'https://swgoh-stat-calc.glitch.me/api'
-CRINOLO_TEST_URL = 'https://crinolo-swgoh.glitch.me/testCalc/api'
-CRINOLO_BETA_URL = 'https://crinolo-swgoh-beta.glitch.me/statCalc/api'
+CRINOLO_PROD_URL = 'http://localhost:8081/api'
+#CRINOLO_PROD_URL = 'https://swgoh-stat-calc.glitch.me/api'
+#CRINOLO_TEST_URL = 'https://crinolo-swgoh.glitch.me/testCalc/api'
+#CRINOLO_BETA_URL = 'https://crinolo-swgoh-beta.glitch.me/statCalc/api'
 
 #
 # Internal - Do not call yourself
