@@ -440,8 +440,15 @@ async def __main__():
 		config = load_config()
 		bot = config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
 		bot.config = config
+
+		token = config['token']
+		if 'env' in config:
+			env = config['env']
+			token = config['tokens'][env]
+
 		try:
-			bot.run(config['token'])
+			bot.run(token)
+
 		except:
 			print('bot.run interrupted!')
 			print(traceback.format_exc())
