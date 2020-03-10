@@ -1,7 +1,7 @@
 from utils import get_units_dict, http_post
 
-import json
 import sys
+import json
 from datetime import datetime, timedelta
 
 db = {
