@@ -148,6 +148,7 @@ async def api_crinolo(config, units):
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
+	#data = json.loads(response.decode('utf-8'))
 	data = response.json()
 	if 'error' in data:
 		raise Exception('POST request failed for URL: %s\n%d Error: %s' % (url, response.status_code, data['error']))
@@ -170,14 +171,52 @@ def sort_players(players):
 
 	return result
 
+def redis_get_players(config, ally_codes):
+
+	players = []
+
+	remain = list(ally_codes)
+	for ally_code in ally_codes:
+		player_key = 'player|%s' % ally_code
+		#print('Checking cache for player: %s' % ally_code)
+		data = config['redis'].get(player_key)
+		if data:
+			#print('Found player in cache: %s' % ally_code)
+			remain.remove(ally_code)
+			players.append(json.loads(data.decode('utf-8')))
+
+	return players, remain
+
 async def fetch_players(config, project):
 
 	if type(project) is list:
 		project = { 'allycodes': project }
 
-	players = await api_swgoh_players(config, project)
+	players, remain = redis_get_players(config, project['allycodes'])
+	if remain:
+		project['allycodes'] = remain
+		players.extend(await api_swgoh_players(config, project))
 
 	return sort_players(players)
+
+def redis_get_guilds(config, ally_codes):
+
+	guilds = []
+
+	ally_codes_cpy = list(ally_codes)
+	for ally_code in ally_codes:
+		player_key = 'player|%s' % ally_code
+		player = config['redis'].get(player_key)
+		if player:
+			player = json.loads(player.decode('utf-8'))
+			key = 'guild|%s' % player['guildRefId']
+			result = config['redis'].get(key)
+			if result:
+				print('Found guild in cache! %s' % key)
+				ally_codes_cpy.remove(ally_code)
+				guilds.append(json.loads(result.decode('utf-8')))
+
+	return guilds, ally_codes_cpy
 
 async def fetch_guilds(config, project):
 
@@ -185,7 +224,10 @@ async def fetch_guilds(config, project):
 		project = { 'allycodes': project }
 
 	ally_codes = project['allycodes']
-	guilds = await api_swgoh_guilds(config, project)
+	guilds, remain = redis_get_guilds(config, ally_codes)
+	if remain:
+		project['allycodes'] = remain
+		guilds.extend(await api_swgoh_guilds(config, project))
 
 	result = {}
 	for guild in guilds:
@@ -199,11 +241,24 @@ async def fetch_guilds(config, project):
 
 async def fetch_crinolo_stats(config, project, players=None):
 
+	import DJANGO
+	from swgoh.models import BaseUnitSkill
+
+	all_zetas = list(BaseUnitSkill.objects.filter(is_zeta=1))
+	db = {}
+	for zeta in all_zetas:
+		db[zeta.skill_id] = True
+
 	if type(project) is list:
 		project = { 'allycodes': project }
 
 	if not players:
-		players = await api_swgoh_players(config, project)
+
+		players, remain = redis_get_players(config, project['allycodes'])
+		if remain:
+			project['allycodes'] = remain
+			players.extend(await api_swgoh_players(config, project))
+		#players = await api_swgoh_players(config, project)
 
 	stats = await api_crinolo(config, players)
 
@@ -212,11 +267,24 @@ async def fetch_crinolo_stats(config, project, players=None):
 		ally_code = player['allyCode']
 		result[ally_code] = {}
 		for unit in player['roster']:
+
 			base_id = unit['defId']
 			if base_id not in result[ally_code]:
 				result[ally_code][base_id] = unit
 
+			for skill in unit['skills']:
+				#print(json.dumps(skill, indent=4))
+				if skill['id'] in db:
+					skill['isZeta'] = True
+
+	for player in players:
+		for unit in player['roster']:
+			for skill in unit['skills']:
+				if skill['id'] in db:
+					skill['isZeta'] = True
+
 	return result, players
+
 #
 # Localized functions
 #
