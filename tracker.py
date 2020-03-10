@@ -206,7 +206,6 @@ class GuildTrackerThread(asyncio.Future):
 
 		self.bot = bot
 		self.redis = redis.Redis()
-		self.guilds = list(PremiumGuild.objects.all())
 
 		self.mapping = {
 			'gear level': self.handle_gear_level,
@@ -224,6 +223,7 @@ class GuildTrackerThread(asyncio.Future):
 
 		while True:
 
+			self.guilds = list(PremiumGuild.objects.all())
 			for guild in self.guilds:
 
 				ally_code = guild.ally_code
