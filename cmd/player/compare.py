@@ -2,15 +2,13 @@ import json
 
 from opts import *
 from errors import *
-from constants import EMOJIS
+from constants import EMOJIS, MAX_SKILL_TIER
 from collections import OrderedDict
 from utils import get_relic_tier, get_stars_as_emojis, roundup
 from swgohhelp import fetch_crinolo_stats, get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
-
-MAX_TIER = 8
 
 help_player_compare = {
 	'title': 'Player Compare Help',
@@ -116,7 +114,7 @@ def get_player_stats(config, roster, lang):
 
 		for skill in skills:
 
-			if 'tier' not in skill or skill['tier'] != MAX_TIER:
+			if 'tier' not in skill or skill['tier'] != MAX_SKILL_TIER:
 				continue
 
 			key = skill['isZeta'] and 'zetas' or 'omegas'
