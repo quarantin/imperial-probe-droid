@@ -2,7 +2,7 @@ from collections import OrderedDict
 
 from opts import *
 from errors import *
-from constants import EMOJIS
+from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from utils import dotify, get_banner_emoji, get_relic_tier, get_stars_as_emojis, roundup, translate
 from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
 
@@ -45,7 +45,7 @@ def get_unit_stats(config, roster, lang):
 		gear  = unit_roster['gear']
 		relic = get_relic_tier(unit_roster)
 		stars = unit_roster['rarity']
-		zetas = [ x for x in unit_roster['skills'] if 'tier' in x and x['tier'] == MAX_TIER and x['isZeta'] ]
+		zetas = [ x for x in unit_roster['skills'] if 'tier' in x and x['tier'] == MAX_SKILL_TIER and x['isZeta'] ]
 
 		stats['count'] += 1
 		stats['cumul-gp'] += gp
@@ -140,12 +140,6 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	return res
 
-MAX_GEAR = 13
-MAX_RELIC = 7
-MAX_LEVEL = 85
-MAX_RARITY = 7
-MAX_TIER = 8
-
 MOD_STATS = {
 	5:  'speed',
 	41: 'offense',
@@ -220,7 +214,7 @@ def get_guild_stats(guild, players):
 				stats['l85-ships'] += (is_max_level and 1 or 0)
 
 			for skill in unit['skills']:
-				if 'tier' in skill and skill['tier'] == MAX_TIER:
+				if 'tier' in skill and skill['tier'] == MAX_SKILL_TIER:
 					key = 'omegas'
 					if skill['isZeta']:
 						key = 'zetas'
