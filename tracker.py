@@ -9,7 +9,7 @@ import libswgoh
 import traceback
 
 import DJANGO
-from swgoh.models import BaseUnitSkill
+from swgoh.models import BaseUnitSkill, PremiumGuild
 
 from utils import translate
 from constants import ROMAN, MAX_SKILL_TIER
@@ -206,9 +206,7 @@ class GuildTrackerThread(asyncio.Future):
 
 		self.bot = bot
 		self.redis = redis.Redis()
-		#self.guilds = [ ('349423868', 575654803099746325, GuildConfig() ) ]
-		self.guilds = config['tracker']['guilds']
-		self.guilds[0]['config'] = GuildConfig()
+		self.guilds = list(PremiumGuild.objects.all())
 
 		self.mapping = {
 			'gear level': self.handle_gear_level,
@@ -229,11 +227,10 @@ class GuildTrackerThread(asyncio.Future):
 			for guild in self.guilds:
 			#for ally_code, channel_id, gconfig in self.guilds:
 
-				ally_code = guild['allycode']
-				channel_id = guild['channel']
-				gconfig = guild['config']
-
-				gconfig.channel = self.bot.get_channel(channel_id)
+				ally_code = guild.allycode
+				channel_id = guild.channel
+				gconfig = GuildConfig()
+				gconfig.channel = self.bot.get_channel(guild.channel)
 
 				player_key = 'player|%s' % ally_code
 				player = config['redis'].get(player_key)

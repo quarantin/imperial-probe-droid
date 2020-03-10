@@ -285,14 +285,17 @@ class CrawlerThread(asyncio.Future):
 
 		return needed
 
-	async def run(self, crawler, guilds):
+	async def run(self, crawler):
 
-		self.guilds = guilds
+		import DJANGO
+		from swgoh.models import PremiumGuild
+
 		self.redis = redis.Redis()
+		self.guilds = list(PremiumGuild.objects.all())
 		self.session = await libswgoh.get_auth_guest()
 
-		ally_codes = [ str(guild['allycode']) for guild in guilds ]
-		channels   = [ guild['channel'] for guild in guilds ]
+		ally_codes = [ str(guild['allycode']) for guild in self.guilds ]
+		channels   = [ guild['channel'] for guild in self.guilds ]
 
 		while True:
 
@@ -307,7 +310,6 @@ class CrawlerThread(asyncio.Future):
 				guild_key = 'guild|%s' % player['guildRefId']
 				guild = self.redis.get(guild_key)
 				if guild:
-					print('found guild in redis')
 					guild = json.loads(guild.decode('utf-8'))
 				else:
 					print('guild not found in redis')
@@ -316,7 +318,7 @@ class CrawlerThread(asyncio.Future):
 				for member in guild['roster']:
 					await self.update_player(member['allyCode'], player['guildRefId'])
 
-			await asyncio.sleep(1)
+			await asyncio.sleep(600)
 
 class Crawler(discord.Client):
 
@@ -325,7 +327,7 @@ class Crawler(discord.Client):
 		if not hasattr(self, 'initialized'):
 			setattr(self, 'initialized', True)
 			print("Starting crawler thread.")
-			self.loop.create_task(CrawlerThread().run(self, config['tracker']['guilds']))
+			self.loop.create_task(CrawlerThread().run(self))
 
 		print('Crawler bot ready!')
 

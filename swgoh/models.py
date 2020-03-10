@@ -689,3 +689,8 @@ class RelicStat(models.Model):
 	relic5_percentage = models.FloatField()
 	relic6_percentage = models.FloatField()
 	relic7_percentage = models.FloatField()
+
+class PremiumGuild(models.Model):
+
+	ally_code = models.IntegerField()
+	channel_id = models.IntegerField()
