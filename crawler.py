@@ -8,7 +8,7 @@ import discord
 from datetime import datetime, timedelta
 
 import libswgoh
-from constant import MAX_SKILL_TIER
+from constants import MAX_SKILL_TIER
 from swgohhelp import api_swgoh_guilds
 
 JSON_INDENT = None # 4
@@ -208,7 +208,7 @@ class CrawlerThread(asyncio.Future):
 
 		return profile
 
-	async def update_player(self, ally_code, channel_id):
+	async def update_player(self, ally_code, guild_id):
 
 		ally_code = str(ally_code)
 		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
@@ -247,7 +247,7 @@ class CrawlerThread(asyncio.Future):
 			for message in messages:
 				formated.append(json.dumps(message))
 
-			messages_key = 'messages|%s' % channel_id
+			messages_key = 'messages|%s' % guild_id
 			self.redis.rpush(messages_key, *formated)
 
 	async def refresh_guild(self, ally_code):
@@ -291,8 +291,8 @@ class CrawlerThread(asyncio.Future):
 		self.redis = redis.Redis()
 		self.session = await libswgoh.get_auth_guest()
 
-		ally_codes = [ guild[0] for guild in guilds ]
-		channels   = [ guild[1] for guild in guilds ]
+		ally_codes = [ guild['allycode'] for guild in guilds ]
+		channels   = [ guild['channel'] for guild in guilds ]
 
 		while True:
 
@@ -314,23 +314,18 @@ class CrawlerThread(asyncio.Future):
 					guild = await self.refresh_guild(ally_code)
 
 				for member in guild['roster']:
-					await self.update_player(member['allyCode'], channel)
+					await self.update_player(member['allyCode'], player['guildRefId'])
 
 			await asyncio.sleep(1)
 
 class Crawler(discord.Client):
-
-	guilds = [
-		('349423868', 575654803099746325),
-		('913624995', 548533152386121763),
-	]
 
 	async def on_ready(self):
 
 		if not hasattr(self, 'initialized'):
 			setattr(self, 'initialized', True)
 			print("Starting crawler thread.")
-			self.loop.create_task(CrawlerThread().run(self, self.guilds))
+			self.loop.create_task(CrawlerThread().run(self, config['tracker']['guilds']))
 
 		print('Crawler bot ready!')
 
