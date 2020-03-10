@@ -45,7 +45,7 @@ def get_unit_stats(config, roster, lang):
 		gear  = unit_roster['gear']
 		relic = get_relic_tier(unit_roster)
 		stars = unit_roster['rarity']
-		zetas = [ x for x in unit_roster['skills'] if x['tier'] == 8 and x['isZeta'] ]
+		zetas = [ x for x in unit_roster['skills'] if 'tier' in x and x['tier'] == MAX_TIER and x['isZeta'] ]
 
 		stats['count'] += 1
 		stats['cumul-gp'] += gp
@@ -144,6 +144,7 @@ MAX_GEAR = 13
 MAX_RELIC = 7
 MAX_LEVEL = 85
 MAX_RARITY = 7
+MAX_TIER = 8
 
 MOD_STATS = {
 	5:  'speed',
@@ -219,7 +220,7 @@ def get_guild_stats(guild, players):
 				stats['l85-ships'] += (is_max_level and 1 or 0)
 
 			for skill in unit['skills']:
-				if skill['tier'] == 8:
+				if 'tier' in skill and skill['tier'] == MAX_TIER:
 					key = 'omegas'
 					if skill['isZeta']:
 						key = 'zetas'
