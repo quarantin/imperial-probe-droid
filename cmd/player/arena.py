@@ -119,8 +119,8 @@ async def cmd_arena(request):
 	for ally_code_str, player in players.items():
 
 		ally_code = int(ally_code_str)
-		utc_offset = player['poUTCOffsetMinutes']
-		last_sync_date = datetime.fromtimestamp(player['updated'] / 1000) + timedelta(minutes=utc_offset)
+		#utc_offset = player['poUTCOffsetMinutes']
+		last_sync_date = datetime.fromtimestamp(int(player['updated']) / 1000) #+ timedelta(minutes=utc_offset)
 		last_sync = last_sync_date.strftime('%Y-%m-%d at %H:%M:%S')
 		profile_url = await get_swgohgg_profile_url(player['allyCode'])
 		if not profile_url:
@@ -131,7 +131,7 @@ async def cmd_arena(request):
 			squad = player['arena']['char']['squad']
 			lines = []
 			for squad_unit in squad:
-				base_id = squad_unit['defId']
+				base_id = squad_unit['defId'].split(':', 1)[0]
 				unit = stats[ally_code][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
@@ -148,7 +148,7 @@ async def cmd_arena(request):
 			squad = player['arena']['ship']['squad']
 			lines = []
 			for squad_unit in squad:
-				base_id = squad_unit['defId']
+				base_id = squad_unit['defId'].split(':', 1)[0]
 				unit = stats[ally_code][base_id]
 				unit['squadUnitType'] = squad_unit['squadUnitType']
 				line = format_char_details(unit, selected_format)
