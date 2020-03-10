@@ -1,4 +1,10 @@
 
+MAX_GEAR = 13
+MAX_LEVEL = 85
+MAX_RARITY = 7
+MAX_RELIC = 7
+MAX_SKILL_TIER = 8
+
 ROMAN = {
 	1: 'I',
 	2: 'II',
