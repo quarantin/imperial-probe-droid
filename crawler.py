@@ -8,10 +8,10 @@ import discord
 from datetime import datetime, timedelta
 
 import libswgoh
-from swgohhelp import fetch_guilds
+from constant import MAX_SKILL_TIER
+from swgohhelp import api_swgoh_guilds
 
-JSON_INDENT = 4
-MAX_SKILL_TIER = 8
+JSON_INDENT = None # 4
 
 LAST_SEEN_MAX_HOURS = 48
 LAST_SEEN_MAX_HOURS_INTERVAL = 24
@@ -32,9 +32,11 @@ class CrawlerThread(asyncio.Future):
 
 	def check_diff_player_units(self, old_profile, new_profile, messages):
 
-		old_roster = old_profile['roster']
-		old_player_name = old_profile['profile']['name']
-		new_player_name = new_profile['profile']['name']
+		old_roster = { x['defId']: x for x in old_profile['roster'] }
+		new_roster = { x['defId']: x for x in new_profile['roster'] }
+
+		old_player_name = old_profile['name']
+		new_player_name = new_profile['name']
 		if old_player_name != new_player_name:
 			messages.append({
 				'tag': 'nick change',
@@ -42,7 +44,7 @@ class CrawlerThread(asyncio.Future):
 				'new_nick': new_player_name,
 			})
 
-		for base_id, new_unit in new_profile['roster'].items():
+		for base_id, new_unit in new_roster.items():
 
 			# Handle new units unlocked.
 			if base_id not in old_roster:
@@ -145,13 +147,13 @@ class CrawlerThread(asyncio.Future):
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
 		try:
-			new_player_level = new_profile['profile']['level']
-			old_player_level = old_profile['profile']['level']
+			new_player_level = new_profile['level']
+			old_player_level = old_profile['level']
 
 			if old_player_level < new_player_level:
 				messages.append({
 					'tag': 'player level',
-					'nick': new_profile['profile']['name'],
+					'nick': new_profile['name'],
 					'level': new_player_level,
 				})
 
@@ -161,7 +163,7 @@ class CrawlerThread(asyncio.Future):
 	def check_last_seen(self, new_profile, messages):
 
 		now = datetime.now()
-		profile = new_profile['profile']
+		profile = new_profile
 		updated = int(profile['updated'])
 		last_sync = datetime.fromtimestamp(updated / 1000)
 		delta = now - last_sync
@@ -193,23 +195,39 @@ class CrawlerThread(asyncio.Future):
 		self.check_last_seen(new_profile, messages)
 
 		return messages
-		
-	def update_player(self, ally_code, profile, channel_id):
+
+	async def ensure_player(self, ally_code):
+
+		key = 'player|%s' % ally_code
+		profile = self.redis.get(ally_code)
+		if not profile:
+			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+			if profile:
+				expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
+				self.redis.setex(key, expire, json.dumps(profile, indent=JSON_INDENT))
+
+		return profile
+
+	async def update_player(self, ally_code, channel_id):
+
+		ally_code = str(ally_code)
+		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+		if not profile:
+			print('Failed retrieving profile for %s, skipping.' % ally_code)
+			return []
+
+		# TODO: Fix this atrocity
+		profile = json.loads(json.dumps(profile))
 
 		if 'name' not in profile:
 			print('Failed retrieving profile for allycode %s' % ally_code)
 			return []
 
-		roster = {}
-		if 'roster' in profile:
-			roster = { x['defId']: x for x in profile['roster'] }
-
-		new_profile = {
-			'profile': profile,
-			'roster': roster,
-		}
+		#if 'roster' in profile:
+		#	profile['roster'] = { x['defId']: x for x in profile['roster'] }
 
 		player_key = 'player|%s' % ally_code
+		new_profile = profile
 		old_profile = self.redis.get(player_key)
 		if old_profile is None:
 			old_profile = new_profile
@@ -234,31 +252,29 @@ class CrawlerThread(asyncio.Future):
 
 	async def refresh_guild(self, ally_code):
 
-		guild_key = 'guild|%s' % ally_code
+		player = await self.ensure_player(ally_code)
+
+		guild_key = 'guild|%s' % player['guildRefId']
 		expire = timedelta(hours=DEFAULT_GUILD_EXPIRE)
-		guild = await fetch_guilds(config, [ ally_code ])
-		guild_data = json.dumps(guild, indent=JSON_INDENT)
+		guild = await api_swgoh_guilds(config, { 'allycodes': [ ally_code ] })
+		guild_data = json.dumps(guild[0], indent=JSON_INDENT)
 
 		self.redis.setex(guild_key, expire, guild_data)
 
-		return guild
+		return guild[0]
 
 	async def refresh_guilds(self, ally_codes):
 
-		guilds = await fetch_guilds(config, ally_codes)
-		for allycode, guild in guilds.items():
-			guild_key = 'guild|%s' % allycode
-			expire = timedelta(hours=DEFAULT_GUILD_EXPIRE)
-			self.redis.setex(guild_key, expire, json.dumps(guild))
+		for ally_code in ally_codes:
+			await self.refresh_guild(ally_code)
 
-		return guilds
-
-	def get_allycodes_to_refresh(self):
+	async def get_allycodes_to_refresh(self):
 
 		needed = []
 		ally_codes = [ guild[0] for guild in self.guilds ]
 		for ally_code in ally_codes:
-			guild_key = 'guild|%s' % ally_code
+			player = await self.ensure_player(ally_code)
+			guild_key = 'guild|%s' % player['guildRefId']
 			if not self.redis.exists(guild_key):
 				needed.append(ally_code)
 				continue
@@ -273,38 +289,32 @@ class CrawlerThread(asyncio.Future):
 
 		self.guilds = guilds
 		self.redis = redis.Redis()
-		session = await libswgoh.get_auth_guest()
+		self.session = await libswgoh.get_auth_guest()
 
 		ally_codes = [ guild[0] for guild in guilds ]
 		channels   = [ guild[1] for guild in guilds ]
 
 		while True:
 
-			to_refresh = self.get_allycodes_to_refresh()
+			to_refresh = await self.get_allycodes_to_refresh()
 			if to_refresh:
 				await self.refresh_guilds(to_refresh)
 
 			print(datetime.now())
 			for ally_code, channel in zip(ally_codes, channels):
 
-				guild_key = 'guild|%s' % ally_code
+				player = await self.ensure_player(ally_code)
+				guild_key = 'guild|%s' % player['guildRefId']
 				guild = self.redis.get(guild_key)
 				if guild:
+					print('found guild in redis')
 					guild = json.loads(guild.decode('utf-8'))
 				else:
+					print('guild not found in redis')
 					guild = await self.refresh_guild(ally_code)
 
-				for ally_code, member in guild['roster'].items():
-
-					profile = await libswgoh.get_player_profile(ally_code=ally_code, session=session)
-					if not profile:
-						print('Failed retrieving profile for %s, skipping.' % ally_code)
-						continue
-
-					# TODO: Fix this atrocity
-					profile = json.loads(json.dumps(profile))
-
-					self.update_player(ally_code, profile, channel)
+				for member in guild['roster']:
+					await self.update_player(member['allyCode'], channel)
 
 			await asyncio.sleep(1)
 
