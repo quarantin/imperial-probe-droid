@@ -194,7 +194,7 @@ def redis_set_players(config, players):
 	for player in players:
 		key = 'player|%s' % player['allyCode']
 		expire = timedelta(seconds=DEFAULT_TIMEOUT_SECONDS)
-		config['redis'].setex(key, expire, player)
+		config['redis'].setex(key, expire, json.dumps(player))
 
 async def fetch_players(config, project):
 
@@ -241,7 +241,7 @@ def redis_set_guilds(config, guilds):
 				player = json.loads(player.decode('utf-8'))
 				key = 'guild|%s' % player['guildRefId']
 				expire = timedelta(seconds=DEFAULT_TIMEOUT_SECONDS)
-				config['redis'].setex(key, expire, guild)
+				config['redis'].setex(key, expire, json.dumps(guild))
 				break
 
 async def fetch_guilds(config, project):
