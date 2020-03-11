@@ -146,19 +146,15 @@ class CrawlerThread(asyncio.Future):
 
 	def check_diff_player_level(self, old_profile, new_profile, messages):
 
-		try:
-			new_player_level = new_profile['level']
-			old_player_level = old_profile['level']
+		new_player_level = new_profile['level']
+		old_player_level = old_profile['level']
 
-			if old_player_level < new_player_level:
-				messages.append({
-					'tag': 'player level',
-					'nick': new_profile['name'],
-					'level': new_player_level,
-				})
-
-		except Exception as err:
-			print('ERROR: check_diff_player_level: %s' % err)
+		if old_player_level < new_player_level:
+			messages.append({
+				'tag': 'player level',
+				'nick': new_profile['name'],
+				'level': new_player_level,
+			})
 
 	def check_diff_arena_ranks(self, old_profile, new_profile, messages):
 
