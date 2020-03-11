@@ -17,10 +17,6 @@ config = load_config()
 ally_codes = [ '349423868', '982329852' ]
 excluded = []
 
-project = {
-	'allycodes': ally_codes,
-}
-
 def save_json(filename, jsondata):
 	fout = open(filename, 'w')
 	fout.write(jsondata)
@@ -53,7 +49,7 @@ async def __main__():
 		print('Loading custom-guilds.json from cache...')
 		guilds = load_json('custom-guilds.json')
 	else:
-		guilds = await fetch_guilds(config, project)
+		guilds = await fetch_guilds(config, ally_codes)
 		jsondata = json.dumps(guilds, indent=4)
 		save_json('custom-guilds.json', jsondata)
 

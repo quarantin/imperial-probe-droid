@@ -74,15 +74,7 @@ async def cmd_guild_list(request):
 
 	fields = []
 	ally_codes = [ p.ally_code for p in selected_players ]
-	guild_list = await fetch_guilds(config, {
-		'allycodes': [ str(x) for x in ally_codes ],
-		'project': {
-			'guildName': 1,
-			'roster': {
-				'allyCode': 1,
-			}
-		},
-	})
+	guild_list = await fetch_guilds(config, [ str(x) for x in ally_codes ])
 
 	for root_ally_code, guild in guild_list.items():
 		for ally_code, player in guild['roster'].items():

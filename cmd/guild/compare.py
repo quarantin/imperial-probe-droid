@@ -294,27 +294,7 @@ async def cmd_guild_compare(request):
 		return error
 
 	fields = []
-	guild_list = await fetch_guilds(config, {
-		'allycodes': [ str(x.ally_code) for x in selected_players ],
-		'project': {
-			'id': 1,
-			'gp': 1,
-			'desc': 1,
-			'name': 1,
-			'members': 1,
-			'message': 1,
-			'guildName': 1,
-			'bannerLogo': 1,
-			'bannerColor': 1,
-			'roster': {
-				'gp': 1,
-				'gpChar': 1,
-				'gpShip': 1,
-				'allyCode': 1,
-				'level': 1,
-			},
-		},
-	})
+	guild_list = await fetch_guilds(config, [ str(x.ally_code) for x in selected_players ])
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	for dummy, guild in guild_list.items():
