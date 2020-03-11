@@ -37,10 +37,10 @@ class GuildConfig:
 	show_skill_increased_min = MAX_SKILL_TIER
 	show_skill_increased_omega = True
 	show_skill_increased_zeta = True
-	show_squad_arena_dropped = True
-	show_squad_arena_climbed = True
-	show_fleet_arena_dropped = True
-	show_fleet_arena_climbed = True
+	show_squad_arena_dropped = False
+	show_squad_arena_climbed = False
+	show_fleet_arena_dropped = False
+	show_fleet_arena_climbed = False
 	show_unit_level = True
 	show_unit_level_min = 85
 	show_unit_rarity = True
