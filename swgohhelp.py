@@ -283,10 +283,11 @@ async def fetch_crinolo_stats(config, project, players=None):
 	if not players:
 
 		players, remain = redis_get_players(config, project['allycodes'])
-		if remain:
+		if not players or remain:
 			project['allycodes'] = remain
-			players.extend(await api_swgoh_players(config, project))
-		#players = await api_swgoh_players(config, project)
+			other_players = await api_swgoh_players(config, project)
+			players.extend(other_players)
+			redis_set_players(config, other_players)
 
 	stats = await api_crinolo(config, players)
 
