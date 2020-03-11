@@ -165,14 +165,15 @@ class CrawlerThread(asyncio.Future):
 
 			tag = None
 			if old_rank < new_rank:
-				tag = 'dropped in %s arena' % arena_type
+				tag = 'dropped down'
 
 			elif old_rank > new_rank:
-				tag = 'climbed in %s arena' % arena_type
+				tag = 'climbed up'
 
 			if tag:
 				messages.append({
 					'tag': tag,
+					'type': arena_type,
 					'nick': new_profile['name'],
 					'old-rank': old_rank,
 					'new-rank': new_rank
