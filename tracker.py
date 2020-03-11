@@ -8,15 +8,12 @@ import discord
 import libswgoh
 import traceback
 
-import DJANGO
-from swgoh.models import BaseUnitSkill, PremiumGuild
-
 from utils import translate
 from constants import ROMAN, MAX_SKILL_TIER
 from swgohhelp import get_unit_name, get_ability_name
 
-LAST_SEEN_MAX_HOURS = 48
-LAST_SEEN_MAX_HOURS_INTERVAL = 24
+import DJANGO
+from swgoh.models import BaseUnitSkill, PremiumGuild
 
 class GuildConfig:
 
@@ -47,7 +44,7 @@ class GuildConfig:
 	show_unit_rarity_min = 0
 	show_unit_unlocked = True
 
-class GuildTrackerThread(asyncio.Future):
+class TrackerThread(asyncio.Future):
 
 	bot = None
 
@@ -293,7 +290,7 @@ class GuildTrackerThread(asyncio.Future):
 
 			await asyncio.sleep(1)
 
-class GuildTracker(discord.Client):
+class Tracker(discord.Client):
 
 	async def on_ready(self):
 
@@ -302,31 +299,29 @@ class GuildTracker(discord.Client):
 			setattr(self, 'initialized', True)
 
 			print('Starting new thread')
-			self.loop.create_task(GuildTrackerThread().run(self))
+			self.loop.create_task(TrackerThread().run(self))
 
 		print('Guild tracker bot ready!')
 		await self.get_channel(575654803099746325,).send('Guild tracker bot ready!')
 
 if __name__ == '__main__':
 
-	config_file = 'config.json'
-	fin = open(config_file, 'r')
-	config = json.loads(fin.read())
-	fin.close()
+	from config import load_config, setup_logs
+
+	setup_logs('discord', 'logs/tracker-discord.log')
+
+	config = load_config()
 
 	if 'tokens' not in config:
-		print('Key "tokens" missing from config %s' % config_file, file=sys.stderr)
+		print('Key "tokens" missing from config', file=sys.stderr)
 		sys.exit(-1)
 
 	if 'tracker' not in config['tokens']:
-		print('Key "tracker" missing from config %s' % config_file, file=sys.stderr)
+		print('Key "tracker" missing from config', file=sys.stderr)
 		sys.exit(-1)
 
-
-	import logging
-	logging.basicConfig(level=logging.INFO)
-
 	try:
-		GuildTracker().run(config['tokens']['tracker'])
+		Tracker().run(config['tokens']['tracker'])
+
 	except:
 		print(traceback.format_exc())
