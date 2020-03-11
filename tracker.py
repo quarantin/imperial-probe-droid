@@ -22,8 +22,8 @@ class GuildConfig:
 
 	language = 'eng_us'
 	show_gear_level = True
-	show_gear_level_min = 0 # 8
-	show_gear_piece = True
+	show_gear_level_min = 8
+	show_gear_piece = False
 	show_inactivity = True
 	show_inactivity_min = 48
 	show_inactivity_repeat = 24
@@ -34,11 +34,11 @@ class GuildConfig:
 	show_relic_min = 0
 	show_skill_unlocked = True
 	show_skill_increased = True
-	show_skill_increased_min = 0 # MAX_SKILL_TIER
+	show_skill_increased_min = MAX_SKILL_TIER
 	show_skill_increased_omega = True
 	show_skill_increased_zeta = True
 	show_unit_level = True
-	show_unit_level_min = 0 # 85
+	show_unit_level_min = 85
 	show_unit_rarity = True
 	show_unit_rarity_min = 0
 	show_unit_unlocked = True
