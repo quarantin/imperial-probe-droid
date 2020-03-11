@@ -73,7 +73,7 @@ class GuildTrackerThread(asyncio.Future):
 			if config.show_fleet_arena_climbed is False:
 				return
 
-		msg = '**%s** has climbed up in **%s** arena from rank %s to %s' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
+		msg = '**%s** has **climbed up** in **%s** arena **%s => %s**' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
 		await self.send_msg(config.channel, msg)
 
 	async def handle_arena_dropped_down(self, config, message):
@@ -88,7 +88,7 @@ class GuildTrackerThread(asyncio.Future):
 			if config.show_fleet_arena_dropped is False:
 				return
 
-		msg = '**%s** has dropped down in **%s** arena from rank %s to %s' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
+		msg = '**%s** has **dropped down** in **%s** arena **%s => %s**' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
 		await self.send_msg(config.channel, msg)
 
 	async def handle_gear_level(self, config, message):
