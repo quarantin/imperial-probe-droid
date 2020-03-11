@@ -251,7 +251,7 @@ async def fetch_guilds(config, project):
 		project['allycodes'] = remain
 		other_guilds = await api_swgoh_guilds(config, project)
 		guilds.extend(other_guilds)
-		redis_set_guild(config, other_guilds)
+		redis_set_guilds(config, other_guilds)
 
 	result = {}
 	for guild in guilds:
