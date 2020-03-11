@@ -150,3 +150,12 @@ def load_config(config_file='config.json'):
 		config['redis'] = redis.Redis()
 
 	return config
+
+def setup_logs(facility, filename):
+
+	import logging
+	logger = logging.getLogger(facility)
+	logger.setLevel(logging.INFO)
+	handler = logging.FileHandler(filename=filename, encoding='utf-8', mode='w')
+	handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+	logger.addHandler(handler)
