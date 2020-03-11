@@ -14,7 +14,7 @@ from time import mktime
 from crontab import CronTab
 from discord import Forbidden, HTTPException, InvalidData, NotFound
 from discord.ext import commands
-from config import load_config, load_help
+from config import load_config, load_help, setup_logs
 
 from utils import *
 from embed import *
@@ -453,7 +453,10 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 async def __main__():
 	try:
+		setup_logs('discord', 'logs/ipd-discord.log')
+
 		config = load_config()
+
 		bot = config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
 		bot.config = config
 
