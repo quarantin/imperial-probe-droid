@@ -37,6 +37,10 @@ class GuildConfig:
 	show_skill_increased_min = MAX_SKILL_TIER
 	show_skill_increased_omega = True
 	show_skill_increased_zeta = True
+	show_squad_arena_dropped = True
+	show_squad_arena_climbed = True
+	show_fleet_arena_dropped = True
+	show_fleet_arena_climbed = True
 	show_unit_level = True
 	show_unit_level_min = 85
 	show_unit_rarity = True
@@ -56,6 +60,36 @@ class GuildTrackerThread(asyncio.Future):
 		except:
 			print('Failed sending to channel #%s (%s)' % (channel, channel.id))
 			print(traceback.format_exc())
+
+	async def handle_arena_climbed_up(self, config, message):
+
+		if message['type'] == 'char':
+			type_str = 'squad'
+			if config.show_squad_arena_climbed is False:
+				return
+
+		elif message['type'] == 'ship':
+			type_str = 'fleet'
+			if config.show_fleet_arena_climbed is False:
+				return
+
+		msg = '**%s** has climbed up in **%s** arena from rank %s to %s' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
+		await self.send_msg(config.channel, msg)
+
+	async def handle_arena_dropped_down(self, config, message):
+
+		if message['type'] == 'char':
+			type_str = 'squad'
+			if config.show_squad_arena_dropped is False:
+				return
+
+		elif message['type'] == 'ship':
+			type_str = 'fleet'
+			if config.show_fleet_arena_dropped is False:
+				return
+
+		msg = '**%s** has dropped down in **%s** arena from rank %s to %s' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
+		await self.send_msg(config.channel, msg)
 
 	async def handle_gear_level(self, config, message):
 
@@ -208,6 +242,8 @@ class GuildTrackerThread(asyncio.Future):
 		self.redis = redis.Redis()
 
 		self.mapping = {
+			'climbed up': self.handle_arena_climbed_up,
+			'dropped down': self.handle_arena_dropped_down,
 			'gear level': self.handle_gear_level,
 			'gear piece': self.handle_gear_piece,
 			'inactivity': self.handle_inactivity,
