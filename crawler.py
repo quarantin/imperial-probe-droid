@@ -160,6 +160,28 @@ class CrawlerThread(asyncio.Future):
 		except Exception as err:
 			print('ERROR: check_diff_player_level: %s' % err)
 
+	def check_diff_arena_ranks(self, old_profile, new_profile, messages):
+
+		for arena_type in [ 'char', 'ship' ]:
+
+			old_rank = old_profile['arena'][arena_type]['rank']
+			new_rank = new_profile['arena'][arena_type]['rank']
+
+			tag = None
+			if old_rank < new_rank:
+				tag = 'dropped in %s arena' % arena_type
+
+			elif old_rank > new_rank:
+				tag = 'climbed in %s arena' % arena_type
+
+			if tag:
+				messages.append({
+					'tag': tag,
+					'nick': new_profile['name'],
+					'old-rank': old_rank,
+					'new-rank': new_rank
+				})
+
 	def check_last_seen(self, new_profile, messages):
 
 		now = datetime.now()
@@ -187,6 +209,8 @@ class CrawlerThread(asyncio.Future):
 	def check_diff(self, old_profile, new_profile):
 
 		messages = []
+
+		self.check_diff_arena_ranks(old_profile, new_profile, messages)
 
 		self.check_diff_player_level(old_profile, new_profile, messages)
 
@@ -304,7 +328,7 @@ class CrawlerThread(asyncio.Future):
 			if to_refresh:
 				await self.refresh_guilds(to_refresh)
 
-			print('%s start' % datetime.now())
+			print(datetime.now())
 			for ally_code, channel in zip(ally_codes, channels):
 
 				player = await self.ensure_player(ally_code)
@@ -319,7 +343,6 @@ class CrawlerThread(asyncio.Future):
 				for member in guild['roster']:
 					await self.update_player(member['allyCode'], player['guildRefId'])
 
-			print('%s end' % datetime.now())
 			await asyncio.sleep(600)
 
 class Crawler(discord.Client):
