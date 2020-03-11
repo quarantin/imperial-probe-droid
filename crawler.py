@@ -5,9 +5,10 @@ import json
 import redis
 import asyncio
 import discord
+import libswgoh
+import traceback
 from datetime import datetime, timedelta
 
-import libswgoh
 from constants import MAX_SKILL_TIER
 from swgohhelp import api_swgoh_guilds
 
@@ -355,10 +356,22 @@ class Crawler(discord.Client):
 
 if __name__ == '__main__':
 
-	import logging
-	logging.basicConfig(level=logging.INFO)
+	from config import load_config, setup_logs
 
-	from config import load_config
+	setup_logs('discord', 'logs/crawler-discord.log')
+
 	config = load_config()
 
-	Crawler().run(config['tokens']['crawler'])
+	if 'tokens' not in config:
+		print('Key "tokens" missing from config %s' % config_file, file=sys.stderr)
+		sys.exit(-1)
+
+	if 'crawler' not in config['tokens']:
+		print('Key "crawler" missing from config %s' % config_file, file=sys.stderr)
+		sys.exit(-1)
+
+	try:
+		Crawler().run(config['tokens']['crawler'])
+
+	except:
+		print(traceback.format_exc())
