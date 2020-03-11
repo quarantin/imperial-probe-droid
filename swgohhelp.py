@@ -17,6 +17,8 @@ db = {
 
 SWGOH_HELP = 'https://api.swgoh.help'
 
+DEFAULT_TIMEOUT_SECONDS = 3600
+
 #CRINOLO_PROD_URL = 'https://crinolo-swgoh.glitch.me/statCalc/api'
 CRINOLO_PROD_URL = 'http://localhost:8081/api'
 #CRINOLO_PROD_URL = 'https://swgoh-stat-calc.glitch.me/api'
@@ -187,15 +189,24 @@ def redis_get_players(config, ally_codes):
 
 	return players, remain
 
+def redis_set_players(config, players):
+
+	for player in players:
+		key = 'player|%s' % player['allyCode']
+		expire = timedelta(seconds=DEFAULT_TIMEOUT_SECONDS)
+		config['redis'].setex(key, expire, player)
+
 async def fetch_players(config, project):
 
 	if type(project) is list:
 		project = { 'allycodes': project }
 
 	players, remain = redis_get_players(config, project['allycodes'])
-	if remain:
+	if not players or remain:
 		project['allycodes'] = remain
-		players.extend(await api_swgoh_players(config, project))
+		other_players = await api_swgoh_players(config, project)
+		players.extend(other_players)
+		redis_set_players(config, other_players)
 
 	return sort_players(players)
 
@@ -203,7 +214,7 @@ def redis_get_guilds(config, ally_codes):
 
 	guilds = []
 
-	ally_codes_cpy = list(ally_codes)
+	remain = list(ally_codes)
 	for ally_code in ally_codes:
 		player_key = 'player|%s' % ally_code
 		player = config['redis'].get(player_key)
@@ -213,10 +224,25 @@ def redis_get_guilds(config, ally_codes):
 			result = config['redis'].get(key)
 			if result:
 				print('Found guild in cache! %s' % key)
-				ally_codes_cpy.remove(ally_code)
+				remain.remove(ally_code)
 				guilds.append(json.loads(result.decode('utf-8')))
 
-	return guilds, ally_codes_cpy
+	return guilds, remain
+
+def redis_set_guilds(config, guilds):
+
+	for guild in guilds:
+
+		for member in guild['roster']:
+
+			key = 'player|%s' % member['allyCode']
+			player = config['redis'].get(key)
+			if player:
+				player = json.loads(player.decode('utf-8'))
+				key = 'guild|%s' % player['guildRefId']
+				expire = timedelta(seconds=DEFAULT_TIMEOUT_SECONDS)
+				config['redis'].setex(key, expire, guild)
+				break
 
 async def fetch_guilds(config, project):
 
@@ -225,9 +251,11 @@ async def fetch_guilds(config, project):
 
 	ally_codes = project['allycodes']
 	guilds, remain = redis_get_guilds(config, ally_codes)
-	if remain:
+	if not guilds or remain:
 		project['allycodes'] = remain
-		guilds.extend(await api_swgoh_guilds(config, project))
+		other_guilds = await api_swgoh_guilds(config, project)
+		guilds.extend(other_guilds)
+		redis_set_guild(config, other_guilds)
 
 	result = {}
 	for guild in guilds:
