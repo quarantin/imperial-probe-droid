@@ -29,6 +29,9 @@ CRINOLO_PROD_URL = 'http://localhost:8081/api'
 # Internal - Do not call yourself
 #
 
+class SwgohHelpException(Exception):
+	pass
+
 async def get_access_token(config):
 
 	if 'access_token' in config['swgoh.help']:
@@ -50,11 +53,10 @@ async def get_access_token(config):
 	}
 
 	auth_url = '%s/auth/signin' % SWGOH_HELP
-	response, error = await http_post(auth_url, headers=headers, data=data)
+	data, error = await http_post(auth_url, headers=headers, data=data)
 	if error:
 		raise Exception('Authentication failed to swgohhelp API: %s' % error)
 
-	data = response.json()
 	if 'access_token' not in data:
 		raise Exception('Authentication failed: Server returned `%s`' % data)
 
@@ -79,19 +81,15 @@ async def call_api(config, project, url):
 	if 'debug' in config and config['debug'] is True:
 		print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
 
-	response, error = await http_post(url, headers=headers, json=project)
+	data, error = await http_post(url, headers=headers, json=project)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
-	try:
-		data = response.json()
-
-	except Exception as err:
-		print("Failed to decode JSON:\n%s\n---" % response.content)
-		raise err
-
-	if 'error' in data and 'error_description' in data:
-		raise Exception(data['error_description'])
+	if 'error' in data:
+		error = SwgohHelpException()
+		error.title = 'Error from swgoh.help API'
+		error.data = data
+		raise error
 
 	return data
 
@@ -146,14 +144,15 @@ async def api_crinolo(config, units):
 	if 'debug' in config and config['debug'] is True:
 		print('CALL CRINOLO API: %s' % url, file=sys.stderr)
 
-	response, error = await http_post(url, json=units)
+	data, error = await http_post(url, json=units)
 	if error:
 		raise Exception('http_post(%s) failed: %s' % (url, error))
 
-	#data = json.loads(response.decode('utf-8'))
-	data = response.json()
 	if 'error' in data:
-		raise Exception('POST request failed for URL: %s\n%d Error: %s' % (url, response.status_code, data['error']))
+		error = SwgohHelpException()
+		error.title = 'Error from Crinolo API'
+		error.data = data
+		raise error
 
 	return data
 #

@@ -380,6 +380,8 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 	async def on_message_handler(self, request):
 
+		from swgohhelp import SwgohHelpException
+
 		channel = request.channel
 		command = request.command
 		config = request.config
@@ -414,6 +416,20 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					status, error = await self.sendmsg(channel, message='', embed=embed)
 					if not status:
 						print('Could not print to channel %s: %s (3)' % (channel, error))
+
+		except SwgohHelpException as swgohError:
+
+			data = swgohError.data
+			embeds = new_embeds(request, {
+				'title': swgohError.title,
+				'color': 'red',
+				'description': '**%s:** %s' % (data['error'], data['error_description']),
+			})
+
+			for embed in embeds:
+				status, error = await self.sendmsg(channel, message='', embed=embed)
+				if not status:
+					print('Could not print to channel %s: %s (3.5)' % (channel, error))
 
 		except Exception as err:
 			print("Error in on_message_handler...")

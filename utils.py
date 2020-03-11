@@ -93,27 +93,9 @@ async def http_get(url, headOnly=False):
 		return response, False
 
 async def http_post(url, *args, **kwargs):
-
-	try:
-		response = requests.post(url, *args, **kwargs)
-		if response.status_code not in [ 200, 404 ]:
-			response.raise_for_status()
-
-	except HTTPError as http_err:
-		return (None, 'HTTP error occured: %s' % http_err)
-
-	except Exception as err:
-		return (None, 'Other error occured: %s' % err)
-
-	else:
-		return response, False
-
-async def http_post_aiohttp(url, *args, **kwargs):
 	async with aiohttp.ClientSession() as session:
-		async with session.post(url, *args, **kwargs) as r:
-				data = await r.content.read()
-				if data:
-					return data, False
+		async with session.post(url, *args, **kwargs) as response:
+			return await response.json(), False
 
 	return None, 'Unknown Error'
 
