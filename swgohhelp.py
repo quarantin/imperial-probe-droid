@@ -19,8 +19,10 @@ SWGOH_HELP = 'https://api.swgoh.help'
 
 DEFAULT_TIMEOUT_SECONDS = 3600
 
-#CRINOLO_PROD_URL = 'http://localhost:8081/api'
-CRINOLO_PROD_URL = 'https://swgoh-stat-calc.glitch.me/api'
+CRINOLO_URLS = [
+	'http://localhost:8081/api',
+	'https://swgoh-stat-calc.glitch.me/api',
+]
 
 #
 # Internal - Do not call yourself
@@ -136,22 +138,34 @@ async def api_swgoh_data(config, project):
 	return await call_api(config, project, '%s/swgoh/data' % SWGOH_HELP)
 
 async def api_crinolo(config, units):
-	url = '%s?flags=gameStyle,calcGP' % CRINOLO_PROD_URL
 
-	if 'debug' in config and config['debug'] is True:
-		print('CALL CRINOLO API: %s' % url, file=sys.stderr)
+	for crinolo_url in CRINOLO_URLS:
 
-	data, error = await http_post(url, json=units)
-	if error:
-		raise Exception('http_post(%s) failed: %s' % (url, error))
+		url = '%s?flags=gameStyle,calcGP' % crinolo_url
 
-	if 'error' in data:
-		error = SwgohHelpException()
-		error.title = 'Error from Crinolo API'
-		error.data = data
-		raise error
+		if 'debug' in config and config['debug'] is True:
+			print('CALL CRINOLO API: %s' % url, file=sys.stderr)
 
-	return data
+		try:
+			data, error = await http_post(url, json=units)
+
+		except:
+			print('ERROR: While posting to URL: %s' % url, file=sys.stderr)
+			continue
+
+		if error:
+			raise Exception('http_post(%s) failed: %s' % (url, error))
+
+		if 'error' in data:
+			error = SwgohHelpException()
+			error.title = 'Error from Crinolo API'
+			error.data = data
+			raise error
+
+		return data
+
+	return None
+
 #
 # Fetch functions
 #
