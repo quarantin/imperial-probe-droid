@@ -294,6 +294,7 @@ class BaseUnitFaction(models.Model):
 		('profession_scoundrel',        'Scoundrel'),
 		('profession_sith',             'Sith'),
 		('profession_smuggler',         'Smuggler'),
+		('affiliation_501st',           '501st'),
 		('affiliation_empire',          'Empire'),
 		('affiliation_firstorder',      'First Order'),
 		('affiliation_imperialtrooper', 'Imperial Trooper'),
