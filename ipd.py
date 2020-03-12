@@ -405,7 +405,9 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 							if not status:
 								print('Could not print to channel %s: %s (2)' % (channel, error))
 					break
-			else:
+
+			elif 'reply-unknown' in config and config['reply-unknown'] is True:
+
 				embeds = new_embeds(request, {
 					'title': 'Error: Unknown Command',
 					'color': 'red',
