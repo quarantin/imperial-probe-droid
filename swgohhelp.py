@@ -194,7 +194,9 @@ def redis_set_players(config, players):
 
 async def fetch_players(config, project):
 
+	cache_result = False
 	if type(project) is list:
+		cache_result = True
 		project = { 'allycodes': project }
 
 	players, remain = redis_get_players(config, project['allycodes'])
@@ -202,7 +204,8 @@ async def fetch_players(config, project):
 		project['allycodes'] = remain
 		other_players = await api_swgoh_players(config, project)
 		players.extend(other_players)
-		redis_set_players(config, other_players)
+		if cache_result is True:
+			redis_set_players(config, other_players)
 
 	return sort_players(players)
 
@@ -242,7 +245,9 @@ def redis_set_guilds(config, guilds):
 
 async def fetch_guilds(config, project):
 
+	cache_result = False
 	if type(project) is list:
+		cache_result = True
 		project = { 'allycodes': project }
 
 	ally_codes = project['allycodes']
@@ -251,7 +256,8 @@ async def fetch_guilds(config, project):
 		project['allycodes'] = remain
 		other_guilds = await api_swgoh_guilds(config, project)
 		guilds.extend(other_guilds)
-		redis_set_guilds(config, other_guilds)
+		if cache_result is True:
+			redis_set_guilds(config, other_guilds)
 
 	result = {}
 	for guild in guilds:
@@ -273,7 +279,9 @@ async def fetch_crinolo_stats(config, project, players=None):
 	for zeta in all_zetas:
 		db[zeta.skill_id] = True
 
+	cache_result = False
 	if type(project) is list:
+		cache_result = True
 		project = { 'allycodes': project }
 
 	if not players:
@@ -283,7 +291,8 @@ async def fetch_crinolo_stats(config, project, players=None):
 			project['allycodes'] = remain
 			other_players = await api_swgoh_players(config, project)
 			players.extend(other_players)
-			redis_set_players(config, other_players)
+			if cache_result is True:
+				redis_set_players(config, other_players)
 
 	stats = await api_crinolo(config, players)
 
