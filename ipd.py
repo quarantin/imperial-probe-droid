@@ -406,18 +406,19 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 								print('Could not print to channel %s: %s (2)' % (channel, error))
 					break
 
-			elif 'reply-unknown' in config and config['reply-unknown'] is True:
+			else:
+				if 'reply-unknown' in config and config['reply-unknown'] is True:
 
-				embeds = new_embeds(request, {
-					'title': 'Error: Unknown Command',
-					'color': 'red',
-					'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
-				})
+					embeds = new_embeds(request, {
+						'title': 'Error: Unknown Command',
+						'color': 'red',
+						'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
+					})
 
-				for embed in embeds:
-					status, error = await self.sendmsg(channel, message='', embed=embed)
-					if not status:
-						print('Could not print to channel %s: %s (3)' % (channel, error))
+					for embed in embeds:
+						status, error = await self.sendmsg(channel, message='', embed=embed)
+						if not status:
+							print('Could not print to channel %s: %s (3)' % (channel, error))
 
 		except SwgohHelpException as swgohError:
 
