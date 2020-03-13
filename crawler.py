@@ -314,6 +314,7 @@ class CrawlerThread(asyncio.Future):
 
 		self.redis = redis.Redis()
 		self.session = await libswgoh.get_auth_guest()
+		self.last_notify = {}
 
 		while True:
 
