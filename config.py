@@ -156,6 +156,6 @@ def setup_logs(facility, filename):
 	import logging
 	logger = logging.getLogger(facility)
 	logger.setLevel(logging.INFO)
-	handler = logging.FileHandler(filename=filename, encoding='utf-8', mode='w')
+	handler = logging.FileHandler(filename=filename, encoding='utf-8', mode='a')
 	handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 	logger.addHandler(handler)
