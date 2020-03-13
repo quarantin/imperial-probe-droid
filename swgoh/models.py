@@ -105,6 +105,17 @@ class Player(models.Model):
 		p = Player.get_player_by_nick(nick)
 		return p and p.ally_code or None
 
+	def is_banned(author):
+
+		try:
+			player = Player.objects.get(discord_id=author.id)
+			return player.banned
+
+		except Player.DoesNotExist:
+			pass
+
+		return False
+
 	def __str__(self):
 		if self.discord_display_name:
 			return self.discord_display_name
