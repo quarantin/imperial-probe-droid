@@ -171,7 +171,7 @@ def parse_opts_mentions(request):
 
 	return list(set(discord_ids))
 
-def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, language='eng_us'):
+def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, exclude_author=False, language='eng_us'):
 
 	args = request.args
 	author = request.author
@@ -199,18 +199,23 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 	if unregistered:
 		return None, error_ally_codes_not_registered(config, unregistered)
 
-	if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
-		try:
-			p = Player.objects.get(discord_id=author.id)
+	if exclude_author is False:
 
-			if p not in players:
-				players.insert(0, p)
+		if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
+			try:
+				p = Player.objects.get(discord_id=author.id)
 
-			if p.ally_code not in ally_codes:
-				ally_codes.insert(0, p.ally_code)
+				if p not in players:
+					players.insert(0, p)
 
-		except Player.DoesNotExist:
-			pass
+				if p.ally_code not in ally_codes:
+					ally_codes.insert(0, p.ally_code)
+
+			except Player.DoesNotExist:
+				pass
+
+	elif not ally_codes:
+		return [], None
 
 	if not ally_codes:
 		return None, error_no_ally_code_specified(config, author)
