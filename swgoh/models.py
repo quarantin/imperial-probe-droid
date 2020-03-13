@@ -78,6 +78,7 @@ class Player(models.Model):
 	ally_code            = models.IntegerField(blank=True, null=True)
 	language             = models.CharField(max_length=6, default='eng_us', choices=LANGUAGES)
 	timezone             = TimeZoneField(blank=True, null=True)
+	banned               = models.BooleanField(default=False)
 
 	def format_ally_code(ally_code):
 		ally_code = str(ally_code)
