@@ -197,7 +197,7 @@ class CrawlerThread(asyncio.Future):
 					return
 
 			self.last_notify[ally_code] = now
-			last_activity = delta - timedelta(microseconds=delta.microseconds)
+			last_activity = str(delta - timedelta(microseconds=delta.microseconds))
 			messages.append({
 				'tag': 'inactivity',
 				'nick': profile['name'],
