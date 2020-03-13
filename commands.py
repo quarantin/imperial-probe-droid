@@ -5,6 +5,7 @@ from cmd.guild.ggp import *
 from cmd.guild.glist import *
 from cmd.guild.ulist import *
 from cmd.management.alias import *
+from cmd.management.ban import *
 from cmd.management.clear import *
 from cmd.management.clock import *
 from cmd.management.config import *
@@ -47,6 +48,18 @@ COMMANDS = [
 		'aliases': [ 'a', 'arena' ],
 		'function': cmd_arena,
 		'help': help_arena,
+	},
+	{
+		'command': 'ban',
+		'aliases': [ 'ban' ],
+		'function': cmd_ban,
+		'help': help_ban,
+	},
+	{
+		'command': 'unban',
+		'aliases': [ 'unban' ],
+		'function': cmd_unban,
+		'help': help_unban,
 	},
 	{
 		'command': 'clear',
