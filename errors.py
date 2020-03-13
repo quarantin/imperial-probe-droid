@@ -120,3 +120,11 @@ def error_not_a_news_channel(config):
 		'title': 'Not a News Channel',
 		'description': 'News are disabled on this channel. Please type `%snews enable` to enable news.' % config['prefix'],
 	}]
+
+def error_user_banned(config, author):
+	extra = 'If you think there is a mistake, please visit my discord server and ask for help: %s\n' % config['discord']
+	return [{
+		'title': 'Banned',
+		'color': 'red',
+		'description': 'Hi <@%s>,\n\nSorry but it appears you\'ve been banned from using my services.\n%s' % (author.id, extra),
+	}]
