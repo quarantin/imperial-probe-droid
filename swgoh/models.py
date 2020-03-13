@@ -70,7 +70,7 @@ class Player(models.Model):
 
 		return None
 
-	discord_id           = models.IntegerField(unique=True)
+	discord_id           = models.IntegerField(unique=True, blank=True, null=True)
 	discord_name         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_nick         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_display_name = models.CharField(max_length=128, default='', blank=True, null=True)
