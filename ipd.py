@@ -466,7 +466,14 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 async def __main__():
 	try:
-		setup_logs('discord', 'logs/ipd-discord.log')
+
+		logs = [
+			('opts',    'logs/ipd-blacklist.log'),
+			('discord', 'logs/ipd-discord.log'),
+		]
+
+		for facility, filename in logs:
+			setup_logs(facility, filename)
 
 		config = load_config()
 
