@@ -19,6 +19,13 @@ def error_no_ally_code_specified(config, author):
 		'description': 'No ally code specified or found registered to <@%s>. Please type `%shelp register` to get help with registration.' % (author.id, config['prefix']),
 	}]
 
+def error_no_ally_code_specified_ban(config):
+	return [{
+		'title': 'Error: Not Found',
+		'color': 'red',
+		'description': 'No player selected. Please type `%shelp ban` to get help.' % config['prefix'],
+	}]
+
 def error_ally_codes_not_registered(config, discord_ids):
 	plural = len(discord_ids) > 1 and 's' or ''
 	discord_mentions = [ '<@%s>' % x for x in discord_ids ]
