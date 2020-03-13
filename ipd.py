@@ -21,7 +21,7 @@ from embed import *
 from commands import *
 
 import DJANGO
-from swgoh.models import DiscordServer, NewsChannel, NewsEntry, NewsFeed, Shard, ShardMember
+from swgoh.models import DiscordServer, NewsChannel, NewsEntry, NewsFeed, Player, Shard, ShardMember
 
 PROBE_DIALOG = [
 	'bIp',
@@ -377,14 +377,24 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return await self.on_message_handler(request)
 
-
 	async def on_message_handler(self, request):
 
 		from swgohhelp import SwgohHelpException
 
+		author = request.author
 		channel = request.channel
 		command = request.command
 		config = request.config
+
+		if Player.is_banned(author):
+			msgs = error_user_banned(config, author)
+			for msg in msgs:
+				embeds = new_embeds(request, msg)
+				for embed in embeds:
+					status, error = await self.sendmsg(channel, message='', embed=embed)
+					if not status:
+						print('Could not print to channel %s: %s (XX)' % (channel, error))
+			return
 
 		if channel is None:
 			return
