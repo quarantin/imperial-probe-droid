@@ -1,4 +1,5 @@
 import re
+import logging
 
 from errors import *
 from utils import basicstrip, get_available_timezones, is_supported_timezone
@@ -175,6 +176,7 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 
 	args = request.args
 	author = request.author
+	channel = request.channel
 	config = request.config
 
 	discord_ids = parse_opts_mentions(request)
@@ -236,6 +238,13 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 
 		if player not in players:
 			players.append(player)
+
+		if player.banned:
+			guild = channel.guild
+			guild_id = hasattr(guild, 'id') and guild.id or None
+			origin = '[%s <@%s>][#%s <@%s>][%s <@%s>]' % (guild, guild_id, channel, channel.id, author, author.id)
+			logger = logging.getLogger('opts')
+			logger.log(logging.INFO, '%s: Detected usage of blacklisted allycode: %s' % (origin, player.ally_code))
 
 	return players, None
 
