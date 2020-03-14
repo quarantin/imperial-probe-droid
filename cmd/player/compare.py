@@ -93,7 +93,7 @@ def get_player_stats(config, roster, lang):
 
 	for base_id, unit in roster.items():
 
-		gp     = unit['gp']
+		gp     = unit['gp'] or 0
 		typ    = unit['combatType'] == 1 and 'char' or 'ship'
 		level  = unit['level']
 		gear   = unit['gear']
