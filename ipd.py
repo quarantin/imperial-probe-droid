@@ -389,7 +389,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		if Player.is_banned(author):
 			msgs = error_user_banned(config, author)
 			for msg in msgs:
-				embeds = new_embeds(request, msg)
+				embeds = new_embeds(msg)
 				for embed in embeds:
 					status, error = await self.sendmsg(channel, message='', embed=embed)
 					if not status:
@@ -409,7 +409,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 						msgs = cmd['function'](request)
 
 					for msg in msgs:
-						embeds = new_embeds(request, msg)
+						embeds = new_embeds(msg)
 						for embed in embeds:
 							status, error = await self.sendmsg(channel, message='', embed=embed)
 							if not status:
@@ -419,7 +419,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			else:
 				if 'reply-unknown' in config and config['reply-unknown'] is True:
 
-					embeds = new_embeds(request, {
+					embeds = new_embeds({
 						'title': 'Error: Unknown Command',
 						'color': 'red',
 						'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
@@ -433,7 +433,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		except SwgohHelpException as swgohError:
 
 			data = swgohError.data
-			embeds = new_embeds(request, {
+			embeds = new_embeds({
 				'title': swgohError.title,
 				'color': 'red',
 				'description': '**%s:** %s' % (data['error'], data['error_description']),
@@ -453,7 +453,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				if not status:
 					print('Could not print to channel %s: %s (4)' % (channel, error))
 
-			embeds = new_embeds(request, {
+			embeds = new_embeds({
 				'title': 'Unexpected Error',
 				'color': 'red',
 				'description': str(err),
