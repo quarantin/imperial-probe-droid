@@ -609,9 +609,9 @@ class TrackerCog(commands.Cog):
 				await ctx.send(error)
 				return
 
-			webhook, error = await create_webhook(webhook_name, webhook_channel)
+			webhook, error = await create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
 			if not webhook:
-				print("WTF2: %s" % error)
+				print("create_webhook failed: %s" % error)
 				await ctx.send(error)
 				return
 
