@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import re
 import sys
 import json
 import redis
@@ -7,46 +8,78 @@ import asyncio
 import discord
 import libswgoh
 import traceback
+from discord.ext import commands
 
 from utils import translate
+#from embed import new_embeds
+from config import load_config
+from errors import error_invalid_config_key
 from constants import ROMAN, MAX_SKILL_TIER
-from swgohhelp import get_unit_name, get_ability_name
+from swgohhelp import fetch_guilds, get_unit_name, get_ability_name
 
 import DJANGO
-from swgoh.models import BaseUnitSkill, PremiumGuild
+from swgoh.models import BaseUnitSkill, Player, PremiumGuild, PremiumGuildConfig
 
-class GuildConfig:
+def parse_opts_channel(value):
 
-	language = 'eng_us'
-	show_gear_level = True
-	show_gear_level_min = 8
-	show_gear_piece = False
-	show_inactivity = True
-	show_inactivity_min = 48
-	show_inactivity_repeat = 24
-	show_nick_change = True
-	show_player_level = True
-	show_player_level_min = 0
-	show_relic = True
-	show_relic_min = 0
-	show_skill_unlocked = True
-	show_skill_increased = True
-	show_skill_increased_min = MAX_SKILL_TIER
-	show_skill_increased_omega = True
-	show_skill_increased_zeta = True
-	show_squad_arena_dropped = False
-	show_squad_arena_climbed = False
-	show_fleet_arena_dropped = False
-	show_fleet_arena_climbed = False
-	show_unit_level = True
-	show_unit_level_min = 85
-	show_unit_rarity = True
-	show_unit_rarity_min = 0
-	show_unit_unlocked = True
+	m = re.search(r'^<#([0-9]+)>$', value)
+	if m:
+		return int(m.group(1))
+
+	return None
 
 class TrackerThread(asyncio.Future):
 
-	bot = None
+	async def get_format(self, config, param):
+
+		key = '%s.format' % param
+		if key in config:
+			return config[key]
+
+		if param in PremiumGuildConfig.MESSAGE_FORMATS:
+			return PremiumGuildConfig.MESSAGE_FORMATS[param]
+
+	async def get_channel(self, config, param):
+
+		key = '%s.channel' % param
+		if key in config:
+			if config[key]:
+				return self.bot.get_channel(parse_opts_channel(config[key]))
+
+		key = 'default.channel'
+		if key in config and config[key]:
+			return self.bot.get_channel(parse_opts_channel(config[key]))
+
+	def format_message(self, message, message_format):
+
+		NONE   = lambda x: x
+		ITALIC = lambda x: '_%s_' % x
+		BOLD   = lambda x: '**%s**' % x
+		ULINE  = lambda x: '__%s__' % x
+		BOLD_ITALIC = lambda x: '***%s***' % x
+		BOLD_ULINE = lambda x: '__**%s**__' % x
+
+		subformats = {
+			'': NONE,
+			'gear.level': BOLD_ITALIC,
+			'gear.level.roman': ITALIC,
+			'gear.piece': BOLD_ITALIC,
+			'last.seen': BOLD_ULINE,
+			'level': BOLD_ULINE,
+			'new.nick': BOLD,
+			'nick': BOLD,
+			'rarity': BOLD,
+			'relic': BOLD,
+			'skill': BOLD_ITALIC,
+			'tier': BOLD,
+			'unit': ULINE,
+		}
+
+		for key, value in message.items():
+			fmt = key in subformats and subformats[key] or str
+			message_format = message_format.replace('${%s}' % key, fmt(value))
+
+		return message_format
 
 	async def send_msg(self, channel, message):
 
@@ -60,211 +93,267 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_arena_climbed_up(self, config, message):
 
-		if message['type'] == 'char':
-			type_str = 'squad'
-			if config.show_squad_arena_climbed is False:
-				return
+		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_UP or PremiumGuildConfig.MSG_FLEET_ARENA_UP
+		if key in config and config[key] is False:
+			return
 
-		elif message['type'] == 'ship':
-			type_str = 'fleet'
-			if config.show_fleet_arena_climbed is False:
-				return
-
-		msg = '**%s** has **climbed up** in **%s** arena **%s => %s**' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_arena_dropped_down(self, config, message):
 
-		if message['type'] == 'char':
-			type_str = 'squad'
-			if config.show_squad_arena_dropped is False:
-				return
+		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN or PremiumGuildConfig.MSG_FLEET_ARENA_DOWN
+		if key in config and config[key] is False:
+			return
 
-		elif message['type'] == 'ship':
-			type_str = 'fleet'
-			if config.show_fleet_arena_dropped is False:
-				return
-
-		msg = '**%s** has **dropped down** in **%s** arena **%s => %s**' % (message['nick'], type_str, message['old-rank'], message['new-rank'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_gear_level(self, config, message):
 
-		if config.show_gear_level is False:
+		gear_level = message['gear.level']
+
+		key = PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL
+		if key in config and config[key] is False:
 			return
 
-		gear_level = message['gear-level']
-		if gear_level < config.show_gear_level_min:
+		min_key = PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL_MIN
+		if min_key in config and gear_level < config[min_key]:
 			return
 
-		roman_gear = ROMAN[gear_level]
-		msg = '**%s** increased **%s**\'s gear to level **%s**' % (message['nick'], message['unit'], roman_gear)
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_gear_piece(self, config, message):
 
-		if config.show_gear_piece is False:
+		key = PremiumGuildConfig.MSG_UNIT_GEAR_PIECE
+		if key in config and config[key] is False:
 			return
 
-		gear_piece = message['gear-piece']
-		msg = '**%s** set **%s** on **%s**' % (message['nick'], gear_piece, message['unit'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_inactivity(self, config, message):
 
-		if config.show_inactivity is False:
+		key = PremiumGuildConfig.MSG_INACTIVITY
+		if key in config and config[key] is False:
 			return
 
-		msg = '**%s** has been inactive for **%s**' % (message['nick'], message['last_seen'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_nick_change(self, config, message):
 
-		if config.show_nick_change is False:
+		key = PremiumGuildConfig.MSG_PLAYER_NICK
+		if key in config and config[key] is False:
 			return
 
-		msg = '**%s** is now known as **%s**' % (message['nick'], message['new_nick'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_player_level(self, config, message):
 
-		if config.show_player_level is False:
+		level = message['level']
+
+		key = PremiumGuildConfig.MSG_PLAYER_LEVEL
+		if key in config and config[key] is False:
 			return
 
-		if message['level'] < config.show_player_level_min:
+		min_key = PremiumGuildConfig.MSG_PLAYER_LEVEL_MIN
+		if min_key in config and level < config[min_key]:
 			return
 
-		msg = '**%s** reached level **%s**' % (message['nick'], message['level'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_skill_unlocked(self, config, message):
 
-		if config.show_skill_unlocked is False:
+		key = PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED
+		if key in config and config[key] is False:
 			return
 
-		msg = '**%s** unlocked **%s**\'s new skill **%s**' % (message['nick'], message['unit'], message['skill'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_skill_increased(self, config, message):
 
-		if config.show_skill_increased is False:
-			return
+		typ = message['type']
+		tier = message['tier']
 
-		if message['tier'] < config.show_skill_increased_min:
-			return
+		if typ == 'omega':
 
-		if message['type'] == 'omega':
-			msg = '**%s** applied **Omega** to **%s**\'s skill **%s**' % (message['nick'], message['unit'], message['skill'])
+			key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED_OMEGA
+			if key in config and config[key] is False:
+				return
 
-		elif message['type'] == 'zeta':
-			msg = '**%s** applied **Zeta** to **%s**\'s skill **%s**' % (message['nick'], message['unit'], message['skill'])
+		elif typ == 'zeta':
+
+			key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED_ZETA
+			if key in config and config[key] is False:
+				return
 
 		else:
-			msg = '**%s** increased **%s**\'s skill **%s** to tier **%s**' % (message['nick'], message['unit'], message['skill'], message['tier'])
 
-		await self.send_msg(config.channel, msg)
+			key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED
+			if key in config and config[key] is False:
+				return
+
+			min_key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED_MIN
+			if min_key in config and tier < config[min_key]:
+				return
+
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_unit_level(self, config, message):
 
-		if config.show_unit_level is False:
+		level = message['level']
+
+		key = PremiumGuildConfig.MSG_UNIT_LEVEL
+		if key in config and config[key] is False:
 			return
 
-		if message['level'] < config.show_unit_level_min:
+		min_key = PremiumGuildConfig.MSG_UNIT_LEVEL_MIN
+		if min_key in config and level < config[min_key]:
 			return
 
-		msg = '**%s** increased **%s**\'s to level **%s**' % (message['nick'], message['unit'], message['level'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_unit_rarity(self, config, message):
 
-		if config.show_unit_rarity is False:
+		rarity = message['rarity']
+
+		key = PremiumGuildConfig.MSG_UNIT_RARITY
+		if key in config and config[key] is False:
 			return
 
-		if message['rarity'] < config.show_unit_rarity_min:
+		min_key = PremiumGuildConfig.MSG_UNIT_RARITY_MIN
+		if min_key in config and rarity < config[min_key]:
 			return
 
-		msg = '**%s** promoted **%s** to **%s** stars' % (message['nick'], message['unit'], message['rarity'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_unit_relic(self, config, message):
 
-		if config.show_relic is False:
+		relic = message['relic']
+
+		key = PremiumGuildConfig.MSG_UNIT_RELIC
+		if key in config and config[key] is False:
 			return
 
-		if message['relic'] < config.show_relic_min:
+		min_key = PremiumGuildConfig.MSG_UNIT_RELIC_MIN
+		if min_key in config and relic < config[min_key]:
 			return
 
-		msg = '**%s** increased **%s** to relic **%s**' % (message['nick'], message['unit'], message['relic'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	async def handle_unit_unlocked(self, config, message):
 
-		if config.show_unit_unlocked is False:
+		key = PremiumGuildConfig.MSG_UNIT_UNLOCKED
+		if key in config and config[key] is False:
 			return
 
-		msg = '**%s** unlocked **%s**' % (message['nick'], message['unit'])
-		await self.send_msg(config.channel, msg)
+		fmtstr = await self.get_format(config, key)
+		channel = await self.get_channel(config, key)
+		msg = self.format_message(message, fmtstr)
+		await self.send_msg(channel, msg)
 
 	def prepare_message(self, config, message):
 
 		if 'unit' in message:
-			message['unit'] = get_unit_name(message['unit'], config.language)
+			message['unit'] = get_unit_name(message['unit'], config['language'])
 
-		if 'gear-piece' in message:
-			message['gear-piece'] = translate(message['gear-piece'], config.language)
+		if 'gear.level' in message:
+			gear_level = message['gear.level']
+			message['gear.level.roman'] = ROMAN[gear_level]
+
+		if 'gear.piece' in message:
+			message['gear.piece'] = translate(message['gear.piece'], config['language'])
 
 		if 'skill' in message:
-			message['skill-id'] = message['skill']
-			message['skill'] = get_ability_name(message['skill'], config.language)
+			message['skill.id'] = message['skill']
+			message['skill'] = get_ability_name(message['skill'], config['language'])
 
 		if 'tier' in message:
 
 			message['type'] = ''
 			if message['tier'] >= MAX_SKILL_TIER:
 				try:
-					skill = BaseUnitSkill.objects.get(skill_id=message['skill-id'])
+					skill = BaseUnitSkill.objects.get(skill_id=message['skill.id'])
 					message['type'] = skill.is_zeta and 'zeta' or 'omega'
 
 				except BaseUnitSkill.DoesNotExist:
-					print('ERROR: Could not find base unit skill with id: %s' % message['skill-id'])
+					print('ERROR: Could not find base unit skill with id: %s' % message['skill.id'])
 
 		return message
 
 	async def run(self, bot):
 
-		from config import load_config
-		config = load_config()
+		self.config = load_config()
+
+		self.redis = self.config['redis']
 
 		self.bot = bot
-		self.redis = redis.Redis()
 
-		self.mapping = {
-			'climbed up': self.handle_arena_climbed_up,
-			'dropped down': self.handle_arena_dropped_down,
-			'gear level': self.handle_gear_level,
-			'gear piece': self.handle_gear_piece,
-			'inactivity': self.handle_inactivity,
-			'nick change': self.handle_nick_change,
-			'player level': self.handle_player_level,
-			'skill unlocked': self.handle_skill_unlocked,
-			'skill increased': self.handle_skill_increased,
-			'unit level': self.handle_unit_level,
-			'unit rarity': self.handle_unit_rarity,
-			'unit relic': self.handle_unit_relic,
-			'unit unlocked': self.handle_unit_unlocked,
+		self.messages = {
+
+			PremiumGuildConfig.MSG_INACTIVITY:           self.handle_inactivity,
+			PremiumGuildConfig.MSG_PLAYER_NICK:          self.handle_nick_change,
+			PremiumGuildConfig.MSG_PLAYER_LEVEL:         self.handle_player_level,
+			PremiumGuildConfig.MSG_UNIT_UNLOCKED:        self.handle_unit_unlocked,
+			PremiumGuildConfig.MSG_UNIT_LEVEL:           self.handle_unit_level,
+			PremiumGuildConfig.MSG_UNIT_RARITY:          self.handle_unit_rarity,
+			PremiumGuildConfig.MSG_UNIT_RELIC:           self.handle_unit_relic,
+			PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL:      self.handle_gear_level,
+			PremiumGuildConfig.MSG_UNIT_GEAR_PIECE:      self.handle_gear_piece,
+			PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED:  self.handle_skill_unlocked,
+			PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED: self.handle_skill_increased,
+			PremiumGuildConfig.MSG_SQUAD_ARENA_UP:       self.handle_arena_climbed_up,
+			PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN:     self.handle_arena_dropped_down,
+			PremiumGuildConfig.MSG_FLEET_ARENA_UP:       self.handle_arena_climbed_up,
+			PremiumGuildConfig.MSG_FLEET_ARENA_DOWN:     self.handle_arena_dropped_down,
 		}
 
 		while True:
 
 			self.guilds = list(PremiumGuild.objects.all())
+			if not self.guilds:
+				print('WARNING: No premium guild found.')
+
 			for guild in self.guilds:
 
 				ally_code = guild.ally_code
-				gconfig = GuildConfig()
-				gconfig.channel = self.bot.get_channel(guild.channel_id)
+				config = guild.get_config()
 
 				player_key = 'player|%s' % ally_code
-				player = config['redis'].get(player_key)
+				player = self.redis.get(player_key)
 				if not player:
 					print('ERROR: Could not find profile in redis: %s' % ally_code)
 					continue
@@ -279,30 +368,303 @@ class TrackerThread(asyncio.Future):
 
 						message = json.loads(message)
 						print(message)
-						tag = message['tag']
-						if tag in self.mapping:
-							await self.mapping[tag](gconfig, self.prepare_message(gconfig, message))
+						key = message['key']
+						if key in self.messages:
+							await self.messages[key](config, self.prepare_message(config, message))
 
 					ok = self.redis.ltrim(messages_key, count + 1, -1)
 					if not ok:
-						print('redis.ltrim failed! Returned: %s' % ok)
-
+						print('ERROR: redis.ltrim failed! Returned: %s' % ok)
 
 			await asyncio.sleep(1)
 
-class Tracker(discord.Client):
+class TrackerCog(commands.Cog):
+
+	def __init__(self, bot, config):
+		self.bot = bot
+		self.config = config
+		self.redis = config['redis']
+
+	def parse_opts_boolean(self, value):
+
+		lvalue = value.lower()
+
+		if lvalue in [ 'on', 'true', 'enable', 'enabled' ]:
+			return True
+
+		if lvalue in [ 'off', 'false', 'disable', 'disabled' ]:
+			return False
+
+		return None
+
+	def get_guild(self, author):
+
+		try:
+			player = Player.objects.get(discord_id=author.id)
+
+		except Player.DoesNotExist:
+			print('No player found')
+			return None
+
+		# Retrieve premium guild
+		ally_code = str(player.ally_code)
+		profile_key = 'player|%s' % player.ally_code
+		profile = self.redis.get(profile_key)
+		if not profile:
+			print('Failed retrieving profile of %s' % player.ally_code)
+			return None
+
+		profile = json.loads(profile.decode('utf-8'))
+
+		try:
+			premium_guild = PremiumGuild.objects.get(guild_id=profile['guildRefId'])
+
+		except PremiumGuild.DoesNotExist:
+			print('No premium guild found')
+			return None
+
+		return premium_guild
+
+	async def get_config(self, ctx, guild, pref_key=None):
+
+		if pref_key is None:
+			message = 'Please choose one of the following categories:\n - '
+			message += '\n - '.join(PremiumGuildConfig.get_categories())
+			await ctx.send(message)
+			return
+
+		output = ''
+		for key, value in sorted(guild.get_config().items()):
+
+			if pref_key not in key and pref_key not in [ '*', 'all' ]:
+				continue
+
+			if key.endswith('.channel') and pref_key not in [ '*', 'all' ]:
+				continue
+
+			if key.endswith('.format') and pref_key not in [ '*', 'all' ]:
+				continue
+
+			if type(value) is int or key.endswith('.channel'):
+				entry = '`%s` = **%s**' % (key, value)
+
+			elif type(value) is bool:
+				boolval = value is True and 'On' or 'Off'
+				entry = '`%s` = **%s**' % (key, boolval)
+
+			else:
+				entry = '`%s` = `"%s"`' % (key, value)
+
+			entry += '\n'
+
+			if len(output) + len(entry) > 2000:
+				await ctx.send(output)
+				output = ''
+
+			output += entry
+
+		await ctx.send(output)
+
+	async def get_channels(self, ctx, guild, pref_key: str = None):
+
+		output = ''
+		channels = guild.get_channels()
+		for key, channel in sorted(channels.items()):
+
+			if pref_key is not None and pref_key not in key:
+				continue
+
+			key = key.replace('.channel', '')
+			entry = '`%s` = %s\n' % (key, channel)
+			if len(output) + len(entry) > 2000:
+				await ctx.send(output)
+				output = ''
+
+			output += entry
+
+		await ctx.send(output)
+
+	async def get_formats(self, ctx, guild, pref_key: str = None):
+
+		output = ''
+		formats = guild.get_formats()
+		for key, fmt in sorted(formats.items()):
+
+			if pref_key is not None and pref_key not in key:
+				continue
+
+			key = key.replace('.format', '')
+			entry = '`%s` = "%s"\n' % (key, fmt)
+			if len(output) + len(entry) > 2000:
+				await ctx.send(outut)
+				output = ''
+
+			output += entry
+
+		await ctx.send(output)
+
+	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
+
+		config = guild.get_config()
+
+		if pref_key not in config:
+			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			await ctx.send(message)
+			return
+
+		try:
+			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+
+		except PremiumGuildConfig.DoesNotExist:
+			entry = PremiumGuildConfig(guild=guild, key=pref_key)
+
+		boolval = self.parse_opts_bool(pref_value)
+
+		if pref_key.endswith('.channel'):
+			entry.value = parse_opts_channel(pref_value)
+			entry.value_type = 'chan'
+
+		if pref_key.endswith('.format'):
+			entry.value = pref_value
+			entry.value_type = 'fmt'
+
+		elif pref_key.endswith('.min') or pref_key.endswith('.repeat'):
+			entry.value = int(pref_value)
+			entry.value_type = int.__name__
+
+		elif boolval is not None:
+			entry.value = boolval
+			entry.value_type = bool.__name__
+
+		else:
+			entry.value = pref_value
+			entry.value_type = str.__name__
+
+		entry.save()
+
+		display_value = entry.value
+
+		if entry.value_type == 'bool':
+			display_value = display_value is True and '`On`' or '`Off`'
+
+		elif entry.value_type == 'chan':
+			display_value = '<#%s>' % display_value
+
+		message = 'The following setting has been saved:\n`%s` = %s' % (pref_key, display_value)
+		await ctx.send(message)
+
+	async def set_channels(self, ctx, guild, pref_key: str, pref_value: str):
+
+		config = guild.get_config()
+
+		if not pref_key.endswith('.channel'):
+			if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+				message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+				await ctx.send(message)
+				return
+
+			pref_key = '%s.channel' % pref_key
+
+		if pref_key not in config:
+			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			await ctx.send(message)
+			return
+
+		try:
+			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+
+		except PremiumGuildConfig.DoesNotExist:
+			entry = PremiumGuildConfig(guild=guild, key=pref_key)
+
+		entry.value = parse_opts_channel(pref_value)
+		entry.value_type = 'chan'
+		entry.save()
+
+		message = 'The following channel has been saved:\n`%s` = %s' % (pref_key, pref_value)
+		await ctx.send(message)
+
+	async def set_formats(self, ctx, guild, pref_key: str, pref_value: str):
+
+		config = guild.get_config()
+
+		if not pref_key.endswith('.format'):
+			if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+				message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+				await ctx.send(message)
+				return
+
+			pref_key = '%s.format' % pref_key
+
+		if pref_key not in config:
+			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			await ctx.send(message)
+			return
+
+		try:
+			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+
+		except PremiumGuildConfig.DoesNotExist:
+			entry = PremiumGuildConfig(guild=guild, key=pref_key)
+
+		entry.value = pref_value
+		entry.value_type = 'fmt'
+		entry.save()
+
+		message = 'The following format has been saved:\n`%s` = "%s"' % (pref_key, pref_value)
+		await ctx.send(message)
+
+	@commands.group()
+	async def tracker(self, ctx):
+		if ctx.invoked_subcommand is None:
+			print('HELP')
+
+	@tracker.command()
+	async def config(self, ctx, pref_key: str = None, pref_value: str = None):
+
+		guild = self.get_guild(ctx.author)
+
+		if pref_key and pref_value:
+			return await self.set_config(ctx, guild, pref_key, pref_value)
+
+		return await self.get_config(ctx, guild, pref_key)
+
+	@tracker.command()
+	async def channels(self, ctx, pref_key: str = None, pref_value: str = None):
+
+		guild = self.get_guild(ctx.author)
+
+		if pref_key and pref_value:
+			return await self.set_channels(ctx, guild, pref_key, pref_value)
+
+		return await self.get_channels(ctx, guild, pref_key)
+
+	@tracker.command()
+	async def formats(self, ctx, pref_key: str = None, pref_value: str = None):
+
+		guild = self.get_guild(ctx.author)
+
+		if pref_key and pref_value:
+			return await self.set_formats(ctx, guild, pref_key, pref_value)
+
+		return await self.get_formats(ctx, guild, pref_key)
+
+class Tracker(commands.Bot):
 
 	async def on_ready(self):
 
-		if not hasattr(self, 'initialized'):
+		attr = 'initialized'
+		if not hasattr(self, attr):
 
-			setattr(self, 'initialized', True)
+			setattr(self, attr, True)
 
-			print('Starting new thread')
+			self.add_cog(TrackerCog(self, load_config()))
+
+			print('Starting tracker thread.')
 			self.loop.create_task(TrackerThread().run(self))
 
-		print('Guild tracker bot ready!')
-		await self.get_channel(575654803099746325,).send('Guild tracker bot ready!')
+		msg = 'Tracker bot ready!'
+		print(msg)
+		await self.get_channel(575654803099746325).send(msg)
 
 if __name__ == '__main__':
 
@@ -321,7 +683,7 @@ if __name__ == '__main__':
 		sys.exit(-1)
 
 	try:
-		Tracker().run(config['tokens']['tracker'])
+		Tracker(command_prefix=config['prefix']).run(config['tokens']['tracker'])
 
 	except:
 		print(traceback.format_exc())
