@@ -9,6 +9,7 @@ import discord
 import libswgoh
 import traceback
 from discord.ext import commands
+from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 
 from utils import translate
 #from embed import new_embeds
@@ -20,6 +21,27 @@ from swgohhelp import fetch_guilds, get_unit_name, get_ability_name
 import DJANGO
 from swgoh.models import BaseUnitSkill, Player, PremiumGuild, PremiumGuildConfig
 
+def get_webhook_name(key):
+	return 'IPD Tracker %s' % key
+
+async def get_webhook(name, channel):
+
+	try:
+		webhooks = await channel.webhooks()
+		for webhook in webhooks:
+			if webhook.name.lower() == name.lower():
+				return webhook, None
+
+	except Forbidden:
+		errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id
+		return None, errmsg
+
+	except HTTPException:
+		errmsg = 'I was not able to retrieve the webhook in <#%s> due to a network error.\nPlease try again.' % channel.id
+		return None, errmsg
+
+	return None, None
+
 def parse_opts_channel(value):
 
 	m = re.search(r'^<#([0-9]+)>$', value)
@@ -30,7 +52,7 @@ def parse_opts_channel(value):
 
 class TrackerThread(asyncio.Future):
 
-	async def get_format(self, config, param):
+	def get_format(self, config, param):
 
 		key = '%s.format' % param
 		if key in config:
@@ -39,7 +61,7 @@ class TrackerThread(asyncio.Future):
 		if param in PremiumGuildConfig.MESSAGE_FORMATS:
 			return PremiumGuildConfig.MESSAGE_FORMATS[param]
 
-	async def get_channel(self, config, param):
+	def get_channel(self, config, param):
 
 		key = '%s.channel' % param
 		if key in config:
@@ -81,26 +103,13 @@ class TrackerThread(asyncio.Future):
 
 		return message_format
 
-	async def send_msg(self, channel, message):
-
-		try:
-			print(message)
-			await channel.send(message)
-
-		except:
-			print('Failed sending to channel #%s (%s)' % (channel, channel.id))
-			print(traceback.format_exc())
-
 	async def handle_arena_climbed_up(self, config, message):
 
 		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_UP or PremiumGuildConfig.MSG_FLEET_ARENA_UP
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_arena_dropped_down(self, config, message):
 
@@ -108,10 +117,7 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_gear_level(self, config, message):
 
@@ -125,10 +131,7 @@ class TrackerThread(asyncio.Future):
 		if min_key in config and gear_level < config[min_key]:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_gear_piece(self, config, message):
 
@@ -136,10 +139,7 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_inactivity(self, config, message):
 
@@ -147,10 +147,7 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_nick_change(self, config, message):
 
@@ -158,10 +155,7 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_player_level(self, config, message):
 
@@ -175,10 +169,7 @@ class TrackerThread(asyncio.Future):
 		if min_key in config and level < config[min_key]:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_skill_unlocked(self, config, message):
 
@@ -186,10 +177,7 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_skill_increased(self, config, message):
 
@@ -218,10 +206,7 @@ class TrackerThread(asyncio.Future):
 			if min_key in config and tier < config[min_key]:
 				return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_unit_level(self, config, message):
 
@@ -235,10 +220,7 @@ class TrackerThread(asyncio.Future):
 		if min_key in config and level < config[min_key]:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_unit_rarity(self, config, message):
 
@@ -252,10 +234,7 @@ class TrackerThread(asyncio.Future):
 		if min_key in config and rarity < config[min_key]:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_unit_relic(self, config, message):
 
@@ -269,10 +248,7 @@ class TrackerThread(asyncio.Future):
 		if min_key in config and relic < config[min_key]:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	async def handle_unit_unlocked(self, config, message):
 
@@ -280,10 +256,7 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key] is False:
 			return
 
-		fmtstr = await self.get_format(config, key)
-		channel = await self.get_channel(config, key)
-		msg = self.format_message(message, fmtstr)
-		await self.send_msg(channel, msg)
+		return key
 
 	def prepare_message(self, config, message):
 
@@ -322,7 +295,7 @@ class TrackerThread(asyncio.Future):
 
 		self.bot = bot
 
-		self.messages = {
+		self.handlers = {
 
 			PremiumGuildConfig.MSG_INACTIVITY:           self.handle_inactivity,
 			PremiumGuildConfig.MSG_PLAYER_NICK:          self.handle_nick_change,
@@ -369,8 +342,32 @@ class TrackerThread(asyncio.Future):
 						message = json.loads(message)
 						print(message)
 						key = message['key']
-						if key in self.messages:
-							await self.messages[key](config, self.prepare_message(config, message))
+						if key in self.handlers:
+							key = await self.handlers[key](config, self.prepare_message(config, message))
+							if key is not None:
+								fmtstr = self.get_format(config, key)
+								content = self.format_message(message, fmtstr)
+								webhook_channel = self.get_channel(config, key)
+								webhook_name = get_webhook_name(key)
+								webhook, error = await get_webhook(webhook_name, webhook_channel)
+								if error:
+									await ctx.send(error)
+									return
+
+								try:
+									await webhook.send(content=content, avatar_url=webhook.avatar_url)
+
+								except InvalidArgument as err:
+									print('ERROR: %s' % err)
+
+								except NotFound as err:
+									print('ERROR: %s' % err)
+
+								except Forbidden as err:
+									print('ERROR: %s' % err)
+
+								except HTTPException as err:
+									print('ERROR: %s' % err)
 
 					ok = self.redis.ltrim(messages_key, count + 1, -1)
 					if not ok:
@@ -396,6 +393,28 @@ class TrackerCog(commands.Cog):
 			return False
 
 		return None
+
+	async def create_webhook(self, name, channel):
+
+		perms = channel.permissions_for(channel.guild.me)
+		if not perms.manage_webhooks:
+			return [{
+				'title': 'Permission Denied',
+				'color': 'red',
+				'description': 'I don\'t have permission to manage WebHooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
+			}]
+
+		try:
+			webhook = await channel.create_webhook(name=name, avatar=self.bot.get_avatar())
+			return webhook, None
+
+		except Forbidden:
+			errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
+			return None, errmsg
+
+		except HTTPException:
+			errmsg = 'I was not able to create the webhook in <#%s> due to a network error.\nPlease try again.' % channel.id
+			return None, errmsg
 
 	def get_guild(self, author):
 
@@ -558,7 +577,7 @@ class TrackerCog(commands.Cog):
 		config = guild.get_config()
 
 		if not pref_key.endswith('.channel'):
-			if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+			if pref_key != 'default' and pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
 				message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 				await ctx.send(message)
 				return
@@ -570,13 +589,29 @@ class TrackerCog(commands.Cog):
 			await ctx.send(message)
 			return
 
+		channel_id = parse_opts_channel(pref_value)
+		webhook_channel = self.bot.get_channel(channel_id)
+		webhook_name = get_webhook_name(pref_key.replace('.channel', ''))
+		webhook, error = await get_webhook(webhook_name, webhook_channel)
+		if not webhook:
+			if error:
+				print("WTF: %s %s" % (type(error), error))
+				await ctx.send(error)
+				return
+
+			webhook, error = await self.create_webhook(webhook_name, webhook_channel)
+			if not webhook:
+				print("WTF2: %s" % error)
+				await ctx.send(error)
+				return
+
 		try:
 			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
 
 		except PremiumGuildConfig.DoesNotExist:
 			entry = PremiumGuildConfig(guild=guild, key=pref_key)
 
-		entry.value = parse_opts_channel(pref_value)
+		entry.value = channel_id
 		entry.value_type = 'chan'
 		entry.save()
 
@@ -649,6 +684,10 @@ class TrackerCog(commands.Cog):
 		return await self.get_formats(ctx, guild, pref_key)
 
 class Tracker(commands.Bot):
+
+	def get_avatar(self):
+		with open('images/imperial-probe-droid.jpg', 'rb') as image:
+			return bytearray(image.read())
 
 	async def on_ready(self):
 
