@@ -351,7 +351,7 @@ class TrackerThread(asyncio.Future):
 								webhook_name = get_webhook_name(key)
 								webhook, error = await get_webhook(webhook_name, webhook_channel)
 								if error:
-									await ctx.send(error)
+									await bot.send(error)
 									return
 
 								try:
