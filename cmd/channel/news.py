@@ -42,7 +42,6 @@ async def handle_news_enable(request):
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
 
-
 	perms = channel.permissions_for(channel.guild.me)
 	if not perms.manage_webhooks:
 		return [{
