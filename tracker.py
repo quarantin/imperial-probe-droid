@@ -456,22 +456,18 @@ class TrackerCog(commands.Cog):
 
 	async def get_config(self, ctx, guild, pref_key=None):
 
-		if pref_key is None:
-			message = 'Please choose one of the following categories:\n - '
-			message += '\n - '.join(PremiumGuildConfig.get_categories())
-			await ctx.send(message)
-			return
+		allow_all = pref_key is None or pref_key in [ '*', 'all' ]
 
 		output = ''
 		for key, value in sorted(guild.get_config().items()):
 
-			if pref_key not in key and pref_key not in [ '*', 'all' ]:
+			if (pref_key and pref_key not in key) and not allow_all:
 				continue
 
-			if key.endswith('.channel') and pref_key not in [ '*', 'all' ]:
+			if key.endswith('.channel') and not allow_all:
 				continue
 
-			if key.endswith('.format') and pref_key not in [ '*', 'all' ]:
+			if key.endswith('.format') and not allow_all:
 				continue
 
 			if type(value) is int or key.endswith('.channel'):
