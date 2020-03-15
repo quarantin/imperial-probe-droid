@@ -12,6 +12,9 @@ from datetime import datetime, timedelta
 from constants import MAX_SKILL_TIER
 from swgohhelp import api_swgoh_guilds
 
+import DJANGO
+from swgoh.models import PremiumGuild, PremiumGuildConfig
+
 JSON_INDENT = None # 4
 
 LAST_SEEN_MAX_HOURS = 48
@@ -40,9 +43,9 @@ class CrawlerThread(asyncio.Future):
 		new_player_name = new_profile['name']
 		if old_player_name != new_player_name:
 			messages.append({
-				'tag': 'nick change',
+				'key': PremiumGuildConfig.MSG_PLAYER_NICK,
 				'nick': old_player_name,
-				'new_nick': new_player_name,
+				'new.nick': new_player_name,
 			})
 
 		for base_id, new_unit in new_roster.items():
@@ -50,7 +53,7 @@ class CrawlerThread(asyncio.Future):
 			# Handle new units unlocked.
 			if base_id not in old_roster:
 				messages.append({
-					'tag': 'unit unlocked',
+					'key': PremiumGuildConfig.MSG_UNIT_UNLOCKED,
 					'nick': new_player_name,
 					'unit': base_id,
 				})
@@ -61,7 +64,7 @@ class CrawlerThread(asyncio.Future):
 			new_level = new_unit['level']
 			if old_level < new_level:
 				messages.append({
-					'tag': 'unit level',
+					'key': PremiumGuildConfig.MSG_UNIT_LEVEL,
 					'nick': new_player_name,
 					'unit': base_id,
 					'level': new_level,
@@ -72,7 +75,7 @@ class CrawlerThread(asyncio.Future):
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity:
 				messages.append({
-					'tag': 'unit rarity',
+					'key': PremiumGuildConfig.MSG_UNIT_RARITY,
 					'nick': new_player_name,
 					'unit': base_id,
 					'rarity': new_rarity,
@@ -83,10 +86,10 @@ class CrawlerThread(asyncio.Future):
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level:
 				messages.append({
-					'tag': 'gear level',
+					'key': PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL,
 					'nick': new_player_name,
 					'unit': base_id,
-					'gear-level': new_gear_level,
+					'gear.level': new_gear_level,
 				})
 
 			# Handle relic increase.
@@ -94,7 +97,7 @@ class CrawlerThread(asyncio.Future):
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
 				messages.append({
-					'tag': 'unit relic',
+					'key': PremiumGuildConfig.MSG_UNIT_RELIC,
 					'nick': new_player_name,
 					'unit': base_id,
 					'relic': new_relic,
@@ -107,10 +110,10 @@ class CrawlerThread(asyncio.Future):
 			if diff_equipped:
 				for gear in diff_equipped:
 					messages.append({
-						'tag': 'gear piece',
+						'key': PremiumGuildConfig.MSG_UNIT_GEAR_PIECE,
 						'nick': new_player_name,
 						'unit': base_id,
-						'gear-piece': gear['equipmentId']
+						'gear.piece': gear['equipmentId']
 					})
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
@@ -120,7 +123,7 @@ class CrawlerThread(asyncio.Future):
 
 				if new_skill_id not in old_skills:
 					messages.append({
-						'tag': 'skill unlocked',
+						'key': PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED,
 						'nick': new_player_name,
 						'unit': base_id,
 						'skill': new_skill_id,
@@ -138,7 +141,7 @@ class CrawlerThread(asyncio.Future):
 				if old_skill['tier'] < new_skill['tier']:
 
 					messages.append({
-						'tag': 'skill increased',
+						'key': PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED,
 						'nick': new_player_name,
 						'unit': base_id,
 						'skill': new_skill_id,
@@ -152,7 +155,7 @@ class CrawlerThread(asyncio.Future):
 
 		if old_player_level < new_player_level:
 			messages.append({
-				'tag': 'player level',
+				'key': PremiumGuildConfig.MSG_PLAYER_LEVEL,
 				'nick': new_profile['name'],
 				'level': new_player_level,
 			})
@@ -164,20 +167,20 @@ class CrawlerThread(asyncio.Future):
 			old_rank = old_profile['arena'][arena_type]['rank']
 			new_rank = new_profile['arena'][arena_type]['rank']
 
-			tag = None
+			key = None
 			if old_rank < new_rank:
-				tag = 'dropped down'
+				key = (arena_type == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN or PremiumGuildConfig.MSG_FLEET_ARENA_DOWN
 
 			elif old_rank > new_rank:
-				tag = 'climbed up'
+				key = (arena_type == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_UP or PremiumGuildConfig.MSG_FLEET_ARENA_UP
 
-			if tag:
+			if key:
 				messages.append({
-					'tag': tag,
+					'key': key,
 					'type': arena_type,
 					'nick': new_profile['name'],
-					'old-rank': old_rank,
-					'new-rank': new_rank
+					'old.rank': old_rank,
+					'new.rank': new_rank
 				})
 
 	def check_last_seen(self, new_profile, messages):
@@ -199,9 +202,9 @@ class CrawlerThread(asyncio.Future):
 			self.last_notify[ally_code] = now
 			last_activity = str(delta - timedelta(microseconds=delta.microseconds))
 			messages.append({
-				'tag': 'inactivity',
+				'key': PremiumGuildConfig.MSG_INACTIVITY,
 				'nick': profile['name'],
-				'last_seen': last_activity,
+				'last.seen': last_activity,
 			})
 
 	def check_diff(self, old_profile, new_profile):
@@ -308,9 +311,6 @@ class CrawlerThread(asyncio.Future):
 		return needed
 
 	async def run(self, crawler):
-
-		import DJANGO
-		from swgoh.models import PremiumGuild
 
 		self.redis = redis.Redis()
 		self.session = await libswgoh.get_auth_guest()
