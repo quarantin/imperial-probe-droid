@@ -456,7 +456,7 @@ class TrackerCog(commands.Cog):
 
 	async def get_config(self, ctx, guild, pref_key=None):
 
-		allow_all = pref_key is None or pref_key in [ '*', 'all' ]
+		allow_all = pref_key is not None and pref_key in [ '*', 'all' ]
 
 		output = ''
 		for key, value in sorted(guild.get_config().items()):
