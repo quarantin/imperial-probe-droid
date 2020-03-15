@@ -706,4 +706,196 @@ class RelicStat(models.Model):
 class PremiumGuild(models.Model):
 
 	ally_code = models.IntegerField()
-	channel_id = models.IntegerField()
+	guild_id = models.CharField(max_length=32)
+	channel_id = models.IntegerField(null=True, blank=True)
+	language = models.CharField(max_length=6, default='eng_us', choices=Player.LANGUAGES)
+
+	def get_config_value(self, item):
+
+		if item.value_type == 'int':
+			return int(item.value)
+
+		if item.value_type == 'bool':
+			return item.value == 'True' and True or False
+
+		return str(item.value)
+
+	def get_config(self):
+
+		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
+
+		config = {}
+
+		config['language'] = self.language
+		config['default.channel'] = default_channel
+
+		# Get explicit config from DB
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+
+			if item.key.endswith('.channel'):
+				config[item.key] = '<#%s>' % item.value
+
+			elif item.key.endswith('.min') or item.key.endswith('.repeat'):
+				config[item.key] = int(item.value)
+
+			else:
+				config[item.key] = self.get_config_value(item)
+
+		# Get default settings if not set
+		for key, value, value_type in PremiumGuildConfig.MESSAGE_DEFAULTS:
+			if key not in config:
+				config[key] = value
+
+		# Get channels and formats settings if not set
+		for key, fmt in PremiumGuildConfig.MESSAGE_FORMATS.items():
+
+			channel_key = '%s.channel' % key
+			if channel_key not in config:
+				config[channel_key] = default_channel
+
+			format_key = '%s.format' % key
+			if format_key not in config:
+				config[format_key] = fmt
+
+		return config
+
+	def get_channels(self):
+
+		channels = {}
+
+		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
+
+		channels['default.channel'] = default_channel
+
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+			if item.key.endswith('.channel'):
+				channels[item.key] = '<#%s>' % item.value
+
+		for key in PremiumGuildConfig.MESSAGE_FORMATS.keys():
+			channel_key = '%s.channel' % key
+			if channel_key not in channels:
+				channels[channel_key] = default_channel
+
+		return channels
+
+	def get_formats(self):
+
+		formats = {}
+
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+			if item.key.endswith('.format'):
+				formats[item.key] = item.value
+
+		for key, fmt in PremiumGuildConfig.MESSAGE_FORMATS.items():
+			format_key = '%s.format' % key
+			if format_key not in formats:
+				formats[format_key] = fmt
+
+		return formats
+
+class PremiumGuildConfig(models.Model):
+
+	MSG_INACTIVITY                 = 'inactivity'
+	MSG_INACTIVITY_MIN             = 'inactivity.min'
+	MSG_INACTIVITY_REPEAT          = 'inactivity.repeat'
+	MSG_PLAYER_NICK                = 'player.nick'
+	MSG_PLAYER_LEVEL               = 'player.level'
+	MSG_PLAYER_LEVEL_MIN           = 'player.level.min'
+	MSG_UNIT_UNLOCKED              = 'unit.unlocked'
+	MSG_UNIT_LEVEL                 = 'unit.level'
+	MSG_UNIT_LEVEL_MIN             = 'unit.level.min'
+	MSG_UNIT_RARITY                = 'unit.rarity'
+	MSG_UNIT_RARITY_MIN            = 'unit.rarity.min'
+	MSG_UNIT_RELIC                 = 'unit.relic'
+	MSG_UNIT_RELIC_MIN             = 'unit.relic.min'
+	MSG_UNIT_GEAR_LEVEL            = 'gear.level'
+	MSG_UNIT_GEAR_LEVEL_MIN        = 'gear.level.min'
+	MSG_UNIT_GEAR_PIECE            = 'gear.piece'
+	MSG_UNIT_SKILL_UNLOCKED        = 'skill.unlocked'
+	MSG_UNIT_SKILL_INCREASED       = 'skill.increased'
+	MSG_UNIT_SKILL_INCREASED_MIN   = 'skill.increased.min'
+	MSG_UNIT_SKILL_INCREASED_OMEGA = 'skill.omega'
+	MSG_UNIT_SKILL_INCREASED_ZETA  = 'skill.zeta'
+	MSG_SQUAD_ARENA_UP             = 'arena.squad.up'
+	MSG_SQUAD_ARENA_DOWN           = 'arena.squad.down'
+	MSG_FLEET_ARENA_UP             = 'arena.fleet.up'
+	MSG_FLEET_ARENA_DOWN           = 'arena.fleet.down'
+
+	MESSAGE_DEFAULTS = [
+
+		(MSG_INACTIVITY,                 True, bool),
+		(MSG_INACTIVITY_MIN,             48,   int),
+		(MSG_INACTIVITY_REPEAT,          24,   int),
+		(MSG_PLAYER_NICK,                True, bool),
+		(MSG_PLAYER_LEVEL,               True, bool),
+		(MSG_PLAYER_LEVEL_MIN,           0,    int),
+		(MSG_UNIT_UNLOCKED,              True, bool),
+		(MSG_UNIT_LEVEL,                 True, bool),
+		(MSG_UNIT_LEVEL_MIN,             0,    int),
+		(MSG_UNIT_RARITY,                True, bool),
+		(MSG_UNIT_RARITY_MIN,            0,    int),
+		(MSG_UNIT_RELIC,                 True, bool),
+		(MSG_UNIT_RELIC_MIN,             0,    int),
+		(MSG_UNIT_GEAR_LEVEL,            True, bool),
+		(MSG_UNIT_GEAR_LEVEL_MIN,        0,    int),
+		(MSG_UNIT_GEAR_PIECE,            True, bool),
+		(MSG_UNIT_SKILL_UNLOCKED,        True, bool),
+		(MSG_UNIT_SKILL_INCREASED,       True, bool),
+		(MSG_UNIT_SKILL_INCREASED_MIN,   0,    int),
+		(MSG_UNIT_SKILL_INCREASED_OMEGA, True, bool),
+		(MSG_UNIT_SKILL_INCREASED_ZETA,  True, bool),
+		(MSG_SQUAD_ARENA_UP,             True, bool),
+		(MSG_SQUAD_ARENA_DOWN,           True, bool),
+		(MSG_FLEET_ARENA_UP,             True, bool),
+		(MSG_FLEET_ARENA_DOWN,           True, bool),
+	]
+
+	MESSAGE_FORMATS = {
+
+		MSG_INACTIVITY:                 '${nick} has been inactive for ${last.seen}',
+		MSG_PLAYER_NICK:                '${nick} is now known as ${new_nick}',
+		MSG_PLAYER_LEVEL:               '${nick} reached level ${level}',
+		MSG_UNIT_UNLOCKED:              '${nick} unlocked ${unit}',
+		MSG_UNIT_LEVEL:                 '${nick} increased ${unit} to level ${level}',
+		MSG_UNIT_RARITY:                '${nick} promoted ${unit} to ${rarity} stars',
+		MSG_UNIT_RELIC:                 '${nick} increased ${unit} to relic ${relic}',
+		MSG_UNIT_GEAR_LEVEL:            '${nick} increased ${unit}\'s gear to level ${gear.level.roman}',
+		MSG_UNIT_GEAR_PIECE:            '${nick} set equipment ${gear.piece} on ${unit}',
+		MSG_UNIT_SKILL_UNLOCKED:        '${nick} unlocked ${unit}\'s skill ${skill}',
+		MSG_UNIT_SKILL_INCREASED:       '${nick} increased skill ${skill} to tier ${tier} (${unit})',
+		MSG_UNIT_SKILL_INCREASED_OMEGA: '${nick} applied **Omega** upgrade to ${skill} (${unit})',
+		MSG_UNIT_SKILL_INCREASED_ZETA:  '${nick} applied **Zeta** upgrade to ${skill} (${unit})',
+		MSG_SQUAD_ARENA_UP:             '${nick} has _climbed up_ in squad arena __**${old.rank} => ${new.rank}**__',
+		MSG_SQUAD_ARENA_DOWN:           '${nick} has _dropped down_ in squad arena __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_ARENA_UP:             '${nick} has _climbed up_ in fleet arena __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_ARENA_DOWN:           '${nick} has _dropped down_ in fleet arena __**${old.rank} => ${new.rank}**__',
+	}
+
+	guild = models.ForeignKey(PremiumGuild, on_delete=models.CASCADE)
+	key = models.CharField(max_length=32)
+	value = models.CharField(max_length=32)
+	value_type = models.CharField(max_length=4)
+
+	def get_categories():
+
+		categories = [ '`all` or `*`' ]
+
+		for key, value in sorted(PremiumGuildConfig.MESSAGE_FORMATS.items()):
+
+			category = '`%s`' % key.split('.', 1)[0]
+			if category not in categories:
+				categories.append(category)
+
+		return categories
+
+	def get_types():
+
+		types = {}
+
+		for key, val, typ in PremiumGuildConfig.MESSAGE_DEFAULTS:
+			types[key] = typ.__name__
+
+		return types
