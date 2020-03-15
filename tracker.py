@@ -42,6 +42,28 @@ async def get_webhook(name, channel):
 
 	return None, None
 
+async def create_webhook(name, avatar, channel):
+
+	perms = channel.permissions_for(channel.guild.me)
+	if not perms.manage_webhooks:
+		return [{
+			'title': 'Permission Denied',
+			'color': 'red',
+			'description': 'I don\'t have permission to manage WebHooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
+		}]
+
+	try:
+		webhook = await channel.create_webhook(name=name, avatar=avatar)
+		return webhook, None
+
+	except Forbidden:
+		errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
+		return None, errmsg
+
+	except HTTPException:
+		errmsg = 'I was not able to create the webhook in <#%s> due to a network error.\nPlease try again.' % channel.id
+		return None, errmsg
+
 def parse_opts_channel(value):
 
 	m = re.search(r'^<#([0-9]+)>$', value)
@@ -358,6 +380,13 @@ class TrackerThread(asyncio.Future):
 									return
 
 								try:
+									if not webhook:
+										webhook, error = await create_webhook(webhook_name, bot.get_avatar(), webhook_channel)
+										if not webhook:
+											print("create_webhook failed: %s" % error)
+											await ctx.send(error)
+										return
+
 									await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
 								except InvalidArgument as err:
@@ -396,28 +425,6 @@ class TrackerCog(commands.Cog):
 			return False
 
 		return None
-
-	async def create_webhook(self, name, channel):
-
-		perms = channel.permissions_for(channel.guild.me)
-		if not perms.manage_webhooks:
-			return [{
-				'title': 'Permission Denied',
-				'color': 'red',
-				'description': 'I don\'t have permission to manage WebHooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
-			}]
-
-		try:
-			webhook = await channel.create_webhook(name=name, avatar=self.bot.get_avatar())
-			return webhook, None
-
-		except Forbidden:
-			errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
-			return None, errmsg
-
-		except HTTPException:
-			errmsg = 'I was not able to create the webhook in <#%s> due to a network error.\nPlease try again.' % channel.id
-			return None, errmsg
 
 	def get_guild(self, author):
 
@@ -602,7 +609,7 @@ class TrackerCog(commands.Cog):
 				await ctx.send(error)
 				return
 
-			webhook, error = await self.create_webhook(webhook_name, webhook_channel)
+			webhook, error = await create_webhook(webhook_name, webhook_channel)
 			if not webhook:
 				print("WTF2: %s" % error)
 				await ctx.send(error)
