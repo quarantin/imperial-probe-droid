@@ -543,7 +543,7 @@ class TrackerCog(commands.Cog):
 		except PremiumGuildConfig.DoesNotExist:
 			entry = PremiumGuildConfig(guild=guild, key=pref_key)
 
-		boolval = self.parse_opts_bool(pref_value)
+		boolval = self.parse_opts_boolean(pref_value)
 
 		if pref_key.endswith('.channel'):
 			entry.value = parse_opts_channel(pref_value)
