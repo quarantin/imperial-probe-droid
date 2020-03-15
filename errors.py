@@ -135,3 +135,6 @@ def error_user_banned(config, author):
 		'color': 'red',
 		'description': 'Hi <@%s>,\n\nSorry but it appears you\'ve been banned from using my services.\n%s' % (author.id, extra),
 	}]
+
+def error_invalid_config_key(bot_prefix, config_key):
+	return 'The following setting is invalid: `"%s"`.\nPlease type `%stracker config` to get the list of valid settings.' % (config_key, bot_prefix)
