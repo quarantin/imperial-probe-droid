@@ -114,8 +114,9 @@ def guild_to_dict(guild, players):
 	res = OrderedDict()
 
 	res['**Compared Guilds**'] = OrderedDict()
-	res['**Compared Guilds**']['__GUILD__']       = '%s (%s)' % (guild['name'], guild['members'])
-	res['**Compared Guilds**']['**Banner**']      = get_banner_emoji(guild['bannerLogo'], guild['bannerColor'])
+	res['**Compared Guilds**']['__GUILD__']       = '__**%s**__' % guild['name']
+	res['**Compared Guilds**']['**Members**']     = str(guild['members'])
+	res['**Compared Guilds**']['**Banner**']      = get_banner_emoji(guild['bannerLogo'])
 	res['**Compared Guilds**']['**Topic**']       = guild['message']
 	res['**Compared Guilds**']['**Description**'] = guild['desc']
 
@@ -205,6 +206,7 @@ async def cmd_guild_stat(request):
 
 	gdata = accu.pop('**Compared Guilds**')
 	names = gdata.pop('__GUILD__')
+	members = gdata.pop('**Members**')
 	banners = gdata.pop('**Banner**')
 	topics = gdata.pop('**Topic**')
 	descrs = gdata.pop('**Description**')
@@ -214,7 +216,7 @@ async def cmd_guild_stat(request):
 	for alist in [ names ]:
 		i = 0
 		for banner in banners:
-			lines.append('%s | **__%s__**' % (banner, alist[i]))
+			lines.append('%s | %s (%s)' % (banner, alist[i], members[i]))
 			lines.append('%s | %s' % (banner, topics[i]))
 			lines.append('%s | %s' % (banner, descrs[i]))
 			i += 1
@@ -229,7 +231,7 @@ async def cmd_guild_stat(request):
 	msgs = []
 	for category, data in accu.items():
 		lines = []
-		lines.append('`|` %s `|`' % ' `|` '.join(banners))
+		lines.append('`|` %s `|`' % ' `|` '.join(names))
 		for key, values in data.items():
 			if key == '__GUILD__':
 				key = ''
