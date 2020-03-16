@@ -33,6 +33,7 @@ from cmd.player.modroll import *
 from cmd.player.needed import *
 from cmd.player.recos import *
 from cmd.player.relic import *
+from cmd.player.stat import *
 from cmd.player.wntm import *
 from cmd.player.zetas import *
 
@@ -235,6 +236,12 @@ COMMANDS = [
 		'aliases': [ 'servers' ],
 		'function': cmd_servers,
 		'help': help_servers,
+	},
+	{
+		'command': 'ps',
+		'aliases': [ 'ps', 'pstat', 'pstats', 'playerstat', 'playerstats' ],
+		'function': cmd_player_stat,
+		'help': cmd_player_stat,
 	},
 	{
 		'command': 'timezone',
