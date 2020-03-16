@@ -471,14 +471,14 @@ class TrackerCog(commands.Cog):
 				continue
 
 			if type(value) is int or key.endswith('.channel'):
-				entry = '`%s` = **%s**' % (key, value)
+				entry = '`%s` **%s**' % (key, value)
 
 			elif type(value) is bool:
 				boolval = value is True and 'On' or 'Off'
-				entry = '`%s` = **%s**' % (key, boolval)
+				entry = '`%s` **%s**' % (key, boolval)
 
 			else:
-				entry = '`%s` = `"%s"`' % (key, value)
+				entry = '`%s` `"%s"`' % (key, value)
 
 			entry += '\n'
 
@@ -500,7 +500,7 @@ class TrackerCog(commands.Cog):
 				continue
 
 			key = key.replace('.channel', '')
-			entry = '`%s` = %s\n' % (key, channel)
+			entry = '`%s` %s\n' % (key, channel)
 			if len(output) + len(entry) > 2000:
 				await ctx.send(output)
 				output = ''
@@ -519,7 +519,7 @@ class TrackerCog(commands.Cog):
 				continue
 
 			key = key.replace('.format', '')
-			entry = '`%s` = "%s"\n' % (key, fmt)
+			entry = '`%s` "%s"\n' % (key, fmt)
 			if len(output) + len(entry) > 2000:
 				await ctx.send(outut)
 				output = ''
