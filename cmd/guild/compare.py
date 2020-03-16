@@ -91,7 +91,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 		seven_stars = get_stars_as_emojis(7)
 
-		res['__GUILD__']  = get_banner_emoji(guild['bannerLogo'], guild['bannerColor'])
+		res['__GUILD__']  = '__**%s**__' % guild['name']
 		res['**Avg.GP**'] = str(int(stats['cumul-gp'] / stats['count']))
 		res['**Locked**'] = str(guild['members'] - stats['count'])
 		res['**Count**']  = str(stats['count'])
