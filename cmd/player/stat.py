@@ -18,10 +18,13 @@ help_player_stat = {
 ```
 %prefixps [players]```
 **Examples**
-Compare your player stats to another player by ally code (assuming you're registered):
+Show your player stats:
+```
+%prefixps```
+Compare your player stats to another player:
 ```
 %prefixps 123456789```
-Compare two different player stats:
+Compare player stats of two different players:
 ```
 %prefixps 123456789 234567890```"""
 }
