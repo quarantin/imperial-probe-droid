@@ -220,7 +220,7 @@ def get_units_dict(units, base_id_key):
 
 	return d
 
-def get_banner_emoji(banner_logo, banner_color=None):
+def get_banner_emoji(banner_logo):
 	from constants import EMOJIS
 
 	banner = banner_logo.replace('guild_icon_', '').replace('.png', '').lower()
@@ -229,13 +229,8 @@ def get_banner_emoji(banner_logo, banner_color=None):
 	# Replace triangle banner name to avoid collision with triangle mod shape
 	banner = banner.replace('triangle', 'triangle-2')
 
-	if banner_color is None:
-		emoji = banner in EMOJIS and EMOJIS[banner] or None
-		return '%s' % emoji
-	else:
-		color = ''.join([ word[0] for word in banner_color.split('_') ]).upper()
-		emoji = banner in EMOJIS and EMOJIS[banner] or None
-		return '%s`%s`' % (emoji, color)
+	emoji = banner in EMOJIS and EMOJIS[banner] or None
+	return emoji
 
 def get_mod_sets(config, mods):
 
