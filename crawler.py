@@ -293,12 +293,41 @@ class CrawlerThread(asyncio.Future):
 		for ally_code in ally_codes:
 			await self.refresh_guild(ally_code)
 
+	async def refresh_players(self, ally_codes, channels):
+
+		failed_ac = []
+		failed_ch = []
+		for ally_code, channel in zip(ally_codes, channels):
+
+			player = await self.ensure_player(ally_code)
+			if not player:
+				failed_ac.append(allycode)
+				failed_ch.append(channel)
+				continue
+
+			guild_key = 'guild|%s' % player['guildRefId']
+			guild = self.redis.get(guild_key)
+			if guild:
+				guild = json.loads(guild.decode('utf-8'))
+			else:
+				print('guild not found in redis')
+				guild = await self.refresh_guild(ally_code)
+
+			for member in guild['roster']:
+				await self.update_player(member['allyCode'], player['guildRefId'])
+
+		return failed_ac, failed_ch
+
 	async def get_allycodes_to_refresh(self):
 
 		needed = []
 		ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
 		for ally_code in ally_codes:
 			player = await self.ensure_player(ally_code)
+			if not player:
+				needed.append(ally_code)
+				continue
+
 			guild_key = 'guild|%s' % player['guildRefId']
 			if not self.redis.exists(guild_key):
 				needed.append(ally_code)
@@ -328,19 +357,14 @@ class CrawlerThread(asyncio.Future):
 				await self.refresh_guilds(to_refresh)
 
 			print(datetime.now())
-			for ally_code, channel in zip(ally_codes, channels):
+			failed_ac, failed_ch = self.refresh_players(ally_codes, channels)
 
-				player = await self.ensure_player(ally_code)
-				guild_key = 'guild|%s' % player['guildRefId']
-				guild = self.redis.get(guild_key)
-				if guild:
-					guild = json.loads(guild.decode('utf-8'))
+			if failed_ac:
+				failed_ac2, failed_ch2 = self.refresh_players(failed_ac, failed_ch)
+				if failed_ac2:
+					print('ERROR: Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(failed_ac2))
 				else:
-					print('guild not found in redis')
-					guild = await self.refresh_guild(ally_code)
-
-				for member in guild['roster']:
-					await self.update_player(member['allyCode'], player['guildRefId'])
+					print('SUCCCESS: Retrieved previously failed profiles:\n%s' % '\n'.join(failed_ac))
 
 			await asyncio.sleep(600)
 
