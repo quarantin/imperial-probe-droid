@@ -225,7 +225,6 @@ async def cmd_player_stat(request):
 
 	msgs = []
 	lines = []
-	print(json.dumps(player_fields, indent=4))
 	for key, listval in player_fields.items():
 		pad = (max_key_len - len(key)) + 1
 		if key in [ 'Characters', 'Ships' ]:
@@ -254,7 +253,6 @@ async def cmd_player_stat(request):
 					lines.append('`League: %s`' % gac['league'])
 					lines.append('`Division: %s`' % get_player_division(gac['division']))
 					lines.append('`Variant: %s %s %s`' % (gac['zones'], gac['variant'], gac['layout']))
-			print(json.dumps(listval, indent=4))
 
 		else:
 			listval = [ '%s' % i for i in listval ]
