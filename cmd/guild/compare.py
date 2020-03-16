@@ -8,21 +8,21 @@ from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
-	'description': """Compare different guilds, optionally comparing their respective units.
+	'description': """Compare units of different guilds.
 
 **Syntax**
 ```
 %prefixgc [players] [units]```
 **Examples**
-Compare your guild to another (assuming you're registered):
+Show stats about General Skywalker (GAS) in your guild:
 ```
-%prefixgc 123456789```
-Compare guilds from two different players:
+%prefixgc gas```
+Compare General Skywalker (GAS) of your guild and another:
 ```
-%prefixgc 123456789 234567891```
-Compare guilds from two different players and show differences about Revan and Traya:
+%prefixgc 123456789 gas```
+Compare General Skywalker (GAS) of two different guilds:
 ```
-%prefixgc 123456789 234567891 revan traya```"""
+%prefixgc 123456789 234567891 gas```"""
 }
 
 def get_unit_stats(config, roster, lang):
@@ -140,137 +140,6 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	return res
 
-MOD_STATS = {
-	5:  'speed',
-	41: 'offense',
-}
-
-def get_guild_stats(guild, players):
-
-	stats = {
-		'gpChar': 0,
-		'gpShip': 0,
-		'level': 0,
-		'omegas': 0,
-		'zetas': 0,
-		's7-units': 0,
-		's7-ships': 0,
-		'l85-units': 0,
-		'l85-ships': 0,
-		'g13-units': 0,
-		'g12-units': 0,
-		'g11-units': 0,
-		'r0-units': 0,
-		'r1-units': 0,
-		'r2-units': 0,
-		'r3-units': 0,
-		'r4-units': 0,
-		'r5-units': 0,
-		'r6-units': 0,
-		'r7-units': 0,
-		'6-pips-mods': 0,
-		'speed-arrows': 0,
-		'speed-mods+20': 0,
-		'speed-mods+25': 0,
-		'offense-mods+100': 0,
-		'offense-mods+150': 0,
-	}
-
-	for ally_code_str, profile in guild['roster'].items():
-		ally_code = profile['allyCode']
-
-		for key in [ 'gpChar', 'gpShip', 'level' ]:
-
-			if key not in profile:
-				print('WARN: Missing key `%s` in guild roster object for ally code: %s' % (key, ally_code))
-				continue
-
-			stats[key] += profile[key]
-
-		if ally_code not in players:
-			print('WARN: Ally code not found in guild: %s' % ally_code)
-			continue
-
-		player = players[ally_code]
-		for base_id, unit in player['roster'].items():
-
-			is_max_level  = (unit['level'] == MAX_LEVEL)
-			is_max_rarity = (unit['rarity'] == MAX_RARITY)
-
-			if unit['combatType'] == 1:
-				stats['s7-units'] += (is_max_rarity and 1 or 0)
-				stats['l85-units'] += (is_max_level and 1 or 0)
-				if unit['gear'] == 13:
-					stats['g13-units'] += 1
-				elif unit['gear'] == 12:
-					stats['g12-units'] += 1
-				elif unit['gear'] == 11:
-					stats['g11-units'] += 1
-
-				relic = get_relic_tier(unit)
-				stats['r%d-units' % relic] += 1
-			else:
-				stats['s7-ships'] += (is_max_rarity and 1 or 0)
-				stats['l85-ships'] += (is_max_level and 1 or 0)
-
-			for skill in unit['skills']:
-				if 'tier' in skill and skill['tier'] == MAX_SKILL_TIER:
-					key = 'omegas'
-					if skill['isZeta']:
-						key = 'zetas'
-					stats[key] += 1
-
-			if 'mods' in unit:
-				for mod in unit['mods']:
-					if mod['pips'] == 6:
-						stats['6-pips-mods'] += 1
-
-	guild.update(stats)
-
-def guild_to_dict(guild, players):
-
-	get_guild_stats(guild, players)
-
-	res = OrderedDict()
-
-	res['**Compared Guilds**'] = OrderedDict()
-	res['**Compared Guilds**']['__GUILD__']       = '%s (%s)' % (guild['name'], guild['members'])
-	res['**Compared Guilds**']['**Banner**']      = get_banner_emoji(guild['bannerLogo'], guild['bannerColor'])
-	res['**Compared Guilds**']['**Topic**']       = guild['message']
-	res['**Compared Guilds**']['**Description**'] = guild['desc']
-
-	#'**Avg.Rank** %s'      % guild['stats']['arena_rank'],
-
-	res['**Guild GP**'] = OrderedDict()
-	res['**Guild GP**']['**Total**']      = dotify(guild['gp'])
-	res['**Guild GP**']['**Characters**'] = dotify(guild['gpChar'])
-	res['**Guild GP**']['**Ships**']      = dotify(guild['gpShip'])
-
-	res['**Avg Player GP**'] = OrderedDict()
-	res['**Avg Player GP**']['**Total**']      = dotify(guild['gp'] / len(guild['roster']))
-	res['**Avg Player GP**']['**Characters**'] = dotify(guild['gpChar'] / len(guild['roster']))
-	res['**Avg Player GP**']['**Ships**']      = dotify(guild['gpShip'] / len(guild['roster']))
-
-	res['**Characters**'] = OrderedDict()
-	res['**Characters**']['**7 Stars**']    = dotify(guild['s7-units'])
-	res['**Characters**']['**Lvl 85**']     = dotify(guild['l85-units'])
-	res['**Characters**']['**G13**']        = dotify(guild['g13-units'])
-	res['**Characters**']['**G12**']        = dotify(guild['g12-units'])
-	res['**Characters**']['**G11**']        = dotify(guild['g11-units'])
-
-	for relic in reversed(range(1, MAX_RELIC + 1)):
-		res['**Characters**']['**R%d**' % relic] = dotify(guild['r%d-units' % relic])
-
-	res['**Characters**']['**Omegas**']     = dotify(guild['omegas'])
-	res['**Characters**']['**Zetas**']      = dotify(guild['zetas'])
-	res['**Characters**']['**6 Dot Mods**'] = dotify(guild['6-pips-mods'])
-
-	res['**Ships**'] = OrderedDict()
-	res['**Ships**']['**7 Star**'] = dotify(guild['s7-ships'])
-	res['**Ships**']['**Lvl 85**'] = dotify(guild['l85-ships'])
-
-	return res
-
 async def cmd_guild_compare(request):
 
 	args = request.args
@@ -281,20 +150,23 @@ async def cmd_guild_compare(request):
 	excluded_ally_codes = parse_opts_ally_codes_excluded(request)
 
 	selected_players, error = parse_opts_players(request, expected_allies=2)
+	if error:
+		return error
 
 	selected_units = parse_opts_unit_names(request)
+	if not selected_units:
+		return error_no_unit_selected()
 
 	if args:
 		return error_unknown_parameters(args)
 
-	if not selected_units:
-		return error_no_unit_selected()
-
-	if error:
-		return error
-
 	fields = []
 	guild_list = await fetch_guilds(config, [ str(x.ally_code) for x in selected_players ])
+
+	guilds = {}
+	for ally_code, guild in guild_list.items():
+		guild_name = guild['name']
+		guilds[guild_name] = guild
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	for dummy, guild in guild_list.items():
@@ -308,99 +180,11 @@ async def cmd_guild_compare(request):
 		if ally_code in excluded_ally_codes:
 			ally_codes.remove(ally_code)
 
-	"""
-	players_raw = await fetch_players(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'allyCode': 1,
-			'name': 1,
-			'roster': {
-				'defId': 1,
-				'gp': 1,
-				'gear': 1,
-				'level': 1,
-				'rarity': 1,
-				'relic': 1,
-				'skills': 1,
-				'combatType': 1,
-				'mods': {
-					'pips': 1,
-				},
-			},
-		},
-	}, sort=False)
-
-	"""
-
 	stats, players = await fetch_crinolo_stats(config, ally_codes) #, players_raw)
 
 	players = sort_players(players)
 
-	guilds = {}
-	for ally_code, guild in guild_list.items():
-		guild_name = guild['name']
-		guilds[guild_name] = guild
-		fields.append(guild_to_dict(guild, players))
-
-	accu = {}
-	for guild in fields:
-		for category, data in guild.items():
-			for key, line in data.items():
-				if category not in accu:
-					accu[category] = OrderedDict()
-				if key not in accu[category]:
-					accu[category][key] = []
-				if line is not None:
-					accu[category][key].append(line)
-
-	gdata = accu.pop('**Compared Guilds**')
-	names = gdata.pop('__GUILD__')
-	banners = gdata.pop('**Banner**')
-	topics = gdata.pop('**Topic**')
-	descrs = gdata.pop('**Description**')
-
-	lines = []
-
-	for alist in [ names ]:
-		i = 0
-		for banner in banners:
-			lines.append('%s | **__%s__**' % (banner, alist[i]))
-			lines.append('%s | %s' % (banner, topics[i]))
-			lines.append('%s | %s' % (banner, descrs[i]))
-			i += 1
-
-	field = {
-		'name': '**Compared Guilds**',
-		'value': '\n'.join(lines),
-	}
-
-	fields = [ field ]
-
 	msgs = []
-	for category, data in accu.items():
-		lines = []
-		lines.append('`|` %s `|`' % ' `|` '.join(banners))
-		for key, values in data.items():
-			if key == '__GUILD__':
-				key = ''
-
-			newvals = []
-			for val in values:
-				pad = max(0, 11 - len(str(val))) * '\u00a0'
-				newvals.append('%s%s' % (pad, val))
-
-			lines.append('`|%s|`%s' % ('|'.join(newvals), key))
-
-		fields.append({
-			'name': category,
-			'value': '\n'.join(lines),
-		})
-
-	msgs.append({
-		'title': 'Guild Comparison',
-		'fields': fields,
-	})
-
 	for unit in selected_units:
 
 		units = []
