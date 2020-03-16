@@ -51,77 +51,6 @@ base_stats = [
 	'Unit still locked',
 ]
 
-def get_player_stats(config, roster, lang):
-
-	stats = {
-		'count': 0,
-		'gp': 0,
-		'char': {
-			'levels': {},
-			'stars': OrderedDict(),
-			'gp': 0,
-		},
-		'ship': {
-			'levels': {},
-			'stars': OrderedDict(),
-			'gp': 0,
-		},
-		'levels': {},
-		'gears': {},
-		'relics': {},
-		'stars': {},
-		'zetas': 0,
-		'omegas': 0,
-	}
-
-	for i in range(0, 85 + 1):
-		stats['levels'][i] = 0
-		stats['char']['levels'][i] = 0
-		stats['ship']['levels'][i] = 0
-
-	for i in range(0, 13 + 1):
-		stats['gears'][i] = 0
-
-
-	for i in range(0, 7 + 1):
-		stats['relics'][i] = 0
-
-	for i in range(0, 7 + 1):
-		stats['stars'][i] = 0
-		stats['char']['stars'][i] = 0
-		stats['ship']['stars'][i] = 0
-
-	for base_id, unit in roster.items():
-
-		gp     = unit['gp'] or 0
-		typ    = unit['combatType'] == 1 and 'char' or 'ship'
-		level  = unit['level']
-		gear   = unit['gear']
-		stars  = unit['rarity']
-		skills = unit['skills']
-		relic  = get_relic_tier(unit)
-
-		stats['count']         += 1
-		stats['gp']            += gp
-		stats['levels'][level] += 1
-		stats['gears'][gear]   += 1
-		stats['relics'][relic] += 1
-		stats['stars'][stars]  += 1
-
-		stats[typ]['levels'][level] += 1
-		stats[typ]['stars'][stars]  += 1
-		stats[typ]['gp']            += gp
-
-		for skill in skills:
-
-			if 'tier' not in skill or skill['tier'] != MAX_SKILL_TIER:
-				continue
-
-			key = skill['isZeta'] and 'zetas' or 'omegas'
-			stats[key] += 1
-
-	return stats
-
 def get_stat_detail(name, stats, percent=False):
 
 	coef = 1
@@ -224,60 +153,6 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 
 	return res
 
-def player_to_embedfield(config, player, roster, lang):
-
-	stats = get_player_stats(config, roster, lang)
-
-	guild_name = player['guildName'].strip()
-	if guild_name:
-		guild_name = '%s' % guild_name
-	else:
-		guild_name = '**No guild**'
-
-	res = OrderedDict()
-
-	res['ID']         = player['id']
-	res['name']       = player['name']
-	res['Ally Code']  = player['allyCode']
-	res['GP']         = stats['gp']
-	res['Char GP']    = stats['char']['gp']
-	res['Ship GP']    = stats['ship']['gp']
-	res['Level']      = player['level']
-	res['Rank']       = player['arena']['char']['rank']
-	res['Fleet Rank'] = player['arena']['ship']['rank']
-	res['Guild']      = guild_name
-
-	res['Characters'] = OrderedDict()
-	for star in reversed(range(1, 7 + 1)):
-		stars = get_stars_as_emojis(star)
-		res['Characters'][stars] = stats['char']['stars'][star]
-
-	res['L85 Units'] = stats['char']['levels'][85]
-
-	gears = []
-	gears.extend(range(9, 13 + 1))
-	for gear in reversed(gears):
-		gear_label = 'G%d Units' % gear
-		res[gear_label] = stats['gears'][gear]
-
-	relics = []
-	relics.extend(range(1, 7 + 1))
-	for relic in reversed(relics):
-		relic_label = 'R%d Units' % relic
-		res[relic_label] = stats['relics'][relic]
-
-	res['Zetas'] = stats['zetas']
-	res['Omegas'] = stats['omegas']
-
-	res['Ships'] = OrderedDict()
-	for star in reversed(range(1, 7 + 1)):
-		stars = get_stars_as_emojis(star)
-		res['Ships'][stars] = stats['ship']['stars'][star]
-
-	res['L85 Ships'] = stats['ship']['levels'][85]
-
-	return res
-
 async def cmd_player_compare(request):
 
 	args = request.args
@@ -293,54 +168,10 @@ async def cmd_player_compare(request):
 	if args:
 		return error_unknown_parameters(args)
 
-	fields = []
 	ally_codes = [ player.ally_code for player in selected_players ]
 	stats, players = await fetch_crinolo_stats(config, ally_codes)
 
-	for player in players:
-		ally_code = player['allyCode']
-		fields.append(player_to_embedfield(config, player, stats[ally_code], lang))
-
-	player_fields = OrderedDict()
-	for field in fields:
-		for key, val in field.items():
-			if key not in player_fields:
-				player_fields[key] = []
-			if type(val) is not list:
-				player_fields[key].append(val)
-			else:
-				player_fields[key].append(str(val))
-
-	max_key_len = 0
-	for key in player_fields:
-		if len(key) > max_key_len:
-			max_key_len = len(key)
-
 	msgs = []
-	lines = []
-	for key, listval in player_fields.items():
-		pad = (max_key_len - len(key)) + 1
-		if key in [ 'Characters', 'Ships' ]:
-			lines.append('')
-			lines.append('**`%s`**' % key)
-			values = OrderedDict()
-			for d in listval:
-				for k, v in d.items():
-					if k not in values:
-						values[k] = []
-					values[k].append(str(v))
-
-			for k, v in values.items():
-				lines.append('**%s**`:| %s`' % (k, ' | '.join(v)))
-		else:
-			listval = [ '%s' % i for i in listval ]
-			lines.append('**`%s`**`:%s| %s`' % (key, pad * '\u00a0', ' | '.join(listval)))
-
-	msgs.append({
-		'title': 'Player Comparison',
-		'description': '\n'.join(lines),
-	})
-
 	for unit in selected_units:
 
 		units = []
