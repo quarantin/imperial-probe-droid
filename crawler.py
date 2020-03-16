@@ -357,10 +357,10 @@ class CrawlerThread(asyncio.Future):
 				await self.refresh_guilds(to_refresh)
 
 			print(datetime.now())
-			failed_ac, failed_ch = self.refresh_players(ally_codes, channels)
+			failed_ac, failed_ch = await self.refresh_players(ally_codes, channels)
 
 			if failed_ac:
-				failed_ac2, failed_ch2 = self.refresh_players(failed_ac, failed_ch)
+				failed_ac2, failed_ch2 = await self.refresh_players(failed_ac, failed_ch)
 				if failed_ac2:
 					print('ERROR: Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(failed_ac2))
 				else:
