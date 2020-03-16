@@ -7,11 +7,15 @@ help_invite = {
 	
 **Syntax**
 ```
-%prefixinvite```""",
+%prefixinvite```
+If the link is not working for you, please try:
+```
+%prefixinvite link```""",
 }
 
 def cmd_invite(request):
 
+	args = request.args
 	config = request.config
 
 	invite_url = 'https://discordapp.com/api/oauth2/authorize?' + urlencode({
@@ -20,7 +24,12 @@ def cmd_invite(request):
 		'scope': 'bot',
 	})
 
+	invite_msg = 'Click here to invite this bot to your server'
+	invite_link = '[%s](%s)' % (invite_msg, invite_url)
+	if 'link' in args:
+		invite_link = invite_url
+
 	return [{
 		'title': 'Invite Imperial Probe Droid',
-		'description': '%s\n[Invite this bot to your server](%s)' % (config['separator'], invite_url),
+		'description': '%s\n%s' % (config['separator'], invite_link),
 	}]
