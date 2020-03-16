@@ -3,6 +3,7 @@ from cmd.channel.payout import *
 from cmd.guild.compare import *
 from cmd.guild.ggp import *
 from cmd.guild.glist import *
+from cmd.guild.stat import *
 from cmd.guild.ulist import *
 from cmd.management.alias import *
 from cmd.management.ban import *
@@ -87,10 +88,22 @@ COMMANDS = [
 		'help': help_player_compare,
 	},
 	{
+		'command': 'ps',
+		'aliases': [ 'ps', 'pstat', 'pstats', 'playerstat', 'playerstats' ],
+		'function': cmd_player_stat,
+		'help': help_player_stat,
+	},
+	{
 		'command': 'gc',
 		'aliases': [ 'gc', 'gcompare', 'guildcompare' ],
 		'function': cmd_guild_compare,
 		'help': help_guild_compare,
+	},
+	{
+		'command': 'gs',
+		'aliases': [ 'gs', 'gstat', 'gstats', 'guildstat', 'guildstats' ],
+		'function': cmd_guild_stat,
+		'help': help_guild_stat,
 	},
 	{
 		'command': 'glist',
@@ -236,12 +249,6 @@ COMMANDS = [
 		'aliases': [ 'servers' ],
 		'function': cmd_servers,
 		'help': help_servers,
-	},
-	{
-		'command': 'ps',
-		'aliases': [ 'ps', 'pstat', 'pstats', 'playerstat', 'playerstats' ],
-		'function': cmd_player_stat,
-		'help': help_player_stat,
 	},
 	{
 		'command': 'timezone',

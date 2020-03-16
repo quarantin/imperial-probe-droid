@@ -20,7 +20,8 @@ help_help = {
 **`config`**: Configure server settings such as bot prefix (**NEW**).
 %separator
 **Guild Commands**
-**`gc`**: Compare different guilds and their respective units.
+**`gc`**: Guild comparison by roster.
+**`gs`**: Guild comparison by stats.
 **`glist`**: List guild members by unit GP, gear, level, rarity.
 %separator
 **Channel Commands**
@@ -35,8 +36,8 @@ help_help = {
 **`mc`**: Show characters with missing mods or having weak mods (**NEW**).
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
-**`pc`**: Compare different player rosters.
-**`ps`**: Compare different player stats.
+**`pc`**: Player comparison by roster.
+**`ps`**: Player comparison by stats.
 **`recos`**: Show information about recommended mods.
 **`relics`**: List most popular characters with relics (**NEW**).
 **`wntm`**: List characters who needs mods with specific criteria.
