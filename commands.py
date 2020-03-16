@@ -241,7 +241,7 @@ COMMANDS = [
 		'command': 'ps',
 		'aliases': [ 'ps', 'pstat', 'pstats', 'playerstat', 'playerstats' ],
 		'function': cmd_player_stat,
-		'help': cmd_player_stat,
+		'help': help_player_stat,
 	},
 	{
 		'command': 'timezone',
