@@ -35,7 +35,8 @@ help_help = {
 **`mc`**: Show characters with missing mods or having weak mods (**NEW**).
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
-**`pc`**: Compare different players and their respective units.
+**`pc`**: Compare different player rosters.
+**`ps`**: Compare different player stats.
 **`recos`**: Show information about recommended mods.
 **`relics`**: List most popular characters with relics (**NEW**).
 **`wntm`**: List characters who needs mods with specific criteria.
