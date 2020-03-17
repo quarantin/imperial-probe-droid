@@ -356,7 +356,7 @@ class TrackerThread(asyncio.Future):
 				player = json.loads(player.decode('utf-8'))
 				messages_key = 'messages|%s' % player['guildRefId']
 				count = self.redis.llen(messages_key)
-				if count > 0:
+				if count > 0 and guild.channel_id:
 					messages = self.redis.lrange(messages_key, 0, count)
 
 					for message in messages:
