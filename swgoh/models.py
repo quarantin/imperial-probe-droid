@@ -798,8 +798,10 @@ class PremiumGuild(models.Model):
 
 class PremiumGuildConfig(models.Model):
 
+	MSG_SQUAD_ARENA_RANK_MAX       = 'arena.squad.rank.max'
 	MSG_SQUAD_ARENA_UP             = 'arena.squad.up'
 	MSG_SQUAD_ARENA_DOWN           = 'arena.squad.down'
+	MSG_FLEET_ARENA_RANK_MAX       = 'arena.fleet.rank.max'
 	MSG_FLEET_ARENA_UP             = 'arena.fleet.up'
 	MSG_FLEET_ARENA_DOWN           = 'arena.fleet.down'
 	MSG_INACTIVITY                 = 'inactivity'
