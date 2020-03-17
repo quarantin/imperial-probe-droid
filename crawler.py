@@ -345,6 +345,7 @@ class CrawlerThread(asyncio.Future):
 		self.session = await libswgoh.get_auth_guest()
 		self.last_notify = {}
 
+		# TODO: Remove the time it took to check profiles from the sleep delay
 		while True:
 
 			self.guilds = list(PremiumGuild.objects.all())
