@@ -551,7 +551,6 @@ class TrackerCog(commands.Cog):
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
 
 		pref_keys = self.get_matching_keys(guild, pref_key, config=True)
-		print(pref_keys)
 		if not pref_keys:
 			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 			await ctx.send(message)
