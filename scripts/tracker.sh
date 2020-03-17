@@ -1,8 +1,8 @@
 #!/bin/bash
 
 SLEEP=1
-ERROR='tracker-error.log'
-OUTPUT='tracker-output.log'
+ERROR='logs/tracker-error.log'
+OUTPUT='logs/tracker-output.log'
 NAME='IPD Tracker'
 MAIN='tracker/tracker.py'
 
