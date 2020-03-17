@@ -798,80 +798,80 @@ class PremiumGuild(models.Model):
 
 class PremiumGuildConfig(models.Model):
 
-	MSG_INACTIVITY                 = 'inactivity'
-	MSG_INACTIVITY_MIN             = 'inactivity.min'
-	MSG_INACTIVITY_REPEAT          = 'inactivity.repeat'
-	MSG_PLAYER_NICK                = 'player.nick'
-	MSG_PLAYER_LEVEL               = 'player.level'
-	MSG_PLAYER_LEVEL_MIN           = 'player.level.min'
-	MSG_UNIT_UNLOCKED              = 'unit.unlocked'
-	MSG_UNIT_LEVEL                 = 'unit.level'
-	MSG_UNIT_LEVEL_MIN             = 'unit.level.min'
-	MSG_UNIT_RARITY                = 'unit.rarity'
-	MSG_UNIT_RARITY_MIN            = 'unit.rarity.min'
-	MSG_UNIT_RELIC                 = 'unit.relic'
-	MSG_UNIT_RELIC_MIN             = 'unit.relic.min'
-	MSG_UNIT_GEAR_LEVEL            = 'gear.level'
-	MSG_UNIT_GEAR_LEVEL_MIN        = 'gear.level.min'
-	MSG_UNIT_GEAR_PIECE            = 'gear.piece'
-	MSG_UNIT_SKILL_UNLOCKED        = 'skill.unlocked'
-	MSG_UNIT_SKILL_INCREASED       = 'skill.increased'
-	MSG_UNIT_SKILL_INCREASED_MIN   = 'skill.increased.min'
-	MSG_UNIT_SKILL_INCREASED_OMEGA = 'skill.omega'
-	MSG_UNIT_SKILL_INCREASED_ZETA  = 'skill.zeta'
 	MSG_SQUAD_ARENA_UP             = 'arena.squad.up'
 	MSG_SQUAD_ARENA_DOWN           = 'arena.squad.down'
 	MSG_FLEET_ARENA_UP             = 'arena.fleet.up'
 	MSG_FLEET_ARENA_DOWN           = 'arena.fleet.down'
+	MSG_INACTIVITY                 = 'inactivity'
+	MSG_INACTIVITY_MIN             = 'inactivity.min'
+	MSG_INACTIVITY_REPEAT          = 'inactivity.repeat'
+	MSG_PLAYER_LEVEL               = 'player.level'
+	MSG_PLAYER_LEVEL_MIN           = 'player.level.min'
+	MSG_PLAYER_NICK                = 'player.nick'
+	MSG_UNIT_UNLOCKED              = 'unit.unlocked'
+	MSG_UNIT_LEVEL                 = 'unit.level'
+	MSG_UNIT_LEVEL_MIN             = 'unit.level.min'
+	MSG_UNIT_OMEGA                 = 'unit.omega'
+	MSG_UNIT_RARITY                = 'unit.rarity'
+	MSG_UNIT_RARITY_MIN            = 'unit.rarity.min'
+	MSG_UNIT_RELIC                 = 'unit.relic'
+	MSG_UNIT_RELIC_MIN             = 'unit.relic.min'
+	MSG_UNIT_GEAR_LEVEL            = 'unit.gear'
+	MSG_UNIT_GEAR_LEVEL_MIN        = 'unit.gear.min'
+	MSG_UNIT_GEAR_PIECE            = 'unit.gear.piece'
+	MSG_UNIT_ZETA                  = 'unit.zeta'
+	MSG_UNIT_SKILL_UNLOCKED        = 'skill.unlocked'
+	MSG_UNIT_SKILL_INCREASED       = 'skill.increased'
+	MSG_UNIT_SKILL_INCREASED_MIN   = 'skill.increased.min'
 
 	MESSAGE_DEFAULTS = [
 
-		(MSG_INACTIVITY,                 True, bool),
-		(MSG_INACTIVITY_MIN,             48,   int),
-		(MSG_INACTIVITY_REPEAT,          24,   int),
-		(MSG_PLAYER_NICK,                True, bool),
-		(MSG_PLAYER_LEVEL,               True, bool),
-		(MSG_PLAYER_LEVEL_MIN,           0,    int),
-		(MSG_UNIT_UNLOCKED,              True, bool),
-		(MSG_UNIT_LEVEL,                 True, bool),
-		(MSG_UNIT_LEVEL_MIN,             0,    int),
-		(MSG_UNIT_RARITY,                True, bool),
-		(MSG_UNIT_RARITY_MIN,            0,    int),
-		(MSG_UNIT_RELIC,                 True, bool),
-		(MSG_UNIT_RELIC_MIN,             0,    int),
-		(MSG_UNIT_GEAR_LEVEL,            True, bool),
-		(MSG_UNIT_GEAR_LEVEL_MIN,        0,    int),
-		(MSG_UNIT_GEAR_PIECE,            True, bool),
-		(MSG_UNIT_SKILL_UNLOCKED,        True, bool),
-		(MSG_UNIT_SKILL_INCREASED,       True, bool),
-		(MSG_UNIT_SKILL_INCREASED_MIN,   0,    int),
-		(MSG_UNIT_SKILL_INCREASED_OMEGA, True, bool),
-		(MSG_UNIT_SKILL_INCREASED_ZETA,  True, bool),
-		(MSG_SQUAD_ARENA_UP,             True, bool),
-		(MSG_SQUAD_ARENA_DOWN,           True, bool),
-		(MSG_FLEET_ARENA_UP,             True, bool),
-		(MSG_FLEET_ARENA_DOWN,           True, bool),
+		(MSG_SQUAD_ARENA_UP,           True, bool),
+		(MSG_SQUAD_ARENA_DOWN,         True, bool),
+		(MSG_FLEET_ARENA_UP,           True, bool),
+		(MSG_FLEET_ARENA_DOWN,         True, bool),
+		(MSG_INACTIVITY,               True, bool),
+		(MSG_INACTIVITY_MIN,           48,   int),
+		(MSG_INACTIVITY_REPEAT,        24,   int),
+		(MSG_PLAYER_LEVEL,             True, bool),
+		(MSG_PLAYER_LEVEL_MIN,         0,    int),
+		(MSG_PLAYER_NICK,              True, bool),
+		(MSG_UNIT_UNLOCKED,            True, bool),
+		(MSG_UNIT_LEVEL,               True, bool),
+		(MSG_UNIT_LEVEL_MIN,           0,    int),
+		(MSG_UNIT_OMEGA, True, bool),
+		(MSG_UNIT_RARITY,              True, bool),
+		(MSG_UNIT_RARITY_MIN,          0,    int),
+		(MSG_UNIT_RELIC,               True, bool),
+		(MSG_UNIT_RELIC_MIN,           0,    int),
+		(MSG_UNIT_GEAR_LEVEL,          True, bool),
+		(MSG_UNIT_GEAR_LEVEL_MIN,      0,    int),
+		(MSG_UNIT_GEAR_PIECE,          True, bool),
+		(MSG_UNIT_ZETA,  True, bool),
+		(MSG_UNIT_SKILL_UNLOCKED,      True, bool),
+		(MSG_UNIT_SKILL_INCREASED,     True, bool),
+		(MSG_UNIT_SKILL_INCREASED_MIN, 0,    int),
 	]
 
 	MESSAGE_FORMATS = {
 
-		MSG_INACTIVITY:                 '${nick} has been inactive for ${last.seen}',
-		MSG_PLAYER_NICK:                '${nick} is now known as ${new_nick}',
-		MSG_PLAYER_LEVEL:               '${nick} reached level ${level}',
-		MSG_UNIT_UNLOCKED:              '${nick} unlocked ${unit}',
-		MSG_UNIT_LEVEL:                 '${nick} increased ${unit} to level ${level}',
-		MSG_UNIT_RARITY:                '${nick} promoted ${unit} to ${rarity} stars',
-		MSG_UNIT_RELIC:                 '${nick} increased ${unit} to relic ${relic}',
-		MSG_UNIT_GEAR_LEVEL:            '${nick} increased ${unit}\'s gear to level ${gear.level.roman}',
-		MSG_UNIT_GEAR_PIECE:            '${nick} set equipment ${gear.piece} on ${unit}',
-		MSG_UNIT_SKILL_UNLOCKED:        '${nick} unlocked ${unit}\'s skill ${skill}',
-		MSG_UNIT_SKILL_INCREASED:       '${nick} increased skill ${skill} to tier ${tier} (${unit})',
-		MSG_UNIT_SKILL_INCREASED_OMEGA: '${nick} applied **Omega** upgrade to ${skill} (${unit})',
-		MSG_UNIT_SKILL_INCREASED_ZETA:  '${nick} applied **Zeta** upgrade to ${skill} (${unit})',
-		MSG_SQUAD_ARENA_UP:             '${nick} has _climbed up_ in squad arena __**${old.rank} => ${new.rank}**__',
-		MSG_SQUAD_ARENA_DOWN:           '${nick} has _dropped down_ in squad arena __**${old.rank} => ${new.rank}**__',
-		MSG_FLEET_ARENA_UP:             '${nick} has _climbed up_ in fleet arena __**${old.rank} => ${new.rank}**__',
-		MSG_FLEET_ARENA_DOWN:           '${nick} has _dropped down_ in fleet arena __**${old.rank} => ${new.rank}**__',
+		MSG_INACTIVITY:           '${nick} has been inactive for ${last.seen}',
+		MSG_PLAYER_NICK:          '${nick} is now known as ${new_nick}',
+		MSG_PLAYER_LEVEL:         '${nick} reached level ${level}',
+		MSG_UNIT_UNLOCKED:        '${nick} unlocked ${unit}',
+		MSG_UNIT_LEVEL:           '${nick} increased ${unit} to level ${level}',
+		MSG_UNIT_RARITY:          '${nick} promoted ${unit} to ${rarity} stars',
+		MSG_UNIT_RELIC:           '${nick} increased ${unit} to relic ${relic}',
+		MSG_UNIT_GEAR_LEVEL:      '${nick} increased ${unit}\'s gear to level ${gear.level.roman}',
+		MSG_UNIT_GEAR_PIECE:      '${nick} set equipment ${gear.piece} on ${unit}',
+		MSG_UNIT_SKILL_UNLOCKED:  '${nick} unlocked ${unit}\'s skill ${skill}',
+		MSG_UNIT_SKILL_INCREASED: '${nick} increased skill ${skill} to tier ${tier} (${unit})',
+		MSG_UNIT_OMEGA:           '${nick} applied **Omega** upgrade to ${skill} (${unit})',
+		MSG_UNIT_ZETA:            '${nick} applied **Zeta** upgrade to ${skill} (${unit})',
+		MSG_SQUAD_ARENA_UP:       '${nick} has _climbed up_ in squad arena __**${old.rank} => ${new.rank}**__',
+		MSG_SQUAD_ARENA_DOWN:     '${nick} has _dropped down_ in squad arena __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_ARENA_UP:       '${nick} has _climbed up_ in fleet arena __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_ARENA_DOWN:     '${nick} has _dropped down_ in fleet arena __**${old.rank} => ${new.rank}**__',
 	}
 
 	guild = models.ForeignKey(PremiumGuild, on_delete=models.CASCADE)
