@@ -736,7 +736,7 @@ class PremiumGuild(models.Model):
 			if item.key.endswith('.channel'):
 				config[item.key] = '<#%s>' % item.value
 
-			elif item.key.endswith('.min') or item.key.endswith('.repeat'):
+			elif item.value_type == 'int':
 				config[item.key] = int(item.value)
 
 			else:
