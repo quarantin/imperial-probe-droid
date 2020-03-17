@@ -78,7 +78,11 @@ class TrackerThread(asyncio.Future):
 	async def handle_arena_climbed_up(self, config, message):
 
 		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_UP or PremiumGuildConfig.MSG_FLEET_ARENA_UP
+		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_ARENA_RANK_MAX
 		if key in config and config[key] is False:
+			return
+
+		if max_rank_key in config and message['new.rank'] > config[max_rank_key]:
 			return
 
 		return key
@@ -86,7 +90,11 @@ class TrackerThread(asyncio.Future):
 	async def handle_arena_dropped_down(self, config, message):
 
 		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN or PremiumGuildConfig.MSG_FLEET_ARENA_DOWN
+		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_ARENA_RANK_MAX
 		if key in config and config[key] is False:
+			return
+
+		if max_rank_key in config and message['old.rank'] > config[max_rank_key]:
 			return
 
 		return key
