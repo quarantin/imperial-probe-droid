@@ -208,13 +208,13 @@ class TrackerThread(asyncio.Future):
 
 		if typ == 'omega':
 
-			key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED_OMEGA
+			key = PremiumGuildConfig.MSG_UNIT_OMEGA
 			if key in config and config[key] is False:
 				return
 
 		elif typ == 'zeta':
 
-			key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED_ZETA
+			key = PremiumGuildConfig.MSG_UNIT_ZETA
 			if key in config and config[key] is False:
 				return
 
@@ -454,6 +454,26 @@ class TrackerCog(commands.Cog):
 
 		return premium_guild
 
+	def get_matching_keys(self, guild, pref_key, config=False, channels=False, formats=False):
+
+		keys = []
+		for key, value in sorted(guild.get_config().items()):
+
+			add = False
+			if config is True and not key.endswith('.channel') and not key.endswith('.format'):
+				add = True
+
+			elif channels is True and key.endswith('.channel'):
+				add = True
+
+			elif formats is True and key.endswith('.formats'):
+				add = True
+
+			if add and pref_key in key:
+				keys.append(key)
+
+		return keys
+
 	async def get_config(self, ctx, guild, pref_key=None):
 
 		allow_all = pref_key is not None and pref_key in [ '*', 'all' ]
@@ -530,129 +550,162 @@ class TrackerCog(commands.Cog):
 
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
 
-		config = guild.get_config()
-
-		if pref_key not in config:
+		pref_keys = self.get_matching_keys(guild, pref_key, config=True)
+		print(pref_keys)
+		if not pref_keys:
 			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
-		try:
-			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+		if len(pref_keys) > 1:
+			pref_keys = [ '`%s`' % x for x in pref_keys if not x.endswith('.channel') and not x.endswith('format') ]
+			message = '__**%s**__ matches more than one entry:\n%s' % (pref_key, '\n'.join(pref_keys))
+			await ctx.send(message)
+			return
 
-		except PremiumGuildConfig.DoesNotExist:
-			entry = PremiumGuildConfig(guild=guild, key=pref_key)
+		lines = []
+		for pref_key in pref_keys:
+			try:
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
 
-		boolval = self.parse_opts_boolean(pref_value)
+			except PremiumGuildConfig.DoesNotExist:
+				entry = PremiumGuildConfig(guild=guild, key=pref_key)
 
-		if pref_key.endswith('.channel'):
-			entry.value = parse_opts_channel(pref_value)
-			entry.value_type = 'chan'
+			boolval = self.parse_opts_boolean(pref_value)
 
-		if pref_key.endswith('.format'):
-			entry.value = pref_value
-			entry.value_type = 'fmt'
+			if pref_key.endswith('.channel'):
+				entry.value = parse_opts_channel(pref_value)
+				entry.value_type = 'chan'
 
-		elif pref_key.endswith('.min') or pref_key.endswith('.repeat'):
-			entry.value = int(pref_value)
-			entry.value_type = int.__name__
+			if pref_key.endswith('.format'):
+				entry.value = pref_value
+				entry.value_type = 'fmt'
 
-		elif boolval is not None:
-			entry.value = boolval
-			entry.value_type = bool.__name__
+			elif pref_key.endswith('.min') or pref_key.endswith('.repeat'):
+				entry.value = int(pref_value)
+				entry.value_type = int.__name__
 
-		else:
-			entry.value = pref_value
-			entry.value_type = str.__name__
+			elif boolval is not None:
+				entry.value = boolval
+				entry.value_type = bool.__name__
 
-		entry.save()
+			else:
+				entry.value = pref_value
+				entry.value_type = str.__name__
 
-		display_value = entry.value
+			entry.save()
 
-		if entry.value_type == 'bool':
-			display_value = display_value is True and '`On`' or '`Off`'
+			display_value = entry.value
 
-		elif entry.value_type == 'chan':
-			display_value = '<#%s>' % display_value
+			if entry.value_type == 'bool':
+				display_value = display_value is True and '**On**' or '**Off**'
 
-		message = 'The following setting has been saved:\n`%s` = %s' % (pref_key, display_value)
-		await ctx.send(message)
+			elif entry.value_type == 'chan':
+				display_value = '<#%s>' % display_value
+
+			lines.append('`%s` = %s' % (pref_key, display_value))
+
+		if lines:
+			plural = len(lines) > 1 and 's' or ''
+			plural_have = len(lines) > 1 and 'have' or 'has'
+			lines.insert(0, 'The following setting%s %s been saved:' % (plural, plural_have))
+			await ctx.send('\n'.join(lines))
 
 	async def set_channels(self, ctx, guild, pref_key: str, pref_value: str):
 
-		config = guild.get_config()
-
-		if not pref_key.endswith('.channel'):
-			if pref_key != 'default' and pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
-				message = error_invalid_config_key(self.bot.command_prefix, pref_key)
-				await ctx.send(message)
-				return
-
-			pref_key = '%s.channel' % pref_key
-
-		if pref_key not in config:
+		pref_keys = self.get_matching_keys(guild, pref_key, channels=True)
+		if not pref_keys:
 			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
-		channel_id = parse_opts_channel(pref_value)
-		webhook_channel = self.bot.get_channel(channel_id)
-		webhook_name = get_webhook_name(pref_key.replace('.channel', ''))
-		webhook, error = await get_webhook(webhook_name, webhook_channel)
-		if not webhook:
-			if error:
-				print("WTF: %s %s" % (type(error), error))
-				await ctx.send(error)
-				return
+		lines = []
+		for pref_key in pref_keys:
 
-			webhook, error = await create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
+			if not pref_key.endswith('.channel'):
+				if pref_key != 'default' and pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+					await ctx.send(message)
+					return
+
+				pref_key = '%s.channel' % pref_key
+
+			channel_id = parse_opts_channel(pref_value)
+			webhook_channel = self.bot.get_channel(channel_id)
+			webhook_name = get_webhook_name(pref_key.replace('.channel', ''))
+			webhook, error = await get_webhook(webhook_name, webhook_channel)
 			if not webhook:
-				print("create_webhook failed: %s" % error)
-				await ctx.send(error)
-				return
+				if error:
+					await ctx.send(error)
+					return
 
-		try:
-			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+				webhook, error = await create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
+				if not webhook:
+					print("create_webhook failed: %s" % error)
+					await ctx.send(error)
+					return
 
-		except PremiumGuildConfig.DoesNotExist:
-			entry = PremiumGuildConfig(guild=guild, key=pref_key)
+			try:
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
 
-		entry.value = channel_id
-		entry.value_type = 'chan'
-		entry.save()
+			except PremiumGuildConfig.DoesNotExist:
+				entry = PremiumGuildConfig(guild=guild, key=pref_key)
 
-		message = 'The following channel has been saved:\n`%s` = %s' % (pref_key, pref_value)
-		await ctx.send(message)
+			entry.value = channel_id
+			entry.value_type = 'chan'
+			entry.save()
+
+			lines.append('`%s` %s' % (pref_key, pref_value))
+
+		if lines:
+			plural = len(lines) > 1 and 's' or ''
+			plural_have = len(lines) > 1 and 'have' or 'has'
+			lines.insert(0, 'The following channel%s %s been saved:' % (plural, plural_have))
+			message = '\n'.join(lines)
+			await ctx.send(message)
 
 	async def set_formats(self, ctx, guild, pref_key: str, pref_value: str):
 
-		config = guild.get_config()
-
-		if not pref_key.endswith('.format'):
-			if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
-				message = error_invalid_config_key(self.bot.command_prefix, pref_key)
-				await ctx.send(message)
-				return
-
-			pref_key = '%s.format' % pref_key
-
-		if pref_key not in config:
+		pref_keys = self.get_matching_keys(guild, pref_key, formats=True)
+		if not pref_keys:
 			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
-		try:
-			entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+		if len(pref_keys) > 1:
+			message = 'The key \'%s\' matches more than one entry:\n%s' % (pref_key, '\n'.join(pref_keys))
+			await ctx.send(message)
+			return
 
-		except PremiumGuildConfig.DoesNotExist:
-			entry = PremiumGuildConfig(guild=guild, key=pref_key)
+		lines = []
+		for pref_key in pref_keys:
 
-		entry.value = pref_value
-		entry.value_type = 'fmt'
-		entry.save()
+			if not pref_key.endswith('.format'):
+				if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+					await ctx.send(message)
+					return
 
-		message = 'The following format has been saved:\n`%s` = "%s"' % (pref_key, pref_value)
-		await ctx.send(message)
+				pref_key = '%s.format' % pref_key
+
+			try:
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+
+			except PremiumGuildConfig.DoesNotExist:
+				entry = PremiumGuildConfig(guild=guild, key=pref_key)
+
+			entry.value = pref_value
+			entry.value_type = 'fmt'
+			entry.save()
+
+			lines.append('`%s` "%s"' % (pref_key, pref_value))
+
+		if lines:
+			plural = len(lines) > 1 and 's' or ''
+			plural_have = len(lines) > 1 and 'have' or 'has'
+			lines.insert(0, 'The following format%s %s been saved:' % ())
+			message = '\n'.join(lines)
+			await ctx.send(message)
 
 	@commands.group()
 	async def tracker(self, ctx):
