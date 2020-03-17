@@ -798,12 +798,12 @@ class PremiumGuild(models.Model):
 
 class PremiumGuildConfig(models.Model):
 
-	MSG_SQUAD_ARENA_RANK_MAX       = 'arena.squad.rank.max'
 	MSG_SQUAD_ARENA_UP             = 'arena.squad.up'
 	MSG_SQUAD_ARENA_DOWN           = 'arena.squad.down'
-	MSG_FLEET_ARENA_RANK_MAX       = 'arena.fleet.rank.max'
+	MSG_SQUAD_ARENA_RANK_MAX       = 'arena.squad.rank.max'
 	MSG_FLEET_ARENA_UP             = 'arena.fleet.up'
 	MSG_FLEET_ARENA_DOWN           = 'arena.fleet.down'
+	MSG_FLEET_ARENA_RANK_MAX       = 'arena.fleet.rank.max'
 	MSG_INACTIVITY                 = 'inactivity'
 	MSG_INACTIVITY_MIN             = 'inactivity.min'
 	MSG_INACTIVITY_REPEAT          = 'inactivity.repeat'
@@ -830,8 +830,10 @@ class PremiumGuildConfig(models.Model):
 
 		(MSG_SQUAD_ARENA_UP,           True, bool),
 		(MSG_SQUAD_ARENA_DOWN,         True, bool),
+		(MSG_SQUAD_ARENA_RANK_MAX,     10000, int),
 		(MSG_FLEET_ARENA_UP,           True, bool),
 		(MSG_FLEET_ARENA_DOWN,         True, bool),
+		(MSG_FLEET_ARENA_RANK_MAX,     10000, int),
 		(MSG_INACTIVITY,               True, bool),
 		(MSG_INACTIVITY_MIN,           48,   int),
 		(MSG_INACTIVITY_REPEAT,        24,   int),
