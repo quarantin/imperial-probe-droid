@@ -112,25 +112,28 @@ class UserRequest:
 			print("PROBLEM WITH SHLEX: `%s`" % self.content)
 			args = self.content.split(' ')
 
-		command = args[0]
-		if command in config['aliases']:
-			new_content = self.content.replace(command, config['aliases'][command])
-			content = self.__remove_prefix(new_content)
-			args = shlex.split(content)
+		if args:
+
 			command = args[0]
+			if command in config['aliases']:
+				new_content = self.content.replace(command, config['aliases'][command])
+				content = self.__remove_prefix(new_content)
+				args = shlex.split(content)
+				command = args[0]
 
-		if command.lower() in config['ignored']:
-			self.is_ipd_message = False
+			if command.lower() in config['ignored']:
+				self.is_ipd_message = False
 
-		args = args[1:]
+			args = args[1:]
 
-		args = [ x for x in args if x ]
+			args = [ x for x in args if x ]
 
-		if 'help' in args or 'h' in args:
-			args = [ command ]
-			command = 'help'
+			if 'help' in args or 'h' in args:
+				args = [ command ]
+				command = 'help'
 
-		self.command = command
+			self.command = command
+
 		self.args = args
 
 	def __log_message(self, message, logfile='messages.log'):
