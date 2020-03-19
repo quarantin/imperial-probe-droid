@@ -871,7 +871,7 @@ class PremiumGuildConfig(models.Model):
 	MESSAGE_FORMATS = {
 
 		MSG_INACTIVITY:           '${nick} has been inactive for ${last.seen}',
-		MSG_PLAYER_NICK:          '${nick} is now known as ${new_nick}',
+		MSG_PLAYER_NICK:          '${nick} is now known as ${new.nick}',
 		MSG_PLAYER_LEVEL:         '${nick} reached level ${level}',
 		MSG_UNIT_UNLOCKED:        '${nick} unlocked ${unit}',
 		MSG_UNIT_LEVEL:           '${nick} increased ${unit} to level ${level}',
