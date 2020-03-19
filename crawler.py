@@ -222,7 +222,7 @@ class CrawlerThread(asyncio.Future):
 	async def ensure_player(self, ally_code):
 
 		key = 'player|%s' % ally_code
-		profile = self.redis.get(ally_code)
+		profile = self.redis.get(key)
 		if not profile:
 			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 			if profile:
