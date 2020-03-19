@@ -460,6 +460,17 @@ class BaseUnitSkill(models.Model):
 	is_zeta = models.BooleanField(default=False)
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 
+	def get_zetas():
+		zetas = {}
+		skills = list(BaseUnitSkill.objects.filter(is_zeta=True).values('skill_id', 'ability_ref'))
+		for skill in skills:
+			skill_id = skill['skill_id']
+			ability_ref = skill['ability_ref']
+			zetas[skill_id] = True
+			zetas[ability_ref] = True
+
+		return zetas
+
 # TODO Use me
 class PlayerUnit(models.Model):
 	player = models.ForeignKey(Player, on_delete=models.CASCADE)
