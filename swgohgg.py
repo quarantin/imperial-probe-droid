@@ -8,9 +8,9 @@ import socket
 from bs4 import BeautifulSoup
 
 import DJANGO
-from swgoh.models import BaseUnit
+from swgoh.models import BaseUnit, BaseUnitSkill
 
-db = {}
+from constants import MAX_SKILL_TIER
 
 SWGOH_GG_API_URL = 'https://swgoh.gg/api'
 
@@ -42,10 +42,11 @@ def get_swgohgg_player_unit_url(ally_code, base_id):
 	return url
 
 def count_zetas(unit):
+	zeta_skills = BaseUnitSkill.get_zetas()
 	zetas = 0
 	if 'skills' in unit:
 		for skill in unit['skills']:
-			if 'isZeta' in skill and skill['isZeta'] is True and skill['tier'] == 8:
+			if skill['id'] in zeta_skills and skill['tier'] == MAX_SKILL_TIER:
 				zetas += 1
 	return zetas
 
