@@ -223,7 +223,10 @@ class CrawlerThread(asyncio.Future):
 
 		key = 'player|%s' % ally_code
 		profile = self.redis.get(key)
-		if not profile:
+		if profile:
+			profile = json.loads(profile.decode('utf-8'))
+
+		else:
 			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 			if profile:
 				expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
