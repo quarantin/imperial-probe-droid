@@ -15,8 +15,6 @@ from swgohhelp import api_swgoh_guilds
 import DJANGO
 from swgoh.models import PremiumGuild, PremiumGuildConfig
 
-JSON_INDENT = None # 4
-
 LAST_SEEN_MAX_HOURS = 48
 LAST_SEEN_MAX_HOURS_INTERVAL = 24
 
@@ -229,7 +227,7 @@ class CrawlerThread(asyncio.Future):
 			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 			if profile:
 				expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
-				self.redis.setex(key, expire, json.dumps(profile, indent=JSON_INDENT))
+				self.redis.setex(key, expire, json.dumps(profile))
 
 		return profile
 
@@ -262,7 +260,7 @@ class CrawlerThread(asyncio.Future):
 		messages = self.check_diff(old_profile, new_profile)
 
 		expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
-		profile_data = json.dumps(new_profile, indent=JSON_INDENT)
+		profile_data = json.dumps(new_profile)
 
 		self.redis.setex(player_key, expire, profile_data)
 
@@ -282,7 +280,7 @@ class CrawlerThread(asyncio.Future):
 		guild_key = 'guild|%s' % player['guildRefId']
 		expire = timedelta(hours=DEFAULT_GUILD_EXPIRE)
 		guild = await api_swgoh_guilds(config, { 'allycodes': [ ally_code ] })
-		guild_data = json.dumps(guild[0], indent=JSON_INDENT)
+		guild_data = json.dumps(guild[0])
 
 		self.redis.setex(guild_key, expire, guild_data)
 
