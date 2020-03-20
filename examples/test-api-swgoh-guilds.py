@@ -9,8 +9,7 @@ from swgohhelp import api_swgoh_guilds
 
 async def __main__():
 	config = load_config()
-	#ally_codes = [ '349423868' ]
-	ally_codes = [ '913624995' ]
+	ally_codes = [ '349423868', '913624995' ]
 	result = await api_swgoh_guilds(config, { 'allycodes': ally_codes })
 	print(json.dumps(result, indent=4))
 
