@@ -82,8 +82,8 @@ class Tracker(commands.Bot):
 			errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
 			return None, errmsg
 
-		except discord.HTTPException:
-			errmsg = 'I was not able to create the webhook in <#%s> due to a network error.\nPlease try again.' % channel.id
+		except discord.HTTPException as err:
+			errmsg = 'I was not able to create the webhook in <#%s> due to a network error: `%s`\nPlease try again.' % (channel.id, err)
 			return None, errmsg
 
 	async def on_ready(self):
