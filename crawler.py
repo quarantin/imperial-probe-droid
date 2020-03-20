@@ -2,7 +2,6 @@
 
 import sys
 import json
-import redis
 import asyncio
 import discord
 import libswgoh
@@ -342,7 +341,6 @@ class CrawlerThread(asyncio.Future):
 
 	async def run(self, crawler):
 
-		self.redis = redis.Redis()
 		self.session = await libswgoh.get_auth_guest()
 		self.last_notify = {}
 
@@ -398,7 +396,10 @@ if __name__ == '__main__':
 		sys.exit(-1)
 
 	try:
-		Crawler().run(config['tokens']['crawler'])
+		crawler = Crawler()
+		crawler.config = config
+		crawler.redis = config.redis
+		crawler.run(config['tokens']['crawler'])
 
 	except:
 		print(traceback.format_exc())

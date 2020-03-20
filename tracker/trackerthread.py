@@ -3,7 +3,6 @@
 import re
 import sys
 import json
-import redis
 import asyncio
 import discord
 import libswgoh
@@ -271,7 +270,7 @@ class TrackerThread(asyncio.Future):
 
 		self.bot = bot
 		self.config = bot.config
-		self.redis = bot.config['redis']
+		self.redis = bot.config.redis
 
 		self.handlers = {
 

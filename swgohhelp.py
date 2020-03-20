@@ -191,7 +191,7 @@ def redis_get_players(config, ally_codes):
 	for ally_code in ally_codes:
 		player_key = 'player|%s' % ally_code
 		#print('Checking cache for player: %s' % ally_code)
-		data = config['redis'].get(player_key)
+		data = config.redis.get(player_key)
 		if data:
 			#print('Found player in cache: %s' % ally_code)
 			remain.remove(ally_code)
@@ -204,7 +204,7 @@ def redis_set_players(config, players):
 	for player in players:
 		key = 'player|%s' % player['allyCode']
 		expire = timedelta(seconds=DEFAULT_TIMEOUT_SECONDS)
-		config['redis'].setex(key, expire, json.dumps(player))
+		config.redis.setex(key, expire, json.dumps(player))
 
 async def fetch_players(config, project):
 
@@ -230,11 +230,11 @@ def redis_get_guilds(config, ally_codes):
 	remain = list(ally_codes)
 	for ally_code in ally_codes:
 		player_key = 'player|%s' % ally_code
-		player = config['redis'].get(player_key)
+		player = config.redis.get(player_key)
 		if player:
 			player = json.loads(player.decode('utf-8'))
 			key = 'guild|%s' % player['guildRefId']
-			result = config['redis'].get(key)
+			result = config.redis.get(key)
 			if result:
 				print('Found guild in cache! %s' % key)
 				remain.remove(ally_code)
@@ -249,12 +249,12 @@ def redis_set_guilds(config, guilds):
 		for member in guild['roster']:
 
 			key = 'player|%s' % member['allyCode']
-			player = config['redis'].get(key)
+			player = config.redis.get(key)
 			if player:
 				player = json.loads(player.decode('utf-8'))
 				key = 'guild|%s' % player['guildRefId']
 				expire = timedelta(seconds=DEFAULT_TIMEOUT_SECONDS)
-				config['redis'].setex(key, expire, json.dumps(guild))
+				config.redis.setex(key, expire, json.dumps(guild))
 				break
 
 async def fetch_guilds(config, project):

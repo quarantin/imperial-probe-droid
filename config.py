@@ -147,7 +147,7 @@ def load_config(config_file='config.json'):
 		config['role'] = DEFAULT_ROLE
 
 		import redis
-		config['redis'] = redis.Redis()
+		config.redis = redis.Redis()
 
 	return config
 

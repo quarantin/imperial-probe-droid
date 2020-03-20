@@ -13,7 +13,7 @@ class TrackerCog(commands.Cog):
 	def __init__(self, bot, config):
 		self.bot = bot
 		self.config = config
-		self.redis = config['redis']
+		self.redis = config.redis
 
 	def parse_opts_boolean(self, value):
 
