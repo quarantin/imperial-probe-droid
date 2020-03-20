@@ -3,10 +3,15 @@
 import json
 from discord.ext import commands
 
-from errors import error_invalid_config_key
+from errors import error_invalid_config_key, error_invalid_config_value, error_no_ally_code_specified
 
 import DJANGO
 from swgoh.models import Player, PremiumGuild, PremiumGuildConfig
+
+CONFIG_MAX_KEY_LEN = 19
+CHANNELS_MAX_KEY_LEN = 15
+FORMATS_MAX_KEY_LEN = 15
+MENTIONS_MAX_KEY_LEN = 15
 
 class TrackerCog(commands.Cog):
 
@@ -66,12 +71,18 @@ class TrackerCog(commands.Cog):
 
 		return keys
 
+	def pad(self, string, length):
+		pad_len = length - len(string)
+		return string + (' ' * pad_len)
+
 	async def get_config(self, ctx, guild, pref_key=None):
 
 		allow_all = pref_key is not None and pref_key in [ '*', 'all' ]
 
 		output = ''
 		for key, value in sorted(guild.get_config(discord_id=ctx.author.id).items()):
+
+			padded_key = self.pad(key, CONFIG_MAX_KEY_LEN)
 
 			if (pref_key and pref_key not in key) and not allow_all:
 				continue
@@ -82,15 +93,18 @@ class TrackerCog(commands.Cog):
 			if key.endswith('.format') and not allow_all:
 				continue
 
+			if key.endswith('.mention') and not allow_all:
+				continue
+
 			if type(value) is int or key.endswith('.channel'):
-				entry = '`%s` **%s**' % (key, value)
+				entry = '`%s` **%s**' % (padded_key, value)
 
 			elif type(value) is bool:
 				boolval = value is True and 'On' or 'Off'
-				entry = '`%s` **%s**' % (key, boolval)
+				entry = '`%s` **%s**' % (padded_key, boolval)
 
 			else:
-				entry = '`%s` `"%s"`' % (key, value)
+				entry = '`%s` **%s**' % (padded_key, value)
 
 			entry += '\n'
 
@@ -112,7 +126,8 @@ class TrackerCog(commands.Cog):
 				continue
 
 			key = key.replace('.channel', '')
-			entry = '`%s` %s\n' % (key, channel)
+			padded_key = self.pad(key, CHANNELS_MAX_KEY_LEN)
+			entry = '`%s` %s\n' % (padded_key, channel)
 			if len(output) + len(entry) > 2000:
 				await ctx.send(output)
 				output = ''
@@ -131,7 +146,8 @@ class TrackerCog(commands.Cog):
 				continue
 
 			key = key.replace('.format', '')
-			entry = '`%s` "%s"\n' % (key, fmt)
+			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
+			entry = '`%s` "%s"\n' % (padded_key, fmt)
 			if len(output) + len(entry) > 2000:
 				await ctx.send(output)
 				output = ''
@@ -164,6 +180,7 @@ class TrackerCog(commands.Cog):
 
 			to_replace = '.%s.mention' % ally_code
 			key = key.replace(to_replace, '')
+			padded_key = self.pad(key, MENTIONS_MAX_KEY_LEN)
 
 			try:
 				m = int(mention)
@@ -173,7 +190,7 @@ class TrackerCog(commands.Cog):
 				mention = (mention in [ 'True', 'False' ] and mention == 'True')
 				mention = '**%s**' % (mention and 'On' or 'Off')
 
-			entry = '`%s` %s\n' % (key, mention)
+			entry = '`%s` %s\n' % (padded_key, mention)
 			if len(output) + len(entry) > 2000:
 				await ctx.send(output)
 				output = ''
