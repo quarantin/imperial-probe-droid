@@ -207,7 +207,7 @@ class TrackerCog(commands.Cog):
 			boolval = self.bot.parse_opts_boolean(pref_value)
 
 			if pref_key.endswith('.channel'):
-				entry.value = parse_opts_channel(pref_value)
+				entry.value = self.bot.parse_opts_channel(pref_value)
 				entry.value_type = 'chan'
 
 			if pref_key.endswith('.format'):
@@ -263,9 +263,9 @@ class TrackerCog(commands.Cog):
 
 				pref_key = '%s.channel' % pref_key
 
-			channel_id = parse_opts_channel(pref_value)
+			channel_id = self.bot.parse_opts_channel(pref_value)
 			webhook_channel = self.bot.get_channel(channel_id)
-			webhook_name = self.bot.get_webhook_name(pref_key.replace('.channel', ''))
+			webhook_name = self.bot.get_webhook_name()
 			webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
 			if not webhook:
 				if error:

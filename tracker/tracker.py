@@ -42,8 +42,9 @@ class Tracker(commands.Bot):
 		with open('images/imperial-probe-droid.jpg', 'rb') as image:
 			return bytearray(image.read())
 
-	def get_webhook_name(self, key):
-		return 'IPD Tracker %s' % key
+	def get_webhook_name(self):
+		#return 'IPD Tracker %s' % key
+		return 'IPD Tracker'
 
 	async def get_webhook(self, name, channel):
 

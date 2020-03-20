@@ -351,7 +351,7 @@ class TrackerThread(asyncio.Future):
 								fmtstr = self.get_format(config, key)
 								content = self.format_message(message, fmtstr)
 								webhook_channel = self.get_channel(config, key)
-								webhook_name = self.bot.get_webhook_name(key)
+								webhook_name = self.bot.get_webhook_name()
 								webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
 								if error:
 									try:
@@ -365,7 +365,7 @@ class TrackerThread(asyncio.Future):
 										webhook, error = await self.bot.create_webhook(webhook_name, bot.get_avatar(), webhook_channel)
 										if not webhook:
 											print("create_webhook failed: %s" % error)
-											await ctx.send(error)
+											await webhook_channel.send(error)
 										return
 
 									await webhook.send(content=content, avatar_url=webhook.avatar_url)
