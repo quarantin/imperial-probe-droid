@@ -845,7 +845,7 @@ class PremiumGuild(models.Model):
 
 		return str(item.value)
 
-	def get_config(self):
+	def get_config(self, discord_id=None):
 
 		default_mention = '**Off**'
 		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
@@ -884,9 +884,10 @@ class PremiumGuild(models.Model):
 			if format_key not in config:
 				config[format_key] = fmt
 
-			mention_key = '%s.mention' % key
-			if mention_key not in config:
-				config[mention_key] = default_mention
+			if discord_id is not None:
+				mention_key = '%s.%s.mention' % (key, discord_id)
+				if mention_key not in config:
+					config[mention_key] = default_mention
 
 		return config
 
@@ -926,19 +927,23 @@ class PremiumGuild(models.Model):
 
 		return formats
 
-	def get_mentions(self):
+	def get_mentions(self, ally_code=None):
 
 		mentions = {}
 
-		default_mention = '**Off**'
+		default_mention = False
 
 		items = PremiumGuildConfig.objects.filter(guild=self)
 		for item in items:
-			if item.key.endswith('.mention'):
-				mentions[item.key] = '<!@%s>' % item.value
+			to_check = '.%s.mention' % ally_code
+			if to_check in item.key:
+				mention = item.value
+				if item.value in [ 'True', 'False' ]:
+					mention = (item.value == 'True')
+				mentions[item.key] = mention
 
 		for key in PremiumGuild.MESSAGE_FORMATS.keys():
-			mention_key = '%s.mention' % key
+			mention_key = '%s.%s.mention' % (key, ally_code)
 			if mention_key not in mentions:
 				mentions[mention_key] = default_mention
 
