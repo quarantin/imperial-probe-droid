@@ -31,6 +31,7 @@ class CrawlerDiffer:
 			messages.append({
 				'key': PremiumGuild.MSG_PLAYER_NICK,
 				'nick': old_player_name,
+				'ally.code': new_profile['allyCode'],
 				'new.nick': new_player_name,
 			})
 
@@ -41,6 +42,7 @@ class CrawlerDiffer:
 				messages.append({
 					'key': PremiumGuild.MSG_UNIT_UNLOCKED,
 					'nick': new_player_name,
+					'ally.code': new_profile['allyCode'],
 					'unit': base_id,
 				})
 				continue
@@ -52,6 +54,7 @@ class CrawlerDiffer:
 				messages.append({
 					'key': PremiumGuild.MSG_UNIT_LEVEL,
 					'nick': new_player_name,
+					'ally.code': new_profile['allyCode'],
 					'unit': base_id,
 					'level': new_level,
 				})
@@ -63,6 +66,7 @@ class CrawlerDiffer:
 				messages.append({
 					'key': PremiumGuild.MSG_UNIT_RARITY,
 					'nick': new_player_name,
+					'ally.code': new_profile['allyCode'],
 					'unit': base_id,
 					'rarity': new_rarity,
 				})
@@ -74,6 +78,7 @@ class CrawlerDiffer:
 				messages.append({
 					'key': PremiumGuild.MSG_UNIT_GEAR_LEVEL,
 					'nick': new_player_name,
+					'ally.code': new_profile['allyCode'],
 					'unit': base_id,
 					'gear.level': new_gear_level,
 				})
@@ -85,6 +90,7 @@ class CrawlerDiffer:
 				messages.append({
 					'key': PremiumGuild.MSG_UNIT_RELIC,
 					'nick': new_player_name,
+					'ally.code': new_profile['allyCode'],
 					'unit': base_id,
 					'relic': new_relic,
 				})
@@ -98,6 +104,7 @@ class CrawlerDiffer:
 					messages.append({
 						'key': PremiumGuild.MSG_UNIT_GEAR_PIECE,
 						'nick': new_player_name,
+						'ally.code': new_profile['allyCode'],
 						'unit': base_id,
 						'gear.piece': gear['equipmentId']
 					})
@@ -111,6 +118,7 @@ class CrawlerDiffer:
 					messages.append({
 						'key': PremiumGuild.MSG_UNIT_SKILL_UNLOCKED,
 						'nick': new_player_name,
+						'ally.code': new_profile['allyCode'],
 						'unit': base_id,
 						'skill': new_skill_id,
 					})
@@ -129,6 +137,7 @@ class CrawlerDiffer:
 					messages.append({
 						'key': PremiumGuild.MSG_UNIT_SKILL_INCREASED,
 						'nick': new_player_name,
+						'ally.code': new_profile['allyCode'],
 						'unit': base_id,
 						'skill': new_skill_id,
 						'tier': new_skill['tier']
@@ -143,6 +152,7 @@ class CrawlerDiffer:
 			messages.append({
 				'key': PremiumGuild.MSG_PLAYER_LEVEL,
 				'nick': new_profile['name'],
+				'ally.code': new_profile['allyCode'],
 				'level': new_player_level,
 			})
 
@@ -165,6 +175,7 @@ class CrawlerDiffer:
 					'key': key,
 					'type': arena_type,
 					'nick': new_profile['name'],
+					'ally.code': new_profile['allyCode'],
 					'old.rank': old_rank,
 					'new.rank': new_rank
 				})
@@ -194,6 +205,7 @@ class CrawlerDiffer:
 			messages.append({
 				'key': PremiumGuild.MSG_INACTIVITY,
 				'nick': profile['name'],
+				'ally.code': new_profile['allyCode'],
 				'last.seen': last_activity,
 			})
 
