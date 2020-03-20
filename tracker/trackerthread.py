@@ -17,7 +17,7 @@ from constants import ROMAN, MAX_SKILL_TIER
 from swgohhelp import get_unit_name, get_ability_name
 
 import DJANGO
-from swgoh.models import BaseUnitSkill, PremiumGuild, PremiumGuildConfig
+from swgoh.models import BaseUnitSkill, PremiumGuild
 
 class TrackerThread(asyncio.Future):
 
@@ -27,8 +27,8 @@ class TrackerThread(asyncio.Future):
 		if key in config:
 			return config[key]
 
-		if param in PremiumGuildConfig.MESSAGE_FORMATS:
-			return PremiumGuildConfig.MESSAGE_FORMATS[param]
+		if param in PremiumGuild.MESSAGE_FORMATS:
+			return PremiumGuild.MESSAGE_FORMATS[param]
 
 	def get_channel(self, config, param):
 
@@ -76,8 +76,8 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_arena_climbed_up(self, config, message):
 
-		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_UP or PremiumGuildConfig.MSG_FLEET_RANK_UP
-		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_RANK_MAX
+		key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_UP or PremiumGuild.MSG_FLEET_RANK_UP
+		max_rank_key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_MAX or PremiumGuild.MSG_FLEET_RANK_MAX
 		if key in config and config[key] is False:
 			return
 
@@ -88,8 +88,8 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_arena_dropped_down(self, config, message):
 
-		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_DOWN or PremiumGuildConfig.MSG_FLEET_RANK_DOWN
-		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_RANK_MAX
+		key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_DOWN or PremiumGuild.MSG_FLEET_RANK_DOWN
+		max_rank_key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_MAX or PremiumGuild.MSG_FLEET_RANK_MAX
 		if key in config and config[key] is False:
 			return
 
@@ -102,11 +102,11 @@ class TrackerThread(asyncio.Future):
 
 		gear_level = message['gear.level']
 
-		key = PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL
+		key = PremiumGuild.MSG_UNIT_GEAR_LEVEL
 		if key in config and config[key] is False:
 			return
 
-		min_key = PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL_MIN
+		min_key = PremiumGuild.MSG_UNIT_GEAR_LEVEL_MIN
 		if min_key in config and gear_level < config[min_key]:
 			return
 
@@ -114,7 +114,7 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_gear_piece(self, config, message):
 
-		key = PremiumGuildConfig.MSG_UNIT_GEAR_PIECE
+		key = PremiumGuild.MSG_UNIT_GEAR_PIECE
 		if key in config and config[key] is False:
 			return
 
@@ -122,7 +122,7 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_inactivity(self, config, message):
 
-		key = PremiumGuildConfig.MSG_INACTIVITY
+		key = PremiumGuild.MSG_INACTIVITY
 		if key in config and config[key] is False:
 			return
 
@@ -130,7 +130,7 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_nick_change(self, config, message):
 
-		key = PremiumGuildConfig.MSG_PLAYER_NICK
+		key = PremiumGuild.MSG_PLAYER_NICK
 		if key in config and config[key] is False:
 			return
 
@@ -140,11 +140,11 @@ class TrackerThread(asyncio.Future):
 
 		level = message['level']
 
-		key = PremiumGuildConfig.MSG_PLAYER_LEVEL
+		key = PremiumGuild.MSG_PLAYER_LEVEL
 		if key in config and config[key] is False:
 			return
 
-		min_key = PremiumGuildConfig.MSG_PLAYER_LEVEL_MIN
+		min_key = PremiumGuild.MSG_PLAYER_LEVEL_MIN
 		if min_key in config and level < config[min_key]:
 			return
 
@@ -152,7 +152,7 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_skill_unlocked(self, config, message):
 
-		key = PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED
+		key = PremiumGuild.MSG_UNIT_SKILL_UNLOCKED
 		if key in config and config[key] is False:
 			return
 
@@ -165,23 +165,23 @@ class TrackerThread(asyncio.Future):
 
 		if typ == 'omega':
 
-			key = PremiumGuildConfig.MSG_UNIT_OMEGA
+			key = PremiumGuild.MSG_UNIT_OMEGA
 			if key in config and config[key] is False:
 				return
 
 		elif typ == 'zeta':
 
-			key = PremiumGuildConfig.MSG_UNIT_ZETA
+			key = PremiumGuild.MSG_UNIT_ZETA
 			if key in config and config[key] is False:
 				return
 
 		else:
 
-			key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED
+			key = PremiumGuild.MSG_UNIT_SKILL_INCREASED
 			if key in config and config[key] is False:
 				return
 
-			min_key = PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED_MIN
+			min_key = PremiumGuild.MSG_UNIT_SKILL_INCREASED_MIN
 			if min_key in config and tier < config[min_key]:
 				return
 
@@ -191,11 +191,11 @@ class TrackerThread(asyncio.Future):
 
 		level = message['level']
 
-		key = PremiumGuildConfig.MSG_UNIT_LEVEL
+		key = PremiumGuild.MSG_UNIT_LEVEL
 		if key in config and config[key] is False:
 			return
 
-		min_key = PremiumGuildConfig.MSG_UNIT_LEVEL_MIN
+		min_key = PremiumGuild.MSG_UNIT_LEVEL_MIN
 		if min_key in config and level < config[min_key]:
 			return
 
@@ -205,11 +205,11 @@ class TrackerThread(asyncio.Future):
 
 		rarity = message['rarity']
 
-		key = PremiumGuildConfig.MSG_UNIT_RARITY
+		key = PremiumGuild.MSG_UNIT_RARITY
 		if key in config and config[key] is False:
 			return
 
-		min_key = PremiumGuildConfig.MSG_UNIT_RARITY_MIN
+		min_key = PremiumGuild.MSG_UNIT_RARITY_MIN
 		if min_key in config and rarity < config[min_key]:
 			return
 
@@ -219,11 +219,11 @@ class TrackerThread(asyncio.Future):
 
 		relic = message['relic']
 
-		key = PremiumGuildConfig.MSG_UNIT_RELIC
+		key = PremiumGuild.MSG_UNIT_RELIC
 		if key in config and config[key] is False:
 			return
 
-		min_key = PremiumGuildConfig.MSG_UNIT_RELIC_MIN
+		min_key = PremiumGuild.MSG_UNIT_RELIC_MIN
 		if min_key in config and relic < config[min_key]:
 			return
 
@@ -231,7 +231,7 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_unit_unlocked(self, config, message):
 
-		key = PremiumGuildConfig.MSG_UNIT_UNLOCKED
+		key = PremiumGuild.MSG_UNIT_UNLOCKED
 		if key in config and config[key] is False:
 			return
 
@@ -274,21 +274,21 @@ class TrackerThread(asyncio.Future):
 
 		self.handlers = {
 
-			PremiumGuildConfig.MSG_INACTIVITY:           self.handle_inactivity,
-			PremiumGuildConfig.MSG_PLAYER_NICK:          self.handle_nick_change,
-			PremiumGuildConfig.MSG_PLAYER_LEVEL:         self.handle_player_level,
-			PremiumGuildConfig.MSG_UNIT_UNLOCKED:        self.handle_unit_unlocked,
-			PremiumGuildConfig.MSG_UNIT_LEVEL:           self.handle_unit_level,
-			PremiumGuildConfig.MSG_UNIT_RARITY:          self.handle_unit_rarity,
-			PremiumGuildConfig.MSG_UNIT_RELIC:           self.handle_unit_relic,
-			PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL:      self.handle_gear_level,
-			PremiumGuildConfig.MSG_UNIT_GEAR_PIECE:      self.handle_gear_piece,
-			PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED:  self.handle_skill_unlocked,
-			PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED: self.handle_skill_increased,
-			PremiumGuildConfig.MSG_ARENA_RANK_UP:        self.handle_arena_climbed_up,
-			PremiumGuildConfig.MSG_ARENA_RANK_DOWN:      self.handle_arena_dropped_down,
-			PremiumGuildConfig.MSG_FLEET_RANK_UP:        self.handle_arena_climbed_up,
-			PremiumGuildConfig.MSG_FLEET_RANK_DOWN:      self.handle_arena_dropped_down,
+			PremiumGuild.MSG_INACTIVITY:           self.handle_inactivity,
+			PremiumGuild.MSG_PLAYER_NICK:          self.handle_nick_change,
+			PremiumGuild.MSG_PLAYER_LEVEL:         self.handle_player_level,
+			PremiumGuild.MSG_UNIT_UNLOCKED:        self.handle_unit_unlocked,
+			PremiumGuild.MSG_UNIT_LEVEL:           self.handle_unit_level,
+			PremiumGuild.MSG_UNIT_RARITY:          self.handle_unit_rarity,
+			PremiumGuild.MSG_UNIT_RELIC:           self.handle_unit_relic,
+			PremiumGuild.MSG_UNIT_GEAR_LEVEL:      self.handle_gear_level,
+			PremiumGuild.MSG_UNIT_GEAR_PIECE:      self.handle_gear_piece,
+			PremiumGuild.MSG_UNIT_SKILL_UNLOCKED:  self.handle_skill_unlocked,
+			PremiumGuild.MSG_UNIT_SKILL_INCREASED: self.handle_skill_increased,
+			PremiumGuild.MSG_ARENA_RANK_UP:        self.handle_arena_climbed_up,
+			PremiumGuild.MSG_ARENA_RANK_DOWN:      self.handle_arena_dropped_down,
+			PremiumGuild.MSG_FLEET_RANK_UP:        self.handle_arena_climbed_up,
+			PremiumGuild.MSG_FLEET_RANK_DOWN:      self.handle_arena_dropped_down,
 		}
 
 		while True:

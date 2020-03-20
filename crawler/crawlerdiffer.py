@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 import DJANGO
-from swgoh.models import PremiumGuildConfig
+from swgoh.models import PremiumGuild
 
 class CrawlerDiffer:
 
@@ -29,7 +29,7 @@ class CrawlerDiffer:
 		new_player_name = new_profile['name']
 		if old_player_name != new_player_name:
 			messages.append({
-				'key': PremiumGuildConfig.MSG_PLAYER_NICK,
+				'key': PremiumGuild.MSG_PLAYER_NICK,
 				'nick': old_player_name,
 				'new.nick': new_player_name,
 			})
@@ -39,7 +39,7 @@ class CrawlerDiffer:
 			# Handle new units unlocked.
 			if base_id not in old_roster:
 				messages.append({
-					'key': PremiumGuildConfig.MSG_UNIT_UNLOCKED,
+					'key': PremiumGuild.MSG_UNIT_UNLOCKED,
 					'nick': new_player_name,
 					'unit': base_id,
 				})
@@ -50,7 +50,7 @@ class CrawlerDiffer:
 			new_level = new_unit['level']
 			if old_level < new_level:
 				messages.append({
-					'key': PremiumGuildConfig.MSG_UNIT_LEVEL,
+					'key': PremiumGuild.MSG_UNIT_LEVEL,
 					'nick': new_player_name,
 					'unit': base_id,
 					'level': new_level,
@@ -61,7 +61,7 @@ class CrawlerDiffer:
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity:
 				messages.append({
-					'key': PremiumGuildConfig.MSG_UNIT_RARITY,
+					'key': PremiumGuild.MSG_UNIT_RARITY,
 					'nick': new_player_name,
 					'unit': base_id,
 					'rarity': new_rarity,
@@ -72,7 +72,7 @@ class CrawlerDiffer:
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level:
 				messages.append({
-					'key': PremiumGuildConfig.MSG_UNIT_GEAR_LEVEL,
+					'key': PremiumGuild.MSG_UNIT_GEAR_LEVEL,
 					'nick': new_player_name,
 					'unit': base_id,
 					'gear.level': new_gear_level,
@@ -83,7 +83,7 @@ class CrawlerDiffer:
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
 				messages.append({
-					'key': PremiumGuildConfig.MSG_UNIT_RELIC,
+					'key': PremiumGuild.MSG_UNIT_RELIC,
 					'nick': new_player_name,
 					'unit': base_id,
 					'relic': new_relic,
@@ -96,7 +96,7 @@ class CrawlerDiffer:
 			if diff_equipped:
 				for gear in diff_equipped:
 					messages.append({
-						'key': PremiumGuildConfig.MSG_UNIT_GEAR_PIECE,
+						'key': PremiumGuild.MSG_UNIT_GEAR_PIECE,
 						'nick': new_player_name,
 						'unit': base_id,
 						'gear.piece': gear['equipmentId']
@@ -109,7 +109,7 @@ class CrawlerDiffer:
 
 				if new_skill_id not in old_skills:
 					messages.append({
-						'key': PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED,
+						'key': PremiumGuild.MSG_UNIT_SKILL_UNLOCKED,
 						'nick': new_player_name,
 						'unit': base_id,
 						'skill': new_skill_id,
@@ -127,7 +127,7 @@ class CrawlerDiffer:
 				if old_skill['tier'] < new_skill['tier']:
 
 					messages.append({
-						'key': PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED,
+						'key': PremiumGuild.MSG_UNIT_SKILL_INCREASED,
 						'nick': new_player_name,
 						'unit': base_id,
 						'skill': new_skill_id,
@@ -141,7 +141,7 @@ class CrawlerDiffer:
 
 		if old_player_level < new_player_level:
 			messages.append({
-				'key': PremiumGuildConfig.MSG_PLAYER_LEVEL,
+				'key': PremiumGuild.MSG_PLAYER_LEVEL,
 				'nick': new_profile['name'],
 				'level': new_player_level,
 			})
@@ -155,10 +155,10 @@ class CrawlerDiffer:
 
 			key = None
 			if old_rank < new_rank:
-				key = (arena_type == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_DOWN or PremiumGuildConfig.MSG_FLEET_RANK_DOWN
+				key = (arena_type == 'char') and PremiumGuild.MSG_ARENA_RANK_DOWN or PremiumGuild.MSG_FLEET_RANK_DOWN
 
 			elif old_rank > new_rank:
-				key = (arena_type == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_UP or PremiumGuildConfig.MSG_FLEET_RANK_UP
+				key = (arena_type == 'char') and PremiumGuild.MSG_ARENA_RANK_UP or PremiumGuild.MSG_FLEET_RANK_UP
 
 			if key:
 				messages.append({
@@ -172,8 +172,8 @@ class CrawlerDiffer:
 	def check_last_seen(self, guild, new_profile, messages):
 
 		config = guild.get_config()
-		last_seen_max = config[PremiumGuildConfig.MSG_INACTIVITY_MIN]
-		last_seen_interval = config[PremiumGuildConfig.MSG_INACTIVITY_REPEAT]
+		last_seen_max = config[PremiumGuild.MSG_INACTIVITY_MIN]
+		last_seen_interval = config[PremiumGuild.MSG_INACTIVITY_REPEAT]
 
 		profile = new_profile
 		updated = int(profile['updated'])
@@ -192,7 +192,7 @@ class CrawlerDiffer:
 
 			last_activity = str(delta - timedelta(microseconds=delta.microseconds))
 			messages.append({
-				'key': PremiumGuildConfig.MSG_INACTIVITY,
+				'key': PremiumGuild.MSG_INACTIVITY,
 				'nick': profile['name'],
 				'last.seen': last_activity,
 			})

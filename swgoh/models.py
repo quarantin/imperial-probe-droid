@@ -716,156 +716,6 @@ class RelicStat(models.Model):
 
 class PremiumGuild(models.Model):
 
-	ally_code = models.IntegerField()
-	guild_id = models.CharField(max_length=32)
-	channel_id = models.IntegerField(null=True, blank=True)
-	language = models.CharField(max_length=6, default='eng_us', choices=Player.LANGUAGES)
-
-	def get_guild(guild_id):
-		return PremiumGuild.objects.get(guild_id=guild_id)
-
-	def find_guild_for_selector(selector, guilds=None):
-
-		for guild in guilds:
-			for member in guild['roster']:
-				if str(member['allyCode']) == str(selector):
-					return guild
-
-		return None
-
-	def guilds_to_dict(guild_selectors, guilds):
-
-		result = {}
-		for selector in guild_selectors:
-			guild = PremiumGuild.find_guild_for_selector(selector, guilds)
-			if not guild:
-				print('Could not find guild for allycode: %s' % selector)
-				continue
-
-			result[selector] = guild
-
-		return result
-
-	def get_guild_selectors():
-
-		result = []
-		selectors = PremiumGuild.objects.all().values('ally_code')
-		for selector in selectors:
-			result.append(str(selector['ally_code']))
-
-		return result
-
-	def get_config_value(self, item):
-
-		if item.value_type == 'int':
-			return int(item.value)
-
-		if item.value_type == 'bool':
-			return item.value == 'True' and True or False
-
-		return str(item.value)
-
-	def get_config(self):
-
-		default_mention = '**Off**'
-		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
-
-		config = {}
-
-		config['language'] = self.language
-		config['default.channel'] = default_channel
-
-		# Get explicit config from DB
-		items = PremiumGuildConfig.objects.filter(guild=self)
-		for item in items:
-
-			if item.key.endswith('.channel'):
-				config[item.key] = '<#%s>' % item.value
-
-			elif item.value_type == 'int':
-				config[item.key] = int(item.value)
-
-			else:
-				config[item.key] = self.get_config_value(item)
-
-		# Get default settings if not set
-		for key, value, value_type in PremiumGuildConfig.MESSAGE_DEFAULTS:
-			if key not in config:
-				config[key] = value
-
-		# Get channels, formats, and mentions settings if not set
-		for key, fmt in PremiumGuildConfig.MESSAGE_FORMATS.items():
-
-			channel_key = '%s.channel' % key
-			if channel_key not in config:
-				config[channel_key] = default_channel
-
-			format_key = '%s.format' % key
-			if format_key not in config:
-				config[format_key] = fmt
-
-			mention_key = '%s.mention' % key
-			if mention_key not in config:
-				config[mention_key] = default_mention
-
-		return config
-
-	def get_channels(self):
-
-		channels = {}
-
-		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
-
-		channels['default.channel'] = default_channel
-
-		items = PremiumGuildConfig.objects.filter(guild=self)
-		for item in items:
-			if item.key.endswith('.channel'):
-				channels[item.key] = '<#%s>' % item.value
-
-		for key in PremiumGuildConfig.MESSAGE_FORMATS.keys():
-			channel_key = '%s.channel' % key
-			if channel_key not in channels:
-				channels[channel_key] = default_channel
-
-		return channels
-
-	def get_formats(self):
-
-		formats = {}
-
-		items = PremiumGuildConfig.objects.filter(guild=self)
-		for item in items:
-			if item.key.endswith('.format'):
-				formats[item.key] = item.value
-
-		for key, fmt in PremiumGuildConfig.MESSAGE_FORMATS.items():
-			format_key = '%s.format' % key
-			if format_key not in formats:
-				formats[format_key] = fmt
-
-		return formats
-
-	def get_mentions(self):
-
-		mentions = {}
-
-		default_mention = '**Off**'
-
-		items = PremiumGuildConfig.objects.filter(guild=self)
-		for item in items:
-			if item.key.endswith('.mention'):
-				mentions[item.key] = '<!@%s>' % item.value
-
-		for key in PremiumGuildConfig.MESSAGE_FORMATS.keys():
-			mention_key = '%s.mention' % key
-			if mention_key not in mentions:
-				mentions[mention_key] = default_mention
-
-		return mentions
-
-class PremiumGuildConfig(models.Model):
-
 	MSG_ARENA_RANK_UP              = 'arena.rank.up'
 	MSG_ARENA_RANK_DOWN            = 'arena.rank.down'
 	MSG_ARENA_RANK_MAX             = 'arena.rank.max'
@@ -946,6 +796,156 @@ class PremiumGuildConfig(models.Model):
 		MSG_FLEET_RANK_DOWN:      '${nick} has _dropped down_ in fleet arena __**${old.rank} => ${new.rank}**__',
 	}
 
+	ally_code = models.IntegerField()
+	guild_id = models.CharField(max_length=32)
+	channel_id = models.IntegerField(null=True, blank=True)
+	language = models.CharField(max_length=6, default='eng_us', choices=Player.LANGUAGES)
+
+	def get_guild(guild_id):
+		return PremiumGuild.objects.get(guild_id=guild_id)
+
+	def find_guild_for_selector(selector, guilds=None):
+
+		for guild in guilds:
+			for member in guild['roster']:
+				if str(member['allyCode']) == str(selector):
+					return guild
+
+		return None
+
+	def guilds_to_dict(guild_selectors, guilds):
+
+		result = {}
+		for selector in guild_selectors:
+			guild = PremiumGuild.find_guild_for_selector(selector, guilds)
+			if not guild:
+				print('Could not find guild for allycode: %s' % selector)
+				continue
+
+			result[selector] = guild
+
+		return result
+
+	def get_guild_selectors():
+
+		result = []
+		selectors = PremiumGuild.objects.all().values('ally_code')
+		for selector in selectors:
+			result.append(str(selector['ally_code']))
+
+		return result
+
+	def get_config_value(self, item):
+
+		if item.value_type == 'int':
+			return int(item.value)
+
+		if item.value_type == 'bool':
+			return item.value == 'True' and True or False
+
+		return str(item.value)
+
+	def get_config(self):
+
+		default_mention = '**Off**'
+		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
+
+		config = {}
+
+		config['language'] = self.language
+		config['default.channel'] = default_channel
+
+		# Get explicit config from DB
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+
+			if item.key.endswith('.channel'):
+				config[item.key] = '<#%s>' % item.value
+
+			elif item.value_type == 'int':
+				config[item.key] = int(item.value)
+
+			else:
+				config[item.key] = self.get_config_value(item)
+
+		# Get default settings if not set
+		for key, value, value_type in PremiumGuild.MESSAGE_DEFAULTS:
+			if key not in config:
+				config[key] = value
+
+		# Get channels, formats, and mentions settings if not set
+		for key, fmt in PremiumGuild.MESSAGE_FORMATS.items():
+
+			channel_key = '%s.channel' % key
+			if channel_key not in config:
+				config[channel_key] = default_channel
+
+			format_key = '%s.format' % key
+			if format_key not in config:
+				config[format_key] = fmt
+
+			mention_key = '%s.mention' % key
+			if mention_key not in config:
+				config[mention_key] = default_mention
+
+		return config
+
+	def get_channels(self):
+
+		channels = {}
+
+		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
+
+		channels['default.channel'] = default_channel
+
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+			if item.key.endswith('.channel'):
+				channels[item.key] = '<#%s>' % item.value
+
+		for key in PremiumGuild.MESSAGE_FORMATS.keys():
+			channel_key = '%s.channel' % key
+			if channel_key not in channels:
+				channels[channel_key] = default_channel
+
+		return channels
+
+	def get_formats(self):
+
+		formats = {}
+
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+			if item.key.endswith('.format'):
+				formats[item.key] = item.value
+
+		for key, fmt in PremiumGuild.MESSAGE_FORMATS.items():
+			format_key = '%s.format' % key
+			if format_key not in formats:
+				formats[format_key] = fmt
+
+		return formats
+
+	def get_mentions(self):
+
+		mentions = {}
+
+		default_mention = '**Off**'
+
+		items = PremiumGuildConfig.objects.filter(guild=self)
+		for item in items:
+			if item.key.endswith('.mention'):
+				mentions[item.key] = '<!@%s>' % item.value
+
+		for key in PremiumGuild.MESSAGE_FORMATS.keys():
+			mention_key = '%s.mention' % key
+			if mention_key not in mentions:
+				mentions[mention_key] = default_mention
+
+		return mentions
+
+class PremiumGuildConfig(models.Model):
+
 	guild = models.ForeignKey(PremiumGuild, on_delete=models.CASCADE)
 	key = models.CharField(max_length=32)
 	value = models.CharField(max_length=32)
@@ -955,7 +955,7 @@ class PremiumGuildConfig(models.Model):
 
 		categories = [ '`all` or `*`' ]
 
-		for key, value in sorted(PremiumGuildConfig.MESSAGE_FORMATS.items()):
+		for key, value in sorted(PremiumGuild.MESSAGE_FORMATS.items()):
 
 			category = '`%s`' % key.split('.', 1)[0]
 			if category not in categories:
@@ -967,7 +967,7 @@ class PremiumGuildConfig(models.Model):
 
 		types = {}
 
-		for key, val, typ in PremiumGuildConfig.MESSAGE_DEFAULTS:
+		for key, val, typ in PremiumGuild.MESSAGE_DEFAULTS:
 			types[key] = typ.__name__
 
 		return types

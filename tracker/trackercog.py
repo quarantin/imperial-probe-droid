@@ -143,7 +143,7 @@ class TrackerCog(commands.Cog):
 	async def get_mentions(self, ctx, guild, pref_key: str = None):
 
 		output = ''
-		mentions = guild.get_mentions()
+		mentions = guild.get_mentions(author=ctx.author)
 		for key, mention in sorted(mentions.items()):
 
 			if pref_key is not None and pref_key not in key:
@@ -233,7 +233,7 @@ class TrackerCog(commands.Cog):
 		for pref_key in pref_keys:
 
 			if not pref_key.endswith('.channel'):
-				if pref_key != 'default' and pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+				if pref_key != 'default' and pref_key not in PremiumGuild.MESSAGE_FORMATS:
 					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 					await ctx.send(message)
 					return
@@ -291,7 +291,7 @@ class TrackerCog(commands.Cog):
 		for pref_key in pref_keys:
 
 			if not pref_key.endswith('.format'):
-				if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+				if pref_key not in PremiumGuild.MESSAGE_FORMATS:
 					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 					await ctx.send(message)
 					return
@@ -329,7 +329,7 @@ class TrackerCog(commands.Cog):
 		for pref_key in pref_keys:
 
 			if not pref_key.endswith('.mention'):
-				if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+				if pref_key not in PremiumGuild.MESSAGE_FORMATS:
 					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
 					await ctx.send(message)
 					return
