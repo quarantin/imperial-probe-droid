@@ -40,7 +40,7 @@ class CrawlerThread(asyncio.Future):
 		player_key = 'player|%s' % ally_code
 		new_profile = profile
 		old_profile = await self.get_player(ally_code, fetch=False)
-		if old_profile is None:
+		if not old_profile:
 			old_profile = new_profile
 
 		messages = self.differ.check_diff(guild, old_profile, new_profile)
@@ -55,6 +55,8 @@ class CrawlerThread(asyncio.Future):
 
 			messages_key = 'messages|%s' % guild.guild_id
 			self.redis.rpush(messages_key, *formated)
+
+		self.logger.debug(ally_code)
 
 	async def get_player(self, ally_code, fetch=True):
 
@@ -81,6 +83,8 @@ class CrawlerThread(asyncio.Future):
 			if not guild:
 				self.logger.warning('Guild not found in redis: %s' % selector)
 				continue
+
+			self.logger.debug('%s (%s)' % (guild['id'], guild['name']))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
 			if not premium_guild:
@@ -124,8 +128,10 @@ class CrawlerThread(asyncio.Future):
 			guild = guilds[0]
 
 		player = await self.get_player(selector)
-		guild['id'] = player['guildRefId']
-		self.cache_guild(guild)
+		if player:
+			guild['id'] = player['guildRefId']
+			self.cache_guild(guild)
+
 		return guild
 
 	async def fetch_guilds(self, selectors):
@@ -142,6 +148,8 @@ class CrawlerThread(asyncio.Future):
 	async def get_guild(self, selector, fetch=True):
 
 		player = await self.get_player(selector)
+		if not player:
+			return None
 
 		guild_key = 'guild|%s' % player['guildRefId']
 		guild = self.redis.get(guild_key)
@@ -206,6 +214,8 @@ class CrawlerThread(asyncio.Future):
 
 		while True:
 
+			time_start = datetime.now()
+
 			self.guilds = list(PremiumGuild.objects.all())
 
 			guild_selectors = PremiumGuild.get_guild_selectors()
@@ -215,7 +225,6 @@ class CrawlerThread(asyncio.Future):
 			if to_refresh:
 				await self.get_guilds(to_refresh)
 
-			time_start = datetime.now()
 			failed_ac, failed_ch = await self.refresh_players(guild_selectors, channels)
 
 			if failed_ac:
@@ -225,8 +234,8 @@ class CrawlerThread(asyncio.Future):
 				else:
 					self.logger.info('Retrieved previously failed profiles:\n%s' % '\n'.join(failed_ac))
 
-			diff = datetime.now() - time_start
-			delay = max(0, (10 * MINUTE) - diff.total_seconds())
+			delta = datetime.now() - time_start
+			delay = max(0, (10 * MINUTE) - delta.total_seconds())
 
 			self.logger.debug('Sleeping for %s seconds' % delay)
 
