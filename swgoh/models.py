@@ -866,12 +866,12 @@ class PremiumGuild(models.Model):
 
 class PremiumGuildConfig(models.Model):
 
-	MSG_SQUAD_ARENA_UP             = 'arena.squad.up'
-	MSG_SQUAD_ARENA_DOWN           = 'arena.squad.down'
-	MSG_SQUAD_ARENA_RANK_MAX       = 'arena.squad.rank.max'
-	MSG_FLEET_ARENA_UP             = 'arena.fleet.up'
-	MSG_FLEET_ARENA_DOWN           = 'arena.fleet.down'
-	MSG_FLEET_ARENA_RANK_MAX       = 'arena.fleet.rank.max'
+	MSG_ARENA_RANK_UP              = 'arena.rank.up'
+	MSG_ARENA_RANK_DOWN            = 'arena.rank.down'
+	MSG_ARENA_RANK_MAX             = 'arena.rank.max'
+	MSG_FLEET_RANK_UP              = 'fleet.rank.up'
+	MSG_FLEET_RANK_DOWN            = 'fleet.rank.down'
+	MSG_FLEET_RANK_MAX             = 'fleet.rank.max'
 	MSG_INACTIVITY                 = 'inactivity'
 	MSG_INACTIVITY_MIN             = 'inactivity.min'
 	MSG_INACTIVITY_REPEAT          = 'inactivity.repeat'
@@ -896,12 +896,12 @@ class PremiumGuildConfig(models.Model):
 
 	MESSAGE_DEFAULTS = [
 
-		(MSG_SQUAD_ARENA_UP,           True, bool),
-		(MSG_SQUAD_ARENA_DOWN,         True, bool),
-		(MSG_SQUAD_ARENA_RANK_MAX,     10000, int),
-		(MSG_FLEET_ARENA_UP,           True, bool),
-		(MSG_FLEET_ARENA_DOWN,         True, bool),
-		(MSG_FLEET_ARENA_RANK_MAX,     10000, int),
+		(MSG_ARENA_RANK_UP,            True, bool),
+		(MSG_ARENA_RANK_DOWN,          True, bool),
+		(MSG_ARENA_RANK_MAX,           10000, int),
+		(MSG_FLEET_RANK_UP,            True, bool),
+		(MSG_FLEET_RANK_DOWN,          True, bool),
+		(MSG_FLEET_RANK_MAX,           10000, int),
 		(MSG_INACTIVITY,               True, bool),
 		(MSG_INACTIVITY_MIN,           48,   int),
 		(MSG_INACTIVITY_REPEAT,        24,   int),
@@ -940,10 +940,10 @@ class PremiumGuildConfig(models.Model):
 		MSG_UNIT_SKILL_INCREASED: '${nick} increased skill ${skill} to tier ${tier} (${unit})',
 		MSG_UNIT_OMEGA:           '${nick} applied **Omega** upgrade to ${skill} (${unit})',
 		MSG_UNIT_ZETA:            '${nick} applied **Zeta** upgrade to ${skill} (${unit})',
-		MSG_SQUAD_ARENA_UP:       '${nick} has _climbed up_ in squad arena __**${old.rank} => ${new.rank}**__',
-		MSG_SQUAD_ARENA_DOWN:     '${nick} has _dropped down_ in squad arena __**${old.rank} => ${new.rank}**__',
-		MSG_FLEET_ARENA_UP:       '${nick} has _climbed up_ in fleet arena __**${old.rank} => ${new.rank}**__',
-		MSG_FLEET_ARENA_DOWN:     '${nick} has _dropped down_ in fleet arena __**${old.rank} => ${new.rank}**__',
+		MSG_ARENA_RANK_UP:        '${nick} has _climbed up_ in squad arena __**${old.rank} => ${new.rank}**__',
+		MSG_ARENA_RANK_DOWN:      '${nick} has _dropped down_ in squad arena __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_RANK_UP:        '${nick} has _climbed up_ in fleet arena __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_RANK_DOWN:      '${nick} has _dropped down_ in fleet arena __**${old.rank} => ${new.rank}**__',
 	}
 
 	guild = models.ForeignKey(PremiumGuild, on_delete=models.CASCADE)

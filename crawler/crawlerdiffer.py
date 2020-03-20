@@ -155,10 +155,10 @@ class CrawlerDiffer:
 
 			key = None
 			if old_rank < new_rank:
-				key = (arena_type == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN or PremiumGuildConfig.MSG_FLEET_ARENA_DOWN
+				key = (arena_type == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_DOWN or PremiumGuildConfig.MSG_FLEET_RANK_DOWN
 
 			elif old_rank > new_rank:
-				key = (arena_type == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_UP or PremiumGuildConfig.MSG_FLEET_ARENA_UP
+				key = (arena_type == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_UP or PremiumGuildConfig.MSG_FLEET_RANK_UP
 
 			if key:
 				messages.append({

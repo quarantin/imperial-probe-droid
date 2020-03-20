@@ -76,8 +76,8 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_arena_climbed_up(self, config, message):
 
-		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_UP or PremiumGuildConfig.MSG_FLEET_ARENA_UP
-		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_ARENA_RANK_MAX
+		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_UP or PremiumGuildConfig.MSG_FLEET_RANK_UP
+		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_RANK_MAX
 		if key in config and config[key] is False:
 			return
 
@@ -88,8 +88,8 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_arena_dropped_down(self, config, message):
 
-		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN or PremiumGuildConfig.MSG_FLEET_ARENA_DOWN
-		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_SQUAD_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_ARENA_RANK_MAX
+		key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_DOWN or PremiumGuildConfig.MSG_FLEET_RANK_DOWN
+		max_rank_key = (message['type'] == 'char') and PremiumGuildConfig.MSG_ARENA_RANK_MAX or PremiumGuildConfig.MSG_FLEET_RANK_MAX
 		if key in config and config[key] is False:
 			return
 
@@ -285,10 +285,10 @@ class TrackerThread(asyncio.Future):
 			PremiumGuildConfig.MSG_UNIT_GEAR_PIECE:      self.handle_gear_piece,
 			PremiumGuildConfig.MSG_UNIT_SKILL_UNLOCKED:  self.handle_skill_unlocked,
 			PremiumGuildConfig.MSG_UNIT_SKILL_INCREASED: self.handle_skill_increased,
-			PremiumGuildConfig.MSG_SQUAD_ARENA_UP:       self.handle_arena_climbed_up,
-			PremiumGuildConfig.MSG_SQUAD_ARENA_DOWN:     self.handle_arena_dropped_down,
-			PremiumGuildConfig.MSG_FLEET_ARENA_UP:       self.handle_arena_climbed_up,
-			PremiumGuildConfig.MSG_FLEET_ARENA_DOWN:     self.handle_arena_dropped_down,
+			PremiumGuildConfig.MSG_ARENA_RANK_UP:        self.handle_arena_climbed_up,
+			PremiumGuildConfig.MSG_ARENA_RANK_DOWN:      self.handle_arena_dropped_down,
+			PremiumGuildConfig.MSG_FLEET_RANK_UP:        self.handle_arena_climbed_up,
+			PremiumGuildConfig.MSG_FLEET_RANK_DOWN:      self.handle_arena_dropped_down,
 		}
 
 		while True:
