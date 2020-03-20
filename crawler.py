@@ -8,16 +8,13 @@ import libswgoh
 import traceback
 from datetime import datetime, timedelta
 
-from constants import MAX_SKILL_TIER
-from swgohhelp import api_swgoh_guilds
+from constants import MAX_SKILL_TIER, MINUTE
+from swgohhelp import api_swgoh_guilds, SwgohHelpException
 
 import DJANGO
 from swgoh.models import PremiumGuild, PremiumGuildConfig
 
-LAST_SEEN_MAX_HOURS = 48
-LAST_SEEN_MAX_HOURS_INTERVAL = 24
-
-SAFETY_TTL = 3600
+SAFETY_TTL = 10 * MINUTE
 
 DEFAULT_GUILD_EXPIRE = 24
 DEFAULT_PLAYER_EXPIRE = 24
@@ -31,7 +28,7 @@ class CrawlerThread(asyncio.Future):
 
 		return 0
 
-	def check_diff_player_units(self, old_profile, new_profile, messages):
+	def check_diff_player_units(self, guild, old_profile, new_profile, messages):
 
 		old_roster = { x['defId']: x for x in old_profile['roster'] }
 		new_roster = { x['defId']: x for x in new_profile['roster'] }
@@ -145,7 +142,7 @@ class CrawlerThread(asyncio.Future):
 						'tier': new_skill['tier']
 					})
 
-	def check_diff_player_level(self, old_profile, new_profile, messages):
+	def check_diff_player_level(self, guild, old_profile, new_profile, messages):
 
 		new_player_level = new_profile['level']
 		old_player_level = old_profile['level']
@@ -157,7 +154,7 @@ class CrawlerThread(asyncio.Future):
 				'level': new_player_level,
 			})
 
-	def check_diff_arena_ranks(self, old_profile, new_profile, messages):
+	def check_diff_arena_ranks(self, guild, old_profile, new_profile, messages):
 
 		for arena_type in [ 'char', 'ship' ]:
 
@@ -180,23 +177,27 @@ class CrawlerThread(asyncio.Future):
 					'new.rank': new_rank
 				})
 
-	def check_last_seen(self, new_profile, messages):
+	def check_last_seen(self, guild, new_profile, messages):
 
-		now = datetime.now()
+		config = guild.get_config()
+		last_seen_max = config[PremiumGuildConfig.MSG_INACTIVITY_MIN]
+		last_seen_interval = config[PremiumGuildConfig.MSG_INACTIVITY_REPEAT]
+
 		profile = new_profile
 		updated = int(profile['updated'])
 		last_sync = datetime.fromtimestamp(updated / 1000)
-		delta = now - last_sync
-		if delta > timedelta(hours=LAST_SEEN_MAX_HOURS):
+		delta = datetime.now() - last_sync
+		if delta > timedelta(hours=last_seen_max):
 
-			ally_code = profile['allyCode']
-			if ally_code in self.last_notify:
-				last_notify = self.last_notify[ally_code]
-				diff_to_now = now - last_notify
-				if diff_to_now < timedelta(hours=LAST_SEEN_MAX_HOURS_INTERVAL):
-					return
+			inactivity_key = 'inactivity|%s' % profile['allyCode']
+			expire = timedelta(hours=last_seen_interval)
 
-			self.last_notify[ally_code] = now
+			value = self.redis.get(inactivity_key)
+			if value:
+				return
+
+			self.redis.setex(inactivity_key, expire, 1)
+
 			last_activity = str(delta - timedelta(microseconds=delta.microseconds))
 			messages.append({
 				'key': PremiumGuildConfig.MSG_INACTIVITY,
@@ -204,48 +205,32 @@ class CrawlerThread(asyncio.Future):
 				'last.seen': last_activity,
 			})
 
-	def check_diff(self, old_profile, new_profile):
+	def check_diff(self, guild, old_profile, new_profile):
 
 		messages = []
 
-		self.check_diff_arena_ranks(old_profile, new_profile, messages)
+		self.check_diff_arena_ranks(guild, old_profile, new_profile, messages)
 
-		self.check_diff_player_level(old_profile, new_profile, messages)
+		self.check_diff_player_level(guild, old_profile, new_profile, messages)
 
-		self.check_diff_player_units(old_profile, new_profile, messages)
+		self.check_diff_player_units(guild, old_profile, new_profile, messages)
 
-		self.check_last_seen(new_profile, messages)
+		self.check_last_seen(guild, new_profile, messages)
 
 		return messages
 
-	async def ensure_player(self, ally_code):
-
-		key = 'player|%s' % ally_code
-		profile = self.redis.get(key)
-		if profile:
-			profile = json.loads(profile.decode('utf-8'))
-
-		else:
-			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
-			if profile:
-				expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
-				self.redis.setex(key, expire, json.dumps(profile))
-
-		return profile
-
-	async def update_player(self, ally_code, guild_id):
+	async def update_player(self, guild, ally_code):
 
 		ally_code = str(ally_code)
 		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 		if not profile:
-			print('Failed retrieving profile for %s, skipping.' % ally_code)
-			return []
+			raise Exception('Failed retrieving profile for %s, skipping.' % ally_code)
 
 		# TODO: Fix this atrocity
 		profile = json.loads(json.dumps(profile))
 
 		if 'name' not in profile:
-			print('Failed retrieving profile for allycode %s' % ally_code)
+			self.logger.warning('Failed retrieving profile for allycode %s' % ally_code)
 			return []
 
 		#if 'roster' in profile:
@@ -253,18 +238,13 @@ class CrawlerThread(asyncio.Future):
 
 		player_key = 'player|%s' % ally_code
 		new_profile = profile
-		old_profile = self.redis.get(player_key)
+		old_profile = await self.get_player(ally_code, fetch=False)
 		if old_profile is None:
 			old_profile = new_profile
-		else:
-			old_profile = json.loads(old_profile.decode('utf-8'))
 
-		messages = self.check_diff(old_profile, new_profile)
+		messages = self.check_diff(guild, old_profile, new_profile)
 
-		expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
-		profile_data = json.dumps(new_profile)
-
-		self.redis.setex(player_key, expire, profile_data)
+		self.cache_player(new_profile)
 
 		if messages:
 
@@ -272,101 +252,183 @@ class CrawlerThread(asyncio.Future):
 			for message in messages:
 				formated.append(json.dumps(message))
 
-			messages_key = 'messages|%s' % guild_id
+			messages_key = 'messages|%s' % guild.guild_id
 			self.redis.rpush(messages_key, *formated)
 
-	async def refresh_guild(self, ally_code):
+	async def get_player(self, ally_code, fetch=True):
 
-		player = await self.ensure_player(ally_code)
+		key = 'player|%s' % ally_code
+		profile = self.redis.get(key)
+		if profile:
+			return json.loads(profile.decode('utf-8'))
 
-		guild_key = 'guild|%s' % player['guildRefId']
-		expire = timedelta(hours=DEFAULT_GUILD_EXPIRE)
-		guild = await api_swgoh_guilds(config, { 'allycodes': [ ally_code ] })
-		guild_data = json.dumps(guild[0])
+		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+		if profile:
+			expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
+			self.redis.setex(key, expire, json.dumps(profile))
 
-		self.redis.setex(guild_key, expire, guild_data)
+		return profile
 
-		return guild[0]
-
-	async def refresh_guilds(self, ally_codes):
-
-		for ally_code in ally_codes:
-			await self.refresh_guild(ally_code)
-
-	async def refresh_players(self, ally_codes, channels):
+	async def refresh_players(self, selectors, channels, selectors_only=False):
 
 		failed_ac = []
 		failed_ch = []
-		for ally_code, channel in zip(ally_codes, channels):
 
-			player = await self.ensure_player(ally_code)
-			if not player:
-				failed_ac.append(allycode)
-				failed_ch.append(channel)
+		for selector, channel in zip(selectors, channels):
+
+			guild = await self.get_guild(selector)
+			if not guild:
+				self.logger.warning('Guild not found in redis: %s' % selector)
 				continue
 
-			guild_key = 'guild|%s' % player['guildRefId']
-			guild = self.redis.get(guild_key)
-			if guild:
-				guild = json.loads(guild.decode('utf-8'))
-			else:
-				print('guild not found in redis')
-				guild = await self.refresh_guild(ally_code)
+			premium_guild = PremiumGuild.get_guild(guild['id'])
+			if not premium_guild:
+				self.logger.warning('Guild not found in redis: %s' % guild['id'])
+				continue
 
 			for member in guild['roster']:
-				await self.update_player(member['allyCode'], player['guildRefId'])
+
+				if selectors_only is True and str(member['allyCode']) not in selectors:
+					continue
+
+				try:
+					await self.update_player(premium_guild, member['allyCode'])
+
+				except:
+					failed_ac.append(allycode)
+					failed_ch.append(channel)
 
 		return failed_ac, failed_ch
 
+	def cache_player(self, player):
+
+		player_key = 'player|%s' % player['allyCode']
+		player_expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
+		player_data = json.dumps(player)
+
+		self.redis.setex(player_key, player_expire, player_data)
+
+	def cache_guild(self, guild):
+
+		guild_key = 'guild|%s' % guild['id']
+		guild_expire = timedelta(hours=DEFAULT_GUILD_EXPIRE)
+		guild_data = json.dumps(guild)
+
+		self.redis.setex(guild_key, guild_expire, guild_data)
+
+	async def fetch_guild(self, selector, guild=None):
+
+		if guild is None:
+			guilds = await api_swgoh_guilds(self.config, { 'allycodes': [ selector ] })
+			guild = guilds[0]
+
+		player = await self.get_player(selector)
+		guild['id'] = player['guildRefId']
+		self.cache_guild(guild)
+		return guild
+
+	async def fetch_guilds(self, selectors):
+
+		guilds = await api_swgoh_guilds(self.config, { 'allycodes': selectors })
+		guilds = PremiumGuild.guilds_to_dict(selectors, guilds)
+
+		for selector in selectors:
+			guild = guilds[selector]
+			await self.fetch_guild(selector, guild)
+
+		return guilds
+
+	async def get_guild(self, selector, fetch=True):
+
+		player = await self.get_player(selector)
+
+		guild_key = 'guild|%s' % player['guildRefId']
+		guild = self.redis.get(guild_key)
+		if guild:
+			return json.loads(guild.decode('utf-8'))
+
+		if fetch is True:
+			return await self.fetch_guild(selector)
+
+		return None
+
+	async def get_guilds(self, selectors):
+
+		guilds = {}
+		to_fetch = []
+
+		for selector in selectors:
+
+			guild = await self.get_guild(selector, fetch=False)
+			if not guild:
+				to_fetch.append(selector)
+				continue
+
+			guilds[selector] = guild
+
+		guilds.update(await self.fetch_guilds(to_fetch))
+
+		return guilds
+
 	async def get_allycodes_to_refresh(self):
 
-		needed = []
+		to_refresh = []
+
 		ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
 		for ally_code in ally_codes:
-			player = await self.ensure_player(ally_code)
+
+			player = await self.get_player(ally_code)
 			if not player:
-				needed.append(ally_code)
+				to_refresh.append(ally_code)
 				continue
 
 			guild_key = 'guild|%s' % player['guildRefId']
 			if not self.redis.exists(guild_key):
-				needed.append(ally_code)
+				to_refresh.append(ally_code)
 				continue
 
 			expire = self.redis.ttl(guild_key)
 			if expire < SAFETY_TTL:
-				needed.append(ally_code)
+				to_refresh.append(ally_code)
+				continue
 
-		return needed
+		return to_refresh
 
-	async def run(self, crawler):
+	async def run(self, bot):
 
+		self.bot = bot
+		self.logger = bot.logger
+		self.config = bot.config
+		self.redis = bot.redis
 		self.session = await libswgoh.get_auth_guest()
-		self.last_notify = {}
 
-		# TODO: Remove the time it took to check profiles from the sleep delay
 		while True:
 
 			self.guilds = list(PremiumGuild.objects.all())
 
-			ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
-			channels   = [ guild.channel_id for guild in self.guilds ]
+			guild_selectors = PremiumGuild.get_guild_selectors()
+			channels = [ guild.channel_id for guild in self.guilds ]
 
 			to_refresh = await self.get_allycodes_to_refresh()
 			if to_refresh:
-				await self.refresh_guilds(to_refresh)
+				await self.get_guilds(to_refresh)
 
-			print(datetime.now())
-			failed_ac, failed_ch = await self.refresh_players(ally_codes, channels)
+			time_start = datetime.now()
+			failed_ac, failed_ch = await self.refresh_players(guild_selectors, channels)
 
 			if failed_ac:
-				failed_ac2, failed_ch2 = await self.refresh_players(failed_ac, failed_ch)
+				failed_ac2, failed_ch2 = await self.refresh_players(failed_ac, failed_ch, selectors_only=True)
 				if failed_ac2:
-					print('ERROR: Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(failed_ac2))
+					self.logger.error('Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(failed_ac2))
 				else:
-					print('SUCCCESS: Retrieved previously failed profiles:\n%s' % '\n'.join(failed_ac))
+					self.logger.info('Retrieved previously failed profiles:\n%s' % '\n'.join(failed_ac))
 
-			await asyncio.sleep(600)
+			diff = datetime.now() - time_start
+			delay = max(0, (10 * MINUTE) - diff.total_seconds())
+
+			self.logger.debug('Sleeping for %s seconds' % delay)
+
+			await asyncio.sleep(delay)
 
 class Crawler(discord.Client):
 
@@ -381,9 +443,11 @@ class Crawler(discord.Client):
 
 if __name__ == '__main__':
 
+	import logging
 	from config import load_config, setup_logs
 
-	setup_logs('discord', 'logs/crawler-discord.log')
+	crawler_logger = setup_logs('crawler', 'logs/crawler.log', logging.DEBUG)
+	discord_logger = setup_logs('discord', 'logs/crawler-discord.log')
 
 	config = load_config()
 
@@ -399,7 +463,12 @@ if __name__ == '__main__':
 		crawler = Crawler()
 		crawler.config = config
 		crawler.redis = config.redis
+		crawler.logger = crawler_logger
 		crawler.run(config['tokens']['crawler'])
+
+	except SwgohHelpException as err:
+		print(err)
+		print(err.data)
 
 	except:
 		print(traceback.format_exc())
