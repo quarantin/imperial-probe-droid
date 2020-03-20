@@ -165,6 +165,9 @@ async def cmd_player_compare(request):
 		return error
 
 	selected_units = parse_opts_unit_names(request)
+	if not selected_units:
+		return error_no_unit_selected()
+
 	if args:
 		return error_unknown_parameters(args)
 
