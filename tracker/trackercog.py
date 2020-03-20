@@ -15,18 +15,6 @@ class TrackerCog(commands.Cog):
 		self.config = config
 		self.redis = config.redis
 
-	def parse_opts_boolean(self, value):
-
-		lvalue = value.lower()
-
-		if lvalue in [ 'on', 'true', 'enable', 'enabled' ]:
-			return True
-
-		if lvalue in [ 'off', 'false', 'disable', 'disabled' ]:
-			return False
-
-		return None
-
 	def get_guild(self, author):
 
 		try:
@@ -55,19 +43,22 @@ class TrackerCog(commands.Cog):
 
 		return premium_guild
 
-	def get_matching_keys(self, guild, pref_key, config=False, channels=False, formats=False):
+	def get_matching_keys(self, guild, pref_key, config=False, channels=False, formats=False, mentions=False):
 
 		keys = []
 		for key, value in sorted(guild.get_config().items()):
 
 			add = False
-			if config is True and not key.endswith('.channel') and not key.endswith('.format'):
+			if config is True and not key.endswith('.channel') and not key.endswith('.format') and not key.endswith('.mention'):
 				add = True
 
 			elif channels is True and key.endswith('.channel'):
 				add = True
 
 			elif formats is True and key.endswith('.formats'):
+				add = True
+
+			elif mentions is True and key.endswith('.mentions'):
 				add = True
 
 			if add and pref_key in key:
@@ -142,7 +133,26 @@ class TrackerCog(commands.Cog):
 			key = key.replace('.format', '')
 			entry = '`%s` "%s"\n' % (key, fmt)
 			if len(output) + len(entry) > 2000:
-				await ctx.send(outut)
+				await ctx.send(output)
+				output = ''
+
+			output += entry
+
+		await ctx.send(output)
+
+	async def get_mentions(self, ctx, guild, pref_key: str = None):
+
+		output = ''
+		mentions = guild.get_mentions()
+		for key, mention in sorted(mentions.items()):
+
+			if pref_key is not None and pref_key not in key:
+				continue
+
+			key = key.replace('.mention', '')
+			entry = '`%s` %s\n' % (key, mention)
+			if len(output) + len(entry) > 2000:
+				await ctx.send(output)
 				output = ''
 
 			output += entry
@@ -171,7 +181,7 @@ class TrackerCog(commands.Cog):
 			except PremiumGuildConfig.DoesNotExist:
 				entry = PremiumGuildConfig(guild=guild, key=pref_key)
 
-			boolval = self.parse_opts_boolean(pref_value)
+			boolval = self.bot.parse_opts_boolean(pref_value)
 
 			if pref_key.endswith('.channel'):
 				entry.value = parse_opts_channel(pref_value)
@@ -303,7 +313,45 @@ class TrackerCog(commands.Cog):
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
 			plural_have = len(lines) > 1 and 'have' or 'has'
-			lines.insert(0, 'The following format%s %s been saved:' % ())
+			lines.insert(0, 'The following format%s %s been saved:' % (plural, plural_have))
+			message = '\n'.join(lines)
+			await ctx.send(message)
+
+	async def set_mentions(self, ctx, guild, pref_key: str, pref_value: str):
+
+		pref_keys = self.get_matching_keys(guild, pref_key, mentions=True)
+		if not pref_keys:
+			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			await ctx.send(message)
+			return
+
+		lines = []
+		for pref_key in pref_keys:
+
+			if not pref_key.endswith('.mention'):
+				if pref_key not in PremiumGuildConfig.MESSAGE_FORMATS:
+					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+					await ctx.send(message)
+					return
+
+				pref_key = '%s.mention' % pref_key
+
+			try:
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+
+			except PremiumGuildConfig.DoesNotExist:
+				entry = PremiumGuildConfig(guild=guild, key=pref_key)
+
+			entry.value = self.bot.parse_opts_mention(pref_value)
+			entry.value_type = 'hl'
+			entry.save()
+
+			lines.append('`%s` %s' % (pref_key, pref_value))
+
+		if lines:
+			plural = len(lines) > 1 and 's' or ''
+			plural_have = len(lines) > 1 and 'have' or 'has'
+			lines.insert(0, 'The following mention%s %s been saved:' % (plural, plural_have))
 			message = '\n'.join(lines)
 			await ctx.send(message)
 
@@ -341,3 +389,13 @@ class TrackerCog(commands.Cog):
 			return await self.set_formats(ctx, guild, pref_key, pref_value)
 
 		return await self.get_formats(ctx, guild, pref_key)
+
+	@tracker.command()
+	async def mentions(self, ctx, pref_key: str = None, pref_value: str = None):
+
+		guild = self.get_guild(ctx.author)
+
+		if pref_key and pref_value:
+			return await self.set_mentions(ctx, guild, pref_key, pref_value)
+
+		return await self.get_mentions(ctx, guild, pref_key)

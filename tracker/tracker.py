@@ -10,10 +10,31 @@ from config import load_config, setup_logs
 
 class Tracker(commands.Bot):
 
+	def parse_opts_boolean(self, value):
+
+		lvalue = value.lower()
+
+		if lvalue in [ 'on', 'true', 'enable', 'enabled' ]:
+			return True
+
+		if lvalue in [ 'off', 'false', 'disable', 'disabled' ]:
+			return False
+
+		return None
+
 	def parse_opts_channel(self, value):
 
 		import re
 		match = re.search(r'^<#([0-9]+)>$', value)
+		if match:
+			return int(match.group(1))
+
+		return None
+
+	def parse_opts_mention(self, value):
+
+		import re
+		match = re.search(r'^<@([0-9]+)>$', value)
 		if match:
 			return int(match.group(1))
 
