@@ -1,8 +1,11 @@
 import os, sys, json, requests
 
-config = {}
-
 DEFAULT_ROLE = 'IPD Admin'
+
+class Config(dict):
+	pass
+
+config = Config()
 
 def get_root_dir():
 	this_file = os.path.realpath(__file__)
