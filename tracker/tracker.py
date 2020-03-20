@@ -6,8 +6,6 @@ import traceback
 import discord
 from discord.ext import commands
 
-from config import load_config, setup_logs
-
 class Tracker(commands.Bot):
 
 	def parse_opts_boolean(self, value):
@@ -34,7 +32,7 @@ class Tracker(commands.Bot):
 	def parse_opts_mention(self, value):
 
 		import re
-		match = re.search(r'^<@([0-9]+)>$', value)
+		match = re.search(r'^<@!?([0-9]+)>$', value)
 		if match:
 			return int(match.group(1))
 
@@ -95,7 +93,7 @@ class Tracker(commands.Bot):
 			setattr(self, attr, True)
 
 			from trackercog import TrackerCog
-			self.add_cog(TrackerCog(self, load_config()))
+			self.add_cog(TrackerCog(self))
 
 			print('Starting tracker thread.')
 
@@ -108,7 +106,10 @@ class Tracker(commands.Bot):
 
 if __name__ == '__main__':
 
-	setup_logs('discord', 'logs/tracker-discord.log')
+	from config import load_config, setup_logs
+
+	tracker_logger = setup_logs('tracker', 'logs/tracker.log')
+	discord_logger = setup_logs('discord', 'logs/tracker-discord.log')
 
 	config = load_config()
 
@@ -123,6 +124,8 @@ if __name__ == '__main__':
 	try:
 		tracker = Tracker(command_prefix=config['prefix'])
 		tracker.config = config
+		tracker.logger = tracker_logger
+		tracker.redis = config.redis
 		tracker.run(config['tokens']['tracker'])
 
 	except:

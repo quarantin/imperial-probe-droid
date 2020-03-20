@@ -10,10 +10,11 @@ from swgoh.models import Player, PremiumGuild, PremiumGuildConfig
 
 class TrackerCog(commands.Cog):
 
-	def __init__(self, bot, config):
+	def __init__(self, bot):
 		self.bot = bot
-		self.config = config
-		self.redis = config.redis
+		self.config = bot.config
+		self.logger = bot.logger
+		self.redis = bot.redis
 
 	def get_guild(self, author):
 
@@ -21,10 +22,9 @@ class TrackerCog(commands.Cog):
 			player = Player.objects.get(discord_id=author.id)
 
 		except Player.DoesNotExist:
-			print('No player found')
+			print('TrackerCog.get_guild(%s): No player found' % author.id)
 			return None
 
-		# Retrieve premium guild
 		ally_code = str(player.ally_code)
 		profile_key = 'player|%s' % player.ally_code
 		profile = self.redis.get(profile_key)
@@ -43,10 +43,10 @@ class TrackerCog(commands.Cog):
 
 		return premium_guild
 
-	def get_matching_keys(self, guild, pref_key, config=False, channels=False, formats=False, mentions=False):
+	def get_matching_keys(self, ctx, guild, pref_key, config=False, channels=False, formats=False, mentions=False):
 
 		keys = []
-		for key, value in sorted(guild.get_config().items()):
+		for key, value in sorted(guild.get_config(discord_id=ctx.author.id).items()):
 
 			add = False
 			if config is True and not key.endswith('.channel') and not key.endswith('.format') and not key.endswith('.mention'):
@@ -55,13 +55,13 @@ class TrackerCog(commands.Cog):
 			elif channels is True and key.endswith('.channel'):
 				add = True
 
-			elif formats is True and key.endswith('.formats'):
+			elif formats is True and key.endswith('.format'):
 				add = True
 
-			elif mentions is True and key.endswith('.mentions'):
+			elif mentions is True and key.endswith('.mention'):
 				add = True
 
-			if add and pref_key in key:
+			if add and (pref_key.lower() in key or pref_key.lower() == 'all'):
 				keys.append(key)
 
 		return keys
@@ -71,7 +71,7 @@ class TrackerCog(commands.Cog):
 		allow_all = pref_key is not None and pref_key in [ '*', 'all' ]
 
 		output = ''
-		for key, value in sorted(guild.get_config().items()):
+		for key, value in sorted(guild.get_config(discord_id=ctx.author.id).items()):
 
 			if (pref_key and pref_key not in key) and not allow_all:
 				continue
@@ -140,16 +140,39 @@ class TrackerCog(commands.Cog):
 
 		await ctx.send(output)
 
+	def get_allycode_by_discord_id(self, discord_id):
+
+		try:
+			player = Player.objects.get(discord_id=discord_id)
+
+		except Player.DoesNotExist:
+			pass
+
+		return None
+
 	async def get_mentions(self, ctx, guild, pref_key: str = None):
 
 		output = ''
-		mentions = guild.get_mentions(author=ctx.author)
+		ally_code = self.get_allycode_by_discord_id(ctx.author.id)
+		if not ally_code:
+			error = error_no_ally_code_specified(self.config, ctx.author)
+		mentions = guild.get_mentions(ally_code=ally_code)
 		for key, mention in sorted(mentions.items()):
 
 			if pref_key is not None and pref_key not in key:
 				continue
 
-			key = key.replace('.mention', '')
+			to_replace = '.%s.mention' % ally_code
+			key = key.replace(to_replace, '')
+
+			try:
+				m = int(mention)
+				mention = '<@!%s>' % ctx.author.id
+
+			except:
+				mention = (mention in [ 'True', 'False' ] and mention == 'True')
+				mention = '**%s**' % (mention and 'On' or 'Off')
+
 			entry = '`%s` %s\n' % (key, mention)
 			if len(output) + len(entry) > 2000:
 				await ctx.send(output)
@@ -161,9 +184,9 @@ class TrackerCog(commands.Cog):
 
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(guild, pref_key, config=True)
+		pref_keys = self.get_matching_keys(ctx, guild, pref_key, config=True)
 		if not pref_keys:
-			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			message = error_invalid_config_key('config', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
@@ -223,9 +246,9 @@ class TrackerCog(commands.Cog):
 
 	async def set_channels(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(guild, pref_key, channels=True)
+		pref_keys = self.get_matching_keys(ctx, guild, pref_key, channels=True)
 		if not pref_keys:
-			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			message = error_invalid_config_key('channels', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
@@ -234,7 +257,7 @@ class TrackerCog(commands.Cog):
 
 			if not pref_key.endswith('.channel'):
 				if pref_key != 'default' and pref_key not in PremiumGuild.MESSAGE_FORMATS:
-					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+					message = error_invalid_config_key('channels', self.bot.command_prefix, pref_key)
 					await ctx.send(message)
 					return
 
@@ -276,9 +299,9 @@ class TrackerCog(commands.Cog):
 
 	async def set_formats(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(guild, pref_key, formats=True)
+		pref_keys = self.get_matching_keys(ctx, guild, pref_key, formats=True)
 		if not pref_keys:
-			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			message = error_invalid_config_key('formats', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
@@ -292,7 +315,7 @@ class TrackerCog(commands.Cog):
 
 			if not pref_key.endswith('.format'):
 				if pref_key not in PremiumGuild.MESSAGE_FORMATS:
-					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+					message = error_invalid_config_key('formats', self.bot.command_prefix, pref_key)
 					await ctx.send(message)
 					return
 
@@ -319,18 +342,34 @@ class TrackerCog(commands.Cog):
 
 	async def set_mentions(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(guild, pref_key, mentions=True)
+		pref_keys = self.get_matching_keys(ctx, guild, pref_key, mentions=True)
 		if not pref_keys:
-			message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+			message = error_invalid_config_key('mentions', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
+
+		value = self.bot.parse_opts_boolean(pref_value)
+		display_value = 'Off'
+		if value is None:
+			value = self.bot.parse_opts_mention(pref_value)
+			if value is None:
+				message = error_invalid_config_value('mentions', self.bot.command_prefix, pref_value)
+				await ctx.send(message)
+				return
+
+		if value is not False:
+			value = ctx.author.id
+			if value is True:
+				display_value = 'On'
+			else:
+				display_value = '<@%s>' % value
 
 		lines = []
 		for pref_key in pref_keys:
 
 			if not pref_key.endswith('.mention'):
 				if pref_key not in PremiumGuild.MESSAGE_FORMATS:
-					message = error_invalid_config_key(self.bot.command_prefix, pref_key)
+					message = error_invalid_config_key('mentions', self.bot.command_prefix, pref_key)
 					await ctx.send(message)
 					return
 
@@ -342,11 +381,13 @@ class TrackerCog(commands.Cog):
 			except PremiumGuildConfig.DoesNotExist:
 				entry = PremiumGuildConfig(guild=guild, key=pref_key)
 
-			entry.value = self.bot.parse_opts_mention(pref_value)
+			entry.value = value
 			entry.value_type = 'hl'
 			entry.save()
 
-			lines.append('`%s` %s' % (pref_key, pref_value))
+			to_replace = '.%s.mention' % ctx.author.id
+			display_key = pref_key.replace(to_replace, '')
+			lines.append('`%s` **%s**' % (display_key, display_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''

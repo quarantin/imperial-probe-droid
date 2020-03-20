@@ -237,7 +237,28 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
+	def prepare_nick(self, ally_code):
+
+		try:
+			players = Player.objects.filter(ally_code=ally_code)
+			for player in players:
+				if player.discord_id:
+					return '<@!%s>' % player.discord_id
+
+		except Player.DoesNotExist:
+			pass
+
+		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
+		return None
+
 	def prepare_message(self, config, message):
+
+		if 'key' in message and 'nick' in message and 'ally.code' in message:
+			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
+			if prep_key in config and config[prep_key] is True:
+				prep_nick = self.prepare_nick(message['ally.code'])
+				if prep_nick:
+					message['nick'] = prep_nick
 
 		if 'unit' in message:
 			message['unit'] = get_unit_name(message['unit'], config['language'])
@@ -270,6 +291,7 @@ class TrackerThread(asyncio.Future):
 
 		self.bot = bot
 		self.config = bot.config
+		self.logger = bot.logger
 		self.redis = bot.config.redis
 
 		self.handlers = {
