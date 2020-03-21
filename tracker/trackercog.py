@@ -182,13 +182,18 @@ class TrackerCog(commands.Cog):
 			key = key.replace(to_replace, '')
 			padded_key = self.pad(key, MENTIONS_MAX_KEY_LEN)
 
-			try:
-				m = int(mention)
-				mention = '<@!%s>' % ctx.author.id
+			if mention in [ 'True', 'False' ]:
+				mention = (mention == 'True')
 
-			except:
-				mention = (mention in [ 'True', 'False' ] and mention == 'True')
-				mention = '**%s**' % (mention and 'On' or 'Off')
+			if type(mention) is bool:
+				mention = '**%s**' % (mention is True and 'On' or 'Off')
+
+			elif type(mention) is int:
+				mention = int(mention)
+				mention = '<@!%s>' % mention
+
+			else:
+				raise Exception('Unsupported operand: %s (%s)' % (mention, type(mention)))
 
 			entry = '`%s` %s\n' % (padded_key, mention)
 			if len(output) + len(entry) > 2000:
@@ -381,6 +386,15 @@ class TrackerCog(commands.Cog):
 			else:
 				display_value = '<@%s>' % value
 
+		player = None
+		try:
+			player = Player.objects.get(discord_id=ctx.author.id)
+
+		except Player.DoesNotExist:
+			message = 'Error: I don\'t know any allycode registered to <@%s>' % ctx.author.id
+			await ctx.send(message)
+			return
+
 		lines = []
 		for pref_key in pref_keys:
 
@@ -402,9 +416,10 @@ class TrackerCog(commands.Cog):
 			entry.value_type = 'hl'
 			entry.save()
 
-			to_replace = '.%s.mention' % ctx.author.id
+			to_replace = '.%s.mention' % player.ally_code
 			display_key = pref_key.replace(to_replace, '')
-			lines.append('`%s` **%s**' % (display_key, display_value))
+			padded_key = self.pad(display_key, MENTIONS_MAX_KEY_LEN)
+			lines.append('`%s` **%s**' % (padded_key, display_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
