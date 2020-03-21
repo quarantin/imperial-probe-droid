@@ -45,32 +45,8 @@ class TrackerThread(asyncio.Future):
 
 	def format_message(self, message, message_format):
 
-		NONE   = lambda x: x
-		ITALIC = lambda x: '_%s_' % x
-		BOLD   = lambda x: '**%s**' % x
-		ULINE  = lambda x: '__%s__' % x
-		BOLD_ITALIC = lambda x: '***%s***' % x
-		BOLD_ULINE = lambda x: '__**%s**__' % x
-
-		subformats = {
-			'': NONE,
-			'gear.level': BOLD_ITALIC,
-			'gear.level.roman': ITALIC,
-			'gear.piece': BOLD_ITALIC,
-			'last.seen': BOLD_ULINE,
-			'level': BOLD_ULINE,
-			'new.nick': BOLD,
-			'nick': BOLD,
-			'rarity': BOLD,
-			'relic': BOLD,
-			'skill': BOLD_ITALIC,
-			'tier': BOLD,
-			'unit': ULINE,
-		}
-
 		for key, value in message.items():
-			fmt = key in subformats and subformats[key] or str
-			message_format = message_format.replace('${%s}' % key, fmt(value))
+			message_format = message_format.replace('${%s}' % key, str(value))
 
 		return message_format
 
