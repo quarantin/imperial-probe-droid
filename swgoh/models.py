@@ -790,10 +790,10 @@ class PremiumGuild(models.Model):
 		MSG_UNIT_SKILL_INCREASED: '**${nick}** increased skill __*${skill}*__ to tier ${tier} (__**${unit}**__)',
 		MSG_UNIT_OMEGA:           '**${nick}** applied **Omega** upgrade to __*${skill}*__ (__**${unit}**__)',
 		MSG_UNIT_ZETA:            '**${nick}** applied **Zeta** upgrade to __*${skill}*__ (__**${unit}**__)',
-		MSG_ARENA_RANK_UP:        '**${nick}** has _climbed up_ in **squad arena** __**${old.rank} => ${new.rank}**__',
-		MSG_ARENA_RANK_DOWN:      '**${nick}** has _dropped down_ in **squad arena** __**${old.rank} => ${new.rank}**__',
-		MSG_FLEET_RANK_UP:        '**${nick}** has _climbed up_ in **fleet arena** __**${old.rank} => ${new.rank}**__',
-		MSG_FLEET_RANK_DOWN:      '**${nick}** has _dropped down_ in **fleet arena** __**${old.rank} => ${new.rank}**__',
+		MSG_ARENA_RANK_UP:        '**${nick}** has _climbed up_ in **squad** arena: __**${old.rank} => ${new.rank}**__',
+		MSG_ARENA_RANK_DOWN:      '**${nick}** has _dropped down_ in **squad** arena: __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_RANK_UP:        '**${nick}** has _climbed up_ in **fleet** arena: __**${old.rank} => ${new.rank}**__',
+		MSG_FLEET_RANK_DOWN:      '**${nick}** has _dropped down_ in **fleet** arena: __**${old.rank} => ${new.rank}**__',
 	}
 
 	ally_code = models.IntegerField()
