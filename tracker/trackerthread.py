@@ -50,7 +50,7 @@ class TrackerThread(asyncio.Future):
 
 		return message_format
 
-	async def handle_arena_climbed_up(self, config, message):
+	async def handle_arena_climbed_up(config, message):
 
 		key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_UP or PremiumGuild.MSG_FLEET_RANK_UP
 		max_rank_key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_MAX or PremiumGuild.MSG_FLEET_RANK_MAX
@@ -62,7 +62,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_arena_dropped_down(self, config, message):
+	async def handle_arena_dropped_down(config, message):
 
 		key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_DOWN or PremiumGuild.MSG_FLEET_RANK_DOWN
 		max_rank_key = (message['type'] == 'char') and PremiumGuild.MSG_ARENA_RANK_MAX or PremiumGuild.MSG_FLEET_RANK_MAX
@@ -74,7 +74,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_gear_level(self, config, message):
+	async def handle_gear_level(config, message):
 
 		gear_level = message['gear.level']
 
@@ -88,7 +88,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_gear_piece(self, config, message):
+	async def handle_gear_piece(config, message):
 
 		key = PremiumGuild.MSG_UNIT_GEAR_PIECE
 		if key in config and config[key] is False:
@@ -96,7 +96,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_inactivity(self, config, message):
+	async def handle_inactivity(config, message):
 
 		key = PremiumGuild.MSG_INACTIVITY
 		if key in config and config[key] is False:
@@ -104,7 +104,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_nick_change(self, config, message):
+	async def handle_nick_change(config, message):
 
 		key = PremiumGuild.MSG_PLAYER_NICK
 		if key in config and config[key] is False:
@@ -112,7 +112,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_player_level(self, config, message):
+	async def handle_player_level(config, message):
 
 		level = message['level']
 
@@ -126,7 +126,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_skill_unlocked(self, config, message):
+	async def handle_skill_unlocked(config, message):
 
 		key = PremiumGuild.MSG_UNIT_SKILL_UNLOCKED
 		if key in config and config[key] is False:
@@ -134,7 +134,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_skill_increased(self, config, message):
+	async def handle_skill_increased(config, message):
 
 		typ = message['type']
 		tier = message['tier']
@@ -163,7 +163,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_unit_level(self, config, message):
+	async def handle_unit_level(config, message):
 
 		level = message['level']
 
@@ -177,7 +177,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_unit_rarity(self, config, message):
+	async def handle_unit_rarity(config, message):
 
 		rarity = message['rarity']
 
@@ -191,7 +191,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_unit_relic(self, config, message):
+	async def handle_unit_relic(config, message):
 
 		relic = message['relic']
 
@@ -205,7 +205,7 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	async def handle_unit_unlocked(self, config, message):
+	async def handle_unit_unlocked(config, message):
 
 		key = PremiumGuild.MSG_UNIT_UNLOCKED
 		if key in config and config[key] is False:
@@ -263,31 +263,91 @@ class TrackerThread(asyncio.Future):
 
 		return message
 
+	handlers = {
+
+		PremiumGuild.MSG_INACTIVITY:           handle_inactivity,
+		PremiumGuild.MSG_PLAYER_NICK:          handle_nick_change,
+		PremiumGuild.MSG_PLAYER_LEVEL:         handle_player_level,
+		PremiumGuild.MSG_UNIT_UNLOCKED:        handle_unit_unlocked,
+		PremiumGuild.MSG_UNIT_LEVEL:           handle_unit_level,
+		PremiumGuild.MSG_UNIT_RARITY:          handle_unit_rarity,
+		PremiumGuild.MSG_UNIT_RELIC:           handle_unit_relic,
+		PremiumGuild.MSG_UNIT_GEAR_LEVEL:      handle_gear_level,
+		PremiumGuild.MSG_UNIT_GEAR_PIECE:      handle_gear_piece,
+		PremiumGuild.MSG_UNIT_SKILL_UNLOCKED:  handle_skill_unlocked,
+		PremiumGuild.MSG_UNIT_SKILL_INCREASED: handle_skill_increased,
+		PremiumGuild.MSG_ARENA_RANK_UP:        handle_arena_climbed_up,
+		PremiumGuild.MSG_ARENA_RANK_DOWN:      handle_arena_dropped_down,
+		PremiumGuild.MSG_FLEET_RANK_UP:        handle_arena_climbed_up,
+		PremiumGuild.MSG_FLEET_RANK_DOWN:      handle_arena_dropped_down,
+	}
+
+	async def dump_messages(self, guild_ref_id, guild, config):
+
+		if not guild.channel_id:
+			return
+
+		messages_key = 'messages|%s' % guild_ref_id
+		count = self.redis.llen(messages_key)
+		if not count:
+			return
+
+		while True:
+
+			messages = self.redis.lrange(messages_key, 0, 0)
+			if not messages:
+				break
+
+			message = json.loads(messages[0].decode('utf-8'))
+			print(message)
+			key = message['key']
+			if key in self.handlers:
+				prep_message = self.prepare_message(config, message)
+				key = await self.handlers[key](config, prep_message)
+				if key is not None:
+					fmtstr = self.get_format(config, key)
+					content = self.format_message(message, fmtstr)
+					webhook_channel = self.get_channel(config, key)
+					webhook_name = self.bot.get_webhook_name()
+					webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
+					if error:
+						try:
+							await webhook_channel.send(error)
+						except:
+							pass
+						return
+
+					try:
+						if not webhook:
+							webhook, error = await self.bot.create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
+							if not webhook:
+								errmsg = 'self.bot.create_webhook failed: %s' % error
+								print(errmsg)
+								await webhook_channel.send(errmsg)
+							return
+
+						await webhook.send(content=content, avatar_url=webhook.avatar_url)
+
+						self.redis.lpop(messages_key)
+
+					except InvalidArgument as err:
+						print('ERROR: %s' % err)
+
+					except NotFound as err:
+						print('ERROR: %s' % err)
+
+					except Forbidden as err:
+						print('ERROR: %s' % err)
+
+					except HTTPException as err:
+						print('ERROR: %s' % err)
+
 	async def run(self, bot):
 
 		self.bot = bot
 		self.config = bot.config
 		self.logger = bot.logger
-		self.redis = bot.config.redis
-
-		self.handlers = {
-
-			PremiumGuild.MSG_INACTIVITY:           self.handle_inactivity,
-			PremiumGuild.MSG_PLAYER_NICK:          self.handle_nick_change,
-			PremiumGuild.MSG_PLAYER_LEVEL:         self.handle_player_level,
-			PremiumGuild.MSG_UNIT_UNLOCKED:        self.handle_unit_unlocked,
-			PremiumGuild.MSG_UNIT_LEVEL:           self.handle_unit_level,
-			PremiumGuild.MSG_UNIT_RARITY:          self.handle_unit_rarity,
-			PremiumGuild.MSG_UNIT_RELIC:           self.handle_unit_relic,
-			PremiumGuild.MSG_UNIT_GEAR_LEVEL:      self.handle_gear_level,
-			PremiumGuild.MSG_UNIT_GEAR_PIECE:      self.handle_gear_piece,
-			PremiumGuild.MSG_UNIT_SKILL_UNLOCKED:  self.handle_skill_unlocked,
-			PremiumGuild.MSG_UNIT_SKILL_INCREASED: self.handle_skill_increased,
-			PremiumGuild.MSG_ARENA_RANK_UP:        self.handle_arena_climbed_up,
-			PremiumGuild.MSG_ARENA_RANK_DOWN:      self.handle_arena_dropped_down,
-			PremiumGuild.MSG_FLEET_RANK_UP:        self.handle_arena_climbed_up,
-			PremiumGuild.MSG_FLEET_RANK_DOWN:      self.handle_arena_dropped_down,
-		}
+		self.redis = bot.redis
 
 		while True:
 
@@ -311,55 +371,6 @@ class TrackerThread(asyncio.Future):
 					print('ERROR: Profile from redis is invalid: %s' % ally_code)
 					continue
 
-				messages_key = 'messages|%s' % player['guildRefId']
-				count = self.redis.llen(messages_key)
-				if count > 0 and guild.channel_id:
-					messages = self.redis.lrange(messages_key, 0, count)
-
-					for message in messages:
-
-						message = json.loads(message)
-						print(message)
-						key = message['key']
-						if key in self.handlers:
-							key = await self.handlers[key](config, self.prepare_message(config, message))
-							if key is not None:
-								fmtstr = self.get_format(config, key)
-								content = self.format_message(message, fmtstr)
-								webhook_channel = self.get_channel(config, key)
-								webhook_name = self.bot.get_webhook_name()
-								webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
-								if error:
-									try:
-										await webhook_channel.send(error)
-									except:
-										pass
-									return
-
-								try:
-									if not webhook:
-										webhook, error = await self.bot.create_webhook(webhook_name, bot.get_avatar(), webhook_channel)
-										if not webhook:
-											print("create_webhook failed: %s" % error)
-											await webhook_channel.send(error)
-										return
-
-									await webhook.send(content=content, avatar_url=webhook.avatar_url)
-
-								except InvalidArgument as err:
-									print('ERROR: %s' % err)
-
-								except NotFound as err:
-									print('ERROR: %s' % err)
-
-								except Forbidden as err:
-									print('ERROR: %s' % err)
-
-								except HTTPException as err:
-									print('ERROR: %s' % err)
-
-					ok = self.redis.ltrim(messages_key, count + 1, -1)
-					if not ok:
-						print('ERROR: redis.ltrim failed! Returned: %s' % ok)
+				await self.dump_messages(player['guildRefId'], guild, config)
 
 			await asyncio.sleep(1)
