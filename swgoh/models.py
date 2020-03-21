@@ -885,9 +885,15 @@ class PremiumGuild(models.Model):
 				config[format_key] = fmt
 
 			if discord_id is not None:
-				mention_key = '%s.%s.mention' % (key, discord_id)
-				if mention_key not in config:
-					config[mention_key] = default_mention
+				try:
+					player = Player.objects.get(discord_id=discord_id)
+					mention_key = '%s.%s.mention' % (key, player.ally_code)
+					if mention_key not in config:
+						config[mention_key] = default_mention
+
+				except Player.DoesNotExist:
+					print('Error: Could not find player for discord id: %s' % discord_id)
+					pass
 
 		return config
 
