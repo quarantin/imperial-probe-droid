@@ -100,7 +100,7 @@ class CrawlerThread(asyncio.Future):
 					await self.update_player(premium_guild, member['allyCode'])
 
 				except:
-					failed_ac.append(member['allyCode'])
+					failed_ac.append(str(member['allyCode']))
 					failed_ch.append(channel)
 
 		return failed_ac, failed_ch
