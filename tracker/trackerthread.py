@@ -312,6 +312,7 @@ class TrackerThread(asyncio.Future):
 					webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
 					if error:
 						try:
+							print(error)
 							await webhook_channel.send(error)
 						except:
 							pass
@@ -328,8 +329,6 @@ class TrackerThread(asyncio.Future):
 
 						await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
-						self.redis.lpop(messages_key)
-
 					except InvalidArgument as err:
 						print('ERROR: %s' % err)
 
@@ -341,6 +340,8 @@ class TrackerThread(asyncio.Future):
 
 					except HTTPException as err:
 						print('ERROR: %s' % err)
+
+			self.redis.lpop(messages_key)
 
 	async def run(self, bot):
 
