@@ -231,7 +231,7 @@ class TrackerThread(asyncio.Future):
 
 		if 'key' in message and 'nick' in message and 'ally.code' in message:
 			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
-			if prep_key in config and config[prep_key] is True:
+			if prep_key in config and config[prep_key] is not False:
 				prep_nick = self.prepare_nick(message['ally.code'])
 				if prep_nick:
 					message['nick'] = prep_nick
