@@ -17,7 +17,7 @@ from constants import ROMAN, MAX_SKILL_TIER
 from swgohhelp import get_unit_name, get_ability_name
 
 import DJANGO
-from swgoh.models import BaseUnitSkill, PremiumGuild
+from swgoh.models import BaseUnitSkill, Player, PremiumGuild
 
 class TrackerThread(asyncio.Future):
 
