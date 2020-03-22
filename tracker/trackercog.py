@@ -21,20 +21,31 @@ class TrackerCog(commands.Cog):
 		self.logger = bot.logger
 		self.redis = bot.redis
 
+	def get_allycode_by_discord_id(self, discord_id):
+
+		try:
+			player = Player.objects.get(discord_id=discord_id)
+			return player.ally_code
+
+		except Player.DoesNotExist:
+			pass
+
+		return None
+
 	def get_guild(self, author):
 
 		try:
 			player = Player.objects.get(discord_id=author.id)
 
 		except Player.DoesNotExist:
-			print('TrackerCog.get_guild(%s): No player found' % author.id)
+			self.logger.warning('TrackerCog.get_guild(%s): No player found' % author.id)
 			return None
 
 		ally_code = str(player.ally_code)
 		profile_key = 'player|%s' % player.ally_code
 		profile = self.redis.get(profile_key)
 		if not profile:
-			print('Failed retrieving profile of %s' % player.ally_code)
+			self.logger.warning('Failed retrieving profile of %s' % player.ally_code)
 			return None
 
 		profile = json.loads(profile.decode('utf-8'))
@@ -43,7 +54,7 @@ class TrackerCog(commands.Cog):
 			premium_guild = PremiumGuild.objects.get(guild_id=profile['guildRefId'])
 
 		except PremiumGuild.DoesNotExist:
-			print('No premium guild found')
+			self.logger.warning('No premium guild found for ID: %s' % profile['guildRefId'])
 			return None
 
 		return premium_guild
@@ -114,6 +125,21 @@ class TrackerCog(commands.Cog):
 
 			output += entry
 
+		if not output:
+			output += 'No matching keys for: `%s`' % pref_key
+
+		else:
+			sep = self.bot.config['separator']
+			pad = ' ' * (CONFIG_MAX_KEY_LEN - 3)
+			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
+			prefix = self.bot.command_prefix
+			output += """
+To update configuration, just type:
+`%stracker config <key> <value>`
+
+For example to disable `arena.rank.up` events, just type:
+`%stracker config arena.rank.up off`""" % (prefix, prefix)
+
 		await ctx.send(output)
 
 	async def get_channels(self, ctx, guild, pref_key: str = None):
@@ -133,6 +159,21 @@ class TrackerCog(commands.Cog):
 				output = ''
 
 			output += entry
+
+		if not output:
+			output += 'No matching keys for: `%s`' % pref_key
+
+		else:
+			sep = self.bot.config['separator']
+			pad = ' ' * (CHANNELS_MAX_KEY_LEN - 3)
+			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
+			prefix = self.bot.command_prefix
+			output += """
+To update channels, just type:
+`%stracker channels <key> <channel>`
+
+For example to redirect `arena.rank.down` events to **#arena-tracker** channel, just type:
+`%stracker channels arena.rank.up #arena-tracker`""" % (prefix, prefix)
 
 		await ctx.send(output)
 
@@ -154,18 +195,22 @@ class TrackerCog(commands.Cog):
 
 			output += entry
 
+		if not output:
+			output += 'No matching keys for: `%s`' % pref_key
+
+		else:
+			sep = self.bot.config['separator']
+			pad = ' ' * (FORMATS_MAX_KEY_LEN - 3)
+			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
+			prefix = self.bot.command_prefix
+			output += """
+To update formats, just type:
+`%stracker formats <key> <format>`
+
+For example to configure formats for `arena.rank.down` events, just type:
+`%stracker formats arena.rank.down "**${nick}** has _dropped down_ in **squad** arena: __**${old.rank} => ${new.rank}**__"`""" % (prefix, prefix)
+
 		await ctx.send(output)
-
-	def get_allycode_by_discord_id(self, discord_id):
-
-		try:
-			player = Player.objects.get(discord_id=discord_id)
-			return player.ally_code
-
-		except Player.DoesNotExist:
-			pass
-
-		return None
 
 	async def get_mentions(self, ctx, guild, pref_key: str = None):
 
@@ -206,6 +251,20 @@ class TrackerCog(commands.Cog):
 
 			output += entry
 
+		if not output:
+			output += 'No matching keys for: `%s`' % pref_key
+
+		else:
+			sep = self.bot.config['separator']
+			pad = ' ' * (MENTIONS_MAX_KEY_LEN - 3)
+			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
+			prefix = self.bot.command_prefix
+			output += """
+To update mentions, just type:
+`%stracker mentions <key> <value>`
+
+For example to enable notifications for `arena.rank.down` events, just type:
+`%stracker mentions arena.rank.down on`""" % (prefix, prefix)
 		await ctx.send(output)
 
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
@@ -300,7 +359,7 @@ class TrackerCog(commands.Cog):
 
 				webhook, error = await self.bot.create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
 				if not webhook:
-					print("create_webhook failed: %s" % error)
+					self.logger.error('create_webhook failed: %s' % error)
 					await ctx.send(error)
 					return
 
@@ -432,10 +491,22 @@ class TrackerCog(commands.Cog):
 			message = '\n'.join(lines)
 			await ctx.send(message)
 
+	@commands.Cog.listener()
+	async def on_command_error(self, ctx, error):
+
+		if isinstance(error, commands.CommandNotFound):
+			return
+
+		raise error
+
 	@commands.group()
 	async def tracker(self, ctx):
+
 		if ctx.invoked_subcommand is None:
-			print('HELP')
+			prefix = self.bot.command_prefix
+			commands = [ '%s%s' % (prefix, c.qualified_name) for c in self.walk_commands() if c.qualified_name != 'tracker' ]
+			message = 'The following commands are available:\n```\n%s\n```' % '\n'.join(commands)
+			await ctx.send(message)
 
 	@tracker.command()
 	async def config(self, ctx, pref_key: str = None, pref_value: str = None):
