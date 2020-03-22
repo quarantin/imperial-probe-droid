@@ -6,7 +6,7 @@ import libswgoh
 from datetime import datetime, timedelta
 
 from constants import MINUTE
-from swgohhelp import api_swgoh_guilds
+from swgohhelp import api_swgoh_guilds, SwgohHelpException
 
 import DJANGO
 from swgoh.models import PremiumGuild
@@ -121,10 +121,25 @@ class CrawlerThread(asyncio.Future):
 
 		self.redis.setex(guild_key, guild_expire, guild_data)
 
+	async def swgohhelp_guilds(selectors):
+
+		for i in range(0, 3):
+
+			try:
+				return await api_swgoh_guilds(self.config, { 'allycodes': selectors })
+
+			except SwgohHelpException:
+				pass
+
+		return None
+
 	async def fetch_guild(self, selector, guild=None):
 
 		if guild is None:
-			guilds = await api_swgoh_guilds(self.config, { 'allycodes': [ selector ] })
+			guilds = self.swgohhelp_guilds([ selector ])
+			if not guilds:
+				return None
+
 			guild = guilds[0]
 
 		player = await self.get_player(selector)
@@ -136,7 +151,10 @@ class CrawlerThread(asyncio.Future):
 
 	async def fetch_guilds(self, selectors):
 
-		guilds = await api_swgoh_guilds(self.config, { 'allycodes': selectors })
+		guilds = self.swgohhelp_guilds(selectors)
+		if not guilds:
+			return None
+
 		guilds = PremiumGuild.guilds_to_dict(selectors, guilds)
 
 		for selector in selectors:
