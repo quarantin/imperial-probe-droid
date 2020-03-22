@@ -259,7 +259,7 @@ class TrackerThread(asyncio.Future):
 					message['type'] = skill.is_zeta and 'zeta' or 'omega'
 
 				except BaseUnitSkill.DoesNotExist:
-					print('ERROR: Could not find base unit skill with id: %s' % message['skill.id'])
+					self.logger.error('Could not find base unit skill with id: %s' % message['skill.id'])
 
 		return message
 
@@ -299,7 +299,7 @@ class TrackerThread(asyncio.Future):
 				break
 
 			message = json.loads(messages[0].decode('utf-8'))
-			print(message)
+			self.logger.info(message)
 			key = message['key']
 			if key in self.handlers:
 				prep_message = self.prepare_message(config, message)
@@ -311,35 +311,30 @@ class TrackerThread(asyncio.Future):
 					webhook_name = self.bot.get_webhook_name()
 					webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
 					if error:
-						try:
-							print(error)
-							await webhook_channel.send(error)
-						except:
-							pass
+						self.logger.error(error)
 						return
 
 					try:
 						if not webhook:
 							webhook, error = await self.bot.create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
-							if not webhook:
+							if not webhook or error:
 								errmsg = 'self.bot.create_webhook failed: %s' % error
-								print(errmsg)
-								await webhook_channel.send(errmsg)
+								self.logger.error(errmsg)
 							return
 
 						await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
 					except InvalidArgument as err:
-						print('ERROR: %s' % err)
+						self.logger.error(str(err))
 
 					except NotFound as err:
-						print('ERROR: %s' % err)
+						self.logger.error(str(err))
 
 					except Forbidden as err:
-						print('ERROR: %s' % err)
+						self.logger.error(str(err))
 
 					except HTTPException as err:
-						print('ERROR: %s' % err)
+						self.logger.error(str(err))
 
 			self.redis.lpop(messages_key)
 
@@ -354,7 +349,7 @@ class TrackerThread(asyncio.Future):
 
 			self.guilds = list(PremiumGuild.objects.all())
 			if not self.guilds:
-				print('WARNING: No premium guild found.')
+				self.logger.warning('No premium guild found')
 
 			for guild in self.guilds:
 
@@ -364,12 +359,12 @@ class TrackerThread(asyncio.Future):
 				player_key = 'player|%s' % ally_code
 				player = self.redis.get(player_key)
 				if not player:
-					print('ERROR: Could not find profile in redis: %s' % ally_code)
+					self.logger.error('Could not find profile in redis: %s' % ally_code)
 					continue
 
 				player = json.loads(player.decode('utf-8'))
 				if 'guildRefId' not in player:
-					print('ERROR: Profile from redis is invalid: %s' % ally_code)
+					self.logger.error('Profile from redis is invalid: %s' % ally_code)
 					continue
 
 				await self.dump_messages(player['guildRefId'], guild, config)
