@@ -941,10 +941,10 @@ class PremiumGuild(models.Model):
 
 		items = PremiumGuildConfig.objects.filter(guild=self)
 		for item in items:
-			to_check = '.%s.mention' % ally_code
-			if to_check in item.key:
+			suffix = '.%s.mention' % ally_code
+			if item.key.endswith(suffix):
 				mention = item.value
-				if item.value in [ 'True', 'False' ]:
+				if mention in [ 'True', 'False' ]:
 					mention = (item.value == 'True')
 				mentions[item.key] = mention
 
