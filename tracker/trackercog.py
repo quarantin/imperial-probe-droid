@@ -160,6 +160,7 @@ class TrackerCog(commands.Cog):
 
 		try:
 			player = Player.objects.get(discord_id=discord_id)
+			return player.ally_code
 
 		except Player.DoesNotExist:
 			pass
@@ -171,7 +172,10 @@ class TrackerCog(commands.Cog):
 		output = ''
 		ally_code = self.get_allycode_by_discord_id(ctx.author.id)
 		if not ally_code:
-			error = error_no_ally_code_specified(self.config, ctx.author)
+			errors = error_no_ally_code_specified(self.config, ctx.author)
+			await ctx.send(errors[0]['description'])
+			return
+
 		mentions = guild.get_mentions(ally_code=ally_code)
 		for key, mention in sorted(mentions.items()):
 
@@ -182,8 +186,8 @@ class TrackerCog(commands.Cog):
 			key = key.replace(to_replace, '')
 			padded_key = self.pad(key, MENTIONS_MAX_KEY_LEN)
 
-			if mention in [ 'True', 'False' ]:
-				mention = (mention == 'True')
+			if type(mention) is str and mention.isnumeric():
+				mention = int(mention)
 
 			if type(mention) is bool:
 				mention = '**%s**' % (mention is True and 'On' or 'Off')
