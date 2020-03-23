@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import json
+import discord
 from discord.ext import commands
 
+from constants import EMOJIS
 from errors import error_invalid_config_key, error_invalid_config_value, error_no_ally_code_specified
 
 import DJANGO
@@ -84,13 +86,33 @@ class TrackerCog(commands.Cog):
 
 	def pad(self, string, length):
 		pad_len = length - len(string)
-		return string + (' ' * pad_len)
+		return string + ('\u00a0' * pad_len)
+
+	def get_header(self, count=3):
+
+		emo = EMOJIS['']
+
+		extra3 = (count == 3 and ' ' or '')
+		extra2 = (count == 2 and emo or '')
+		spacer = ' '.join([ emo ] * count)
+
+		header = '`|`%s%s**Key**%s%s%s`|` **Value**\n' % (spacer, extra3, extra3, extra2, spacer)
+
+		return header
+
+	get_config_help = """
+To update configuration, just type:
+```
+%prefixtracker config <key> <value>```
+For example to disable `arena.rank.up` events, just type:
+```
+%prefixtracker config arena.rank.up off```"""
 
 	async def get_config(self, ctx, guild, pref_key=None):
 
 		allow_all = pref_key is not None and pref_key in [ '*', 'all' ]
 
-		output = ''
+		description = ''
 		for key, value in sorted(guild.get_config(discord_id=ctx.author.id).items()):
 
 			padded_key = self.pad(key, CONFIG_MAX_KEY_LEN)
@@ -108,43 +130,46 @@ class TrackerCog(commands.Cog):
 				continue
 
 			if type(value) is int or key.endswith('.channel'):
-				entry = '`%s` **%s**' % (padded_key, value)
+				entry = '`|%s|` **%s**' % (padded_key, value)
 
 			elif type(value) is bool:
-				boolval = value is True and 'On' or 'Off'
-				entry = '`%s` **%s**' % (padded_key, boolval)
+				boolval = value is True and 'ON' or 'OFF'
+				entry = '`|%s|` **%s**' % (padded_key, boolval)
 
 			else:
-				entry = '`%s` **%s**' % (padded_key, value)
+				entry = '`|%s|` **%s**' % (padded_key, value)
 
 			entry += '\n'
 
-			if len(output) + len(entry) > 2000:
-				await ctx.send(output)
-				output = ''
+			if len(description) + len(entry) > 2000:
+				await ctx.send(description)
+				description = ''
 
-			output += entry
+			description += entry
 
-		if not output:
-			output += 'No matching keys for: `%s`' % pref_key
+		if not description:
+			description += 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
-			pad = ' ' * (CONFIG_MAX_KEY_LEN - 3)
-			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
 			prefix = self.bot.command_prefix
-			output += """
-To update configuration, just type:
-`%stracker config <key> <value>`
+			cmdhelp = self.get_config_help.replace('%prefix', prefix)
+			description = self.get_header(count=3) + sep + '\n' + description + sep + '\n' + cmdhelp
 
-For example to disable `arena.rank.up` events, just type:
-`%stracker config arena.rank.up off`""" % (prefix, prefix)
+		embed = discord.Embed(title='Tracker Configuration', description=description)
+		await ctx.send(embed=embed)
 
-		await ctx.send(output)
+	get_channels_help = """
+To update channels, just type:
+```
+%prefixtracker channels <key> <channel>```
+For example to redirect `arena.rank.down` events to **#arena-tracker** channel, just type:
+```
+%prefixtracker channels arena.rank.up #arena-tracker```"""
 
 	async def get_channels(self, ctx, guild, pref_key: str = None):
 
-		output = ''
+		description = ''
 		channels = guild.get_channels()
 		for key, channel in sorted(channels.items()):
 
@@ -153,33 +178,36 @@ For example to disable `arena.rank.up` events, just type:
 
 			key = key.replace('.channel', '')
 			padded_key = self.pad(key, CHANNELS_MAX_KEY_LEN)
-			entry = '`%s` %s\n' % (padded_key, channel)
-			if len(output) + len(entry) > 2000:
-				await ctx.send(output)
-				output = ''
+			entry = '`|%s|` %s\n' % (padded_key, channel)
+			if len(description) + len(entry) > 2000:
+				await ctx.send(description)
+				description = ''
 
-			output += entry
+			description += entry
 
-		if not output:
-			output += 'No matching keys for: `%s`' % pref_key
+		if not description:
+			description += 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
-			pad = ' ' * (CHANNELS_MAX_KEY_LEN - 3)
-			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
 			prefix = self.bot.command_prefix
-			output += """
-To update channels, just type:
-`%stracker channels <key> <channel>`
+			cmdhelp = self.get_channels_help.replace('%prefix', prefix)
+			description = self.get_header(count=2) + sep + '\n' + description + sep + '\n' + cmdhelp
 
-For example to redirect `arena.rank.down` events to **#arena-tracker** channel, just type:
-`%stracker channels arena.rank.up #arena-tracker`""" % (prefix, prefix)
+		embed = discord.Embed(title='Channels Configuration', description=description)
+		await ctx.send(embed=embed)
 
-		await ctx.send(output)
+	get_formats_help = """
+To update formats, just type:
+```
+%prefixtracker formats <key> <format>```
+For example to configure formats for `arena.rank.down` events, just type:
+```
+%prefixtracker formats arena.rank.down "**${nick}** has _dropped down_ in **squad** arena: __**${old.rank} => ${new.rank}**__"```"""
 
 	async def get_formats(self, ctx, guild, pref_key: str = None):
 
-		output = ''
+		description = ''
 		formats = guild.get_formats()
 		for key, fmt in sorted(formats.items()):
 
@@ -188,33 +216,36 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 
 			key = key.replace('.format', '')
 			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
-			entry = '`%s` "%s"\n' % (padded_key, fmt)
-			if len(output) + len(entry) > 2000:
-				await ctx.send(output)
-				output = ''
+			entry = '`|%s|` "%s"\n' % (padded_key, fmt)
+			if len(description) + len(entry) > 2000:
+				await ctx.send(description)
+				description = ''
 
-			output += entry
+			description += entry
 
-		if not output:
-			output += 'No matching keys for: `%s`' % pref_key
+		if not description:
+			description += 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
-			pad = ' ' * (FORMATS_MAX_KEY_LEN - 3)
-			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
 			prefix = self.bot.command_prefix
-			output += """
-To update formats, just type:
-`%stracker formats <key> <format>`
+			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
+			description = self.get_header(count=2) + sep + '\n' + description + sep + '\n' + cmdhelp
 
-For example to configure formats for `arena.rank.down` events, just type:
-`%stracker formats arena.rank.down "**${nick}** has _dropped down_ in **squad** arena: __**${old.rank} => ${new.rank}**__"`""" % (prefix, prefix)
+		embed = discord.Embed(title='Formats Configuration', description=description)
+		await ctx.send(embed=embed)
 
-		await ctx.send(output)
+	get_mentions_help = """
+To update mentions, just type:
+```
+%prefixtracker mentions <key> <value>```
+For example to enable notifications for `arena.rank.down` events, just type:
+```
+%prefixtracker mentions arena.rank.down on```"""
 
 	async def get_mentions(self, ctx, guild, pref_key: str = None):
 
-		output = ''
+		description = ''
 		ally_code = self.get_allycode_by_discord_id(ctx.author.id)
 		if not ally_code:
 			errors = error_no_ally_code_specified(self.config, ctx.author)
@@ -235,7 +266,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 				mention = int(mention)
 
 			if type(mention) is bool:
-				mention = '**%s**' % (mention is True and 'On' or 'Off')
+				mention = '**%s**' % (mention is True and 'ON' or 'OFF')
 
 			elif type(mention) is int:
 				mention = int(mention)
@@ -244,28 +275,24 @@ For example to configure formats for `arena.rank.down` events, just type:
 			else:
 				raise Exception('Unsupported operand: %s (%s)' % (mention, type(mention)))
 
-			entry = '`%s` %s\n' % (padded_key, mention)
-			if len(output) + len(entry) > 2000:
-				await ctx.send(output)
-				output = ''
+			entry = '`|%s|` %s\n' % (padded_key, mention)
+			if len(description) + len(entry) > 2000:
+				await ctx.send(description)
+				description = ''
 
-			output += entry
+			description += entry
 
-		if not output:
-			output += 'No matching keys for: `%s`' % pref_key
+		if not description:
+			description += 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
-			pad = ' ' * (MENTIONS_MAX_KEY_LEN - 3)
-			output = '**Key**`%s`**Value**\n%s\n%s%s\n' % (pad, sep, output, sep)
 			prefix = self.bot.command_prefix
-			output += """
-To update mentions, just type:
-`%stracker mentions <key> <value>`
+			cmdhelp = self.get_mentions_help.replace('%prefix', prefix)
+			description = self.get_header(count=2) + sep + '\n' + description + sep + '\n' + cmdhelp
 
-For example to enable notifications for `arena.rank.down` events, just type:
-`%stracker mentions arena.rank.down on`""" % (prefix, prefix)
-		await ctx.send(output)
+		embed = discord.Embed(title='Mentions Configuration', description=description)
+		await ctx.send(embed=embed)
 
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
 
@@ -316,12 +343,12 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			display_value = entry.value
 
 			if entry.value_type == 'bool':
-				display_value = display_value is True and '**On**' or '**Off**'
+				display_value = display_value is True and '**ON**' or '**OFF**'
 
 			elif entry.value_type == 'chan':
 				display_value = '<#%s>' % display_value
 
-			lines.append('`%s` = %s' % (pref_key, display_value))
+			lines.append('`%s` %s' % (pref_key, display_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
@@ -445,7 +472,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		if value is not False:
 			value = ctx.author.id
 			if value is True:
-				display_value = 'On'
+				display_value = 'ON'
 			else:
 				display_value = '<@%s>' % value
 
