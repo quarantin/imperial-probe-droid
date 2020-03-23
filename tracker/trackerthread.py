@@ -33,10 +33,9 @@ class TrackerThread(asyncio.Future):
 	def get_channel(self, config, param):
 
 		key = '%s.channel' % param
-		if key in config:
-			if config[key]:
-				channel_id = self.bot.parse_opts_channel(config[key])
-				return self.bot.get_channel(channel_id)
+		if key in config and config[key]:
+			channel_id = self.bot.parse_opts_channel(config[key])
+			return self.bot.get_channel(channel_id)
 
 		key = 'default.channel'
 		if key in config and config[key]:
