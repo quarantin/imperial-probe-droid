@@ -228,7 +228,7 @@ class Crawler(asyncio.Future):
 		print("Starting crawler thread.")
 		print('Crawler bot ready!')
 
-		self.differ = CrawlerDiffer(bot)
+		self.differ = CrawlerDiffer(self)
 		self.session = await libswgoh.get_auth_guest()
 
 		while True:
@@ -274,7 +274,8 @@ if __name__ == '__main__':
 		crawler.config = config
 		crawler.redis = config.redis
 		crawler.logger = logger
-		crawler.run()
+
+		asyncio.get_event_loop().run_until_complete(crawler.run())
 
 	except SwgohHelpException as err:
 		print(err)
