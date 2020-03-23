@@ -847,8 +847,8 @@ class PremiumGuild(models.Model):
 
 	def get_config(self, discord_id=None):
 
-		default_mention = '**Off**'
-		default_channel = self.channel_id and '<#%s>' % self.channel_id or None
+		default_mention = False
+		default_channel = self.channel_id
 
 		config = {}
 
@@ -859,10 +859,7 @@ class PremiumGuild(models.Model):
 		items = PremiumGuildConfig.objects.filter(guild=self)
 		for item in items:
 
-			if item.key.endswith('.channel'):
-				config[item.key] = '<#%s>' % item.value
-
-			elif item.value_type == 'int':
+			if item.value_type == 'int' or item.key.endswith('.channel'):
 				config[item.key] = int(item.value)
 
 			else:
@@ -870,8 +867,10 @@ class PremiumGuild(models.Model):
 
 		# Get default settings if not set
 		for key, value, value_type in PremiumGuild.MESSAGE_DEFAULTS:
-			if key not in config:
-				config[key] = value
+
+			config_key = '%s.config' % key
+			if config_key not in config:
+				config[config_key] = value
 
 		# Get channels, formats, and mentions settings if not set
 		for key, fmt in PremiumGuild.MESSAGE_FORMATS.items():

@@ -67,7 +67,7 @@ class TrackerCog(commands.Cog):
 		for key, value in sorted(guild.get_config(discord_id=ctx.author.id).items()):
 
 			add = False
-			if config is True and not key.endswith('.channel') and not key.endswith('.format') and not key.endswith('.mention'):
+			if config is True and key.endswith('.config'):
 				add = True
 
 			elif channels is True and key.endswith('.channel'):
@@ -110,51 +110,33 @@ For example to disable `arena.rank.up` events, just type:
 
 	async def get_config(self, ctx, guild, pref_key=None):
 
-		allow_all = pref_key is not None and pref_key in [ '*', 'all' ]
+		lines = []
+		config = guild.get_config()
+		for key, value in sorted(config.items()):
 
-		description = ''
-		for key, value in sorted(guild.get_config(discord_id=ctx.author.id).items()):
+			if pref_key is not None and pref_key not in key:
+				continue
 
+			if not key.endswith('.config'):
+				continue
+
+			key = key.replace('.config', '')
 			padded_key = self.pad(key, CONFIG_MAX_KEY_LEN)
-
-			if (pref_key and pref_key not in key) and not allow_all:
-				continue
-
-			if key.endswith('.channel') and not allow_all:
-				continue
-
-			if key.endswith('.format') and not allow_all:
-				continue
-
-			if key.endswith('.mention') and not allow_all:
-				continue
-
-			if type(value) is int or key.endswith('.channel'):
-				entry = '`|%s|` **%s**' % (padded_key, value)
-
-			elif type(value) is bool:
+			if type(value) is bool:
 				boolval = value is True and 'ON' or 'OFF'
-				entry = '`|%s|` **%s**' % (padded_key, boolval)
+				lines.append('`|%s|` **%s**' % (padded_key, boolval))
 
 			else:
-				entry = '`|%s|` **%s**' % (padded_key, value)
+				lines.append('`|%s|` **%s**' % (padded_key, value))
 
-			entry += '\n'
-
-			if len(description) + len(entry) > 2000:
-				await ctx.send(description)
-				description = ''
-
-			description += entry
-
-		if not description:
-			description += 'No matching keys for: `%s`' % pref_key
+		if not lines:
+			description = 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_config_help.replace('%prefix', prefix)
-			description = self.get_header(count=3) + sep + '\n' + description + sep + '\n' + cmdhelp
+			description = self.get_header(count=3) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
 		embed = discord.Embed(title='Tracker Configuration', description=description)
 		await ctx.send(embed=embed)
@@ -169,7 +151,7 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 
 	async def get_channels(self, ctx, guild, pref_key: str = None):
 
-		description = ''
+		lines = []
 		channels = guild.get_channels()
 		for key, channel in sorted(channels.items()):
 
@@ -178,21 +160,16 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 
 			key = key.replace('.channel', '')
 			padded_key = self.pad(key, CHANNELS_MAX_KEY_LEN)
-			entry = '`|%s|` %s\n' % (padded_key, channel)
-			if len(description) + len(entry) > 2000:
-				await ctx.send(description)
-				description = ''
+			lines.append('`|%s|` %s' % (padded_key, channel))
 
-			description += entry
-
-		if not description:
-			description += 'No matching keys for: `%s`' % pref_key
+		if not lines:
+			description = 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_channels_help.replace('%prefix', prefix)
-			description = self.get_header(count=2) + sep + '\n' + description + sep + '\n' + cmdhelp
+			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
 		embed = discord.Embed(title='Channels Configuration', description=description)
 		await ctx.send(embed=embed)
@@ -207,7 +184,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 
 	async def get_formats(self, ctx, guild, pref_key: str = None):
 
-		description = ''
+		lines = []
 		formats = guild.get_formats()
 		for key, fmt in sorted(formats.items()):
 
@@ -216,21 +193,16 @@ For example to configure formats for `arena.rank.down` events, just type:
 
 			key = key.replace('.format', '')
 			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
-			entry = '`|%s|` "%s"\n' % (padded_key, fmt)
-			if len(description) + len(entry) > 2000:
-				await ctx.send(description)
-				description = ''
+			lines.append('`|%s|` "%s"' % (padded_key, fmt))
 
-			description += entry
-
-		if not description:
-			description += 'No matching keys for: `%s`' % pref_key
+		if not lines:
+			description = 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
-			description = self.get_header(count=2) + sep + '\n' + description + sep + '\n' + cmdhelp
+			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
 		embed = discord.Embed(title='Formats Configuration', description=description)
 		await ctx.send(embed=embed)
@@ -245,13 +217,13 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 	async def get_mentions(self, ctx, guild, pref_key: str = None):
 
-		description = ''
 		ally_code = self.get_allycode_by_discord_id(ctx.author.id)
 		if not ally_code:
 			errors = error_no_ally_code_specified(self.config, ctx.author)
 			await ctx.send(errors[0]['description'])
 			return
 
+		lines = []
 		mentions = guild.get_mentions(ally_code=ally_code)
 		for key, mention in sorted(mentions.items()):
 
@@ -275,21 +247,17 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			else:
 				raise Exception('Unsupported operand: %s (%s)' % (mention, type(mention)))
 
-			entry = '`|%s|` %s\n' % (padded_key, mention)
-			if len(description) + len(entry) > 2000:
-				await ctx.send(description)
-				description = ''
+			lines.append('`|%s|` %s' % (padded_key, mention))
 
-			description += entry
 
-		if not description:
-			description += 'No matching keys for: `%s`' % pref_key
+		if not lines:
+			description = 'No matching keys for: `%s`' % pref_key
 
 		else:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_mentions_help.replace('%prefix', prefix)
-			description = self.get_header(count=2) + sep + '\n' + description + sep + '\n' + cmdhelp
+			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
 		embed = discord.Embed(title='Mentions Configuration', description=description)
 		await ctx.send(embed=embed)
@@ -303,13 +271,14 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			return
 
 		if len(pref_keys) > 1:
-			pref_keys = [ '`%s`' % x for x in pref_keys if not x.endswith('.channel') and not x.endswith('format') ]
+			pref_keys = [ '`%s`' % x for x in pref_keys if x.endswith('.config') ]
 			message = '__**%s**__ matches more than one entry:\n%s' % (pref_key, '\n'.join(pref_keys))
 			await ctx.send(message)
 			return
 
 		lines = []
 		for pref_key in pref_keys:
+
 			try:
 				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
 
@@ -318,35 +287,22 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 			boolval = self.bot.parse_opts_boolean(pref_value)
 
-			if pref_key.endswith('.channel'):
-				entry.value = self.bot.parse_opts_channel(pref_value)
-				entry.value_type = 'chan'
+			display_value = entry.value
 
-			if pref_key.endswith('.format'):
-				entry.value = pref_value
-				entry.value_type = 'fmt'
-
-			elif pref_key.endswith('.min') or pref_key.endswith('.repeat'):
+			if pref_key.endswith('.min') or pref_key.endswith('.repeat'):
 				entry.value = int(pref_value)
 				entry.value_type = int.__name__
 
 			elif boolval is not None:
 				entry.value = boolval
-				entry.value_type = bool.__name__
+				entry.value_type = 'bool'
+				display_value = boolval is True and '**ON**' or '**OFF**'
 
 			else:
 				entry.value = pref_value
-				entry.value_type = str.__name__
+				entry.value_type = 'str'
 
 			entry.save()
-
-			display_value = entry.value
-
-			if entry.value_type == 'bool':
-				display_value = display_value is True and '**ON**' or '**OFF**'
-
-			elif entry.value_type == 'chan':
-				display_value = '<#%s>' % display_value
 
 			lines.append('`%s` %s' % (pref_key, display_value))
 
@@ -461,7 +417,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			return
 
 		value = self.bot.parse_opts_boolean(pref_value)
-		display_value = 'Off'
+		display_value = 'OFF'
 		if value is None:
 			value = self.bot.parse_opts_mention(pref_value)
 			if value is None:
