@@ -22,6 +22,12 @@ class Tracker(commands.Bot):
 
 	def parse_opts_channel(self, value):
 
+		try:
+			return int(value)
+
+		except:
+			pass
+
 		import re
 		match = re.search(r'^<#([0-9]+)>$', value)
 		if match:
@@ -30,6 +36,12 @@ class Tracker(commands.Bot):
 		return None
 
 	def parse_opts_mention(self, value):
+
+		try:
+			return int(value)
+
+		except:
+			pass
 
 		import re
 		match = re.search(r'^<@!?([0-9]+)>$', value)
@@ -43,7 +55,6 @@ class Tracker(commands.Bot):
 			return bytearray(image.read())
 
 	def get_webhook_name(self):
-		#return 'IPD Tracker %s' % key
 		return 'IPD Tracker'
 
 	async def get_webhook(self, name, channel):
