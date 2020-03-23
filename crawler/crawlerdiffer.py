@@ -7,11 +7,10 @@ from swgoh.models import PremiumGuild
 
 class CrawlerDiffer:
 
-	def __init__(self, bot):
-		self.bot = bot
-		self.config = bot.config
-		self.logger = bot.logger
-		self.redis = bot.redis
+	def __init__(self, crawler):
+		self.config = crawler.config
+		self.logger = crawler.logger
+		self.redis = crawler.redis
 
 	def get_relic(self, unit):
 
