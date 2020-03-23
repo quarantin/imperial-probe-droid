@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+import sys
 import json
 import asyncio
 import libswgoh
+import traceback
 from datetime import datetime, timedelta
 
 from constants import MINUTE
@@ -18,7 +20,7 @@ SAFETY_TTL = 10 * MINUTE
 DEFAULT_GUILD_EXPIRE = 24
 DEFAULT_PLAYER_EXPIRE = 24
 
-class CrawlerThread(asyncio.Future):
+class Crawler(asyncio.Future):
 
 	async def update_player(self, guild, ally_code):
 
@@ -221,12 +223,11 @@ class CrawlerThread(asyncio.Future):
 
 		return to_refresh
 
-	async def run(self, bot):
+	async def run(self):
 
-		self.bot = bot
-		self.logger = bot.logger
-		self.config = bot.config
-		self.redis = bot.redis
+		print("Starting crawler thread.")
+		print('Crawler bot ready!')
+
 		self.differ = CrawlerDiffer(bot)
 		self.session = await libswgoh.get_auth_guest()
 
@@ -258,3 +259,26 @@ class CrawlerThread(asyncio.Future):
 			self.logger.debug('Sleeping for %s seconds' % delay)
 
 			await asyncio.sleep(delay)
+
+if __name__ == '__main__':
+
+	import logging
+	from config import load_config, setup_logs
+
+	logger = setup_logs('crawler', 'logs/crawler.log', logging.DEBUG)
+
+	config = load_config()
+
+	try:
+		crawler = Crawler()
+		crawler.config = config
+		crawler.redis = config.redis
+		crawler.logger = logger
+		crawler.run()
+
+	except SwgohHelpException as err:
+		print(err)
+		print(err.data)
+
+	except:
+		print(traceback.format_exc())
