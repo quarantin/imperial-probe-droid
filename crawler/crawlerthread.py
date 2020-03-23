@@ -121,7 +121,7 @@ class CrawlerThread(asyncio.Future):
 
 		self.redis.setex(guild_key, guild_expire, guild_data)
 
-	async def swgohhelp_guilds(selectors):
+	async def swgohhelp_guilds(self, selectors):
 
 		for i in range(0, 3):
 
@@ -136,7 +136,7 @@ class CrawlerThread(asyncio.Future):
 	async def fetch_guild(self, selector, guild=None):
 
 		if guild is None:
-			guilds = self.swgohhelp_guilds([ selector ])
+			guilds = await self.swgohhelp_guilds([ selector ])
 			if not guilds:
 				return None
 
@@ -151,7 +151,7 @@ class CrawlerThread(asyncio.Future):
 
 	async def fetch_guilds(self, selectors):
 
-		guilds = self.swgohhelp_guilds(selectors)
+		guilds = await self.swgohhelp_guilds(selectors)
 		if not guilds:
 			return None
 
