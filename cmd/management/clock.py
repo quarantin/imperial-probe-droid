@@ -30,6 +30,7 @@ TIMEZONES = [
 	'UTC',
 	'Europe/London',
 	'Europe/Paris',
+	'Australia/Sydney',
 ]
 
 def cmd_clock(request):
