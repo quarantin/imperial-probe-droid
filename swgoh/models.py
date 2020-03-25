@@ -802,7 +802,13 @@ class PremiumGuild(models.Model):
 	language = models.CharField(max_length=6, default='eng_us', choices=Player.LANGUAGES)
 
 	def get_guild(guild_id):
-		return PremiumGuild.objects.get(guild_id=guild_id)
+
+		try:
+			return PremiumGuild.objects.get(guild_id=guild_id)
+
+		except PremiumGuild.DoesNotExist:
+			print('Could not find guild with ID: `%s`' % guild_id)
+			return None
 
 	def find_guild_for_selector(selector, guilds=None):
 
