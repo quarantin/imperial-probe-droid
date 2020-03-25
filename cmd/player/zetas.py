@@ -123,6 +123,9 @@ async def cmd_zetas(request):
 				if skill_id not in zetas:
 					continue
 
+				if 'tier' not in skill:
+					continue
+
 				if skill['tier'] == 8:
 					del zetas[skill_id]
 					continue
