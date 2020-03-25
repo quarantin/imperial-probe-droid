@@ -54,7 +54,7 @@ async def get_access_token(config):
 	auth_url = '%s/auth/signin' % SWGOH_HELP
 	data, error = await http_post(auth_url, headers=headers, data=data)
 	if error:
-		raise Exception('Authentication failed to swgohhelp API: %s' % error)
+		raise Exception('Authentication failed to swgoh.help API: %s' % error)
 
 	if 'access_token' not in data:
 		raise Exception('Authentication failed: Server returned `%s`' % data)
