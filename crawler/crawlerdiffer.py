@@ -182,8 +182,8 @@ class CrawlerDiffer:
 	def check_last_seen(self, guild, new_profile, messages):
 
 		config = guild.get_config()
-		last_seen_max = config[PremiumGuild.MSG_INACTIVITY_MIN]
-		last_seen_interval = config[PremiumGuild.MSG_INACTIVITY_REPEAT]
+		last_seen_max = config[PremiumGuild.MSG_INACTIVITY_MIN + '.config']
+		last_seen_interval = config[PremiumGuild.MSG_INACTIVITY_REPEAT + '.config']
 
 		profile = new_profile
 		updated = int(profile['updated'])
