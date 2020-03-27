@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
+
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -25,8 +26,10 @@ def download_image(image_name):
 		url = 'https://swgoh.gg/game-asset/u/%s/' % image_name
 
 		response = requests.get(url)
-		if response.status_code != 200:
-			raise Exception('ERROR: requests.get(\'%s\') failed.' % url)
+		if response.status_code == 404:
+			raise Http404('Could not find character: %s' % image_name)
+
+		response.raise_for_status():
 
 		image_data = response.content
 
