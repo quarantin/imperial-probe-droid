@@ -29,7 +29,7 @@ def download_image(image_name):
 		if response.status_code == 404:
 			raise Http404('Could not find character: %s' % image_name)
 
-		response.raise_for_status():
+		response.raise_for_status()
 
 		image_data = response.content
 
