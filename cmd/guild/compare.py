@@ -40,7 +40,7 @@ def get_unit_stats(config, roster, lang):
 	for unit_roster in roster:
 
 
-		gp    = unit_roster['gp']
+		gp    = unit_roster['gp'] or 0
 		level = unit_roster['level']
 		gear  = unit_roster['gear']
 		relic = get_relic_tier(unit_roster)
