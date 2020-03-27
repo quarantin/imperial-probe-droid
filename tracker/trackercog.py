@@ -425,16 +425,16 @@ For example to enable notifications for `arena.rank.down` events, just type:
 				await ctx.send(message)
 				return
 
+		discord_id = ctx.author.id
 		if value is not False:
-			value = ctx.author.id
 			if value is True:
 				display_value = 'ON'
 			else:
-				display_value = '<@%s>' % value
+				discord_id = value
+				display_value = '<@%s>' % discord_id
 
-		player = None
 		try:
-			player = Player.objects.get(discord_id=ctx.author.id)
+			player = Player.objects.get(discord_id=discord_id)
 
 		except Player.DoesNotExist:
 			message = 'Error: I don\'t know any allycode registered to <@%s>' % ctx.author.id
@@ -444,13 +444,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		lines = []
 		for pref_key in pref_keys:
 
-			if not pref_key.endswith('.mention'):
-				if pref_key not in PremiumGuild.MESSAGE_FORMATS:
-					message = error_invalid_config_key('mentions', self.bot.command_prefix, pref_key)
-					await ctx.send(message)
-					return
-
-				pref_key = '%s.mention' % pref_key
+			player_suffix = '.%s.mention' % player.ally_code
+			if not pref_key.endswith(player_suffix):
+				continue
 
 			try:
 				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
@@ -462,8 +458,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			entry.value_type = 'hl'
 			entry.save()
 
-			to_replace = '.%s.mention' % player.ally_code
-			display_key = pref_key.replace(to_replace, '')
+			display_key = pref_key.replace(player_suffix, '')
 			padded_key = self.pad(display_key, MENTIONS_MAX_KEY_LEN)
 			lines.append('`%s` **%s**' % (padded_key, display_value))
 
