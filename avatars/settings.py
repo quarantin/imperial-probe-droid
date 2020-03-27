@@ -27,7 +27,7 @@ mimetypes.add_type("image/svg+xml", ".svgz", True)
 SECRET_KEY = 'b79n^ldflfl5ioah+@ok&mwqnfet361-((=kdf4t4jkk_r4&60'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
 	socket.gethostname(),
