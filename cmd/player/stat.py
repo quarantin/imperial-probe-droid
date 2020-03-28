@@ -4,11 +4,11 @@ from opts import *
 from errors import *
 from constants import EMOJIS, MAX_GEAR_LEVEL, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from collections import OrderedDict
-from utils import get_relic_tier, get_stars_as_emojis, roundup
-from swgohhelp import fetch_crinolo_stats, get_ability_name
+from utils import get_relic_tier, get_stars_as_emojis
+from swgohhelp import fetch_crinolo_stats
 
 import DJANGO
-from swgoh.models import BaseUnit, BaseUnitSkill
+from swgoh.models import BaseUnit
 
 help_player_stat = {
 	'title': 'Player Stat Help',
@@ -69,7 +69,7 @@ def get_player_stats(config, roster, lang):
 	for base_id, unit in roster.items():
 
 		gp     = unit['gp'] or 0
-		typ    = unit['combatType'] == 1 and 'char' or 'ship'
+		typ    = BaseUnit.is_ship(base_id) and 'ship' or 'char'
 		level  = unit['level']
 		gear   = unit['gear']
 		stars  = unit['rarity']
