@@ -93,7 +93,7 @@ async def cmd_gac(request):
 	for selected_player in selected_players:
 
 		player = players[selected_player.ally_code]
-		max_len = max(len(player['name']), 7)
+		max_len = max(len(player['name']), 8)
 
 		key = 'Players'
 		if key not in result:
