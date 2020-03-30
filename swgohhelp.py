@@ -78,7 +78,7 @@ async def call_api(config, project, url):
 	headers = await get_headers(config)
 
 	if 'debug' in config and config['debug'] is True:
-		print("CALL API: %s %s %s" % (url, headers, project), file=sys.stderr)
+		print("CALL API: %s %s" % (url, project), file=sys.stderr)
 
 	data, error = await http_post(url, headers=headers, json=project)
 	if error:
