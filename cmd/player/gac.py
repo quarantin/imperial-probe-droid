@@ -73,7 +73,7 @@ async def cmd_gac(request):
 		key = 'Players'
 		if key not in result:
 			result[key] = []
-		result[key].append(player['name'])
+		result[key].append(lpad(player['name'], max_len))
 
 		pstats = player['stats']
 		for key, real_key in wanted_stats.items():
