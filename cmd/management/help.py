@@ -30,6 +30,7 @@ help_help = {
 %separator
 **Player Commands**
 **`arena`**: Show arena squad details.
+**`gac`**: Compare GAC statistics of different players (**NEW**).
 **`gear`**: List needed pieces of gear for units.
 **`gear13`**: List most popular gear 13 for your characters (**NEW**).
 **`locked`**: Show locked characters or ships.
