@@ -65,6 +65,16 @@ STATS_LUT = {
 	'%special-critical-avoidance':  'Special Critical Avoidance',
 }
 
+def rpad(data, length, char=' '):
+	string = str(data)
+	padlen = max(0, length - len(string))
+	return string + char * padlen
+
+def lpad(data, length, char=' '):
+	string = str(data)
+	padlen = max(0, length - len(string))
+	return char * padlen + string
+
 def local_time(date=None, timezone='Europe/Paris'):
 	if date is None:
 		date = datetime.now()
