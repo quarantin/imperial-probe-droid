@@ -2,6 +2,7 @@ import json
 
 from opts import *
 from errors import *
+from utils import lpad
 from swgohhelp import fetch_players
 
 help_gac = {
@@ -24,16 +25,16 @@ Compare player stats of two different players:
 }
 
 wanted_stats = {
-	'STAT_SEASON_LEAGUE_SCORE_NAME':          'Lifetime:            ',
-	'STAT_SEASON_PROMOTIONS_EARNED_NAME':     'Promotions:          ',
-	'STAT_SEASON_OFFENSIVE_BATTLES_WON_NAME': 'Offensive Wins:      ',
-	'STAT_SEASON_SUCCESSFUL_DEFENDS_NAME':    'Defensive Wins:      ',
-	'STAT_SEASON_BANNERS_EARNED_NAME':        'Banners:             ',
-	'STAT_SEASON_FULL_CLEAR_ROUND_WINS_NAME': 'Full Clears:         ',
-	'STAT_SEASON_UNDERSIZED_SQUAD_WINS_NAME': 'Undersized Wins:     ',
-	'STAT_SEASON_TERRITORIES_DEFEATED_NAME':  'Territories Cleared: ',
-	'STAT_SEASON_MOST_LEAGUE_SCORE_NAME':     'Season Score:        ',
-	'STAT_SEASON_BEST_RANK_NAME':             'Best Rank:           ',
+	'STAT_SEASON_PROMOTIONS_EARNED_NAME':     'Promotions',
+	'STAT_SEASON_MOST_LEAGUE_SCORE_NAME':     'Season Score',
+	'STAT_SEASON_LEAGUE_SCORE_NAME':          'Lifetime',
+#	'STAT_SEASON_BEST_RANK_NAME':             'Best Rank',
+	'STAT_SEASON_OFFENSIVE_BATTLES_WON_NAME': 'Off. Wins',
+	'STAT_SEASON_SUCCESSFUL_DEFENDS_NAME':    'Def. Wins',
+	'STAT_SEASON_UNDERSIZED_SQUAD_WINS_NAME': 'Undsz Wins',
+	'STAT_SEASON_BANNERS_EARNED_NAME':        'Banners',
+	'STAT_SEASON_TERRITORIES_DEFEATED_NAME':  'Cleared Terr.',
+	'STAT_SEASON_FULL_CLEAR_ROUND_WINS_NAME': 'Full Clears',
 }
 
 def get_stat(stats, key):
@@ -46,9 +47,6 @@ def get_stat(stats, key):
 				return str(stat['value'])
 
 	return str(0)
-
-def list2str(alist):
-	return '[' + ', '.join(alist) +']'
 
 async def cmd_gac(request):
 
@@ -70,8 +68,9 @@ async def cmd_gac(request):
 	for selected_player in selected_players:
 
 		player = players[selected_player.ally_code]
+		max_len = max(len(player['name']), 7)
 
-		key = 'Players:' + (' ' * 13)
+		key = 'Players'
 		if key not in result:
 			result[key] = []
 		result[key].append(player['name'])
@@ -82,11 +81,15 @@ async def cmd_gac(request):
 			if real_key not in result:
 				result[real_key] = []
 
-			result[real_key].append(get_stat(pstats, key))
+			value = get_stat(pstats, key)
+			result[real_key].append(lpad(value, max_len))
 
 	lines = []
 	for key, values in result.items():
-		lines.append('`%s%s`' % (key, list2str(values)))
+		display = '|'.join(values)
+		lines.append('`|%s|`__**%s**__' % (display, key))
+		if key == 'Players':
+			lines.append(config['separator'])
 
 	return [{
 		'title': 'GAC Stats',
