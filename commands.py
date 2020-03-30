@@ -25,6 +25,7 @@ from cmd.management.gregister import *
 from cmd.misc.meta import *
 from cmd.player.arena import *
 from cmd.player.compare import *
+from cmd.player.gac import *
 from cmd.player.gear import *
 from cmd.player.gear13 import *
 from cmd.player.list import *
@@ -110,6 +111,12 @@ COMMANDS = [
 		'aliases': [ 'gl', 'glist' ],
 		'function': cmd_guild_list,
 		'help': help_guild_list,
+	},
+	{
+		'command': 'gac',
+		'aliases': [ 'gac' ],
+		'function': cmd_gac,
+		'help': help_gac,
 	},
 	{
 		'command': 'gear',
