@@ -112,6 +112,9 @@ async def cmd_gac(request):
 		i = 1
 		for entry in reversed(player['grandArena']):
 
+			if 'eliteDivision' not in entry:
+				entry['eliteDivision'] = False
+
 			for key, real_key in wanted_info.items():
 				the_real_key = real_key + str(i)
 				if the_real_key not in history:
