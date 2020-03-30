@@ -29,7 +29,7 @@ wanted_stats = {
 	'STAT_SEASON_OFFENSIVE_BATTLES_WON_NAME': 'Offensive Wins:      ',
 	'STAT_SEASON_SUCCESSFUL_DEFENDS_NAME':    'Defensive Wins:      ',
 	'STAT_SEASON_BANNERS_EARNED_NAME':        'Banners:             ',
-	'STAT_SEASON_FULL_CLEAR_ROUND_WINS_NAME': 'Full Clear:          ',
+	'STAT_SEASON_FULL_CLEAR_ROUND_WINS_NAME': 'Full Clears:         ',
 	'STAT_SEASON_UNDERSIZED_SQUAD_WINS_NAME': 'Undersized Wins:     ',
 	'STAT_SEASON_TERRITORIES_DEFEATED_NAME':  'Territories Cleared: ',
 	'STAT_SEASON_MOST_LEAGUE_SCORE_NAME':     'Season Score:        ',
