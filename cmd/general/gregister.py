@@ -5,7 +5,7 @@ from errors import *
 from opts import parse_opts_players
 from swgohhelp import fetch_guilds
 
-from cmd.management.register import register_users
+from cmd.general.register import register_users
 
 help_gregister = {
 	'title': 'Whois Registered Help',
