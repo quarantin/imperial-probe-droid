@@ -12,23 +12,6 @@ def get_root_dir():
 	this_folder = os.path.dirname(this_file)
 	return this_folder
 
-def get_perms():
-
-	import discord
-
-	perms = discord.Permissions()
-
-	perms.manage_webhooks = True
-	perms.read_messages = True
-	perms.send_messages = True
-	perms.embed_links = True
-	perms.attach_files = True
-	perms.read_message_history = True
-	perms.external_emojis = True
-	perms.add_reactions = True
-
-	return perms.value
-
 def load_help():
 
 	help_msgs = {}
