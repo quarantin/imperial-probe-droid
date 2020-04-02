@@ -4,8 +4,6 @@ import re
 import sys
 import json
 import asyncio
-import discord
-import libswgoh
 import traceback
 from discord.ext import commands
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
