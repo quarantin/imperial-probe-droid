@@ -1,6 +1,8 @@
 from errors import *
 from utils import check_permission
 
+from discord.errors import HTTPException, NotFound
+
 help_clear = {
 	'title': 'Clear Help',
 	'description': """Delete messages from current channel.\n**Be careful as this operation is irreversible.**
@@ -76,6 +78,27 @@ async def cmd_clear(request):
 		# TODO only delete messages from IPD?
 		messages.append(message)
 
-	await channel.delete_messages(messages)
+	try:
+		await channel.delete_messages(messages)
+
+	except HTTPException as err:
+		print(err.code)
+
+		if err.code == 50034:
+
+			print('deleting messages one a time...')
+			for message in messages:
+				try:
+					await message.delete()
+				except NotFound as err:
+					pass
+			print('done')
+
+		else:
+			return [{
+				'title': 'Discord Error',
+				'color': 'red',
+				'description': err.text,
+			}]
 
 	return []
