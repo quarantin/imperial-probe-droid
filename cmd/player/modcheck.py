@@ -24,7 +24,7 @@ help_modcheck = {
 **`6pips`** (or **`6`**): To show units with mods less than 6 pips.
 **`tier`** (or **`t`**): To show units with mods less than gold quality.
 If no option is specified, the following options will be selected by default:
-Count, missing, nomods, incomplete, level and 5pips.
+Count, missing, incomplete, level and 5pips.
 
 **Examples**
 ```
@@ -42,7 +42,7 @@ MIN_LEVEL_FOR_MODS = 50
 default_actions = [
 	'count',
 	'missing',
-	'nomods',
+	#'nomods',
 	'incomplete',
 	'level',
 	'5pips',
