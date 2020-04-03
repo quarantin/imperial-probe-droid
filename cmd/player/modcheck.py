@@ -116,6 +116,7 @@ def parse_opts_min_gear_level(request):
 def get_mod_stats(roster, min_gear_level):
 
 	modcount = 0
+	unitcount = 0
 	units_with_no_mods = []
 	units_with_missing_mods = []
 	units_with_incomplete_modsets = []
@@ -136,6 +137,7 @@ def get_mod_stats(roster, min_gear_level):
 		unit['mods-no-max-level'] = []
 
 		modcount += len(unit['mods'])
+		unitcount += 1
 
 		if not unit['mods']:
 			units_with_no_mods.append(unit)
@@ -181,7 +183,7 @@ def get_mod_stats(roster, min_gear_level):
 				units_with_incomplete_modsets.append(unit)
 				break
 
-	return modcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier
+	return modcount, unitcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier
 
 async def cmd_modcheck(request):
 
@@ -234,11 +236,16 @@ async def cmd_modcheck(request):
 		lines = []
 		roster = player['roster']
 
-		modcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier = get_mod_stats(roster, min_gear_level)
+		modcount, unitcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier = get_mod_stats(roster, min_gear_level)
+
 
 		if 'count' in actions:
+			unitplural = unitcount > 1 and 's' or ''
+			lines.append('**%d** unit%s match.' % (unitcount, unitplural))
 			lines.append('**%d** equipped mods.' % modcount)
-			lines.append(config['separator'])
+
+		lines.append('Minimum gear level: **%d**' % min_gear_level)
+		lines.append(config['separator'])
 
 		if 'nomods' in actions:
 
