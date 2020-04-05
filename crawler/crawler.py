@@ -245,14 +245,14 @@ class Crawler(asyncio.Future):
 
 			self.guilds = list(PremiumGuild.objects.all())
 
-			guild_selectors = PremiumGuild.get_guild_selectors()
-			channels = [ guild.channel_id for guild in self.guilds ]
+			guild_selectors = [ guild.ally_code  for guild in self.guilds ]
+			guild_channels  = [ guild.channel_id for guild in self.guilds ]
 
 			to_refresh = await self.get_allycodes_to_refresh()
 			if to_refresh:
 				await self.get_guilds(to_refresh)
 
-			failed_ac, failed_ch = await self.refresh_players(guild_selectors, channels)
+			failed_ac, failed_ch = await self.refresh_players(guild_selectors, guild_channels)
 
 			if failed_ac:
 				failed_ac2, failed_ch2 = await self.refresh_players(failed_ac, failed_ch, selectors_only=True)

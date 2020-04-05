@@ -832,15 +832,6 @@ class PremiumGuild(models.Model):
 
 		return result
 
-	def get_guild_selectors():
-
-		result = []
-		selectors = PremiumGuild.objects.all().values('ally_code')
-		for selector in selectors:
-			result.append(str(selector['ally_code']))
-
-		return result
-
 	def get_config_value(self, item):
 
 		if item.value_type == 'int':
