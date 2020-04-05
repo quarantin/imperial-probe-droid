@@ -27,6 +27,7 @@ class Crawler(asyncio.Future):
 		ally_code = str(ally_code)
 		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 		if not profile:
+			self.logger.error('Failed retrieving profile for allycode %s' % ally_code)
 			raise Exception('Failed retrieving profile for %s, skipping.' % ally_code)
 
 		# TODO: Fix this atrocity
@@ -130,8 +131,12 @@ class Crawler(asyncio.Future):
 			try:
 				return await api_swgoh_guilds(self.config, { 'allycodes': selectors })
 
-			except SwgohHelpException:
+			except SwgohHelpException as err:
+				self.logger.error('Failed retrieving guilds with selectors: %s' % selectors)
+				self.logger.error(err)
 				pass
+
+			await asyncio.sleep(1)
 
 		return None
 
@@ -140,6 +145,7 @@ class Crawler(asyncio.Future):
 		if guild is None:
 			guilds = await self.swgohhelp_guilds([ selector ])
 			if not guilds:
+				self.logger.warning('swgohhelp_guilds failed with selector: %s' % selector)
 				return None
 
 			guild = guilds[0]
@@ -155,7 +161,8 @@ class Crawler(asyncio.Future):
 
 		guilds = await self.swgohhelp_guilds(selectors)
 		if not guilds:
-			return None
+			self.logger.error('swgohhelp_guilds failed with selectors: %s' % selectors)
+			return {}
 
 		guilds = PremiumGuild.guilds_to_dict(selectors, guilds)
 
@@ -169,6 +176,7 @@ class Crawler(asyncio.Future):
 
 		player = await self.get_player(selector)
 		if not player:
+			self.logger.warning('get_player failed with selector: %s' % selector)
 			return None
 
 		guild_key = 'guild|%s' % player['guildRefId']
