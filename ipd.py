@@ -19,6 +19,7 @@ from config import load_config, load_help, setup_logs
 from utils import *
 from embed import *
 from commands import *
+from constants import EMOJI_HOURGLASS
 
 import DJANGO
 from swgoh.models import DiscordServer, NewsChannel, NewsEntry, NewsFeed, Player, Shard, ShardMember
@@ -238,6 +239,24 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
+	async def add_reaction(message, emoji):
+
+		try:
+			await message.add_reaction(emoji)
+
+		except Exception as err:
+			self.logger.error(err)
+			self.logger.error(traceback.format_exc())
+
+	async def remove_reaction(message, emoji):
+
+		try:
+			await message.remove_reaction(emoji, self.user)
+
+		except Exception as err:
+			self.logger.error(err)
+			self.logger.error(traceback.format_exc())
+
 	async def update_news_channel(self, config, news_channel):
 
 		try:
@@ -386,6 +405,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		channel = request.channel
 		command = request.command
 		config = request.config
+		message = request.message
 
 		if Player.is_banned(author):
 			msgs = error_user_banned(config, author)
@@ -404,10 +424,14 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for cmd in COMMANDS:
 				if command in cmd['aliases']:
 
+					await self.add_reaction(message, EMOJI_HOURGLASS)
+
 					if inspect.iscoroutinefunction(cmd['function']):
 						msgs = await cmd['function'](request)
 					else:
 						msgs = cmd['function'](request)
+
+					await self.remove_reaction(message, EMOJI_HOURGLASS)
 
 					for msg in msgs:
 						embeds = new_embeds(msg)
