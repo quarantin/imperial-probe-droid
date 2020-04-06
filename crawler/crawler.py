@@ -161,6 +161,10 @@ class Crawler(asyncio.Future):
 
 	async def fetch_guilds(self, selectors):
 
+		if not selectors:
+			self.logger.error('fetch_guilds got no selector')
+			return {}
+
 		guilds = await self.swgohhelp_guilds(selectors)
 		if not guilds:
 			self.logger.error('swgohhelp_guilds failed with selectors: %s' % selectors)
