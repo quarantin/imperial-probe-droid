@@ -5,6 +5,7 @@ import random
 from datetime import datetime, timedelta
 
 from constants import *
+from utils import translate
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill, Gear, PremiumGuild
@@ -34,7 +35,7 @@ class Demo:
 			return ROMAN[gear]
 
 		if token == 'gear.piece':
-			return Gear.objects.order_by('?').first().base_id
+			return translate(Gear.objects.order_by('?').first().base_id)
 
 		if token == 'last.seen':
 			days = random.randint(1, 15)
@@ -50,7 +51,7 @@ class Demo:
 			return str(random.randint(1, 10000))
 
 		if token == 'unit':
-			return BaseUnit.objects.filter(combat_type=1).order_by('?').first().base_id
+			return translate(BaseUnit.objects.filter(combat_type=1).order_by('?').first().base_id)
 
 		if token == 'rarity':
 			return str(random.randint(1, MAX_RARITY))
@@ -59,7 +60,7 @@ class Demo:
 			return str(random.randint(1, MAX_RELIC))
 
 		if token == 'skill':
-			return BaseUnitSkill.objects.order_by('?').first().skill_id
+			return translate(BaseUnitSkill.objects.order_by('?').first().ability_ref)
 
 		if token == 'tier':
 			return str(random.randint(1, MAX_SKILL_TIER))
