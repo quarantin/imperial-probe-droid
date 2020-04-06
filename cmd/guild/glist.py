@@ -106,6 +106,10 @@ async def cmd_guild_list(request):
 	players = sort_players(players)
 
 	for ally_code, player in players.items():
+		if 'guildName' not in player:
+			self.logger.info('Ignoring player with no guild: %s' % ally_code)
+			continue
+
 		guild_name = player['guildName']
 		player_name = player['name']
 		for ref_unit in selected_units:
