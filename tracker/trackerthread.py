@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 
 from utils import translate
-#from embed import new_embeds
+from embed import new_embeds
 from config import load_config
 from constants import ROMAN, MAX_SKILL_TIER
 from swgohhelp import get_unit_name, get_ability_name
@@ -41,6 +41,20 @@ class TrackerThread(asyncio.Future):
 			return self.bot.get_channel(channel_id)
 
 	def format_message(self, message, message_format):
+
+		if message_format.startswith('{'):
+			try:
+				jsonmsg = json.loads(message_format)
+				for jkey, jval in jsonmsg.items():
+					for key, value in message.items():
+						jsonmsg[jkey] = jsonmsg[jkey].replace('${%s}' % key, str(value))
+
+				return jsonmsg
+
+			except Exception as err:
+				self.logger.error(err)
+				self.logger.error(traceback.format_exc())
+				return None
 
 		for key, value in message.items():
 			message_format = message_format.replace('${%s}' % key, str(value))
@@ -319,7 +333,16 @@ class TrackerThread(asyncio.Future):
 								self.logger.error(errmsg)
 							return
 
-						await webhook.send(content=content, avatar_url=webhook.avatar_url)
+						if type(content) is str:
+							await webhook.send(content=content, avatar_url=webhook.avatar_url)
+
+						elif type(content) is dict:
+							embeds = new_embeds(content)
+							for embed in embeds:
+								await webhook.send(content='', embed=embed, avatar_url=webhook.avatar_url)
+
+						else:
+							raise Exception('This should never happen!')
 
 					except InvalidArgument as err:
 						self.logger.error(str(err))

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 
+import json
 import random
 from datetime import datetime, timedelta
 
@@ -39,7 +40,9 @@ class Demo:
 
 		if token == 'last.seen':
 			days = random.randint(1, 15)
-			return str((datetime.now() - timedelta(days=days)))
+			now = datetime.now()
+			delta = now - (now - timedelta(days=days))
+			return str(delta - timedelta(microseconds=delta.microseconds))
 
 		if token == 'level':
 			return str(random.randint(1, MAX_LEVEL))
@@ -67,7 +70,7 @@ class Demo:
 
 		raise Exception('Unsupported Demo Handler for token: %s' % token)
 
-	def get_random_messages(author, pref_key):
+	def get_random_messages(author, config, pref_key):
 
 		msgs = []
 
@@ -75,17 +78,30 @@ class Demo:
 			pref_key = 'all'
 
 		lkey = pref_key.lower()
-		for key in PremiumGuild.MESSAGE_FORMATS:
+		for key, msg in config.items():
 
-			if lkey != 'all' and lkey not in key:
+			if lkey != 'all' and lkey not in key or not key.endswith('.format'):
+				print('Ignoring %s' % key)
 				continue
 
-			msg = PremiumGuild.MESSAGE_FORMATS[key]
-			for token in Demo.tokens:
-				strtoken = '${%s}' % token
-				if strtoken in msg:
-					msg = msg.replace(strtoken, Demo.get_random_value(author, token))
+			if msg.startswith('{'):
+				msg = json.loads(msg)
+				print('Parsing JSON')
+				print(json.dumps(msg, indent=4))
+				for jkey, jval in msg.items():
+					for token in Demo.tokens:
+						strtoken = '${%s}' % token
+						if strtoken in msg[jkey]:
+							msg[jkey] = msg[jkey].replace(strtoken, Demo.get_random_value(author, token))
+				msgs.append(msg)
 
-			msgs.append(msg)
+			else:
+				print('Not Parsing JSON: %s' % msg)
+				for token in Demo.tokens:
+					strtoken = '${%s}' % token
+					if strtoken in msg:
+						msg = msg.replace(strtoken, Demo.get_random_value(author, token))
+
+				msgs.append(msg)
 
 		return msgs

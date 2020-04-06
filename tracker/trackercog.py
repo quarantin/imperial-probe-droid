@@ -393,6 +393,20 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			await ctx.send(message)
 			return
 
+		got_json = False
+		if pref_value is not None and pref_value.startswith('{'):
+
+			try:
+				jsondata = json.loads(pref_value)
+				got_json = True
+
+			except Exception as err:
+				self.logger.error(err)
+				self.logger.error(traceback.format_exc())
+				message = 'It seems you tried to submit an embed, but there is a syntax error in your input: %s' % err
+				await ctx.send(message)
+				return
+
 		if len(pref_keys) > 1:
 			message = 'The key \'%s\' matches more than one entry:\n%s' % (pref_key, '\n'.join(pref_keys))
 			await ctx.send(message)
@@ -419,7 +433,10 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			entry.value_type = 'fmt'
 			entry.save()
 
-			lines.append('`%s` "%s"' % (pref_key, pref_value))
+			if got_json:
+				lines.append('`%s` ```\n%s```' % (pref_key, json.dumps(jsondata, indent=4)))
+			else:
+				lines.append('`%s` "%s"' % (pref_key, pref_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
@@ -510,7 +527,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 	async def test(self, ctx, pref_key: str = None):
 
 		from trackerdemo import Demo
-		msgs = Demo.get_random_messages(ctx.author, pref_key)
+		guild = self.get_guild(ctx.author)
+		config = guild.get_config(discord_id=ctx.author.id)
+		msgs = Demo.get_random_messages(ctx.author, config, pref_key)
 		for msg in msgs:
 			await ctx.send(msg)
 
