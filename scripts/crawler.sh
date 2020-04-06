@@ -4,6 +4,8 @@ SLEEP=1
 NAME='IPD Crawler'
 MAIN='crawler/crawler.py'
 
+. ENV/bin/activate
+
 while true; do
 	echo "INFO: Starting ${NAME}..."
 	PYTHONPATH=.:$PYTHONPATH python ${MAIN}
