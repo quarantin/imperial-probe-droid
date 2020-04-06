@@ -4,8 +4,8 @@ import json
 import discord
 from discord.ext import commands
 
-from embed import send_embed
 from constants import EMOJIS
+from embed import new_embeds, send_embed
 from errors import error_invalid_config_key, error_invalid_config_value, error_no_ally_code_specified
 
 import DJANGO
@@ -531,7 +531,12 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		config = guild.get_config(discord_id=ctx.author.id)
 		msgs = Demo.get_random_messages(ctx.author, config, pref_key)
 		for msg in msgs:
-			await ctx.send(msg)
+			if type(msg) is str:
+				await ctx.send(msg)
+			elif type(msg) is dict:
+				embeds = new_embeds(msg)
+				for embed in embeds:
+					await ctx.send(embed=embed)
 
 	@tracker.command()
 	async def config(self, ctx, pref_key: str = None, pref_value: str = None):
