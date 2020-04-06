@@ -19,15 +19,6 @@ from swgoh.models import BaseUnitSkill, Player, PremiumGuild
 
 class TrackerThread(asyncio.Future):
 
-	def get_format(self, config, param):
-
-		key = '%s.format' % param
-		if key in config:
-			return config[key]
-
-		if param in PremiumGuild.MESSAGE_FORMATS:
-			return PremiumGuild.MESSAGE_FORMATS[param]
-
 	def get_channel(self, config, param):
 
 		key = '%s.channel' % param
@@ -39,27 +30,6 @@ class TrackerThread(asyncio.Future):
 		if key in config and config[key]:
 			channel_id = self.bot.parse_opts_channel(config[key])
 			return self.bot.get_channel(channel_id)
-
-	def format_message(self, message, message_format):
-
-		if message_format.startswith('{'):
-			try:
-				jsonmsg = json.loads(message_format)
-				for jkey, jval in jsonmsg.items():
-					for key, value in message.items():
-						jsonmsg[jkey] = jsonmsg[jkey].replace('${%s}' % key, str(value))
-
-				return jsonmsg
-
-			except Exception as err:
-				self.logger.error(err)
-				self.logger.error(traceback.format_exc())
-				return None
-
-		for key, value in message.items():
-			message_format = message_format.replace('${%s}' % key, str(value))
-
-		return message_format
 
 	async def handle_arena_climbed_up(config, message):
 
@@ -316,8 +286,8 @@ class TrackerThread(asyncio.Future):
 				prep_message = self.prepare_message(config, message)
 				key = await self.handlers[key](config, prep_message)
 				if key is not None:
-					fmtstr = self.get_format(config, key)
-					content = self.format_message(message, fmtstr)
+					fmtstr = self.bot.get_format(config, key)
+					content = self.bot.format_message(message, fmtstr)
 					webhook_channel = self.get_channel(config, key)
 					webhook_name = self.bot.get_webhook_name()
 					webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)

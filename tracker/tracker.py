@@ -54,6 +54,15 @@ class Tracker(bot.Bot):
 		with open('images/imperial-probe-droid.jpg', 'rb') as image:
 			return bytearray(image.read())
 
+	def get_format(self, config, param):
+
+		key = '%s.format' % param
+		if key in config:
+			return config[key]
+
+		if param in PremiumGuild.MESSAGE_FORMATS:
+			return PremiumGuild.MESSAGE_FORMATS[param]
+
 	def get_webhook_name(self):
 		return 'IPD Tracker'
 
@@ -96,6 +105,40 @@ class Tracker(bot.Bot):
 		except discord.HTTPException as err:
 			errmsg = 'I was not able to create the webhook in <#%s> due to a network error: `%s`\nPlease try again.' % (channel.id, err)
 			return None, errmsg
+
+	def format_message(self, message, message_format):
+
+		if message_format.startswith('{'):
+			try:
+				jsonmsg = json.loads(message_format)
+				for jkey, jval in jsonmsg.items():
+					for key, value in message.items():
+
+						if type(value) is str:
+							jsonmsg[jkey] = jsonmsg[jkey].replace('${%s}' % key, value)
+
+						elif type(value) is list:
+							for item in value:
+								for skey, sval in item.items():
+									if type(sval) is str:
+										item[skey] = sval.replace('${%s}' % skey, sval)
+
+						elif type(value) is dict:
+							for skey, sval in value.items():
+								if type(sval) is str:
+									value[skey] = sval.replace('${%s}' % skey, sval)
+
+				return jsonmsg
+
+			except Exception as err:
+				self.logger.error(err)
+				self.logger.error(traceback.format_exc())
+				return None
+
+		for key, value in message.items():
+			message_format = message_format.replace('${%s}' % key, str(value))
+
+		return message_format
 
 	async def on_ready(self):
 
