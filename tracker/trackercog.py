@@ -181,7 +181,7 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 		})
 
 	get_formats_help = """
-To see defined format, just type:
+To see defined formats, just type:
 ```
 %prefixtracker formats <key>```
 To update formats, just type:
@@ -204,7 +204,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 			key = key.replace('.format', '')
 			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
 			if show_value:
-				lines.append('`|%s|` "%s"' % (padded_key, fmt))
+				lines.append('`%s` "%s"' % (padded_key, fmt))
 			else:
 				lines.append('`|%s|`' % padded_key)
 
@@ -215,7 +215,10 @@ For example to configure formats for `arena.rank.down` events, just type:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
-			description = self.get_header(value=show_value, count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
+			doheader = not show_value and self.get_header(value=show_value, count=2) + sep + '\n' or ''
+			dosep = not show_value and sep + '\n' or ''
+			dohelp = not show_value and cmdhelp or ''
+			description = doheader + '\n'.join(lines) + '\n' + dosep + dohelp
 
 		await send_embed(self.bot, ctx, {
 			'title': 'Tracker Formats',
