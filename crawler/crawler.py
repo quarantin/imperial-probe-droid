@@ -213,29 +213,29 @@ class Crawler(asyncio.Future):
 
 		return guilds
 
-	async def get_allycodes_to_refresh(self):
+	async def get_selectors_to_refresh(self):
 
-		to_refresh = []
+		selectors = []
 
 		ally_codes = [ str(guild.ally_code) for guild in self.guilds ]
 		for ally_code in ally_codes:
 
 			player = await self.get_player(ally_code)
 			if not player:
-				to_refresh.append(ally_code)
+				selectors.append(ally_code)
 				continue
 
 			guild_key = 'guild|%s' % player['guildRefId']
 			if not self.redis.exists(guild_key):
-				to_refresh.append(ally_code)
+				selectors.append(ally_code)
 				continue
 
 			expire = self.redis.ttl(guild_key)
 			if expire < SAFETY_TTL:
-				to_refresh.append(ally_code)
+				selectors.append(ally_code)
 				continue
 
-		return to_refresh
+		return selectors
 
 	async def run(self):
 
@@ -254,9 +254,9 @@ class Crawler(asyncio.Future):
 			guild_selectors = [ guild.ally_code  for guild in self.guilds ]
 			guild_channels  = [ guild.channel_id for guild in self.guilds ]
 
-			to_refresh = await self.get_allycodes_to_refresh()
-			if to_refresh:
-				await self.get_guilds(to_refresh)
+			selectors = await self.get_selectors_to_refresh()
+			if selectors:
+				await self.get_guilds(selectors)
 
 			failed_ac, failed_ch = await self.refresh_players(guild_selectors, guild_channels)
 
