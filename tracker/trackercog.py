@@ -507,6 +507,14 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			await ctx.send(message)
 
 	@tracker.command()
+	async def test(self, ctx, pref_key: str = None):
+
+		from trackerdemo import Demo
+		msgs = Demo.get_random_messages(ctx.author, pref_key)
+		for msg in msgs:
+			await ctx.send(msg)
+
+	@tracker.command()
 	async def config(self, ctx, pref_key: str = None, pref_value: str = None):
 
 		guild = self.get_guild(ctx.author)
