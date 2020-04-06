@@ -85,7 +85,7 @@ def split_message(message, preformated):
 
 	return msgs
 
-def new_embeds(msg, timestamp=None, add_sep=True):
+def new_embeds(msg, timestamp=None, add_sep=True, footer=True):
 
 	from config import load_config
 	config = load_config()
@@ -156,10 +156,14 @@ def new_embeds(msg, timestamp=None, add_sep=True):
 				embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
 
 		if msg == last_msg:
-			embed.timestamp = timestamp
+			if footer:
+				embed.timestamp = timestamp
 			if 'image' in msg:
 				embed.set_image(url=msg['image'])
 		else:
+			embed.set_footer(text='')
+
+		if not footer:
 			embed.set_footer(text='')
 
 		embeds.append(embed)
