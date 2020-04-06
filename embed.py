@@ -166,3 +166,11 @@ def new_embeds(msg, timestamp=None):
 		i += 1
 
 	return embeds
+
+async def send_embed(bot, channel, message):
+
+	embeds = new_embeds(message)
+	for embed in embeds:
+		status, error = await bot.sendmsg(channel, message='', embed=embed)
+		if not status or error:
+			bot.logger.error('Could not send to channel %s: %s' % (channel, error))
