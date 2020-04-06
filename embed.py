@@ -85,7 +85,7 @@ def split_message(message, preformated):
 
 	return msgs
 
-def new_embeds(msg, timestamp=None):
+def new_embeds(msg, timestamp=None, add_sep=True):
 
 	from config import load_config
 	config = load_config()
@@ -108,7 +108,8 @@ def new_embeds(msg, timestamp=None):
 	preformated = is_preformated(msg)
 
 	if msg['description']:
-		msg['description'] = '%s\n%s' % (msg['description'], config['separator'])
+		sep = add_sep and '\n%s' % config['separator'] or ''
+		msg['description'] = '%s%s' % (msg['description'], sep)
 
 	if preformated is True:
 		msg['description'] = msg['description'].replace('```', '').replace('`', '')
