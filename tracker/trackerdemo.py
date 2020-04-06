@@ -81,13 +81,10 @@ class Demo:
 		for key, msg in config.items():
 
 			if lkey != 'all' and lkey not in key or not key.endswith('.format'):
-				print('Ignoring %s' % key)
 				continue
 
 			if msg.startswith('{'):
 				msg = json.loads(msg)
-				print('Parsing JSON')
-				print(json.dumps(msg, indent=4))
 				for jkey, jval in msg.items():
 					for token in Demo.tokens:
 						strtoken = '${%s}' % token
@@ -96,7 +93,6 @@ class Demo:
 				msgs.append(msg)
 
 			else:
-				print('Not Parsing JSON: %s' % msg)
 				for token in Demo.tokens:
 					strtoken = '${%s}' % token
 					if strtoken in msg:
