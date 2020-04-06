@@ -337,7 +337,7 @@ class TrackerThread(asyncio.Future):
 							await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
 						elif type(content) is dict:
-							embeds = new_embeds(content, add_sep=False)
+							embeds = new_embeds(content, add_sep=False, footer=False)
 							for embed in embeds:
 								await webhook.send(content='', embed=embed, avatar_url=webhook.avatar_url)
 
