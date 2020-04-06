@@ -738,7 +738,7 @@ class PremiumGuild(models.Model):
 	MSG_UNIT_RELIC_MIN             = 'unit.relic.min'
 	MSG_UNIT_GEAR_LEVEL            = 'unit.gear'
 	MSG_UNIT_GEAR_LEVEL_MIN        = 'unit.gear.min'
-	MSG_UNIT_GEAR_PIECE            = 'unit.gear.piece'
+	MSG_UNIT_GEAR_PIECE            = 'unit.equip'
 	MSG_UNIT_ZETA                  = 'unit.zeta'
 	MSG_UNIT_SKILL_UNLOCKED        = 'skill.unlocked'
 	MSG_UNIT_SKILL_INCREASED       = 'skill.increased'
