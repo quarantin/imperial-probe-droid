@@ -410,11 +410,8 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 		if Player.is_banned(author):
 			msgs = error_user_banned(config, author)
 			for msg in msgs:
-				embeds = new_embeds(msg)
-				for embed in embeds:
-					status, error = await self.sendmsg(channel, message='', embed=embed)
-					if not status:
-						self.logger.error('Could not print to channel %s: %s (XX)' % (channel, error))
+				await send_embed(self, channel, msg)
+
 			return
 
 		if channel is None:
@@ -436,40 +433,27 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 						await self.remove_reaction(message, EMOJI_HOURGLASS)
 
 					for msg in msgs:
-						embeds = new_embeds(msg)
-						for embed in embeds:
-							status, error = await self.sendmsg(channel, message='', embed=embed)
-							if not status:
-								self.logger.error('Could not print to channel %s: %s (2)' % (channel, error))
+						await send_embed(self, channel, msg)
+
 					break
 
 			else:
 				if 'reply-unknown' in config and config['reply-unknown'] is True:
 
-					embeds = new_embeds({
+					await send_embed(self, channel, {
 						'title': 'Error: Unknown Command',
 						'color': 'red',
 						'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
 					})
 
-					for embed in embeds:
-						status, error = await self.sendmsg(channel, message='', embed=embed)
-						if not status:
-							self.logger.error('Could not print to channel %s: %s (3)' % (channel, error))
-
 		except SwgohHelpException as swgohError:
 
 			data = swgohError.data
-			embeds = new_embeds({
+			await send_embed(self, channel, {
 				'title': swgohError.title,
 				'color': 'red',
 				'description': '**%s:** %s' % (data['error'], data['error_description']),
 			})
-
-			for embed in embeds:
-				status, error = await self.sendmsg(channel, message='', embed=embed)
-				if not status:
-					self.logger.error('Could not print to channel %s: %s (3.5)' % (channel, error))
 
 		except Exception as err:
 			self.logger.error("Error in on_message_handler...")
@@ -480,16 +464,11 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				if not status:
 					self.logger.error('Could not print to channel %s: %s (4)' % (channel, error))
 
-			embeds = new_embeds({
+			await send_embed(self, channel, {
 				'title': 'Unexpected Error',
 				'color': 'red',
 				'description': str(err),
 			})
-
-			for embed in embeds:
-				status, error = await self.sendmsg(channel, message='', embed=embed)
-				if not status:
-					self.logger.error('Could not print to channel %s: %s (5)' % (channel, error))
 
 async def __main__():
 
