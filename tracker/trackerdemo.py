@@ -78,19 +78,34 @@ class Demo:
 			pref_key = 'all'
 
 		lkey = pref_key.lower()
-		for key, msg in config.items():
+		for key, fmt in config.items():
 
 			if lkey != 'all' and lkey not in key or not key.endswith('.format'):
 				continue
 
-			if msg.startswith('{'):
-				msg = json.loads(msg)
-				for jkey, jval in msg.items():
+			if fmt.startswith('{'):
+				fmt = json.loads(fmt)
+				for jkey, jval in fmt.items():
 					for token in Demo.tokens:
+
 						strtoken = '${%s}' % token
-						if strtoken in msg[jkey]:
-							msg[jkey] = msg[jkey].replace(strtoken, Demo.get_random_value(author, token))
-				msgs.append(msg)
+
+						if type(fmt[jkey]) is str:
+							if strtoken in fmt[jkey]:
+								fmt[jkey] = fmt[jkey].replace(strtoken, Demo.get_random_value(author, token))
+
+						elif type(fmt[jkey]) is list:
+							for item in fmt[jkey]:
+								for skey, sval in item.items():
+									if type(sval) is str and strtoken in sval:
+										item[skey] = sval.replace(stroken, Demo.get_random_value(author, token))
+
+						elif type(fmt[jkey]) is dict:
+							for skey, sval in fmt[jkey].items():
+								if type(sval) is str:
+									fmt[jkey][skey] = fmt[jkey][skey].replace(strtoken, Demo.get_random_value(author, token))
+
+				msgs.append(fmt)
 
 			else:
 				for token in Demo.tokens:
