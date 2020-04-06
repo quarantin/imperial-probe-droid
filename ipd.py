@@ -90,6 +90,7 @@ class UserRequest:
 
 	def __init__(self, config, message, from_user=True):
 		self.bot = config['bot']
+		self.logger = config['bot'].logger
 		self.config = config
 		self.author = hasattr(message, 'author') and message.author or self.bot.user
 		self.from_user = from_user
@@ -109,7 +110,7 @@ class UserRequest:
 		try:
 			args = shlex.split(self.content)
 		except:
-			print("PROBLEM WITH SHLEX: `%s`" % self.content)
+			self.logger.error("PROBLEM WITH SHLEX: `%s`" % self.content)
 			args = self.content.split(' ')
 
 		if args:
@@ -136,7 +137,7 @@ class UserRequest:
 
 		self.args = args
 
-	def __log_message(self, message, logfile='messages.log'):
+	def __log_message(self, message):
 
 		date = local_time()
 		if 'timezone' in self.config and self.config['timezone']:
@@ -162,10 +163,7 @@ class UserRequest:
 
 		log = '[%s][%s][%s] %s' % (date, source, author, message.content)
 		print(log)
-
-		fout = open(logfile, 'a+')
-		fout.write('%s\n' % log)
-		fout.close()
+		self.logger.info(log)
 
 	def __remove_prefix(self, content):
 
@@ -200,7 +198,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 	def exit(self):
 		self.loop.stop()
-		print('User initiated exit!')
+		self.logger.info('User initiated exit!')
 
 	def get_avatar(self):
 		with open('images/imperial-probe-droid.jpg', 'rb') as image:
@@ -246,36 +244,36 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			channel = await self.fetch_channel(news_channel.channel_id)
 
 		except NotFound:
-			print("Channel %s not found, deleting news channel" % news_channel)
+			self.logger.error("Channel %s not found, deleting news channel" % news_channel)
 			news_channel.delete()
 			return
 
 		except Forbidden:
-			print("I don't have permission to fetch channel %s" % news_channel)
+			self.logger.error("I don't have permission to fetch channel %s" % news_channel)
 			return
 
 		except HTTPException:
-			print("HTTP error occured for channel %s, will try again later" % news_channel)
+			self.logger.error("HTTP error occured for channel %s, will try again later" % news_channel)
 			return
 
 		except InvalidData:
-			print("We received an unknown channel type from discord for channel %s!" % news_channel)
+			self.logger.error("We received an unknown channel type from discord for channel %s!" % news_channel)
 			return
 
 		try:
 			webhook = await self.fetch_webhook(news_channel.webhook_id)
 
 		except NotFound:
-			print("Webhook for channel %s not found, deleting news channel" % news_channel)
+			self.logger.error("Webhook for channel %s not found, deleting news channel" % news_channel)
 			news_channel.delete()
 			return
 
 		except Forbidden:
-			print("I don't have permission to fetch webhook for channel %s" % news_channel)
+			self.logger.error("I don't have permission to fetch webhook for channel %s" % news_channel)
 			return
 
 		except HTTPException:
-			print("HTTP error occured for channel %s, will try again later" % news_channel)
+			self.logger.error("HTTP error occured for channel %s, will try again later" % news_channel)
 			return
 
 		last_news_date = news_channel.last_news and news_channel.last_news.published or datetime(1970, 1, 1, tzinfo=pytz.UTC)
@@ -299,7 +297,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		await self.wait_until_ready()
 
-		print("Scheduling news update.")
+		self.logger.info("Scheduling news update.")
 
 		while True:
 
@@ -322,7 +320,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		await self.wait_until_ready()
 
-		print("Scheduling arena payouts.")
+		self.logger.info("Scheduling arena payouts.")
 
 		while True:
 
@@ -346,7 +344,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 	async def on_ready(self):
 
 		if self.initialized is True:
-			print('Reconnection as %s (ID:%s)' % (self.user.name, self.user.id))
+			self.logger.info('Reconnection as %s (ID:%s)' % (self.user.name, self.user.id))
 			return
 
 		self.initialized = True
@@ -365,12 +363,12 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				channel = self.get_channel(chan_id)
 				status, error = await self.sendmsg(channel, message=message)
 				if not status:
-					print('Could not print to channel %s: %s (1)' % (channel, error))
+					self.logger.error('Could not print to channel %s: %s (1)' % (channel, error))
 
 		self.loop.create_task(self.schedule_update_news(config))
 		self.loop.create_task(self.schedule_payouts(config))
 
-		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
+		self.logger.info('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
 	async def on_message(self, message):
 
@@ -396,7 +394,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 				for embed in embeds:
 					status, error = await self.sendmsg(channel, message='', embed=embed)
 					if not status:
-						print('Could not print to channel %s: %s (XX)' % (channel, error))
+						self.logger.error('Could not print to channel %s: %s (XX)' % (channel, error))
 			return
 
 		if channel is None:
@@ -416,7 +414,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 						for embed in embeds:
 							status, error = await self.sendmsg(channel, message='', embed=embed)
 							if not status:
-								print('Could not print to channel %s: %s (2)' % (channel, error))
+								self.logger.error('Could not print to channel %s: %s (2)' % (channel, error))
 					break
 
 			else:
@@ -431,7 +429,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 					for embed in embeds:
 						status, error = await self.sendmsg(channel, message='', embed=embed)
 						if not status:
-							print('Could not print to channel %s: %s (3)' % (channel, error))
+							self.logger.error('Could not print to channel %s: %s (3)' % (channel, error))
 
 		except SwgohHelpException as swgohError:
 
@@ -445,16 +443,16 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for embed in embeds:
 				status, error = await self.sendmsg(channel, message='', embed=embed)
 				if not status:
-					print('Could not print to channel %s: %s (3.5)' % (channel, error))
+					self.logger.error('Could not print to channel %s: %s (3.5)' % (channel, error))
 
 		except Exception as err:
-			print("Error in on_message_handler...")
-			print(traceback.format_exc())
+			self.logger.error("Error in on_message_handler...")
+			self.logger.error(traceback.format_exc())
 
 			if 'crash' in config and config['crash']:
 				status, error = await self.sendmsg(channel, message=config['crash'])
 				if not status:
-					print('Could not print to channel %s: %s (4)' % (channel, error))
+					self.logger.error('Could not print to channel %s: %s (4)' % (channel, error))
 
 			embeds = new_embeds({
 				'title': 'Unexpected Error',
@@ -465,23 +463,25 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for embed in embeds:
 				status, error = await self.sendmsg(channel, message='', embed=embed)
 				if not status:
-					print('Could not print to channel %s: %s (5)' % (channel, error))
+					self.logger.error('Could not print to channel %s: %s (5)' % (channel, error))
 
 async def __main__():
+
+	from ticketscog import TicketsCog
+
 	try:
 
-		logs = [
-			('opts',    'logs/ipd-blacklist.log'),
-			('discord', 'logs/ipd-discord.log'),
-		]
-
-		for facility, filename in logs:
-			setup_logs(facility, filename)
+		ipd_logger     = setup_logs('ipd',     'logs/ipd.log')
+		opts_logger    = setup_logs('opts',    'logs/ipd-blacklist.log')
+		discord_logger = setup_logs('discord', 'logs/ipd-discord.log')
 
 		config = load_config()
 
 		bot = config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
 		bot.config = config
+		bot.logger = ipd_logger
+		bot.redis = config.redis
+		bot.add_cog(TicketsCog(bot))
 
 		token = config['token']
 		if 'env' in config:
@@ -491,8 +491,9 @@ async def __main__():
 		try:
 			bot.run(token)
 
-		except:
-			print('bot.run interrupted!')
+		except Exception as err:
+			print('Run was interrupted!')
+			print(err)
 			print(traceback.format_exc())
 
 		await bot.logout()
@@ -500,6 +501,7 @@ async def __main__():
 
 	except Exception as err:
 		print('bot initialization interrupted!')
+		print(err)
 		print(traceback.format_exc())
 
 if __name__ == '__main__':
