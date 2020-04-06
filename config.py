@@ -141,7 +141,8 @@ def setup_logs(facility, filename, level=None):
 
 	import logging
 	logger = logging.getLogger(facility)
-	logger.setLevel(level is not None and level or logging.DEBUG)
+	level = (facility == 'discord') and logging.WARNING or (level is not None and level or logging.DEBUG)
+	logger.setLevel(level)
 	handler = logging.FileHandler(filename=filename, encoding='utf-8', mode='a')
 	handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 	logger.addHandler(handler)
