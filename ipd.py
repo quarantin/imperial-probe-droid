@@ -424,14 +424,16 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			for cmd in COMMANDS:
 				if command in cmd['aliases']:
 
-					await self.add_reaction(message, EMOJI_HOURGLASS)
+					if cmd['need_api']:
+						await self.add_reaction(message, EMOJI_HOURGLASS)
 
 					if inspect.iscoroutinefunction(cmd['function']):
 						msgs = await cmd['function'](request)
 					else:
 						msgs = cmd['function'](request)
 
-					await self.remove_reaction(message, EMOJI_HOURGLASS)
+					if cmd['need_api']:
+						await self.remove_reaction(message, EMOJI_HOURGLASS)
 
 					for msg in msgs:
 						embeds = new_embeds(msg)
