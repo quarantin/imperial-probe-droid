@@ -1,14 +1,14 @@
 #!/bin/bash
 
 SLEEP=1
-ERROR='logs/tracker-error.log'
-OUTPUT='logs/tracker-output.log'
 NAME='IPD Tracker'
 MAIN='tracker/tracker.py'
 
+. ENV/bin/activate
+
 while true; do
 	echo "INFO: Starting ${NAME}..."
-	(PYTHONPATH=.:$PYTHONPATH unbuffer python ${MAIN} | tee -a "${OUTPUT}") 3>&1 1>&2 2>&3 | tee -a "${ERROR}"
+	PYTHONPATH=.:$PYTHONPATH python ${MAIN}
 	if [ "${?}" -ne "0" ]; then
 		echo "FATAL: ${NAME} just crashed\!"
 	fi
