@@ -239,7 +239,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 
 		return False, error
 
-	async def add_reaction(message, emoji):
+	async def add_reaction(self, message, emoji):
 
 		try:
 			await message.add_reaction(emoji)
@@ -248,7 +248,7 @@ class ImperialProbeDroid(discord.ext.commands.Bot):
 			self.logger.error(err)
 			self.logger.error(traceback.format_exc())
 
-	async def remove_reaction(message, emoji):
+	async def remove_reaction(self, message, emoji):
 
 		try:
 			await message.remove_reaction(emoji, self.user)
