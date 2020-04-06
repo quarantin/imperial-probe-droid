@@ -4,6 +4,7 @@ import json
 import discord
 from discord.ext import commands
 
+from embed import send_embed
 from constants import EMOJIS
 from errors import error_invalid_config_key, error_invalid_config_value, error_no_ally_code_specified
 
@@ -138,8 +139,10 @@ For example to disable `arena.rank.up` events, just type:
 			cmdhelp = self.get_config_help.replace('%prefix', prefix)
 			description = self.get_header(count=3) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		embed = discord.Embed(title='Tracker Configuration', description=description)
-		await ctx.send(embed=embed)
+		await send_embed(self.bot, ctx, {
+			'title': 'Tracker Configuration',
+			'description': description,
+		})
 
 	get_channels_help = """
 To update channels, just type:
@@ -171,8 +174,10 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 			cmdhelp = self.get_channels_help.replace('%prefix', prefix)
 			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		embed = discord.Embed(title='Channels Configuration', description=description)
-		await ctx.send(embed=embed)
+		await send_embed(self.bot, ctx, {
+			'title': 'Tracker Channels',
+			'description': description,
+		})
 
 	get_formats_help = """
 To update formats, just type:
@@ -204,8 +209,10 @@ For example to configure formats for `arena.rank.down` events, just type:
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
 			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		embed = discord.Embed(title='Formats Configuration', description=description)
-		await ctx.send(embed=embed)
+		await send_embed(self.bot, ctx, {
+			'title': 'Tracker Formats',
+			'description': description,
+		})
 
 	get_mentions_help = """
 To update mentions, just type:
@@ -259,8 +266,10 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			cmdhelp = self.get_mentions_help.replace('%prefix', prefix)
 			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		embed = discord.Embed(title='Mentions Configuration', description=description)
-		await ctx.send(embed=embed)
+		await send_embed(self.bot, ctx, {
+			'title': 'Tracker Mentions',
+			'description': description,
+		})
 
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
 
