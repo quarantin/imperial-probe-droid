@@ -159,12 +159,16 @@ def basicstrip(string):
 
 	return string.lower()
 
-def translate(string_id, language):
+def translate(string_id, language='eng_us'):
 
 	import DJANGO
 	from swgoh.models import Translation
 
-	for lang in [ language, 'eng_us' ]:
+	langs = [ language ]
+	if language != 'eng_us':
+		langs.append('eng_us')
+
+	for lang in langs:
 
 		try:
 			t = Translation.objects.get(string_id=string_id, language=lang)
