@@ -89,7 +89,7 @@ class TrackerCog(commands.Cog):
 		pad_len = length - len(string)
 		return string + ('\u00a0' * pad_len)
 
-	def get_header(self, count=3):
+	def get_header(self, value=True, count=3):
 
 		emo = EMOJIS['']
 
@@ -97,7 +97,8 @@ class TrackerCog(commands.Cog):
 		extra2 = (count == 2 and emo or '')
 		spacer = ' '.join([ emo ] * count)
 
-		header = '`|`%s%s**Key**%s%s%s`|` **Value**\n' % (spacer, extra3, extra3, extra2, spacer)
+		value_str = value and ' **Value**' or ''
+		header = '`|`%s%s**Key**%s%s%s`|`%s\n' % (spacer, extra3, extra3, extra2, spacer, value_str)
 
 		return header
 
@@ -180,6 +181,9 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 		})
 
 	get_formats_help = """
+To see defined format, just type:
+```
+%prefixtracker formats <key>```
 To update formats, just type:
 ```
 %prefixtracker formats <key> <format>```
@@ -190,6 +194,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 	async def get_formats(self, ctx, guild, pref_key: str = None):
 
 		lines = []
+		show_value = pref_key is not None
 		formats = guild.get_formats()
 		for key, fmt in sorted(formats.items()):
 
@@ -198,7 +203,10 @@ For example to configure formats for `arena.rank.down` events, just type:
 
 			key = key.replace('.format', '')
 			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
-			lines.append('`|%s|` "%s"' % (padded_key, fmt))
+			if show_value:
+				lines.append('`|%s|` "%s"' % (padded_key, fmt))
+			else:
+				lines.append('`|%s|`' % padded_key)
 
 		if not lines:
 			description = 'No matching keys for: `%s`' % pref_key
@@ -207,7 +215,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
-			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
+			description = self.get_header(value=show_value, count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
 		await send_embed(self.bot, ctx, {
 			'title': 'Tracker Formats',
