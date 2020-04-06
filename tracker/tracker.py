@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import sys
+import discord
 import traceback
 
-import discord
-from discord.ext import commands
+import bot
 
-class Tracker(commands.Bot):
+class Tracker(bot.Bot):
 
 	def parse_opts_boolean(self, value):
 
