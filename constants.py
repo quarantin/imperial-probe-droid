@@ -88,6 +88,8 @@ MODSPRIMARIES = {
 	'Speed',
 }
 
+EMOJI_HOURGLASS = '\N{HOURGLASS}'
+
 EMOJIS = {
 	'':                  '<:spa:535808549264162816>',
 	'zeta':              '<:zeta:547487955476938753>',
