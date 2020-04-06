@@ -534,7 +534,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			if type(msg) is str:
 				await ctx.send(msg)
 			elif type(msg) is dict:
-				embeds = new_embeds(msg)
+				embeds = new_embeds(msg, add_sep=False)
 				for embed in embeds:
 					await ctx.send(embed=embed)
 
