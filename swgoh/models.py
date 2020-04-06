@@ -778,22 +778,22 @@ class PremiumGuild(models.Model):
 	MESSAGE_FORMATS = {
 
 		MSG_INACTIVITY:           '> • __**${nick}**__\n> Has been **inactive** for *${last.seen}*',
-		MSG_PLAYER_NICK:          '> • __**${nick}**__\n> is now known as __**${new.nick}**__',
+		MSG_PLAYER_NICK:          '> • __**${nick}**__\n> Is now known as __**${new.nick}**__',
 		MSG_PLAYER_LEVEL:         '> • __**${nick}**__\n> Reached *level ${level}*',
 		MSG_UNIT_UNLOCKED:        '> • __**${nick}**__\n> Unlocked **${unit}**',
 		MSG_UNIT_LEVEL:           '> • __**${nick}**__\n> Increased **${unit}** to *level ${level}*',
 		MSG_UNIT_RARITY:          '> • __**${nick}**__\n> ⭐**${unit}** promoted to **${rarity} stars**',
 		MSG_UNIT_RELIC:           '> • __**${nick}**__\n> <:relic:696704780621316196>**${unit}** *relic ${relic}*',
-		MSG_UNIT_GEAR_LEVEL:      '> • __**${nick}**__\n> **${unit}**\'s gear to **level ${gear.level.roman}**',
-		MSG_UNIT_GEAR_PIECE:      '> • __**${nick}**__\n> Set equipment *${gear.piece}* on **${unit}**',
-		MSG_UNIT_SKILL_UNLOCKED:  '> • __**${nick}**__\n> Unlocked **${unit}**\'s skill *${skill}*',
-		MSG_UNIT_SKILL_INCREASED: '> • __**${nick}**__\n> Increased skill *${skill}* to tier ${tier} (**${unit}**)',
+		MSG_UNIT_GEAR_LEVEL:      '> • __**${nick}**__\n> **${unit}** *gear level ${gear.level.roman}*',
+		MSG_UNIT_GEAR_PIECE:      '> • __**${nick}**__\n> **${unit}** equip *${gear.piece}*',
+		MSG_UNIT_SKILL_UNLOCKED:  '> • __**${nick}**__\n> **${unit}** unlocked skill *${skill}*',
+		MSG_UNIT_SKILL_INCREASED: '> • __**${nick}**__\n> **${unit}** increased skill *${skill}* to *tier ${tier}*',
 		MSG_UNIT_OMEGA:           '> • __**${nick}**__\n> <:omega:547487976230355004>**${unit}** *${skill}*',
 		MSG_UNIT_ZETA:            '> • __**${nick}**__\n> <:zeta:547487955476938753>**${unit}** *${skill}*',
-		MSG_ARENA_RANK_UP:        '> • __**${nick}**__\n> <:anakin:696639062022291517>*Squad* Rank: **${old.rank} ⇗  ${new.rank}**',
-		MSG_ARENA_RANK_DOWN:      '> • __**${nick}**__\n> <:anakin:696639062022291517>*Squad* Rank: **${old.rank} ⇘  ${new.rank}**',
-		MSG_FLEET_RANK_UP:        '> • __**${nick}**__\n> <:milf:696639760499867718>*Fleet* Rank: **${old.rank} ⇗  ${new.rank}**',
-		MSG_FLEET_RANK_DOWN:      '> • __**${nick}**__\n> <:milf:696639760499867718>*Fleet* Rank: **${old.rank} ⇘  ${new.rank}**',
+		MSG_ARENA_RANK_UP:        '> • __**${nick}**__\n> <:anakin:696639062022291517>*Squad Rank*: **${old.rank} ⇗  ${new.rank}**',
+		MSG_ARENA_RANK_DOWN:      '> • __**${nick}**__\n> <:anakin:696639062022291517>*Squad Rank*: **${old.rank} ⇘  ${new.rank}**',
+		MSG_FLEET_RANK_UP:        '> • __**${nick}**__\n> <:milf:696639760499867718>*Fleet Rank*: **${old.rank} ⇗  ${new.rank}**',
+		MSG_FLEET_RANK_DOWN:      '> • __**${nick}**__\n> <:milf:696639760499867718>*Fleet Rank*: **${old.rank} ⇘  ${new.rank}**',
 	}
 
 	ally_code = models.IntegerField()
