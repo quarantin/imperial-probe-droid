@@ -107,7 +107,7 @@ async def cmd_guild_list(request):
 
 	for ally_code, player in players.items():
 		if 'guildName' not in player:
-			self.logger.info('Ignoring player with no guild: %s' % ally_code)
+			config['bot'].logger.info('Ignoring player with no guild: %s' % ally_code)
 			continue
 
 		guild_name = player['guildName']
