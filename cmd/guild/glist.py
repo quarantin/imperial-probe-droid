@@ -83,25 +83,7 @@ async def cmd_guild_list(request):
 
 	images = {}
 	matches = {}
-	stats, players = await fetch_crinolo_stats(config, ally_codes)
-	"""
-	players, old_players = await fetch_crinolo_stats(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'name': 1,
-			'allyCode': 1,
-			'guildName': 1,
-			'roster': {
-				'defId': 1,
-				'gp': 1,
-				'gear': 1,
-				'level': 1,
-				'rarity': 1,
-				'relic': 1,
-			},
-		},
-	})
-	"""
+	stats, players = await fetch_crinolo_stats(config, ally_codes, units=selected_units)
 
 	players = sort_players(players)
 
