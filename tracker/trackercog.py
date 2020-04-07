@@ -439,10 +439,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		if pref_value.lower() == 'reset':
 			self.delete_config_entry(guild, key)
-			if got_json:
-				lines.append('`%s` ```\n%s```' % (key, json.dumps(jsondata, indent=4)))
-			else:
-				lines.append('`%s` "%s"' % (key, default_format))
+			lines.append('`%s` "%s"' % (key, default_format))
 
 		else:
 			try:
@@ -451,7 +448,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			except PremiumGuildConfig.DoesNotExist:
 				entry = PremiumGuildConfig(guild=guild, key=key)
 
-			entry.value = pref_value
+			entry.value = pref_value.strip('"')
 			entry.value_type = 'fmt'
 			entry.save()
 
@@ -559,7 +556,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		from trackerdemo import Demo
 		guild = self.get_guild(ctx.author)
 		config = guild.get_config(discord_id=ctx.author.id)
-		msgs = Demo.get_random_messages(ctx.author, config, pref_key)
+		msgs = Demo.get_random_messages(self.bot, ctx.author, config, pref_key)
 		for msg in msgs:
 			if type(msg) is str:
 				await ctx.send(msg)

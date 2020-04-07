@@ -13,7 +13,7 @@ from swgoh.models import BaseUnit, BaseUnitSkill, Gear, PremiumGuild
 
 class Demo:
 
-	tokens = [
+	tokens = {
 		'gear.level.roman',
 		'gear.piece',
 		'last.seen',
@@ -27,50 +27,42 @@ class Demo:
 		'skill',
 		'tier',
 		'unit',
-	]
+		'unit.id',
+	}
 
-	def get_random_value(author, token):
+	def get_random_message(author):
 
-		if token == 'gear.level.roman':
-			gear = random.randint(1, MAX_GEAR_LEVEL)
-			return ROMAN[gear]
+		msg = {}
 
-		if token == 'gear.piece':
-			return translate(Gear.objects.order_by('?').first().base_id)
+		days = random.randint(1, 15)
+		hours = random.randint(0, 23)
+		minutes = random.randint(0, 59)
+		now = datetime.now()
+		delta = now - (now - timedelta(days=days, hours=hours, minutes=minutes))
+		last_seen = delta - timedelta(microseconds=delta.microseconds)
 
-		if token == 'last.seen':
-			days = random.randint(1, 15)
-			now = datetime.now()
-			delta = now - (now - timedelta(days=days))
-			return str(delta - timedelta(microseconds=delta.microseconds))
+		unit = BaseUnit.objects.filter(combat_type=1).order_by('?').first()
+		gear_level = random.randint(1, MAX_GEAR_LEVEL)
+		gear = Gear.objects.order_by('?').first()
 
-		if token == 'level':
-			return str(random.randint(1, MAX_LEVEL))
+		msg['unit']             = translate(unit.base_id)
+		msg['unit.id']          = unit.base_id
+		msg['gear.level']       = gear_level
+		msg['gear.level.roman'] = ROMAN[gear_level]
+		msg['gear.piece']       = translate(gear.base_id)
+		msg['last.seen']        = str(last_seen)
+		msg['level']            = str(random.randint(1, MAX_LEVEL))
+		msg['nick']             = msg['new.nick'] = msg['old.nick'] = author.display_name
+		msg['new.rank']         = str(random.randint(1, 10000))
+		msg['old.rank']         = str(random.randint(1, 10000))
+		msg['rarity']           = str(random.randint(1, MAX_RARITY))
+		msg['relic']            = str(random.randint(1, MAX_RELIC))
+		msg['skill']            = translate(BaseUnitSkill.objects.filter(unit=unit).order_by('?').first().ability_ref)
+		msg['tier']             = str(random.randint(1, MAX_SKILL_TIER))
 
-		if token in [ 'nick', 'new.nick', 'old.nick' ]:
-			return author.display_name
+		return msg
 
-		if token in [ 'new.rank', 'old.rank' ]:
-			return str(random.randint(1, 10000))
-
-		if token == 'unit':
-			return translate(BaseUnit.objects.filter(combat_type=1).order_by('?').first().base_id)
-
-		if token == 'rarity':
-			return str(random.randint(1, MAX_RARITY))
-
-		if token == 'relic':
-			return str(random.randint(1, MAX_RELIC))
-
-		if token == 'skill':
-			return translate(BaseUnitSkill.objects.order_by('?').first().ability_ref)
-
-		if token == 'tier':
-			return str(random.randint(1, MAX_SKILL_TIER))
-
-		raise Exception('Unsupported Demo Handler for token: %s' % token)
-
-	def get_random_messages(author, config, pref_key):
+	def get_random_messages(bot, author, config, pref_key):
 
 		msgs = []
 
@@ -83,36 +75,8 @@ class Demo:
 			if lkey != 'all' and lkey not in key or not key.endswith('.format'):
 				continue
 
-			if fmt.startswith('{'):
-				fmt = json.loads(fmt)
-				for jkey, jval in fmt.items():
-					for token in Demo.tokens:
-
-						strtoken = '${%s}' % token
-
-						if type(fmt[jkey]) is str:
-							if strtoken in fmt[jkey]:
-								fmt[jkey] = fmt[jkey].replace(strtoken, Demo.get_random_value(author, token))
-
-						elif type(fmt[jkey]) is list:
-							for item in fmt[jkey]:
-								for skey, sval in item.items():
-									if type(sval) is str and strtoken in sval:
-										item[skey] = sval.replace(stroken, Demo.get_random_value(author, token))
-
-						elif type(fmt[jkey]) is dict:
-							for skey, sval in fmt[jkey].items():
-								if type(sval) is str:
-									fmt[jkey][skey] = fmt[jkey][skey].replace(strtoken, Demo.get_random_value(author, token))
-
-				msgs.append(fmt)
-
-			else:
-				for token in Demo.tokens:
-					strtoken = '${%s}' % token
-					if strtoken in fmt:
-						fmt = fmt.replace(strtoken, Demo.get_random_value(author, token))
-
-				msgs.append(fmt)
+			msg = Demo.get_random_message(author)
+			final_msg = bot.format_message(msg, fmt)
+			msgs.append(final_msg)
 
 		return msgs
