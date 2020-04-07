@@ -185,6 +185,10 @@ class Crawler(asyncio.Future):
 			self.logger.warning('get_player failed with selector: %s' % selector)
 			return None
 
+		if 'guildRefId' not in player:
+			self.logger.warning('Key \'guildRefId\' missing from player profile: %s' % selector)
+			return None
+
 		guild_key = 'guild|%s' % player['guildRefId']
 		guild = self.redis.get(guild_key)
 		if guild:
