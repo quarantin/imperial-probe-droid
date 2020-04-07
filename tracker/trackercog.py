@@ -559,7 +559,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		return await self.get_channels(ctx, guild, pref_key)
 
 	@tracker.command()
-	async def formats(self, ctx, pref_key: str = None, pref_value: str = None):
+	async def formats(self, ctx, pref_key: str = None, *, pref_value: str = None):
 
 		guild = self.get_guild(ctx.author)
 
