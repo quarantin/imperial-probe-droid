@@ -183,7 +183,7 @@ async def cmd_guild_stat(request):
 		if ally_code in excluded_ally_codes:
 			ally_codes.remove(ally_code)
 
-	stats, players = await fetch_crinolo_stats(config, ally_codes) #, players_raw)
+	stats, players = await fetch_crinolo_stats(config, ally_codes)
 
 	players = sort_players(players)
 
