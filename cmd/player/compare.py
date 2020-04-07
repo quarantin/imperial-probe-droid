@@ -172,7 +172,7 @@ async def cmd_player_compare(request):
 		return error_unknown_parameters(args)
 
 	ally_codes = [ player.ally_code for player in selected_players ]
-	stats, players = await fetch_crinolo_stats(config, ally_codes)
+	stats, players = await fetch_crinolo_stats(config, ally_codes, units=selected_units)
 
 	msgs = []
 	for unit in selected_units:
