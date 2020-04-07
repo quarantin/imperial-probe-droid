@@ -4,6 +4,7 @@ import json
 import discord
 from discord.ext import commands
 
+from utils import is_numeric
 from constants import EMOJIS
 from embed import new_embeds, send_embed
 from errors import error_invalid_config_key, error_invalid_config_value, error_no_ally_code_specified
@@ -61,6 +62,21 @@ class TrackerCog(commands.Cog):
 			return None
 
 		return premium_guild
+
+	def delete_config_entry(self, guild, key):
+
+		try:
+			PremiumGuildConfig.objects.get(guild=guild, key=key).delete()
+		except PremiumGuildConfig.DoesNotExist:
+			pass
+
+	def is_valid_json(self, data):
+
+		try:
+			return True, json.loads(data)
+
+		except Exception as err:
+			return False, err
 
 	def get_matching_keys(self, ctx, guild, pref_key, config=False, channels=False, formats=False, mentions=False):
 
@@ -201,10 +217,14 @@ For example to configure formats for `arena.rank.down` events, just type:
 			if pref_key is not None and pref_key not in key:
 				continue
 
+			got_json, jsondata = self.is_valid_json(fmt)
 			key = key.replace('.format', '')
 			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
 			if show_value:
-				lines.append('`%s` "%s"' % (padded_key, fmt))
+				if got_json:
+					lines.append('`%s` ```\n%s```' % (padded_key, json.dumps(jsondata, indent=4)))
+				else:
+					lines.append('`%s` "%s"' % (padded_key, fmt))
 			else:
 				lines.append('`|%s|`' % padded_key)
 
@@ -259,14 +279,12 @@ For example to enable notifications for `arena.rank.down` events, just type:
 				mention = '**%s**' % (mention is True and 'ON' or 'OFF')
 
 			elif type(mention) is int:
-				mention = int(mention)
-				mention = '<@!%s>' % mention
+				mention = '<@!%d>' % mention
 
 			else:
 				raise Exception('Unsupported operand: %s (%s)' % (mention, type(mention)))
 
 			lines.append('`|%s|` %s' % (padded_key, mention))
-
 
 		if not lines:
 			description = 'No matching keys for: `%s`' % pref_key
@@ -284,43 +302,49 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 	async def set_config(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(ctx, guild, pref_key, config=True)
-		if not pref_keys:
+		keys = self.get_matching_keys(ctx, guild, pref_key, config=True)
+		if not keys:
 			message = error_invalid_config_key('config', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
-		if len(pref_keys) > 1:
-			pref_keys = [ '`%s`' % x for x in pref_keys if x.endswith('.config') ]
-			message = '__**%s**__ matches more than one entry:\n%s' % (pref_key, '\n'.join(pref_keys))
-			await ctx.send(message)
-			return
+		key = min(keys, key=len)
+		default_val, default_typ = PremiumGuild.get_default(key)
 
 		lines = []
-		for pref_key in pref_keys:
+		if pref_value.lower() == 'reset':
+			self.delete_config_entry(guild, key)
+			lines.append('`%s` %s' % (key, default_val))
 
-			if pref_value.lower() == 'reset':
-				try:
-					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
-				except PremiumGuildConfig.DoesNotExist:
-					pass
-				continue
-
+		else:
 			try:
-				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=key)
 
 			except PremiumGuildConfig.DoesNotExist:
-				entry = PremiumGuildConfig(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig(guild=guild, key=key)
 
 			boolval = self.bot.parse_opts_boolean(pref_value)
 
 			display_value = entry.value
 
-			if pref_key.endswith('.min') or pref_key.endswith('.repeat'):
+			if default_typ is int:
+
+				if not is_numeric(pref_value):
+					message = '`%s` is expecting a number but you supplied __**%s**__' % (key, pref_value)
+					await ctx.send(message)
+					return
+
 				entry.value = int(pref_value)
 				entry.value_type = int.__name__
+				display_value = entry.value
 
-			elif boolval is not None:
+			elif default_typ is bool:
+
+				if boolval is None:
+					message = '`%s` is expecting **ON** or **OFF** but you supplied __**%s**__' % (key, pref_value)
+					await ctx.send(message)
+					return
+
 				entry.value = boolval
 				entry.value_type = 'bool'
 				display_value = boolval is True and '**ON**' or '**OFF**'
@@ -331,7 +355,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 			entry.save()
 
-			lines.append('`%s` %s' % (pref_key, display_value))
+			lines.append('`%s` %s' % (key, display_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
@@ -341,28 +365,20 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 	async def set_channels(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(ctx, guild, pref_key, channels=True)
-		if not pref_keys:
+		keys = self.get_matching_keys(ctx, guild, pref_key, channels=True)
+		if not keys:
 			message = error_invalid_config_key('channels', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
+		default_channel = '<#%s>' % guild.channel_id
+
 		lines = []
-		for pref_key in pref_keys:
-
-			if not pref_key.endswith('.channel'):
-				if pref_key != 'default' and pref_key not in PremiumGuild.MESSAGE_FORMATS:
-					message = error_invalid_config_key('channels', self.bot.command_prefix, pref_key)
-					await ctx.send(message)
-					return
-
-				pref_key = '%s.channel' % pref_key
+		for key in keys:
 
 			if pref_value.lower() == 'reset':
-				try:
-					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
-				except PremiumGuildConfig.DoesNotExist:
-					pass
+				self.delete_config_entry(guild, key)
+				lines.append('`%s` %s' % (key, default_channel))
 				continue
 
 			channel_id = self.bot.parse_opts_channel(pref_value)
@@ -381,16 +397,16 @@ For example to enable notifications for `arena.rank.down` events, just type:
 					return
 
 			try:
-				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=key)
 
 			except PremiumGuildConfig.DoesNotExist:
-				entry = PremiumGuildConfig(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig(guild=guild, key=key)
 
 			entry.value = channel_id
 			entry.value_type = 'chan'
 			entry.save()
 
-			lines.append('`%s` %s' % (pref_key, pref_value))
+			lines.append('`%s` %s' % (key, pref_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
@@ -401,63 +417,48 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 	async def set_formats(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(ctx, guild, pref_key, formats=True)
-		if not pref_keys:
+		keys = self.get_matching_keys(ctx, guild, pref_key, formats=True)
+		if not keys:
 			message = error_invalid_config_key('formats', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
 
-		got_json = False
-		if pref_value is not None and pref_value.startswith('{'):
+		key = min(keys, key=len)
 
-			try:
-				jsondata = json.loads(pref_value)
-				got_json = True
+		default_format = PremiumGuild.get_default_format(key)
 
-			except Exception as err:
-				self.logger.error(err)
-				self.logger.error(traceback.format_exc())
-				message = 'It seems you tried to submit an embed, but there is a syntax error in your input: %s' % err
-				await ctx.send(message)
-				return
-
-		if len(pref_keys) > 1:
-			message = 'The key \'%s\' matches more than one entry:\n%s' % (pref_key, '\n'.join(pref_keys))
+		got_json, jsondata = self.is_valid_json(pref_value)
+		if pref_value is not None and pref_value.startswith('{') and not got_json:
+			self.logger.error(jsondata)
+			self.logger.error(traceback.format_exc())
+			message = 'It seems you tried to submit an embed, but there was a syntax error in your input: %s' % jsondata
 			await ctx.send(message)
 			return
 
 		lines = []
-		for pref_key in pref_keys:
 
-			if not pref_key.endswith('.format'):
-				if pref_key not in PremiumGuild.MESSAGE_FORMATS:
-					message = error_invalid_config_key('formats', self.bot.command_prefix, pref_key)
-					await ctx.send(message)
-					return
+		if pref_value.lower() == 'reset':
+			self.delete_config_entry(guild, key)
+			if got_json:
+				lines.append('`%s` ```\n%s```' % (key, json.dumps(jsondata, indent=4)))
+			else:
+				lines.append('`%s` "%s"' % (key, default_format))
 
-				pref_key = '%s.format' % pref_key
-
-			if pref_value.lower() == 'reset':
-				try:
-					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
-				except PremiumGuildConfig.DoesNotExist:
-					pass
-				continue
-
+		else:
 			try:
-				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=key)
 
 			except PremiumGuildConfig.DoesNotExist:
-				entry = PremiumGuildConfig(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig(guild=guild, key=key)
 
 			entry.value = pref_value
 			entry.value_type = 'fmt'
 			entry.save()
 
 			if got_json:
-				lines.append('`%s` ```\n%s```' % (pref_key, json.dumps(jsondata, indent=4)))
+				lines.append('`%s` ```\n%s```' % (key, json.dumps(jsondata, indent=4)))
 			else:
-				lines.append('`%s` "%s"' % (pref_key, pref_value))
+				lines.append('`%s` "%s"' % (key, pref_value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
@@ -468,8 +469,8 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 	async def set_mentions(self, ctx, guild, pref_key: str, pref_value: str):
 
-		pref_keys = self.get_matching_keys(ctx, guild, pref_key, mentions=True)
-		if not pref_keys:
+		keys = self.get_matching_keys(ctx, guild, pref_key, mentions=True)
+		if not keys:
 			message = error_invalid_config_key('mentions', self.bot.command_prefix, pref_key)
 			await ctx.send(message)
 			return
@@ -489,41 +490,42 @@ For example to enable notifications for `arena.rank.down` events, just type:
 				display_value = 'ON'
 			else:
 				discord_id = value
-				display_value = '<@%s>' % discord_id
+				display_value = '<@!%s>' % discord_id
 
 		try:
 			player = Player.objects.get(discord_id=discord_id)
 
 		except Player.DoesNotExist:
-			message = 'Error: I don\'t know any allycode registered to <@%s>' % ctx.author.id
+			message = 'Error: I don\'t know any allycode registered to <@!%s>' % ctx.author.id
 			await ctx.send(message)
 			return
 
 		lines = []
-		for pref_key in pref_keys:
+		for key in keys:
 
 			player_suffix = '.%s.mention' % player.ally_code
-			if not pref_key.endswith(player_suffix):
+			if not key.endswith(player_suffix):
 				continue
 
 			if pref_value.lower() == 'reset':
 				try:
-					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
+					PremiumGuildConfig.objects.get(guild=guild, key=key).delete()
 				except PremiumGuildConfig.DoesNotExist:
 					pass
+				lines.append('`%s` **OFF**' % key)
 				continue
 
 			try:
-				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig.objects.get(guild=guild, key=key)
 
 			except PremiumGuildConfig.DoesNotExist:
-				entry = PremiumGuildConfig(guild=guild, key=pref_key)
+				entry = PremiumGuildConfig(guild=guild, key=key)
 
 			entry.value = value
 			entry.value_type = 'hl'
 			entry.save()
 
-			display_key = pref_key.replace(player_suffix, '')
+			display_key = key.replace(player_suffix, '')
 			padded_key = self.pad(display_key, MENTIONS_MAX_KEY_LEN)
 			lines.append('`%s` **%s**' % (padded_key, display_value))
 
