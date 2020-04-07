@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import json
-import discord
+from discord import HTTPException
 from discord.ext import commands
 
 from utils import is_numeric
@@ -563,7 +563,10 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			elif type(msg) is dict:
 				embeds = new_embeds(msg, add_sep=False, footer=False)
 				for embed in embeds:
-					await ctx.send(embed=embed)
+					try:
+						await ctx.send(embed=embed)
+					except HTTPException as err:
+						await ctx.send(err.text)
 
 	@tracker.command()
 	async def config(self, ctx, pref_key: str = None, pref_value: str = None):
