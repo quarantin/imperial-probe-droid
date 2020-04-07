@@ -775,6 +775,15 @@ class PremiumGuild(models.Model):
 		(MSG_UNIT_SKILL_INCREASED_MIN, 0,     int),
 	]
 
+	def get_default(pref_key):
+
+		for key, val, typ in PremiumGuild.MESSAGE_DEFAULTS:
+			short_key = '.'.join(pref_key.split('.')[0:-1])
+			if short_key == key:
+				return (val, typ)
+
+		raise Exception('This must never happen! %s' % pref_key)
+
 	MESSAGE_FORMATS = {
 
 		MSG_INACTIVITY:           '> • __**${nick}**__\n> Has been *inactive* for **${last.seen}**',
