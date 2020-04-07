@@ -115,19 +115,19 @@ class Tracker(bot.Bot):
 				for jkey, jval in jsonmsg.items():
 					for key, value in message.items():
 
-						if type(value) is str:
-							jsonmsg[jkey] = jsonmsg[jkey].replace('${%s}' % key, value)
+						if type(jval) is str:
+							jsonmsg[jkey] = jsonmsg[jkey].replace('${%s}' % key, str(value))
 
-						elif type(value) is list:
-							for item in value:
+						elif type(jval) is list:
+							for item in jval:
 								for skey, sval in item.items():
 									if type(sval) is str:
 										item[skey] = sval.replace('${%s}' % skey, sval)
 
-						elif type(value) is dict:
-							for skey, sval in value.items():
+						elif type(jval) is dict:
+							for skey, sval in jval.items():
 								if type(sval) is str:
-									value[skey] = sval.replace('${%s}' % skey, sval)
+									jval[skey] = sval.replace('${%s}' % skey, sval)
 
 				return jsonmsg
 
