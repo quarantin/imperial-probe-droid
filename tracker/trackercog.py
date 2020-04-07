@@ -299,6 +299,13 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		lines = []
 		for pref_key in pref_keys:
 
+			if pref_value.lower() == 'reset':
+				try:
+					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
+				except PremiumGuildConfig.DoesNotExist:
+					pass
+				continue
+
 			try:
 				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
 
@@ -350,6 +357,13 @@ For example to enable notifications for `arena.rank.down` events, just type:
 					return
 
 				pref_key = '%s.channel' % pref_key
+
+			if pref_value.lower() == 'reset':
+				try:
+					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
+				except PremiumGuildConfig.DoesNotExist:
+					pass
+				continue
 
 			channel_id = self.bot.parse_opts_channel(pref_value)
 			webhook_channel = self.bot.get_channel(channel_id)
@@ -423,6 +437,13 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 				pref_key = '%s.format' % pref_key
 
+			if pref_value.lower() == 'reset':
+				try:
+					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
+				except PremiumGuildConfig.DoesNotExist:
+					pass
+				continue
+
 			try:
 				entry = PremiumGuildConfig.objects.get(guild=guild, key=pref_key)
 
@@ -483,6 +504,13 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 			player_suffix = '.%s.mention' % player.ally_code
 			if not pref_key.endswith(player_suffix):
+				continue
+
+			if pref_value.lower() == 'reset':
+				try:
+					PremiumGuildConfig.objects.get(guild=guild, key=pref_key).delete()
+				except PremiumGuildConfig.DoesNotExist:
+					pass
 				continue
 
 			try:
