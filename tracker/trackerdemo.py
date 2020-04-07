@@ -110,9 +110,9 @@ class Demo:
 			else:
 				for token in Demo.tokens:
 					strtoken = '${%s}' % token
-					if strtoken in msg:
-						msg = msg.replace(strtoken, Demo.get_random_value(author, token))
+					if strtoken in fmt:
+						fmt = fmt.replace(strtoken, Demo.get_random_value(author, token))
 
-				msgs.append(msg)
+				msgs.append(fmt)
 
 		return msgs
