@@ -76,6 +76,13 @@ def lpad(data, length, char=' '):
 	padlen = max(0, length - len(string))
 	return char * padlen + string
 
+def is_numeric(string):
+	try:
+		float(string)
+		return True
+	except ValueError:
+		return False
+
 def get_perms():
 
 	import discord
