@@ -107,27 +107,39 @@ class Tracker(bot.Bot):
 			errmsg = 'I was not able to create the webhook in <#%s> due to a network error: `%s`\nPlease try again.' % (channel.id, err)
 			return None, errmsg
 
+	def replace_tokens(self, template, message):
+
+		for key, value in message.items():
+
+			token = '${%s}' % key
+			if token in template:
+				template = template.replace(token, str(value))
+
+		return template
+
 	def format_message(self, message, message_format):
 
 		if message_format.startswith('{'):
 			try:
 				jsonmsg = json.loads(message_format)
 				for jkey, jval in jsonmsg.items():
-					for key, value in message.items():
 
-						if type(jval) is str:
-							jsonmsg[jkey] = jsonmsg[jkey].replace('${%s}' % key, str(value))
+					if type(jval) is str:
+						jsonmsg[jkey] = self.replace_tokens(jval, message)
 
-						elif type(jval) is list:
-							for item in jval:
-								for skey, sval in item.items():
-									if type(sval) is str:
-										item[skey] = sval.replace('${%s}' % skey, sval)
-
-						elif type(jval) is dict:
-							for skey, sval in jval.items():
+					elif type(jval) is list:
+						for item in jval:
+							for skey, sval in item.items():
 								if type(sval) is str:
-									jval[skey] = sval.replace('${%s}' % skey, sval)
+									item[skey] = self.replace_tokens(sval, message)
+
+					elif type(jval) is dict:
+						for skey, sval in jval.items():
+							if type(sval) is str:
+								jval[skey] = self.replace_tokens(sval, message)
+
+					else:
+						raise Exception('WTF!?!')
 
 				return jsonmsg
 
