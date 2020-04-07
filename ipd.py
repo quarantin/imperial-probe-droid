@@ -304,7 +304,7 @@ class ImperialProbeDroid(bot.Bot):
 	async def on_ready(self):
 
 		if self.initialized is True:
-			self.logger.info('Reconnection as %s (ID:%s)' % (self.user.name, self.user.id))
+			print('Reconnection as %s (ID:%s)' % (self.user.name, self.user.id))
 			return
 
 		self.initialized = True
@@ -328,7 +328,7 @@ class ImperialProbeDroid(bot.Bot):
 		self.loop.create_task(self.schedule_update_news(config))
 		self.loop.create_task(self.schedule_payouts(config))
 
-		self.logger.info('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
+		print('Logged in as %s (ID:%s)' % (self.user.name, self.user.id))
 
 	async def on_message(self, message):
 
