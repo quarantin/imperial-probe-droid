@@ -138,8 +138,8 @@ def new_embeds(msg, timestamp=None, add_sep=True, footer=True):
 
 			embed.set_author(name=msg['author']['name'], icon_url=msg['author']['icon_url'])
 
-		if 'thumbnail' in msg:
-			embed.set_thumbnail(url=msg['thumbnail'])
+		if 'thumbnail' in msg and 'url' in msg['thumbnail']:
+			embed.set_thumbnail(url=msg['thumbnail']['url'])
 
 		if 'fields' in msg:
 			for field in msg['fields']:
@@ -158,8 +158,8 @@ def new_embeds(msg, timestamp=None, add_sep=True, footer=True):
 		if msg == last_msg:
 			if footer:
 				embed.timestamp = timestamp
-			if 'image' in msg:
-				embed.set_image(url=msg['image'])
+			if 'image' in msg and 'url' in msg['image']:
+				embed.set_image(url=msg['image']['url'])
 		else:
 			embed.set_footer(text='')
 
