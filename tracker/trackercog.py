@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import traceback
 from discord import HTTPException
 from discord.ext import commands
 
