@@ -218,7 +218,8 @@ class TrackerThread(asyncio.Future):
 					message['nick'] = prep_nick
 
 		if 'unit' in message:
-			message['unit'] = get_unit_name(message['unit'], config['language'])
+			message['unit.id'] = message['unit']
+			message['unit'] = get_unit_name(message['unit'], config['language']),
 
 		if 'gear.level' in message:
 			gear_level = message['gear.level']
