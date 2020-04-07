@@ -775,15 +775,6 @@ class PremiumGuild(models.Model):
 		(MSG_UNIT_SKILL_INCREASED_MIN, 0,     int),
 	]
 
-	def get_default(pref_key):
-
-		for key, val, typ in PremiumGuild.MESSAGE_DEFAULTS:
-			short_key = '.'.join(pref_key.split('.')[0:-1])
-			if short_key == key:
-				return (val, typ)
-
-		raise Exception('This must never happen! %s' % pref_key)
-
 	MESSAGE_FORMATS = {
 
 		MSG_INACTIVITY:           '> • __**${nick}**__\n> Has been *inactive* for **${last.seen}**',
@@ -809,6 +800,24 @@ class PremiumGuild(models.Model):
 	guild_id = models.CharField(max_length=32)
 	channel_id = models.IntegerField(null=True, blank=True)
 	language = models.CharField(max_length=6, default='eng_us', choices=Player.LANGUAGES)
+
+	def get_default(pref_key):
+
+		for key, val, typ in PremiumGuild.MESSAGE_DEFAULTS:
+			short_key = '.'.join(pref_key.split('.')[0:-1])
+			if short_key == key:
+				return (val, typ)
+
+		raise Exception('This must never happen! %s' % pref_key)
+
+	def get_default_format(pref_key):
+
+		key = '.'.join(pref_key.split('.')[0:-1])
+
+		if key in PremiumGuild.MESSAGE_FORMATS:
+			return PremiumGuild.MESSAGE_FORMATS[key]
+
+		raise Exception('This must never happen! %s' % pref_key)
 
 	def get_guild(guild_id):
 
