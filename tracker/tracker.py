@@ -133,6 +133,9 @@ class Tracker(bot.Bot):
 
 	def prepare_message(self, server, config, message):
 
+		if 'nick' in message:
+			message['mention'] = message['nick']
+
 		if 'key' in message and 'nick' in message and 'ally.code' in message:
 			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
 			nick, avatar = self.get_user_nick(server, message['ally.code'])
