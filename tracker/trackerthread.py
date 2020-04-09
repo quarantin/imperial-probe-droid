@@ -201,7 +201,7 @@ class TrackerThread(asyncio.Future):
 			for player in players:
 				if player.discord_id:
 					nick = '<@!%s>' % player.discord_id
-					member = guild.get_member(player.discord_id)
+					member = None #guild.get_member(player.discord_id)
 					return nick, member and member.avatar_url or None
 
 		except Player.DoesNotExist:
