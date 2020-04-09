@@ -113,7 +113,7 @@ class Tracker(bot.Bot):
 			errmsg = 'I was not able to create the webhook in <#%s> due to a network error: `%s`\nPlease try again.' % (channel.id, err)
 			return None, errmsg
 
-	def get_user_nick(self, server, ally_code):
+	def get_user_info(self, server, ally_code):
 
 		try:
 			players = Player.objects.filter(ally_code=ally_code)
@@ -123,13 +123,13 @@ class Tracker(bot.Bot):
 					nick = '<@!%s>' % player.discord_id
 					member = server and server.get_member(player.discord_id)
 					avatar = member and member.avatar_url_as(format='png', size=64) or discord.User.default_avatar_url
-					return nick, avatar
+					return nick, str(avatar)
 
 		except Player.DoesNotExist:
-			pass
+			print(traceback.format_exc())
 
 		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
-		return None, discord.User.default_avatar_url
+		return None, str(discord.User.default_avatar_url)
 
 	def prepare_message(self, server, config, message):
 
@@ -138,9 +138,10 @@ class Tracker(bot.Bot):
 
 		if 'key' in message and 'nick' in message and 'ally.code' in message:
 			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
-			nick, avatar = self.get_user_nick(server, message['ally.code'])
-			if nick and prep_key in config and config[prep_key] is not False:
-				message['mention'] = nick
+			mention, avatar = self.get_user_info(server, message['ally.code'])
+			if mention and prep_key in config and config[prep_key] is not False:
+				message['mention'] = mention
+
 			if avatar:
 				message['user.avatar'] = avatar
 
