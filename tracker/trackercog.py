@@ -454,8 +454,8 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			entry.save()
 
 			syntax = got_json and 'json' or ''
-			value = got_json and json.dumps(jsondata, indent=4)) or pref_value
-			lines.append('`%s` ```%s\n%s```' % (key, syntax, value)
+			value = got_json and json.dumps(jsondata, indent=4) or pref_value
+			lines.append('`%s` ```%s\n%s```' % (key, syntax, value))
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
