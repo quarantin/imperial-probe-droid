@@ -206,7 +206,7 @@ To update formats, just type:
 %prefixtracker formats <key> <format>```
 For example to configure formats for `arena.rank.down` events, just type:
 ```
-%prefixtracker formats arena.rank.down "**${nick}** has _dropped down_ in **squad** arena: __**${old.rank} => ${new.rank}**__"```"""
+%prefixtracker formats arena.rank.down **${nick}** has _dropped down_ in **squad** arena: __**${old.rank} => ${new.rank}**__```"""
 
 	async def get_formats(self, ctx, guild, pref_key: str = None):
 
