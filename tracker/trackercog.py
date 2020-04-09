@@ -219,13 +219,12 @@ For example to configure formats for `arena.rank.down` events, just type:
 
 			got_json, jsondata = self.is_valid_json(fmt)
 			key = key.replace('.format', '')
-			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
 			if pref_key:
 				syntax = got_json and 'json' or ''
 				value = got_json and json.dumps(jsondata, indent=4) or fmt
-				lines.append('`%s` ```%s\n%s```' % (padded_key, syntax, value))
+				lines.append('`%s` ```%s\n%s```' % (key, syntax, value))
 			else:
-				lines.append('`%s`' % padded_key)
+				lines.append('`%s`' % key)
 
 		if not lines:
 			description = 'No matching keys for: `%s`' % pref_key
