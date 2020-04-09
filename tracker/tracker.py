@@ -122,14 +122,14 @@ class Tracker(bot.Bot):
 				if player.discord_id:
 					nick = '<@!%s>' % player.discord_id
 					member = server and server.get_member(player.discord_id)
-					avatar = member and member.avatar_url or None
+					avatar = member and member.avatar_url or discord.User.default_avatar_url
 					return nick, avatar
 
 		except Player.DoesNotExist:
 			pass
 
 		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
-		return None, None
+		return None, discord.User.default_avatar_url
 
 	def prepare_message(self, server, config, message):
 
