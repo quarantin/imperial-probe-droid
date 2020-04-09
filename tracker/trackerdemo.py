@@ -43,7 +43,7 @@ class Demo:
 
 		msg = {}
 
-		drop = key.endswith('.down.format') and 1 or -1
+		drop = key.endswith('.down.format') and -1 or 1
 
 		player = random.choice(Player.objects.filter(discord_id=author.id))
 		unit = BaseUnit.objects.filter(combat_type=1).order_by('?').first()
