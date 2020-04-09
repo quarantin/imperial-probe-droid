@@ -143,9 +143,6 @@ class Tracker(bot.Bot):
 				message['mention'] = nick
 			if avatar:
 				message['user.avatar'] = avatar
-		else:
-			print('WOOHOO')
-			print(json.dumps(message, indent=4))
 
 		if 'unit' in message:
 			message['unit.id'] = message['unit']
