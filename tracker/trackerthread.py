@@ -253,6 +253,8 @@ class TrackerThread(asyncio.Future):
 						elif type(content) is dict:
 							embeds = new_embeds(content, add_sep=False, footer=False)
 							for embed in embeds:
+								print('# New message')
+								print(json.dumps(embed.to_dict(), indent=4))
 								await webhook.send(content='', embed=embed, avatar_url=webhook.avatar_url)
 
 						else:

@@ -557,6 +557,8 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			elif type(msg) is dict:
 				embeds = new_embeds(msg, add_sep=False, footer=False)
 				for embed in embeds:
+					print('# New Message Test')
+					print(json.dumps(embed.to_dict(), indent=4))
 					try:
 						await ctx.send(embed=embed)
 					except HTTPException as err:
