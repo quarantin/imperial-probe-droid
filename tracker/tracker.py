@@ -122,7 +122,7 @@ class Tracker(bot.Bot):
 				if player.discord_id:
 					nick = '<@!%s>' % player.discord_id
 					member = server and server.get_member(player.discord_id)
-					avatar = member and member.avatar_url or discord.User.default_avatar_url
+					avatar = member and member.avatar_url_as(format='png', size=64) or discord.User.default_avatar_url
 					return nick, avatar
 
 		except Player.DoesNotExist:
