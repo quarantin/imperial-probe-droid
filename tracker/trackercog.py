@@ -550,7 +550,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		from trackerdemo import Demo
 		guild = self.get_guild(ctx.author)
 		config = guild.get_config(discord_id=ctx.author.id)
-		msgs = Demo.get_random_messages(self.bot, ctx.author, config, pref_key)
+		msgs = Demo.get_random_messages(self.bot, ctx, config, pref_key)
 		for msg in msgs:
 			if type(msg) is str:
 				await ctx.send(msg)

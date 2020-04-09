@@ -4,18 +4,13 @@ import re
 import sys
 import json
 import asyncio
+import discord
 import traceback
-from discord.ext import commands
-from discord import Forbidden, HTTPException, InvalidArgument, NotFound
 
-from utils import translate
 from embed import new_embeds
-from config import load_config
-from constants import ROMAN, MAX_SKILL_TIER
-from swgohhelp import get_unit_name, get_ability_name
 
 import DJANGO
-from swgoh.models import BaseUnitSkill, Player, PremiumGuild
+from swgoh.models import PremiumGuild
 
 class TrackerThread(asyncio.Future):
 
@@ -194,63 +189,6 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	def prepare_nick(self, guild, ally_code):
-
-		try:
-			players = Player.objects.filter(ally_code=ally_code)
-			for player in players:
-				if player.discord_id:
-					nick = '<@!%s>' % player.discord_id
-					channel = self.bot.get_channel(guild.channel_id)
-					member = channel and channel.guild and channel.guild.get_member(player.discord_id)
-					avatar = member and member.avatar_url or None
-					return nick, avatar
-
-		except Player.DoesNotExist:
-			pass
-
-		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
-		return None, None
-
-	def prepare_message(self, guild, config, message):
-
-		if 'key' in message and 'nick' in message and 'ally.code' in message:
-			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
-			if prep_key in config and config[prep_key] is not False:
-				prep_nick, prep_url = self.prepare_nick(guild, message['ally.code'])
-				if prep_nick:
-					message['nick'] = prep_nick
-				if prep_url:
-					message['user.avatar'] = prep_url
-
-		if 'unit' in message:
-			message['unit.id'] = message['unit']
-			message['unit'] = get_unit_name(message['unit'], config['language'])
-
-		if 'gear.level' in message:
-			gear_level = message['gear.level']
-			message['gear.level.roman'] = ROMAN[gear_level]
-
-		if 'gear.piece' in message:
-			message['gear.piece'] = translate(message['gear.piece'], config['language'])
-
-		if 'skill' in message:
-			message['skill.id'] = message['skill']
-			message['skill'] = get_ability_name(message['skill'], config['language'])
-
-		if 'tier' in message:
-
-			message['type'] = ''
-			if message['tier'] >= MAX_SKILL_TIER:
-				try:
-					skill = BaseUnitSkill.objects.get(skill_id=message['skill.id'])
-					message['type'] = skill.is_zeta and 'zeta' or 'omega'
-
-				except BaseUnitSkill.DoesNotExist:
-					self.logger.error('Could not find base unit skill with id: %s' % message['skill.id'])
-
-		return message
-
 	handlers = {
 
 		PremiumGuild.MSG_INACTIVITY:           handle_inactivity,
@@ -272,9 +210,6 @@ class TrackerThread(asyncio.Future):
 
 	async def dump_messages(self, guild_ref_id, guild, config):
 
-		if not guild.channel_id:
-			return
-
 		messages_key = 'messages|%s' % guild_ref_id
 		count = self.redis.llen(messages_key)
 		if not count:
@@ -290,7 +225,9 @@ class TrackerThread(asyncio.Future):
 			self.logger.info(message)
 			key = message['key']
 			if key in self.handlers:
-				prep_message = self.prepare_message(guild, config, message)
+				channel = self.bot.get_channel(guild.channel_id)
+				server = channel and channel.guild or None
+				prep_message = self.bot.prepare_message(server, config, message)
 				key = await self.handlers[key](config, prep_message)
 				if key is not None:
 					fmtstr = self.bot.get_format(config, key)
@@ -321,16 +258,16 @@ class TrackerThread(asyncio.Future):
 						else:
 							raise Exception('This should never happen!')
 
-					except InvalidArgument as err:
+					except discord.InvalidArgument as err:
 						self.logger.error(str(err))
 
-					except NotFound as err:
+					except discord.NotFound as err:
 						self.logger.error(str(err))
 
-					except Forbidden as err:
+					except discord.Forbidden as err:
 						self.logger.error(str(err))
 
-					except HTTPException as err:
+					except discord.HTTPException as err:
 						self.logger.error(str(err))
 
 			self.redis.lpop(messages_key)
@@ -364,6 +301,7 @@ class TrackerThread(asyncio.Future):
 					self.logger.error('Profile from redis is invalid: %s' % ally_code)
 					continue
 
-				await self.dump_messages(player['guildRefId'], guild, config)
+				if guild.channel_id:
+					await self.dump_messages(player['guildRefId'], guild, config)
 
 			await asyncio.sleep(1)

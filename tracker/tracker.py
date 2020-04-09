@@ -6,6 +6,12 @@ import discord
 import traceback
 
 import bot
+from constants import *
+from utils import translate
+from swgohhelp import get_unit_name, get_ability_name
+
+import DJANGO
+from swgoh.models import Player, PremiumGuild, BaseUnitSkill
 
 class Tracker(bot.Bot):
 
@@ -107,6 +113,65 @@ class Tracker(bot.Bot):
 			errmsg = 'I was not able to create the webhook in <#%s> due to a network error: `%s`\nPlease try again.' % (channel.id, err)
 			return None, errmsg
 
+	def get_user_nick(self, server, ally_code):
+
+		try:
+			players = Player.objects.filter(ally_code=ally_code)
+
+			for player in players:
+				if player.discord_id:
+					nick = '<@!%s>' % player.discord_id
+					member = server and server.get_member(player.discord_id)
+					avatar = member and member.avatar_url or None
+					return nick, avatar
+
+		except Player.DoesNotExist:
+			pass
+
+		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
+		return None, None
+
+	def prepare_message(self, server, config, message):
+
+		if 'key' in message and 'nick' in message and 'ally.code' in message:
+			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
+			nick, avatar = self.get_user_nick(server, message['ally.code'])
+			if nick and prep_key in config and config[prep_key] is not False:
+				message['mention'] = nick
+			if avatar:
+				message['user.avatar'] = avatar
+		else:
+			print('WOOHOO')
+			print(json.dumps(message, indent=4))
+
+		if 'unit' in message:
+			message['unit.id'] = message['unit']
+			message['unit'] = get_unit_name(message['unit'], config['language'])
+
+		if 'gear.level' in message:
+			gear_level = message['gear.level']
+			message['gear.level.roman'] = ROMAN[gear_level]
+
+		if 'gear.piece' in message:
+			message['gear.piece'] = translate(message['gear.piece'], config['language'])
+
+		if 'skill' in message:
+			message['skill.id'] = message['skill']
+			message['skill'] = get_ability_name(message['skill'], config['language'])
+
+		if 'tier' in message:
+
+			message['type'] = ''
+			if int(message['tier']) >= MAX_SKILL_TIER:
+				try:
+					skill = BaseUnitSkill.objects.get(skill_id=message['skill.id'])
+					message['type'] = skill.is_zeta and 'zeta' or 'omega'
+
+				except BaseUnitSkill.DoesNotExist:
+					self.logger.error('Could not find base unit skill with id: %s' % message['skill.id'])
+
+		return message
+
 	def replace_tokens(self, template, message):
 
 		for key, value in message.items():
@@ -139,7 +204,7 @@ class Tracker(bot.Bot):
 								jval[skey] = self.replace_tokens(sval, message)
 
 					else:
-						raise Exception('WTF!?!')
+						raise Exception('This should never happen!')
 
 				return jsonmsg
 
