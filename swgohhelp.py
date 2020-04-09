@@ -308,15 +308,15 @@ async def fetch_crinolo_stats(config, project, players=None, units=None):
 			if cache_result is True:
 				redis_set_players(config, other_players)
 
-	if units is not None:
-
-		base_ids = [ unit.base_id for unit in units ]
-		for player in players:
-			new_roster = []
-			for unit in player['roster']:
-				if unit['defId'] in base_ids:
-					new_roster.append(unit)
-			player['roster'] = new_roster
+	#if units is not None:
+	#
+	#	base_ids = [ unit.base_id for unit in units ]
+	#	for player in players:
+	#		new_roster = []
+	#		for unit in player['roster']:
+	#			if unit['defId'] in base_ids:
+	#				new_roster.append(unit)
+	#		player['roster'] = new_roster
 
 	stats = await api_crinolo(config, players)
 
