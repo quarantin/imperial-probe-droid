@@ -194,28 +194,32 @@ class TrackerThread(asyncio.Future):
 
 		return key
 
-	def prepare_nick(self, ally_code):
+	def prepare_nick(self, guild, ally_code):
 
 		try:
 			players = Player.objects.filter(ally_code=ally_code)
 			for player in players:
 				if player.discord_id:
-					return '<@!%s>' % player.discord_id
+					nick = '<@!%s>' % player.discord_id
+					member = guild.get_member(player.discord_id)
+					return nick, member and member.avatar_url or None
 
 		except Player.DoesNotExist:
 			pass
 
 		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
-		return None
+		return None, None
 
-	def prepare_message(self, config, message):
+	def prepare_message(self, guild, config, message):
 
 		if 'key' in message and 'nick' in message and 'ally.code' in message:
 			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
 			if prep_key in config and config[prep_key] is not False:
-				prep_nick = self.prepare_nick(message['ally.code'])
+				prep_nick, prep_url = self.prepare_nick(guild, message['ally.code'])
 				if prep_nick:
 					message['nick'] = prep_nick
+				if prep_url:
+					message['user.avatar'] = prep_url
 
 		if 'unit' in message:
 			message['unit.id'] = message['unit']
@@ -284,7 +288,7 @@ class TrackerThread(asyncio.Future):
 			self.logger.info(message)
 			key = message['key']
 			if key in self.handlers:
-				prep_message = self.prepare_message(config, message)
+				prep_message = self.prepare_message(guild, config, message)
 				key = await self.handlers[key](config, prep_message)
 				if key is not None:
 					fmtstr = self.bot.get_format(config, key)
