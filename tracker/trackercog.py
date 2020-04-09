@@ -550,17 +550,16 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		from trackerdemo import Demo
 		guild = self.get_guild(ctx.author)
 		config = guild.get_config(discord_id=ctx.author.id)
-		msgs = Demo.get_random_messages(self.bot, ctx, config, pref_key)
-		for msg in msgs:
+		msgs, dicts = Demo.get_random_messages(self.bot, ctx, config, pref_key)
+		for msg, msgdict in zip(msgs, dicts):
 			if type(msg) is str:
 				await ctx.send(msg)
 			elif type(msg) is dict:
+				content = 'mention' in msgdict and msgdict['mention'].startswith('<@') and msgdict['mention'] or ''
 				embeds = new_embeds(msg, add_sep=False, footer=False)
 				for embed in embeds:
-					print('# New Message Test')
-					print(json.dumps(embed.to_dict(), indent=4))
 					try:
-						await ctx.send(embed=embed)
+						await ctx.send(content=content, embed=embed)
 					except HTTPException as err:
 						await ctx.send(err.text)
 
