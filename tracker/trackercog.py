@@ -211,7 +211,6 @@ For example to configure formats for `arena.rank.down` events, just type:
 	async def get_formats(self, ctx, guild, pref_key: str = None):
 
 		lines = []
-		show_value = pref_key is not None
 		formats = guild.get_formats()
 		for key, fmt in sorted(formats.items()):
 
@@ -221,13 +220,12 @@ For example to configure formats for `arena.rank.down` events, just type:
 			got_json, jsondata = self.is_valid_json(fmt)
 			key = key.replace('.format', '')
 			padded_key = self.pad(key, FORMATS_MAX_KEY_LEN)
-			if show_value:
-				if got_json:
-					lines.append('`%s` ```\n%s```' % (padded_key, json.dumps(jsondata, indent=4)))
-				else:
-					lines.append('`%s` "%s"' % (padded_key, fmt))
+			if pref_key:
+				syntax = got_json and 'json' or ''
+				value = got_json and json.dumps(jsondata, indent=4) or fmt
+				lines.append('`%s` ```%s\n%s```' % (padded_key, syntax, value))
 			else:
-				lines.append('`|%s|`' % padded_key)
+				lines.append('`%s`' % padded_key)
 
 		if not lines:
 			description = 'No matching keys for: `%s`' % pref_key
@@ -236,9 +234,9 @@ For example to configure formats for `arena.rank.down` events, just type:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
-			doheader = not show_value and self.get_header(value=show_value, count=2) + sep + '\n' or ''
-			dosep = not show_value and sep + '\n' or ''
-			dohelp = not show_value and cmdhelp or ''
+			doheader = pref_key and self.get_header(value=(pref_key is not None), count=2) + sep + '\n' or ''
+			dosep = pref_key and sep + '\n' or ''
+			dohelp = pref_key and cmdhelp or ''
 			description = doheader + '\n'.join(lines) + '\n' + dosep + dohelp
 
 		await send_embed(self.bot, ctx, {
