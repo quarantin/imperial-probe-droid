@@ -232,9 +232,8 @@ For example to configure formats for `arena.rank.down` events, just type:
 		else:
 			sep = self.bot.config['separator']
 			prefix = self.bot.command_prefix
-			spec_nl = pref_key is None and '\n' or ''
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
-			description = EMOJIS[''] + '**Keys**' + '\n' + sep + '\n' + '\n'.join(lines) + spec_nl + sep + '\n' + cmdhelp
+			description = EMOJIS[''] + '**Keys**' + '\n' + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
 		await send_embed(self.bot, ctx, {
 			'title': 'Tracker Formats',
