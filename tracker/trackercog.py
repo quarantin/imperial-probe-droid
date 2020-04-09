@@ -434,7 +434,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		if pref_value.lower() == 'reset':
 			self.delete_config_entry(guild, key)
-			lines.append('`%s` "%s"' % (key, default_format))
+			lines.append('`%s` ```\n%s```' % (key, default_format))
 
 		else:
 			try:
