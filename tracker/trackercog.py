@@ -453,10 +453,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			entry.value_type = 'fmt'
 			entry.save()
 
-			if got_json:
-				lines.append('`%s` ```\n%s```' % (key, json.dumps(jsondata, indent=4)))
-			else:
-				lines.append('`%s` "%s"' % (key, pref_value))
+			syntax = got_json and 'json' or ''
+			value = got_json and json.dumps(jsondata, indent=4)) or pref_value
+			lines.append('`%s` ```%s\n%s```' % (key, syntax, value)
 
 		if lines:
 			plural = len(lines) > 1 and 's' or ''
