@@ -308,15 +308,24 @@ async def fetch_crinolo_stats(config, project, players=None, units=None):
 			if cache_result is True:
 				redis_set_players(config, other_players)
 
-	#if units is not None:
-	#
-	#	base_ids = [ unit.base_id for unit in units ]
-	#	for player in players:
-	#		new_roster = []
-	#		for unit in player['roster']:
-	#			if unit['defId'] in base_ids:
-	#				new_roster.append(unit)
-	#		player['roster'] = new_roster
+	to_remove = []
+	if units is not None:
+
+		crews = get_ships_crew()
+		base_ids = [ unit.base_id for unit in units ]
+		for ship_id in list(base_ids):
+			if ship_id in crews:
+				for pilot in crews[ship_id]:
+					if pilot not in base_ids:
+						base_ids.append(pilot)
+						to_remove.append(pilot)
+
+		for player in players:
+			new_roster = []
+			for unit in player['roster']:
+				if unit['defId'] in base_ids:
+					new_roster.append(unit)
+			player['roster'] = new_roster
 
 	stats = await api_crinolo(config, players)
 
@@ -327,7 +336,7 @@ async def fetch_crinolo_stats(config, project, players=None, units=None):
 		for unit in player['roster']:
 
 			base_id = unit['defId']
-			if base_id not in result[ally_code]:
+			if base_id not in result[ally_code] and base_id not in to_remove:
 				result[ally_code][base_id] = unit
 
 			for skill in unit['skills']:
@@ -385,3 +394,22 @@ def get_ability_name(skill_id, language):
 	# TODO
 	#print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
 	return None
+
+def get_ships_crew():
+
+	fin = open('cache/characters.json', 'r')
+	data = json.loads(fin.read())
+	fin.close()
+
+	ships = {}
+
+	for item in data:
+		base_id = item['base_id']
+		ship = item['ship']
+		if ship:
+			if ship not in ships:
+				ships[ship] = []
+
+			ships[ship].append(base_id)
+
+	return ships
