@@ -156,6 +156,10 @@ class Tracker(bot.Bot):
 		if 'gear.piece' in message:
 			message['gear.piece'] = translate(message['gear.piece'], config['language'])
 
+		if 'rarity' in message:
+			rarity = int(message['rarity'])
+			message['stars'] = ('★' * rarity) + ('☆' * (MAX_RARITY - rarity))
+
 		if 'skill' in message:
 			message['skill.id'] = message['skill']
 			message['skill'] = get_ability_name(message['skill'], config['language'])
