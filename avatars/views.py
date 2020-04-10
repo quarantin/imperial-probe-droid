@@ -44,15 +44,18 @@ def get_portrait(character):
 
 def get_gear(gear, alignment):
 
-	if gear < 13:
-		image_name = 'gear-%02d.png' % gear
-	else:
-		image_name = 'gear-%d-%s-side.png' % (gear, alignment)
+	if gear is None:
+		return None
 
+	align = gear >= 13 and '-%s-side' % alignment or ''
+	image_name = 'gear-%02d%s.png' % (gear, align)
 	image_path = download_image(image_name)
 	return Image.open(image_path)
 
 def get_level(level):
+
+	if level is None:
+		return None
 
 	offset = 0
 	if level < 10:
@@ -68,6 +71,9 @@ def get_level(level):
 	return level_image
 
 def get_rarity(rarity):
+
+	if rarity is None:
+		return None
 
 	star_image_name = 'star.png'
 	star_image_path = download_image(star_image_name)
@@ -130,9 +136,9 @@ def img2png(image):
 def get_avatar(request, portrait):
 
 	alignment  = 'alignment' in request.GET and request.GET['alignment'] and request.GET['alignment'].lower() in ALIGNMENTS and request.GET['alignment'].lower() or 'neutral'
-	level = 'level' in request.GET and int(request.GET['level']) or 1
-	gear = 'gear' in request.GET and int(request.GET['gear']) or 1
-	rarity = 'rarity' in request.GET and int(request.GET['rarity']) or 0
+	level = 'level' in request.GET and int(request.GET['level']) or None
+	gear = 'gear' in request.GET and int(request.GET['gear']) or None
+	rarity = 'rarity' in request.GET and int(request.GET['rarity']) or None
 	zetas = 'zetas' in request.GET and int(request.GET['zetas']) or 0
 	relics = 'relics' in request.GET and int(request.GET['relics']) or 0
 
@@ -143,10 +149,9 @@ def get_avatar(request, portrait):
 	zeta_image = get_zetas(zetas)
 	relic_image = get_relics(relics, alignment)
 
-	if gear < 13:
-		portrait_image.paste(gear_image, (0, 0), gear_image)
-	else:
-		portrait_image.paste(gear_image, (-15, -11), gear_image)
+	if gear_image is not None:
+		dims = gear >= 13 and (-15, -11) or (0, 0)
+		portrait_image.paste(gear_image, dims, gear_image)
 
 	portrait_image = format_image(portrait_image, 128)
 
@@ -159,8 +164,10 @@ def get_avatar(request, portrait):
 		full_image.paste(zeta_image, (-8, 63), zeta_image)
 	if relics > 0:
 		full_image.paste(relic_image, (75, 63), relic_image)
-	full_image.paste(level_image, (5, 10), level_image)
-	full_image.paste(rarity_image, (0, 0), rarity_image)
+	if level_image is not None:
+		full_image.paste(level_image, (5, 10), level_image)
+	if rarity_image is not None:
+		full_image.paste(rarity_image, (0, 0), rarity_image)
 
 	return full_image
 
