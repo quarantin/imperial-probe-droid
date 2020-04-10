@@ -391,6 +391,15 @@ def get_ability_name(skill_id, language):
 	except BaseUnitSkill.DoesNotExist:
 		pass
 
+	except BaseUnitSkill.MultipleObjectsReturned:
+		skills = list(BaseUnitSkill.objects.filter(skill_id=skill_id).values())
+		if len(skills) > 1:
+			print('* Warning: Duplicate skill for skill ID: %s' % skill_id)
+			i = 1
+			for skill in skills:
+				print('# %d:' % i)
+				print(json.dumps(skill, indent=4))
+				i += 1
 	# TODO
 	#print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
 	return None
