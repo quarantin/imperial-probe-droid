@@ -11,7 +11,7 @@ from utils import translate
 from swgohhelp import get_unit_name, get_ability_name
 
 import DJANGO
-from swgoh.models import Player, PremiumGuild, BaseUnitSkill
+from swgoh.models import Player, PremiumGuild, BaseUnit, BaseUnitSkill
 
 class Tracker(bot.Bot):
 
@@ -148,6 +148,7 @@ class Tracker(bot.Bot):
 		if 'unit' in message:
 			message['unit.id'] = message['unit']
 			message['unit'] = get_unit_name(message['unit'], config['language'])
+			message['alignment'] = BaseUnit.get_alignment(message['unit.id'])
 
 		if 'gear.level' in message:
 			gear_level = message['gear.level']
