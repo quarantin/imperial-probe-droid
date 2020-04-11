@@ -186,6 +186,10 @@ class Tracker(bot.Bot):
 			if token in template:
 				template = template.replace(token, str(value))
 
+		server_token = '${server}'
+		if 'server' in self.config and server_token in template:
+			template = template.replace(server_token, self.config['server'])
+
 		return template
 
 	def format_message(self, message, message_format):
