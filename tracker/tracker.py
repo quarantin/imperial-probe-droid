@@ -188,7 +188,7 @@ class Tracker(bot.Bot):
 
 		server_token = '${server}'
 		if 'server' in self.config and server_token in template:
-			template = template.replace(server_token, self.config['server'])
+			template = template.replace(server_token, self.config.get_server_url())
 
 		return template
 

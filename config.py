@@ -3,7 +3,16 @@ import os, sys, json, requests
 DEFAULT_ROLE = 'IPD Admin'
 
 class Config(dict):
-	pass
+
+	def get_server_url(self):
+		schema = 'http'
+		if 'schema' in self:
+			schema = self['schema']
+
+		if 'server' in self:
+			return '%s://%s' % (schema, self['server'])
+
+		raise Exception('Can\'t find \'server\' in JSON configuration.')
 
 config = Config()
 
