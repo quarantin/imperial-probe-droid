@@ -277,7 +277,7 @@ class TrackerThread(asyncio.Future):
 						self.logger.error(str(err))
 						self.logger.error(traceback.format_exc())
 						if last_embed:
-							print(json.dumps(last_embed.to_dict(), indent=4))
+							self.logger.error(json.dumps(last_embed.to_dict(), indent=4))
 
 			self.redis.lpop(messages_key)
 
