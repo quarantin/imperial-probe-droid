@@ -240,6 +240,7 @@ class TrackerThread(asyncio.Future):
 						return
 
 					try:
+						last_embed = None
 						if not webhook:
 							webhook, error = await self.bot.create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
 							if not webhook or error:
@@ -253,6 +254,7 @@ class TrackerThread(asyncio.Future):
 						elif type(content) is dict:
 							embeds = new_embeds(content, add_sep=False, footer=False)
 							for embed in embeds:
+								last_embed = embed
 								content = 'mention' in message and message['mention'].startswith('<@') and message['mention'] or ''
 								await webhook.send(content=content, embed=embed, avatar_url=webhook.avatar_url)
 
@@ -274,6 +276,8 @@ class TrackerThread(asyncio.Future):
 					except discord.HTTPException as err:
 						self.logger.error(str(err))
 						self.logger.error(traceback.format_exc())
+						if last_embed:
+							print(json.dumps(last_embed.to_dict(), indent=4))
 
 			self.redis.lpop(messages_key)
 
