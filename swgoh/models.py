@@ -172,37 +172,6 @@ class Gear(models.Model):
 	def __str__(self):
 		return self.name
 
-	def get_all_gear():
-		url = 'https://swgoh.gg/api/gear/'
-		gear_list, from_cache = download(url)
-		cache_key = 'Gear.get_all_gear'
-		parsed = cache_key in CACHE and not expired(CACHE[cache_key])
-		if not from_cache or not parsed:
-			with transaction.atomic():
-				for gear in gear_list:
-
-					gear = dict(gear)
-
-					recipes     = gear.pop('recipes')
-					stats       = gear.pop('stats')
-					ingredients = gear.pop('ingredients')
-
-					gear['url']   = gear['url'].replace('//swgoh.gg', '')
-					gear['image'] = os.path.basename(gear['image'])
-
-					Gear.objects.update_or_create(**gear)
-
-				CACHE[cache_key] = datetime.now()
-
-		return list(Gear.objects.all())
-
-	def get_all_gear_by_id():
-		result = {}
-		all_gear = Gear.get_all_gear()
-		for gear in all_gear:
-			result[gear.base_id] = gear
-		return result
-
 	def get_image(self):
 		return 'https://swgoh.gg%s' % self.image
 
@@ -423,36 +392,6 @@ class BaseUnitGear(models.Model):
 
 	def __str__(self):
 		return '%s / %d / %d / %s' % (self.unit.name, self.tier, self.slot, self.gear.name)
-
-	def populate_gear_level(unit):
-		all_gear = Gear.get_all_gear_by_id()
-		all_units = BaseUnit.get_all_units_by_id()
-
-		unit_id = unit['base_id']
-		base_unit = all_units[unit_id]
-		for level in unit['gear_levels']:
-			tier = level['tier']
-			for slot, gear_id in enumerate(level['gear']):
-				gear = all_gear[gear_id]
-				BaseUnitGear.objects.update_or_create(unit=base_unit, gear=gear, tier=tier, slot=slot)
-
-	def get_unit_gear_levels(base_id):
-		url = 'https://swgoh.gg/api/characters/'
-		units, from_cache = download(url)
-		cache_key = 'BaseUnitGear.get_all_unit_gear_levels'
-		parsed = cache_key in CACHE and not expired(CACHE[cache_key])
-		if not from_cache or not parsed:
-			cache_key = 'BaseUnitGear.get_unit_gear_levels.%s' % base_id
-			parsed = cache_key in CACHE and not expired(CACHE[cache_key])
-			if not parsed:
-				with transaction.atomic():
-					for unit in units:
-						if unit['base_id'] == base_id:
-							BaseUnitGear.populate_gear_level(unit)
-							CACHE[cache_key] = datetime.now()
-							break
-
-		return BaseUnitGear.objects.filter(unit__base_id=base_id)
 
 class BaseUnitSkill(models.Model):
 	skill_id = models.CharField(max_length=30)
