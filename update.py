@@ -199,18 +199,20 @@ def parse_gear():
 			recipes     = gear.pop('recipes')
 			ingredients = gear.pop('ingredients')
 
-			gear['url']   = gear['url'].replace('//swgoh.gg', '')
-			gear['image'] = os.path.basename(gear['image'])
+			gear['url']   = fix_url(gear['url'])
+			gear['image'] = fix_url(gear['image'])
 
 			try:
-				Gear.objects.update_or_create(**gear)
+				equip = Gear.objects.get(base_id=gear['base_id'])
 
-			except Exception as err:
-				print(err)
-				print("PROBLEM WITH GEAR UPDATE!!!")
-				print(gear)
-				print(Gear.objects.get(base_id=gear['base_id']))
-				break
+			except Gear.DoesNotExist:
+				equip = Gear(base_id=gear['base_id'])
+
+			for key, val in gear.items():
+				if hasattr(equip, key):
+					setattr(equip, key, val)
+
+			equip.save()
 
 def parse_units():
 
