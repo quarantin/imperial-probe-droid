@@ -155,6 +155,7 @@ class Tracker(bot.Bot):
 			message['gear.level.roman'] = ROMAN[gear_level]
 
 		if 'gear.piece' in message:
+			message['gear.piece.id'] = message['gear.piece']
 			message['gear.piece'] = translate(message['gear.piece'], config['language'])
 
 		if 'rarity' in message:
