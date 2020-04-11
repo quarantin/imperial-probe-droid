@@ -40,7 +40,7 @@ async def cmd_timezone(request):
 	player = players[0]
 
 	if not timezones:
-		timezones_url = 'http://%s/media/timezones.txt' % config['server']
+		timezones_url = '%s/media/timezones.txt' % config['server']
 		return [{
 			'title': 'Available Timezones',
 			'description': 'Your timezone is set to **%s**.\n%s\nThe list of supported timezones can be found [here](%s)' % (player.timezone, config['separator'], timezones_url),

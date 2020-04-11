@@ -147,7 +147,7 @@ async def cmd_meta(request):
 		msgs.append({
 			'title': 'Top %d - Arena Squad Leaders' % top_n,
 			'author': {
-				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
+				'icon_url': '%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -206,7 +206,7 @@ async def cmd_meta(request):
 		msgs.append({
 			'title': 'Top %d - Arena Squads ' % top_n,
 			'author': {
-				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
+				'icon_url': '%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -235,7 +235,7 @@ async def cmd_meta(request):
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Commanders' % top_n,
 			'author': {
-				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
+				'icon_url': '%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -269,7 +269,7 @@ async def cmd_meta(request):
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Squads ' % top_n,
 			'author': {
-				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
+				'icon_url': '%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})
@@ -302,7 +302,7 @@ async def cmd_meta(request):
 		msgs.append({
 			'title': 'Top %d - Fleet Arena Reinforcements' % top_n,
 			'author': {
-				'icon_url': 'http://%s/media/imperial-probe-droid.jpg' % config['server'],
+				'icon_url': '%s/media/imperial-probe-droid.jpg' % config['server'],
 			},
 			'description': compact and compact_desc or full_desc,
 		})

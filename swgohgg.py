@@ -68,7 +68,7 @@ def get_full_avatar_url(config, image, unit):
 		relics = 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic'] and unit['relic']['currentTier'] or 0
 		relics = max(0, relics - 2)
 
-	return 'http://%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&relics=%s&alignment=%s&version=1' % (config['server'], base_id, level, gear, rarity, zetas, relics, alignment)
+	return '%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&relics=%s&alignment=%s&version=1' % (config['server'], base_id, level, gear, rarity, zetas, relics, alignment)
 
 def get_full_ship_avatar_url(ally_code, base_id):
 	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),
