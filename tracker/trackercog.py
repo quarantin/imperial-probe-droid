@@ -214,7 +214,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 		formats = guild.get_formats()
 		for key, fmt in sorted(formats.items()):
 
-			if pref_key is not None and pref_key not in key:
+			if pref_key is not None and pref_key not in key and pref_key.lower() != 'all':
 				continue
 
 			got_json, jsondata = self.is_valid_json(fmt)
