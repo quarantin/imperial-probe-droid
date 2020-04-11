@@ -261,15 +261,19 @@ class TrackerThread(asyncio.Future):
 
 					except discord.InvalidArgument as err:
 						self.logger.error(str(err))
+						self.logger.error(traceback.format_exc())
 
 					except discord.NotFound as err:
 						self.logger.error(str(err))
+						self.logger.error(traceback.format_exc())
 
 					except discord.Forbidden as err:
 						self.logger.error(str(err))
+						self.logger.error(traceback.format_exc())
 
 					except discord.HTTPException as err:
 						self.logger.error(str(err))
+						self.logger.error(traceback.format_exc())
 
 			self.redis.lpop(messages_key)
 
