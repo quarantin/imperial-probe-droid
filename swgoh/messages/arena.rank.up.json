@@ -1,0 +1,11 @@
+{
+    "author": {
+        "name": "${nick}",
+        "icon_url": "${user.avatar}"
+    },
+    "title": "Kicked someone\u2018s ass",
+    "thumbnail": {
+        "url": "${server}/media/sabers.png"
+    },
+    "description": "In *Squad Arena*\n```Rank ${old.rank} \u21d7 ${new.rank}```"
+}
