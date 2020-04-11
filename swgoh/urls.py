@@ -1,4 +1,4 @@
-"""avatars URL Configuration
+"""swgoh URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -15,12 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 from . import views
 
 urlpatterns = [
+	path('admin/', admin.site.urls),
+	path('avatar/<str:portrait>', views.avatar),
+	path('stats/<str:portrait>/<str:ally_code>/', views.stats),
 	path('gear/<str:gear>/', views.gear),
 	path('login', TemplateView.as_view(template_name='swgoh/login.html')),
 	path('success', views.login_success),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
