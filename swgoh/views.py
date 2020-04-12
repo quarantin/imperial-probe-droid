@@ -18,7 +18,7 @@ def file_content(path):
 
 def download(gear):
 
-	image_path = 'images/gear-%s.png' % gear.base_id
+	image_path = 'images/equip-%s.png' % gear.base_id
 
 	if not os.path.exists(image_path):
 
@@ -33,9 +33,42 @@ def download(gear):
 
 	return image_path
 
+def crop_corners(image):
+
+	image_size = 128
+
+	triangle_1_size = 15
+	triangle_1 = [
+		(0, 0),
+		(0, triangle_1_size),
+		(triangle_1_size, 0),
+	]
+
+	triangle_2_size = 16
+	triangle_2 = [
+		(image_size, image_size),
+		(image_size, image_size - triangle_2_size),
+		(image_size - triangle_2_size, image_size),
+	]
+
+	triangle_3_size = 8
+	triangle_3 = [
+		(0, image_size),
+		(0, image_size - triangle_3_size),
+		(triangle_3_size, image_size),
+	]
+
+	draw = ImageDraw.Draw(image)
+
+	draw.polygon(triangle_1, fill=255)
+	draw.polygon(triangle_2, fill=255)
+	draw.polygon(triangle_3, fill=255)
+
+	return image
+
 def get_gear_portrait(gear):
 
-	final_path = 'images/gear-%s-tier-%02d.png' % (gear.base_id, gear.tier)
+	final_path = 'images/equip-%s-tier-%02d.png' % (gear.base_id, gear.tier)
 	if os.path.exists(final_path) and os.path.getsize(final_path) > 0:
 		return file_content(final_path)
 
@@ -46,7 +79,7 @@ def get_gear_portrait(gear):
 	border_image = Image.open(border_path)
 
 	gear_image.paste(border_image, (0, 0), border_image)
-	gear_image.save(final_path)
+	crop_corners(gear_image).save(final_path)
 
 	return file_content(final_path)
 
