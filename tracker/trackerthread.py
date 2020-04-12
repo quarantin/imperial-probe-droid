@@ -255,7 +255,10 @@ class TrackerThread(asyncio.Future):
 
 						elif type(content) is dict:
 							if 'author' in content and 'icon_url' in content['author']:
-								print('DEBUG author.icon_url: %s' % str(content['author']['icon_url']))
+								start_with_http = str(content['author']['icon_url']).startswith('https://')
+								print('DEBUG author.icon_url: %s (%s)' % (str(content['author']['icon_url']), start_with_http))
+								if not start_with_http:
+									content['author']['icon_url'] = discord.User.default_avatar_url
 							embeds = new_embeds(content, add_sep=False, footer=False)
 							for embed in embeds:
 								last_embed = embed
