@@ -220,8 +220,8 @@ class Tracker(bot.Bot):
 				return jsonmsg
 
 			except Exception as err:
-				self.logger.error(err)
-				self.logger.error(traceback.format_exc())
+				print(err)
+				print(traceback.format_exc())
 				return None
 
 		for key, value in message.items():
