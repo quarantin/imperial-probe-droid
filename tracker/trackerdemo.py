@@ -50,6 +50,7 @@ class Demo:
 		gear_level = random.randint(1, MAX_GEAR_LEVEL)
 		gear = Gear.objects.order_by('?').first()
 
+		msg['alignment']        = BaseUnit.get_alignment(unit.base_id)
 		msg['ally.code']        = player.ally_code
 		msg['gear.level']       = gear_level
 		msg['gear.level.roman'] = ROMAN[gear_level]
