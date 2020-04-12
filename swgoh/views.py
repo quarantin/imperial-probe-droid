@@ -48,7 +48,8 @@ def get_gear_background(gear, size):
 
 	width, height = size
 	image = Image.new('RGBA', (width, height))
-	center, border = background_colors[gear.tier]
+	center = background_colors[gear.tier]
+	border = (0, 0, 0)
 
 	for y in range(height):
 		for x in range(width):
