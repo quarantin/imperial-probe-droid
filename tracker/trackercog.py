@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import traceback
 from discord import HTTPException
 from discord.ext import commands
 
@@ -424,8 +423,6 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		got_json, jsondata = self.is_valid_json(pref_value)
 		if pref_value is not None and pref_value.startswith('{') and not got_json:
-			self.logger.error(jsondata)
-			self.logger.error(traceback.format_exc())
 			message = 'It seems you tried to submit an embed, but there was a syntax error in your input: %s' % jsondata
 			await ctx.send(message)
 			return
