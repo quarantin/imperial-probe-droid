@@ -10,6 +10,11 @@ import io, os, requests
 
 from .models import Gear
 
+def file_content(path):
+	fin = open(path, 'rb')
+	data = fin.read()
+	fin.close()
+	return data
 
 def download(gear):
 
@@ -28,17 +33,32 @@ def download(gear):
 
 	return image_path
 
-def gear(request, gear):
+def get_gear_portrait(gear):
+
+	final_path = 'images/gear-%s-tier-%02d.png' % (gear.base_id, gear.tier)
+	if os.path.exists(final_path) and os.path.getsize(final_path) > 0:
+		return file_content(final_path)
+
+	gear_path = download(gear)
+	gear_image = Image.open(gear_path)
+
+	border_path = 'images/border-tier-%02d.png' % gear.tier
+	border_image = Image.open(border_path)
+
+	gear_image.paste(border_image, (0, 0), border_image)
+	gear_image.save(final_path)
+
+	return file_content(final_path)
+
+def gear(request, base_id):
 
 	try:
-		image_path = download(Gear.objects.get(base_id=gear))
-		fin = open(image_path, 'rb')
-		data = fin.read()
-		fin.close()
-		return HttpResponse(data, content_type='image/png')
+		gear = Gear.objects.get(base_id=base_id)
+		image = get_gear_portrait(gear)
+		return HttpResponse(image, content_type='image/png')
 
 	except Gear.DoesNotExist:
-		raise Http404('Could not find gear: %s' % gear)
+		raise Http404('Could not find gear: %s' % base_id)
 
 
 def login_success(request):
