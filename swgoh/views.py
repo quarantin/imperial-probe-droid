@@ -281,6 +281,8 @@ def get_avatar(request, portrait):
 	zetas = 'zetas' in request.GET and int(request.GET['zetas']) or 0
 	relics = 'relics' in request.GET and int(request.GET['relics']) or 0
 
+	do_circle = level or gear or rarity or zetas or relics
+
 	portrait_image = get_portrait(portrait)
 	level_image = get_level(level)
 	gear_image = get_gear(gear, alignment)
@@ -292,12 +294,14 @@ def get_avatar(request, portrait):
 		dims = gear >= 13 and (-15, -11) or (0, 0)
 		portrait_image.paste(gear_image, dims, gear_image)
 
-	portrait_image = format_image(portrait_image, 128)
+	if do_circle:
+		portrait_image = format_image(portrait_image, 128)
 
 	full_image = Image.new('RGBA', (138, 138), 0)
 	full_image.paste(portrait_image, (5, 5), portrait_image)
 
-	full_image = format_image(full_image, 138)
+	if do_circle:
+		full_image = format_image(full_image, 138)
 
 	if zetas > 0:
 		full_image.paste(zeta_image, (-8, 63), zeta_image)
