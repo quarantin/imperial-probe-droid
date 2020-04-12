@@ -236,6 +236,7 @@ class TrackerThread(asyncio.Future):
 					webhook_name = self.bot.get_webhook_name()
 					webhook, error = await self.bot.get_webhook(webhook_name, webhook_channel)
 					if error:
+						print(error)
 						self.logger.error(error)
 						return
 
@@ -245,6 +246,7 @@ class TrackerThread(asyncio.Future):
 							webhook, error = await self.bot.create_webhook(webhook_name, self.bot.get_avatar(), webhook_channel)
 							if not webhook or error:
 								errmsg = 'self.bot.create_webhook failed: %s' % error
+								print(errmsg)
 								self.logger.error(errmsg)
 							return
 
@@ -262,22 +264,22 @@ class TrackerThread(asyncio.Future):
 							raise Exception('This should never happen!')
 
 					except discord.InvalidArgument as err:
-						self.logger.error(str(err))
-						self.logger.error(traceback.format_exc())
+						print(str(err))
+						print(traceback.format_exc())
 
 					except discord.NotFound as err:
-						self.logger.error(str(err))
-						self.logger.error(traceback.format_exc())
+						print(str(err))
+						print(traceback.format_exc())
 
 					except discord.Forbidden as err:
-						self.logger.error(str(err))
-						self.logger.error(traceback.format_exc())
+						print(str(err))
+						print(traceback.format_exc())
 
 					except discord.HTTPException as err:
-						self.logger.error(str(err))
-						self.logger.error(traceback.format_exc())
+						print(str(err))
+						print(traceback.format_exc())
 						if last_embed:
-							self.logger.error(json.dumps(last_embed.to_dict(), indent=4))
+							print(json.dumps(last_embed.to_dict(), indent=4))
 
 			self.redis.lpop(messages_key)
 
