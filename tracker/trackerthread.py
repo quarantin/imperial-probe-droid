@@ -254,6 +254,8 @@ class TrackerThread(asyncio.Future):
 							await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
 						elif type(content) is dict:
+							if 'author' in content and 'icon_url' in content['author']:
+								printt('DEBUG author.icon_url: %s' % str(content['author']['icon_url']))
 							embeds = new_embeds(content, add_sep=False, footer=False)
 							for embed in embeds:
 								last_embed = embed
