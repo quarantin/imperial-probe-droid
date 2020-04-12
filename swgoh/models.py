@@ -792,10 +792,10 @@ class PremiumGuild(models.Model):
 
 	def get_config_value(self, item):
 
-		if item.value_type == 'int':
+		if item.value_type in [ 'int', 'chan' ]:
 			return int(item.value)
 
-		if item.value_type == 'bool':
+		if item.value_type in [ 'bool', 'hl' ]:
 			return item.value == 'True' and True or False
 
 		return str(item.value)
@@ -813,12 +813,7 @@ class PremiumGuild(models.Model):
 		# Get explicit config from DB
 		items = PremiumGuildConfig.objects.filter(guild=self)
 		for item in items:
-
-			if item.value_type == 'int' or item.key.endswith('.channel'):
-				config[item.key] = int(item.value)
-
-			else:
-				config[item.key] = self.get_config_value(item)
+			config[item.key] = self.get_config_value(item)
 
 		# Get default settings if not set
 		for key, value, value_type in PremiumGuild.MESSAGE_DEFAULTS:
