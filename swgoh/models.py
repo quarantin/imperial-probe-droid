@@ -2,9 +2,10 @@ from django.db import models
 from django.db import transaction
 from timezone_field import TimeZoneField
 
-import os, pytz, requests
+import os, json, pytz, requests
 from datetime import datetime
 
+from .formats import *
 from .utils import download, expired
 
 CACHE = {}
@@ -716,23 +717,23 @@ class PremiumGuild(models.Model):
 
 	MESSAGE_FORMATS = {
 
-		MSG_INACTIVITY:           '> • __**${nick}**__\n> Has been *inactive* for **${last.seen}**',
-		MSG_PLAYER_NICK:          '> • __**${nick}**__\n> Is now known as __**${new.nick}**__',
-		MSG_PLAYER_LEVEL:         '> • __**${nick}**__\n> Reached *level ${level}*',
-		MSG_UNIT_UNLOCKED:        '> • __**${nick}**__\n> **${unit}** *unlocked*',
-		MSG_UNIT_LEVEL:           '> • __**${nick}**__\n> **${unit}** *level ${level}*',
-		MSG_UNIT_RARITY:          '> • __**${nick}**__\n> **${unit}** *${rarity} ⭐*',
-		MSG_UNIT_RELIC:           '> • __**${nick}**__\n> <:relic:696704780621316196>**${unit}** *relic ${relic}*',
-		MSG_UNIT_GEAR_LEVEL:      '> • __**${nick}**__\n> **${unit}** *gear level ${gear.level.roman}*',
-		MSG_UNIT_GEAR_PIECE:      '> • __**${nick}**__\n> **${unit}** *${gear.piece}*',
-		MSG_UNIT_SKILL_UNLOCKED:  '> • __**${nick}**__\n> **${unit}** *${skill}* unlocked',
-		MSG_UNIT_SKILL_INCREASED: '> • __**${nick}**__\n> **${unit}** *${skill}* **tier ${tier}**',
-		MSG_UNIT_OMEGA:           '> • __**${nick}**__\n> <:omega:547487976230355004>**${unit}** *${skill}*',
-		MSG_UNIT_ZETA:            '> • __**${nick}**__\n> <:zeta:547487955476938753>**${unit}** *${skill}*',
-		MSG_ARENA_RANK_UP:        '> • __**${nick}**__\n> <:anakin:696639062022291517>*Squad Rank*: **${old.rank} ⇗  ${new.rank}**',
-		MSG_ARENA_RANK_DOWN:      '> • __**${nick}**__\n> <:anakin:696639062022291517>*Squad Rank*: **${old.rank} ⇘  ${new.rank}**',
-		MSG_FLEET_RANK_UP:        '> • __**${nick}**__\n> <:milf:696639760499867718>*Fleet Rank*: **${old.rank} ⇗  ${new.rank}**',
-		MSG_FLEET_RANK_DOWN:      '> • __**${nick}**__\n> <:milf:696639760499867718>*Fleet Rank*: **${old.rank} ⇘  ${new.rank}**',
+		MSG_INACTIVITY:           json.dumps(FORMAT_INACTIVITY, indent=4),
+		MSG_PLAYER_NICK:          json.dumps(FORMAT_PLAYER_NICK, indent=4),
+		MSG_PLAYER_LEVEL:         json.dumps(FORMAT_PLAYER_LEVEL, indent=4),
+		MSG_UNIT_UNLOCKED:        json.dumps(FORMAT_UNIT_UNLOCKED, indent=4),
+		MSG_UNIT_LEVEL:           json.dumps(FORMAT_UNIT_LEVEL, indent=4),
+		MSG_UNIT_RARITY:          json.dumps(FORMAT_UNIT_RARITY, indent=4),
+		MSG_UNIT_RELIC:           json.dumps(FORMAT_UNIT_RELIC, indent=4),
+		MSG_UNIT_GEAR_LEVEL:      json.dumps(FORMAT_UNIT_GEAR_LEVEL, indent=4),
+		MSG_UNIT_GEAR_PIECE:      json.dumps(FORMAT_UNIT_GEAR_PIECE, indent=4),
+		MSG_UNIT_SKILL_UNLOCKED:  json.dumps(FORMAT_UNIT_SKILL_UNLOCKED, indent=4),
+		MSG_UNIT_SKILL_INCREASED: json.dumps(FORMAT_UNIT_SKILL_INCREASED, indent=4),
+		MSG_UNIT_OMEGA:           json.dumps(FORMAT_UNIT_OMEGA, indent=4),
+		MSG_UNIT_ZETA:            json.dumps(FORMAT_UNIT_ZETA, indent=4),
+		MSG_ARENA_RANK_UP:        json.dumps(FORMAT_ARENA_RANK_UP, indent=4),
+		MSG_ARENA_RANK_DOWN:      json.dumps(FORMAT_ARENA_RANK_DOWN, indent=4),
+		MSG_FLEET_RANK_UP:        json.dumps(FORMAT_FLEET_RANK_UP, indent=4),
+		MSG_FLEET_RANK_DOWN:      json.dumps(FORMAT_FLEET_RANK_DOWN, indent=4),
 	}
 
 	ally_code = models.IntegerField()
