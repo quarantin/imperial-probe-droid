@@ -88,7 +88,7 @@ FORMAT_UNIT_GEAR_LEVEL = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?gear=${gear.level}"
+		"url": "${server}/avatar/${unit.id}?gear=${gear.level}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***Gear ${gear.level.roman}***"
