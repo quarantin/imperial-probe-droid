@@ -1,7 +1,7 @@
 FORMAT_ARENA_RANK_DOWN = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"title": "Got his ass kicked",
 	"thumbnail": {
@@ -13,7 +13,7 @@ FORMAT_ARENA_RANK_DOWN = {
 FORMAT_ARENA_RANK_UP = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"title": "Kicked someone\u2018s ass",
 	"thumbnail": {
@@ -25,7 +25,7 @@ FORMAT_ARENA_RANK_UP = {
 FORMAT_FLEET_RANK_DOWN = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"title": "Got his ass kicked",
 	"thumbnail": {
@@ -37,7 +37,7 @@ FORMAT_FLEET_RANK_DOWN = {
 FORMAT_FLEET_RANK_UP = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"title": "Kicked someone\u2018s ass",
 	"thumbnail": {
@@ -50,7 +50,7 @@ FORMAT_INACTIVITY = {
 	"title": "Inactivity detected! Code Red!",
 	"author": {
 		"name": "ALAAAAAARM!!!",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "https://i.imgur.com/RLkJC1X.png"
@@ -61,7 +61,7 @@ FORMAT_INACTIVITY = {
 FORMAT_PLAYER_NICK = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${user.avatar}"
@@ -73,7 +73,7 @@ FORMAT_PLAYER_NICK = {
 FORMAT_PLAYER_LEVEL = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}",
+	#	"icon_url": "${user.avatar}",
 	},
 	"thumbnail": {
 		"url": "${user.avatar}"
@@ -85,7 +85,7 @@ FORMAT_PLAYER_LEVEL = {
 FORMAT_UNIT_GEAR_LEVEL = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/avatar/${unit.id}?gear=${gear.level}"
@@ -97,7 +97,7 @@ FORMAT_UNIT_GEAR_LEVEL = {
 FORMAT_UNIT_GEAR_PIECE = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/gear/${gear.piece.id}/"
@@ -109,7 +109,7 @@ FORMAT_UNIT_GEAR_PIECE = {
 FORMAT_UNIT_LEVEL = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/avatar/${unit.id}?level=${level}"
@@ -121,7 +121,7 @@ FORMAT_UNIT_LEVEL = {
 FORMAT_UNIT_OMEGA = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/media/omega.png"
@@ -136,7 +136,7 @@ FORMAT_UNIT_OMEGA = {
 FORMAT_UNIT_SKILL_INCREASED = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/skill/${skill.id}/"
@@ -151,7 +151,7 @@ FORMAT_UNIT_SKILL_INCREASED = {
 FORMAT_UNIT_SKILL_UNLOCKED = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/skill/${skill.id}/"
@@ -166,7 +166,7 @@ FORMAT_UNIT_SKILL_UNLOCKED = {
 FORMAT_UNIT_RARITY = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/avatar/${unit.id}?rarity=${rarity}"
@@ -178,7 +178,7 @@ FORMAT_UNIT_RARITY = {
 FORMAT_UNIT_RELIC = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/relic/${relic}/${alignment}/"
@@ -193,7 +193,7 @@ FORMAT_UNIT_RELIC = {
 FORMAT_UNIT_UNLOCKED = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/avatar/${unit.id}"
@@ -205,7 +205,7 @@ FORMAT_UNIT_UNLOCKED = {
 FORMAT_UNIT_ZETA = {
 	"author": {
 		"name": "${nick}",
-		"icon_url": "${user.avatar}"
+	#	"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/media/zeta.png"
