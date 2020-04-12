@@ -173,7 +173,7 @@ def download_image(image_name):
 	return image_path
 
 def get_portrait(character):
-	return Image.open(download_image(character))
+	return Image.open(download_image(character)).convert('RGBA')
 
 def get_gear(gear, alignment):
 
