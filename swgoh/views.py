@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import math
 from django.http import HttpResponse, Http404
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -32,6 +33,34 @@ def download(gear):
 		fout.close()
 
 	return image_path
+
+background_colors = {
+	 1: ( 67, 145, 163),
+	 2: ( 76, 150,   1),
+	 4: (  0,  75, 101),
+	 7: ( 71,   0, 167),
+	 9: ( 71,   0, 167),
+	11: ( 71,   0, 167),
+	12: (153, 115,   0),
+}
+
+def get_gear_background(gear, size):
+
+	width, height = size
+	image = Image.new('RGBA', (width, height))
+	center, border = background_colors[gear.tier]
+
+	for y in range(height):
+		for x in range(width):
+			distanceToCenter = math.sqrt((x - width / 2) ** 2 + (y - height / 2) ** 2)
+			distanceToCenter = float(distanceToCenter) / (math.sqrt(2) * width / 2)
+			r = int(border[0] * distanceToCenter + center[0] * (1 - distanceToCenter))
+			g = int(border[1] * distanceToCenter + center[1] * (1 - distanceToCenter))
+			b = int(border[2] * distanceToCenter + center[2] * (1 - distanceToCenter))
+
+			image.putpixel((x, y), (r, g, b))
+
+	return image
 
 def crop_corners(image):
 
@@ -78,9 +107,11 @@ def get_gear_portrait(gear):
 	border_path = 'images/border-tier-%02d.png' % gear.tier
 	border_image = Image.open(border_path)
 
-	gear_image.paste(border_image, (0, 0), border_image)
-	crop_corners(gear_image).save(final_path)
+	image = get_gear_background(gear, gear_image.size)
+	image.paste(gear_image, (0, 0), gear_image)
+	image.paste(border_image, (0, 0), border_image)
 
+	crop_corners(image).save(final_path)
 	return file_content(final_path)
 
 def gear(request, base_id):
