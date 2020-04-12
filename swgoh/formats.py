@@ -103,7 +103,10 @@ FORMAT_UNIT_GEAR_PIECE = {
 		"url": "${server}/gear/${gear.piece.id}/"
 	},
 	"title": "${unit}",
-	"description": "***${gear.piece}***"
+	"description": "***${gear.piece}***",
+	"image": {
+		"url": "${server}/avatar/${unit.id}"
+	}
 }
 
 FORMAT_UNIT_LEVEL = {
