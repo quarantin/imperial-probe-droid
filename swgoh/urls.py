@@ -26,6 +26,7 @@ urlpatterns = [
 	path('avatar/<str:portrait>', views.avatar),
 	path('stats/<str:portrait>/<str:ally_code>/', views.stats),
 	path('gear/<str:base_id>/', views.gear),
+	path('relic/<int:relic>/<str:align>/', views.relic),
 	path('login', TemplateView.as_view(template_name='swgoh/login.html')),
 	path('success', views.login_success),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -125,6 +125,10 @@ def gear(request, base_id):
 	except Gear.DoesNotExist:
 		raise Http404('Could not find gear: %s' % base_id)
 
+def relic(request, relic, align):
+
+	image = get_relics(relic, align, raw=True)
+	return HttpResponse(image, content_type='image/png')
 
 def login_success(request):
 
@@ -234,7 +238,11 @@ def get_zetas(zetas):
 	draw.text((27, 18), '%d' % zetas, (255, 255, 255), font=font)
 	return zeta_image
 
-def get_relics(relics, alignment):
+def get_relics(relics, alignment, raw=False):
+
+	final_path = 'images/relic-%s-side-%d.png' % (alignment, relics)
+	if os.path.exists(final_path) and os.path.getsize(final_path) > 0:
+		return raw is False and Image.open(final_path) or file_content(final_path)
 
 	image_name = 'relic-%s-side.png' % alignment
 	image_path = download_image(image_name)
@@ -242,8 +250,10 @@ def get_relics(relics, alignment):
 	relic_image = Image.open(image_path)
 	draw = ImageDraw.Draw(relic_image)
 	font = ImageFont.truetype('arial.ttf', 16)
-	draw.text((22, 18), '%d' % relics, (255, 255, 255), font=font)
-	return relic_image
+	draw.text((23, 18), '%d' % relics, (255, 255, 255), font=font)
+
+	relic_image.save(final_path)
+	return raw is False and relic_image or file_content(final_path)
 
 def format_image(image, radius):
 	size = (radius, radius)
