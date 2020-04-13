@@ -122,14 +122,14 @@ class Tracker(bot.Bot):
 				if player.discord_id:
 					nick = '<@!%s>' % player.discord_id
 					member = server and server.get_member(player.discord_id)
-					avatar = member and member.avatar_url_as(format='png', size=64) or discord.User.default_avatar_url
+					avatar = member and member.avatar_url_as(format='png', size=64)
 					return nick, str(avatar)
 
 		except Player.DoesNotExist:
 			print(traceback.format_exc())
 
-		self.logger.info('prepare_nick: Could not find player with allycode: %s' % ally_code)
-		return None, str(discord.User.default_avatar_url)
+		self.logger_unreg.info('Unregistered allycode: %s (%s)' % (ally_code, server.name))
+		return None, None
 
 	def prepare_message(self, server, config, message):
 
@@ -142,8 +142,7 @@ class Tracker(bot.Bot):
 			if mention and prep_key in config and config[prep_key] is not False:
 				message['mention'] = mention
 
-			if avatar:
-				message['user.avatar'] = avatar
+			message['user.avatar'] = avatar or self.bot.user.default_avatar_url
 
 		if 'unit' in message:
 			message['unit.id'] = message['unit']
@@ -257,6 +256,7 @@ if __name__ == '__main__':
 	from config import load_config, setup_logs
 
 	tracker_logger = setup_logs('tracker', 'logs/tracker.log')
+	unreged_logger = setup_logs('tracker', 'logs/tracker-unregistered.log')
 	discord_logger = setup_logs('discord', 'logs/tracker-discord.log')
 
 	config = load_config()
@@ -273,6 +273,7 @@ if __name__ == '__main__':
 		tracker = Tracker(command_prefix=config['prefix'])
 		tracker.config = config
 		tracker.logger = tracker_logger
+		tracker.logger_unreg = unreged_logger
 		tracker.redis = config.redis
 		tracker.run(config['tokens']['tracker'])
 
