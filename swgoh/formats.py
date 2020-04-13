@@ -145,7 +145,7 @@ FORMAT_UNIT_SKILL_INCREASED = {
 		"url": "${server}/skill/${skill.id}/"
 	},
 	"title": "${unit}",
-	"description": "Increased ***${skill}***\n```Tier ${tier}```",
+	"description": "***${skill}***\n```Tier ${tier}```",
 	"image": {
 		"url": "${server}/avatar/${unit.id}"
 	}
@@ -160,7 +160,7 @@ FORMAT_UNIT_SKILL_UNLOCKED = {
 		"url": "${server}/skill/${skill.id}/"
 	},
 	"title": "${unit}",
-	"description": "***${skill}***",
+	"description": "***${skill}***\n```Unlocked```",
 	"image": {
 		"url": "${server}/avatar/${unit.id}"
 	}
