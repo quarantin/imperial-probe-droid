@@ -182,10 +182,6 @@ class Tracker(bot.Bot):
 
 		for key, value in message.items():
 
-			strval = str(value)
-			if key == 'user.avatar' and not strval.startswith('http://') and not strval.startswith('https://'):
-				value = discord.User.default_avatar_url
-
 			token = '${%s}' % key
 			if token in template:
 				template = template.replace(token, str(value))
