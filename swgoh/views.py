@@ -9,30 +9,13 @@ from cairosvg import svg2png
 
 import io, os, requests
 
-from .models import Gear
+from .models import Gear, BaseUnitSkill
 
 def file_content(path):
 	fin = open(path, 'rb')
 	data = fin.read()
 	fin.close()
 	return data
-
-def download(gear):
-
-	image_path = 'images/equip-%s.png' % gear.base_id
-
-	if not os.path.exists(image_path):
-
-		url = 'https://swgoh.gg%s' % gear.image
-
-		response = requests.get(url)
-		response.raise_for_status()
-
-		fout = open(image_path, 'wb')
-		fout.write(response.content)
-		fout.close()
-
-	return image_path
 
 background_colors = {
 	 1: ( 67, 145, 163),
@@ -96,13 +79,47 @@ def crop_corners(image):
 
 	return image
 
+def download_gear(gear):
+
+	image_path = 'images/equip-%s.png' % gear.base_id
+
+	if not os.path.exists(image_path):
+
+		url = 'https://swgoh.gg%s' % gear.image
+
+		response = requests.get(url)
+		response.raise_for_status()
+
+		fout = open(image_path, 'wb')
+		fout.write(response.content)
+		fout.close()
+
+	return image_path
+
+def download_skill(skill):
+
+	image_path = 'images/skill.%s.png' % skill.skill_id
+
+	if not os.path.exists(image_path):
+
+		url = 'https://swgoh.gg/game-asset/a/%s/' % skill.skill_id
+
+		response = requests.get(url)
+		response.raise_for_status()
+
+		fout = open(image_path, 'wb')
+		fout.write(response.content)
+		fout.close()
+
+	return image_path
+
 def get_gear_portrait(gear):
 
 	final_path = 'images/equip-%s-tier-%02d.png' % (gear.base_id, gear.tier)
 	if os.path.exists(final_path) and os.path.getsize(final_path) > 0:
 		return file_content(final_path)
 
-	gear_path = download(gear)
+	gear_path = download_gear(gear)
 	gear_image = Image.open(gear_path)
 
 	border_path = 'images/border-tier-%02d.png' % gear.tier
@@ -129,6 +146,17 @@ def relic(request, relic, align):
 
 	image = get_relics(relic, align, raw=True)
 	return HttpResponse(image, content_type='image/png')
+
+def skill(request, skill_id):
+
+	try:
+		skill = BaseUnitSkill.objects.get(skill_id=skill_id)
+		skill_path = download_skill(skill)
+		image = file_content(skill_path)
+		return HttpResponse(image, content_type='image/png')
+
+	except BaseUnitSkill.DoesNotExist:
+		raise Http404('Could not find skill: %s' % skill_id)
 
 def login_success(request):
 
