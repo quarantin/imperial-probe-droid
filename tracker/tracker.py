@@ -122,14 +122,14 @@ class Tracker(bot.Bot):
 				if player.discord_id:
 					nick = '<@!%s>' % player.discord_id
 					member = server and server.get_member(player.discord_id)
-					avatar = member and member.avatar_url_as(format='png', size=64)
+					avatar = member and member.avatar_url_as(format='png', size=64) or self.user.default_avatar_url
 					return nick, str(avatar)
 
 		except Player.DoesNotExist:
 			print(traceback.format_exc())
 
 		self.logger_unreg.info('Unregistered allycode: %s (%s)' % (ally_code, server.name))
-		return None, None
+		return None, str(self.user.default_avatar_url)
 
 	def prepare_message(self, server, config, message):
 
@@ -141,8 +141,7 @@ class Tracker(bot.Bot):
 			mention, avatar = self.get_user_info(server, message['ally.code'])
 			if mention and prep_key in config and config[prep_key] is not False:
 				message['mention'] = mention
-
-			message['user.avatar'] = avatar or self.user.default_avatar_url
+			message['user.avatar'] = avatar
 
 		if 'unit' in message:
 			message['unit.id'] = message['unit']
