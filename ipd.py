@@ -362,7 +362,7 @@ class ImperialProbeDroid(bot.Bot):
 			for cmd in COMMANDS:
 				if command in cmd['aliases']:
 
-					if cmd['need_api']:
+					if cmd['need_api'] and request.from_user:
 						await self.add_reaction(message, EMOJI_HOURGLASS)
 
 					if inspect.iscoroutinefunction(cmd['function']):
@@ -370,7 +370,7 @@ class ImperialProbeDroid(bot.Bot):
 					else:
 						msgs = cmd['function'](request)
 
-					if cmd['need_api']:
+					if cmd['need_api'] and request.from_user:
 						await self.remove_reaction(message, EMOJI_HOURGLASS)
 
 					for msg in msgs:
