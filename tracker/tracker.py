@@ -142,7 +142,7 @@ class Tracker(bot.Bot):
 			if mention and prep_key in config and config[prep_key] is not False:
 				message['mention'] = mention
 
-			message['user.avatar'] = avatar or self.bot.user.default_avatar_url
+			message['user.avatar'] = avatar or self.user.default_avatar_url
 
 		if 'unit' in message:
 			message['unit.id'] = message['unit']
