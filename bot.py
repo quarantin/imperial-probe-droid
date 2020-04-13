@@ -56,8 +56,8 @@ class Bot(commands.Bot):
 			await message.add_reaction(emoji)
 
 		except Exception as err:
-			self.logger.error(err)
-			self.logger.error(traceback.format_exc())
+			print(err)
+			print(traceback.format_exc())
 
 	async def remove_reaction(self, message, emoji):
 
@@ -65,5 +65,5 @@ class Bot(commands.Bot):
 			await message.remove_reaction(emoji, self.user)
 
 		except Exception as err:
-			self.logger.error(err)
-			self.logger.error(traceback.format_exc())
+			print(err)
+			print(traceback.format_exc())

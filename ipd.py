@@ -397,8 +397,8 @@ class ImperialProbeDroid(bot.Bot):
 			})
 
 		except Exception as err:
-			self.logger.error("Error in on_message_handler...")
-			self.logger.error(traceback.format_exc())
+			print('Error in on_message_handler...')
+			print(traceback.format_exc())
 
 			if 'crash' in config and config['crash']:
 				status, error = await self.sendmsg(channel, message=config['crash'])
