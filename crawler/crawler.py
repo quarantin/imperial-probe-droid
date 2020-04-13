@@ -104,7 +104,7 @@ class Crawler(asyncio.Future):
 
 				except Exception as err:
 					print(err)
-					print(traceback.format_exc())
+					#print(traceback.format_exc())
 					failed_ac.append(str(member['allyCode']))
 					failed_ch.append(channel)
 
