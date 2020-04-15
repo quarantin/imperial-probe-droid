@@ -70,8 +70,10 @@ class Crawler(asyncio.Future):
 
 		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 		if profile:
+			id_key = 'playerid|%s' % profile['id']
 			expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
 			self.redis.setex(key, expire, json.dumps(profile))
+			self.redis.setex(id_key, expire, profile['allyCode'])
 
 		return profile
 
