@@ -241,6 +241,7 @@ class BaseUnit(models.Model):
 
 		return 'neutral'
 
+	@staticmethod
 	def is_ship(base_id):
 		try:
 			ship = BaseUnit.objects.get(base_id=base_id)
