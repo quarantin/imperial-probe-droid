@@ -5,6 +5,9 @@ from discord.ext import commands
 
 import libswgoh
 
+import DJANGO
+from swgoh.models import Player
+
 class TicketsCog(commands.Cog):
 
 	def __init__(self, bot):
@@ -21,6 +24,20 @@ class TicketsCog(commands.Cog):
 
 		raise error
 
+	def get_discord_ids(self, player_id):
+
+		key = 'playerid|%s' % player_id
+		ally_code = self.redis.get(key)
+		if not ally_code:
+			return None
+
+		result = {}
+		players = Player.objects.filter(ally_code=ally_code)
+		for player in players:
+			result[player.game_nick] = player.discord_id
+
+		return result
+
 	@commands.group()
 	async def tickets(self, ctx):
 
@@ -35,9 +52,10 @@ class TicketsCog(commands.Cog):
 		guild = await libswgoh.get_guild(session=session)
 		for member in guild['members']:
 
-			member_name = member['name']
-
-			print(json.dumps(member['stats'], indent=4))
+			discord_id = member['name']
+			discord_ids = self.get_discord_ids(member['id'])
+			if discord_id in discord_ids:
+				discord_id = '<@!%s>' % discord_ids[discord_id]
 
 			stat_gt = member['stats'][1] # Guild Token stats
 			stat_rt = member['stats'][2] # Raid Tickets stats
@@ -48,15 +66,14 @@ class TicketsCog(commands.Cog):
 			total_guild_tokens += guild_tokens
 			total_raid_tickets += raid_tickets
 
-			tickets['guild-tokens'][member_name] = guild_tokens
-			tickets['raid-tickets'][member_name] = raid_tickets
-
-		print(json.dumps(tickets, indent=4))
+			tickets['guild-tokens'][discord_id] = guild_tokens
+			tickets['raid-tickets'][discord_id] = raid_tickets
 
 		lines = []
 		raid_tickets = tickets['raid-tickets']
 		for name, tickets in raid_tickets.items():
-			lines.append('`%d` __**%s**__' % (tickets, name))
+			if tickets != 600:
+				lines.append('`%d` __**%s**__' % (tickets, name))
 
 		await ctx.send('\n'.join(lines))
 
