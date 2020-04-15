@@ -353,9 +353,11 @@ class ImperialProbeDroid(bot.Bot):
 			for msg in msgs:
 				await send_embed(self, channel, msg)
 
+			await self.process_commands(message)
 			return
 
 		if channel is None:
+			await self.process_commands(message)
 			return
 
 		try:
@@ -411,9 +413,11 @@ class ImperialProbeDroid(bot.Bot):
 				'description': str(err),
 			})
 
+		await self.process_commands(message)
+
 async def __main__():
 
-	#from ticketscog import TicketsCog
+	from ticketscog import TicketsCog
 
 	try:
 
@@ -427,7 +431,7 @@ async def __main__():
 		bot.config = config
 		bot.logger = ipd_logger
 		bot.redis = config.redis
-		#bot.add_cog(TicketsCog(bot))
+		bot.add_cog(TicketsCog(bot))
 
 		token = config['token']
 		if 'env' in config:
