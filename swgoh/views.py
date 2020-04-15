@@ -9,7 +9,7 @@ from cairosvg import svg2png
 
 import io, os, requests
 
-from .models import Gear, BaseUnitSkill
+from .models import Gear, BaseUnit, BaseUnitSkill
 
 def file_content(path):
 	fin = open(path, 'rb')
@@ -201,7 +201,15 @@ def download_image(image_name):
 	return image_path
 
 def get_portrait(character):
-	return Image.open(download_image(character)).convert('RGBA')
+	width, height = 256, 256
+	image = Image.new('RGBA', (256, 256))
+	portrait = Image.open(download_image(character)).convert('RGBA')
+
+	x = int(width / 2 + image.width / 2)
+	y = int(height / 2 + image.height / 2)
+	image.paste(portrait, (x, y), portrait)
+	image.show()
+	return image
 
 def get_gear(gear, alignment):
 
@@ -215,7 +223,7 @@ def get_gear(gear, alignment):
 
 def get_level(level):
 
-	if level is None:
+	if not level:
 		return None
 
 	offset = 0
@@ -227,7 +235,7 @@ def get_level(level):
 
 	level_image = Image.open(image_path)
 	draw = ImageDraw.Draw(level_image)
-	font = ImageFont.truetype('arial.ttf', 24)
+	font = ImageFont.truetype('fonts/arial.ttf', 24)
 	draw.text((51 + offset, 93), "%d" % level, (255, 255, 255), font=font)
 	return level_image
 
@@ -245,25 +253,25 @@ def get_rarity(rarity):
 	star_img = Image.open(star_image_path)
 	no_star_img = Image.open(no_star_image_path)
 
-	rarity_img = Image.new('RGBA', (154, 22), 0)
+	rarity_img = Image.new('RGBA', (star_img.width * 7, star_img.height), 0)
 
 	for i in range(0, rarity):
-		rarity_img.paste(star_img, (i * 20 - 2, 0), star_img)
+		rarity_img.paste(star_img, (i * 17, 0), star_img)
 
 	for i in range(rarity, 7):
-		rarity_img.paste(no_star_img, (i * 20 - 2, 0), no_star_img)
+		rarity_img.paste(no_star_img, (i * 17, 0), no_star_img)
 
 	return rarity_img
 
 def get_zetas(zetas):
 
-	image_name = 'zeta.png'
+	image_name = 'zeta-48x48.png'
 	image_path = download_image(image_name)
 
 	zeta_image = Image.open(image_path)
 	draw = ImageDraw.Draw(zeta_image)
-	font = ImageFont.truetype('arial.ttf', 16)
-	draw.text((27, 18), '%d' % zetas, (255, 255, 255), font=font)
+	font = ImageFont.truetype('fonts/arialbd.ttf', 14)
+	draw.text((20, 12), '%d' % zetas, (255, 255, 255), font=font)
 	return zeta_image
 
 def get_relics(relics, alignment, raw=False):
@@ -277,8 +285,14 @@ def get_relics(relics, alignment, raw=False):
 
 	relic_image = Image.open(image_path)
 	draw = ImageDraw.Draw(relic_image)
-	font = ImageFont.truetype('arial.ttf', 16)
-	draw.text((23, 18), '%d' % relics, (255, 255, 255), font=font)
+	font = ImageFont.truetype('fonts/arialbd.ttf', 14)
+
+	x = 23
+	y = 19
+
+	draw.text((x + 1, y + 1), '%d' % relics, font=font, fill='black')
+	draw.text((x + 2, y + 1), '%d' % relics, font=font, fill='black')
+	draw.text((x, y), '%d' % relics, font=font, fill='white')
 
 	relic_image.save(final_path)
 	return raw is False and relic_image or file_content(final_path)
@@ -300,50 +314,91 @@ def img2png(image):
 
 	return None
 
-def get_avatar(request, portrait):
+def get_param(request, param, default=0):
 
-	alignment  = 'alignment' in request.GET and request.GET['alignment'] and request.GET['alignment'].lower() in ALIGNMENTS and request.GET['alignment'].lower() or 'neutral'
-	level = 'level' in request.GET and int(request.GET['level']) or None
-	gear = 'gear' in request.GET and int(request.GET['gear']) or None
-	rarity = 'rarity' in request.GET and int(request.GET['rarity']) or None
-	zetas = 'zetas' in request.GET and int(request.GET['zetas']) or 0
-	relics = 'relics' in request.GET and int(request.GET['relics']) or 0
+	try:
+		return param in request.GET and request.GET[param] and type(default)(request.GET[param]) or default
+	except:
+		return default
 
-	do_circle = level or gear or rarity or zetas or relics
+def has_params(request):
+	for param in [ 'level', 'gear', 'rarity', 'zetas', 'relic' ]:
+		if param in request.GET and request.GET[param]:
+			return True
+	return False
 
-	portrait_image = get_portrait(portrait)
-	level_image = get_level(level)
-	gear_image = get_gear(gear, alignment)
-	rarity_image = get_rarity(rarity)
-	zeta_image = get_zetas(zetas)
-	relic_image = get_relics(relics, alignment)
+def get_avatar(request, base_id):
 
-	if gear_image is not None:
-		dims = gear >= 13 and (-15, -11) or (0, 0)
-		portrait_image.paste(gear_image, dims, gear_image)
+	width, height = 256, 256
+	size = (width, height)
+	radius = int(width / 4)
+	image = Image.new('RGBA', (width, height))
 
-	if do_circle:
-		portrait_image = format_image(portrait_image, 128)
+	portrait_path = download_image(base_id)
+	portrait = Image.open(portrait_path)
+	portrait.thumbnail((128, 128), Image.ANTIALIAS)
 
-	full_image = Image.new('RGBA', (138, 138), 0)
-	full_image.paste(portrait_image, (5, 5), portrait_image)
+	portrait_x = int(image.width  / 2 - portrait.width  / 2)
+	portrait_y = int(image.height / 2 - portrait.height / 2)
 
-	if do_circle:
-		full_image = format_image(full_image, 138)
+	image.paste(portrait, (portrait_x, portrait_y), portrait)
 
-	if zetas > 0:
-		full_image.paste(zeta_image, (-8, 63), zeta_image)
-	if relics > 0:
-		full_image.paste(relic_image, (75, 63), relic_image)
-	if level_image is not None:
-		full_image.paste(level_image, (5, 10), level_image)
-	if rarity_image is not None:
-		full_image.paste(rarity_image, (0, 0), rarity_image)
+	if has_params(request):
+		mask = Image.new('L', size, 0)
+		draw = ImageDraw.Draw(mask)
+		circle = [ (radius, radius), (radius * 3, radius * 3) ]
+		draw.ellipse(circle, fill=255)
 
-	return full_image
+		image = ImageOps.fit(image, size)
+		image.putalpha(mask)
 
-def avatar(request, portrait):
-	return HttpResponse(img2png(get_avatar(request, portrait)), content_type='image/png')
+	alignment  = get_param(request, 'alignment', 'neutral').lower()
+	if alignment not in ALIGNMENTS:
+		alignment = 'neutral'
+
+	gear = get_param(request, 'gear')
+	if gear > 0:
+		gear_image   = get_gear(gear, alignment)
+		gear_x = int(image.width  / 2 - gear_image.width / 2)
+		gear_y = int(image.height / 2 - gear_image.height / 2)
+		image.paste(gear_image, (gear_x, gear_y), gear_image)
+
+	level = get_param(request, 'level')
+	if  level > 0:
+		level_image  = get_level(level)
+		level_x = int(image.width / 2 - level_image.width / 2)
+		level_y = int(image.height / 2 - level_image.height / 2 + 10)
+		image.paste(level_image, (level_x, level_y), level_image)
+
+	rarity = get_param(request, 'rarity')
+	if rarity > 0:
+		rarity_image = get_rarity(rarity)
+		rarity_x = int(image.width / 2 - portrait.width / 2 + rarity_image.height / 4)
+		rarity_y = int(image.height / 2 - portrait.height / 2 - rarity_image.height)
+		image.paste(rarity_image, (rarity_x, rarity_y), rarity_image)
+
+	zeta = get_param(request, 'zetas')
+	if zeta > 0:
+		zeta_image   = get_zetas(zeta)
+		zeta_x = int(image.width / 4 - 10)
+		zeta_y = int(image.height / 2 + zeta_image.height / 4 + 5)
+		image.paste(zeta_image, (zeta_x, zeta_y), zeta_image)
+
+	relic = get_param(request, 'relics')
+	if relic > 0:
+		relic_image  = get_relics(relic, alignment)
+		relic_x = int(image.width / 2 + relic_image.width / 4 + 5)
+		relic_y = int(image.height / 2 + relic_image.height / 4 - 3)
+		image.paste(relic_image, (relic_x, relic_y), relic_image)
+
+	image = image.crop((radius - 10, radius - 20, radius * 3 + 10, radius * 3 + 10))
+
+	return image
+
+def avatar(request, base_id):
+	avatar = get_avatar(request, base_id)
+	image = img2png(avatar)
+	return HttpResponse(image, content_type='image/png')
 
 def stats(request, portrait, ally_code):
 
@@ -355,7 +410,7 @@ def stats(request, portrait, ally_code):
 	full_image.paste(avatar, (10, 10), avatar)
 
 	draw = ImageDraw.Draw(full_image)
-	font = ImageFont.truetype('arial.ttf', 16)
+	font = ImageFont.truetype('fonts/arial.ttf', 16)
 
 	x = 150
 	y = 20
