@@ -73,7 +73,7 @@ class TicketsCog(commands.Cog):
 
 		lines = []
 		raid_tickets = tickets['raid-tickets']
-		for name, tickets in raid_tickets.items():
+		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
 			if tickets != 600:
 				lines.append('`%d` __**%s**__' % (tickets, name))
 
