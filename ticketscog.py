@@ -39,7 +39,7 @@ class TicketsCog(commands.Cog):
 		return result
 
 	@commands.group()
-	async def tickets(self, ctx):
+	async def tickets(self, ctx, command=''):
 
 		tickets = {
 			'guild-tokens': {},
@@ -53,9 +53,11 @@ class TicketsCog(commands.Cog):
 		for member in guild['members']:
 
 			discord_id = member['name']
-			discord_ids = self.get_discord_ids(member['id'])
-			if discord_id in discord_ids:
-				discord_id = '<@!%s>' % discord_ids[discord_id]
+
+			if command.lower() in [ 'alert', 'mention', 'notify' ]:
+				discord_ids = self.get_discord_ids(member['id'])
+				if discord_id in discord_ids:
+					discord_id = '<@!%s>' % discord_ids[discord_id]
 
 			stat_gt = member['stats'][1] # Guild Token stats
 			stat_rt = member['stats'][2] # Raid Tickets stats
