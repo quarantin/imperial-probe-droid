@@ -335,7 +335,7 @@ def get_avatar(request, base_id):
 	image = Image.new('RGBA', (width, height))
 
 	portrait_path = download_image(base_id)
-	portrait = Image.open(portrait_path)
+	portrait = Image.open(portrait_path).convert('RGBA')
 	portrait.thumbnail((128, 128), Image.ANTIALIAS)
 
 	portrait_x = int(image.width  / 2 - portrait.width  / 2)
