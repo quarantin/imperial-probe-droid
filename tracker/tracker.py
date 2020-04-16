@@ -242,9 +242,7 @@ class Tracker(bot.Bot):
 			from trackerthread import TrackerThread
 			self.loop.create_task(TrackerThread().run(self))
 
-		msg = 'Tracker bot ready!'
-		print(msg)
-		await self.get_channel(575654803099746325).send(msg)
+		print('Tracker bot ready!')
 
 if __name__ == '__main__':
 
