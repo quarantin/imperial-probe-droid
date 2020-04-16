@@ -56,7 +56,7 @@ class TicketsCog(commands.Cog):
 
 			if command.lower() in [ 'alert', 'mention', 'notify' ]:
 				discord_ids = self.get_discord_ids(member['id'])
-				if discord_id in discord_ids:
+				if discord_ids and discord_id in discord_ids:
 					discord_id = '<@!%s>' % discord_ids[discord_id]
 
 			stat_gt = member['stats'][1] # Guild Token stats
