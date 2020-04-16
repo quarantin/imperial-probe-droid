@@ -56,8 +56,6 @@ class TicketsCog(commands.Cog):
 
 			if command.lower() in [ 'alert', 'mention', 'notify' ]:
 				discord_ids = self.get_discord_ids(member['id'])
-				if discord_ids is None:
-					print('WTF: %s' % (member['id']))
 				if discord_ids and discord_id in discord_ids:
 					discord_id = '<@!%s>' % discord_ids[discord_id]
 
