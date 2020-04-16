@@ -355,7 +355,6 @@ class ImperialProbeDroid(bot.Bot):
 			for msg in msgs:
 				await send_embed(self, channel, msg)
 
-			await self.process_commands(message)
 			return
 
 		if channel is None:
@@ -391,6 +390,9 @@ class ImperialProbeDroid(bot.Bot):
 						'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
 					})
 
+
+				await self.process_commands(message)
+
 		except SwgohHelpException as swgohError:
 
 			data = swgohError.data
@@ -414,8 +416,6 @@ class ImperialProbeDroid(bot.Bot):
 				'color': 'red',
 				'description': str(err),
 			})
-
-		await self.process_commands(message)
 
 async def __main__():
 
