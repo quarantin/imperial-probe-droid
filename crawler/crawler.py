@@ -115,10 +115,12 @@ class Crawler(asyncio.Future):
 	def cache_player(self, player):
 
 		player_key = 'player|%s' % player['allyCode']
+		player_key_id = 'playerid|%s' % player['id']
 		player_expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
 		player_data = json.dumps(player)
 
-		self.redis.setex(player_key, player_expire, player_data)
+		self.redis.setex(player_key,    player_expire, player_data)
+		self.redis.setex(player_key_id, player_expire, player['allyCode'])
 
 	def cache_guild(self, guild):
 
