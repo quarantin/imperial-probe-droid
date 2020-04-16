@@ -6,6 +6,9 @@ from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SK
 from utils import dotify, get_banner_emoji, get_relic_tier, get_stars_as_emojis, roundup, translate
 from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
 
+import DJANGO
+from swgoh.models import BaseUnit
+
 help_guild_stat = {
 	'title': 'Guild Stat Help',
 	'description': """Compare stats of different guilds.
@@ -77,7 +80,7 @@ def get_guild_stats(guild, players):
 			is_max_level  = (unit['level'] == MAX_LEVEL)
 			is_max_rarity = (unit['rarity'] == MAX_RARITY)
 
-			if unit['combatType'] == 1:
+			if not BaseUnit.is_ship(unit['defId']):
 				stats['s7-units'] += (is_max_rarity and 1 or 0)
 				stats['l85-units'] += (is_max_level and 1 or 0)
 				if unit['gear'] == 13:
