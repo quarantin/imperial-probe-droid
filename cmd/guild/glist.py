@@ -29,6 +29,9 @@ Search your guild to see who's having Jedi Knight Revan with GP greater than 230
 
 def unit_is_matching(unit, char_filters):
 
+	if not unit['gp']:
+		return False
+
 	if unit['gp'] < char_filters['gp']:
 		return False
 
