@@ -65,11 +65,13 @@ def compute_hello_msg():
 
 class MessageStub:
 
+	author = None
 	guild = None
 	channel = None
 	content = None
 
-	def __init__(self, guild, channel, content):
+	def __init__(self, author, guild, channel, content):
+		self.author = author
 		self.guild = guild
 		self.channel = channel
 		self.content = content
@@ -297,7 +299,7 @@ class ImperialProbeDroid(bot.Bot):
 						channel = self.get_channel(shard.channel_id)
 						server = hasattr(channel, 'guild') and channel.guild or None
 						bot_prefix = self.get_bot_prefix(server, channel)
-						message = MessageStub(server, channel, '%spayout' % bot_prefix)
+						message = MessageStub(self.user, server, channel, '%spayout' % bot_prefix)
 						request = UserRequest(config, message, from_user=False)
 						await self.on_message_handler(request)
 
