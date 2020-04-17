@@ -67,13 +67,6 @@ def get_short_stat(stat_id, language):
 
 	raise Exception('Invalid short stat request for %s %s (%s)' % (stat_id, language, stat_name))
 
-def find_player(selected_players, ally_code):
-
-	for p in selected_players:
-		if p.ally_code == ally_code:
-			return p
-
-	return None
 
 async def cmd_recos(request):
 
@@ -107,24 +100,16 @@ async def cmd_recos(request):
 	players = await fetch_players(config, ally_codes)
 
 	msgs = []
-	lines  = []
-	for ally_code_str, player in players.items():
+	for player in selected_players:
 
-		discord_id = player['name']
-		guild_banner = get_banner_emoji(player['guildBannerLogo'])
+		player_data = players[player.ally_code]
+		guild_banner = get_banner_emoji(player_data['guildBannerLogo'])
+		discord_id = player.discord_id and '<@%s>' % player.discord_id or player.game_nick
 
-		p = find_player(selected_players, player['allyCode'])
-		if p is None:
-			try:
-				p = Player.objects.get(ally_code=player['allyCode'])
-
-			except Player.DoesNotExist:
-				pass
-
-		if p is not None and p.discord_id is not None:
-			discord_id = '<@%s>' % p.discord_id
-
+		lines  = []
 		for ref_unit in selected_units:
+
+			lines.clear()
 
 			base_id   = ref_unit.base_id
 			unit_name = translate(base_id, language)
@@ -132,8 +117,7 @@ async def cmd_recos(request):
 			if ref_unit.combat_type != 1:
 				continue
 
-			#lines  = []
-			roster = player['roster']
+			roster = player_data['roster']
 			recos  = ModRecommendation.objects.filter(character_id=ref_unit.id).values()
 
 			for reco in recos:
@@ -211,9 +195,7 @@ async def cmd_recos(request):
 				'fields': [ get_field_legend(config) ],
 			})
 
-			lines = []
-
-		if not lines and not msgs:
+		if not lines:
 			msgs.append({
 				'title': '== No Recommended Mod Sets ==',
 				'description': '**%s** is missing from all source of recommendations.' % unit_name,
