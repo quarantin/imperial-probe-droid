@@ -39,7 +39,7 @@ MODSET_OPTS_2 = {
 	'tenacity':       'Tenacity',
 	'cc':             'Critical Chance',
 	'criticalchance': 'Critical Chance',
-	'cd':             'critical Damage',
+	'cd':             'Critical Damage',
 	'criticaldamage': 'Critical Damage',
 	'of':             'Offense',
 	'offense':        'Offense',
