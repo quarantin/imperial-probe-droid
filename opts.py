@@ -10,25 +10,6 @@ from swgoh.models import Player, BaseUnit, BaseUnitFaction
 DEFAULT_FORMAT = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
 
 MODSET_OPTS = {
-	'he':             1,
-	'health':         1,
-	'de':             3,
-	'defense':        3,
-	'po':             7,
-	'potency':        7,
-	'te':             8,
-	'tenacity':       8,
-	'cc':             5,
-	'criticalchance': 5,
-	'cd':             6,
-	'criticaldamage': 6,
-	'of':             2,
-	'offense':        2,
-	'sp':             4,
-	'speed':          4,
-}
-
-MODSET_OPTS_2 = {
 	'he':             'Health',
 	'health':         'Health',
 	'de':             'Defense',
@@ -469,7 +450,7 @@ def parse_opts_mod_filters(request):
 	for arg in args_cpy:
 		toks = arg.split('/')
 		if len(toks) == 3:
-			modsets = parse_opts_modsets([ toks[0] ], MODSET_OPTS_2)
+			modsets = parse_opts_modsets([ toks[0] ], MODSET_OPTS)
 			slots   = parse_opts_modslots([ toks[1] ])
 			prims   = parse_opts_modprimaries([ toks[2] ])
 			if modsets and slots and prims:
