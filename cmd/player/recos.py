@@ -107,6 +107,7 @@ async def cmd_recos(request):
 	players = await fetch_players(config, ally_codes)
 
 	msgs = []
+	lines  = []
 	for ally_code_str, player in players.items():
 
 		discord_id = player['name']
@@ -125,13 +126,13 @@ async def cmd_recos(request):
 
 		for ref_unit in selected_units:
 
-			if ref_unit.combat_type != 1:
-				continue
-
 			base_id   = ref_unit.base_id
 			unit_name = translate(base_id, language)
 
-			lines  = []
+			if ref_unit.combat_type != 1:
+				continue
+
+			#lines  = []
 			roster = player['roster']
 			recos  = ModRecommendation.objects.filter(character_id=ref_unit.id).values()
 
@@ -209,6 +210,8 @@ async def cmd_recos(request):
 				'image': get_full_avatar_url(config, ref_unit.image, unit),
 				'fields': [ get_field_legend(config) ],
 			})
+
+			lines = []
 
 		if not lines:
 			msgs.append({
