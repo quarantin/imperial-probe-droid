@@ -213,7 +213,7 @@ async def cmd_recos(request):
 
 			lines = []
 
-		if not lines:
+		if not lines and not msgs:
 			msgs.append({
 				'title': '== No Recommended Mod Sets ==',
 				'description': '**%s** is missing from all source of recommendations.' % unit_name,
