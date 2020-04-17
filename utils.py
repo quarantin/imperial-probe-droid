@@ -5,6 +5,7 @@ import pytz
 import aiohttp
 import requests
 import subprocess
+import traceback
 from urllib.parse import urlencode
 from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
@@ -141,7 +142,11 @@ async def http_get(url, headOnly=False):
 async def http_post(url, *args, **kwargs):
 	async with aiohttp.ClientSession() as session:
 		async with session.post(url, *args, **kwargs) as response:
-			return await response.json(), False
+			try:
+				return await response.json(), False
+			except Exception as err:
+				print(err)
+				print(traceback.format_exc())
 
 	return None, 'Unknown Error'
 
