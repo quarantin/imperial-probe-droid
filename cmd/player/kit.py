@@ -21,6 +21,8 @@ help_kit = {
 **Options**
 The `skill-type` option can be any of:
 **`basic`**   or **`b`**: Show basic skills.
+**`contract`** or **`c`**: Show contract skills.
+**`hardware`** or **`h`**: Show hardware skills.
 **`leader`**  or **`l`**: Show leader skills.
 **`special`** or **`s`**: Show special skills.
 **``** or **``**: Show skills.
