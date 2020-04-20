@@ -163,11 +163,12 @@ async def cmd_kit(request):
 
 				tier = selected_tier
 				if not tier:
-					unit_skills = players[player.ally_code]['roster'][unit.base_id]['skills']
-					for unit_skill in unit_skills:
-						if unit_skill['id'] == skill.skill_id and 'tier' in unit_skill:
-							tier = unit_skill['tier']
-							break
+					if unit.base_id in players[player.ally_code]['roster']:
+						unit_skills = players[player.ally_code]['roster'][unit.base_id]['skills']
+						for unit_skill in unit_skills:
+							if unit_skill['id'] == skill.skill_id and 'tier' in unit_skill:
+								tier = unit_skill['tier']
+								break
 
 				if not tier:
 					tier = (ability_type.startswith('hardware') or ability_type.startswith('contract')) and 3 or 8
