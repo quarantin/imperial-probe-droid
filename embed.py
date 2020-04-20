@@ -107,6 +107,9 @@ def new_embeds(msg, timestamp=None, add_sep=True, footer=True):
 
 	preformated = is_preformated(msg)
 
+	if 'no-sep' in msg and msg['no-sep'] is True:
+		add_sep = False
+
 	if msg['description']:
 		sep = add_sep and '\n%s' % config['separator'] or ''
 		msg['description'] = '%s%s' % (msg['description'], sep)
