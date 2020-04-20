@@ -29,6 +29,7 @@ from cmd.player.compare import *
 from cmd.player.gac import *
 from cmd.player.gear import *
 from cmd.player.gear13 import *
+from cmd.player.kit import *
 from cmd.player.list import *
 from cmd.player.locked import *
 from cmd.player.modcheck import *
@@ -174,6 +175,13 @@ COMMANDS = [
 		'function': cmd_invite,
 		'help': help_invite,
 		'need_api': False,
+	},
+	{
+		'command': 'kit',
+		'aliases': [ 'k', 'kit' ],
+		'function': cmd_kit,
+		'help': help_kit,
+		'need_api': True,
 	},
 	{
 		'command': 'language',
