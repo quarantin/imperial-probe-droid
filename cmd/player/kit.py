@@ -59,6 +59,7 @@ def parse_opts_tier(args):
 	args_cpy = list(args)
 	for arg in args_cpy:
 		if arg.lower() == 'max':
+			args.remove(arg)
 			return 'max'
 
 		try:
@@ -170,7 +171,7 @@ async def cmd_kit(request):
 								tier = unit_skill['tier']
 								break
 
-				if not tier:
+				if not tier or tier == 'max':
 					tier = (ability_type.startswith('hardware') or ability_type.startswith('contract')) and 3 or 8
 
 				string_id = '%s_tier%02d' % (skill.ability_ref, tier)
