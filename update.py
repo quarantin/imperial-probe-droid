@@ -50,6 +50,10 @@ lang_projects = [
 		'project': {
 			'id': 1,
 			'nameKey': 1,
+			'descKey': 1,
+			'tierList': {
+				'descKey': 1,
+			},
 		},
 	},
 	{
@@ -116,7 +120,7 @@ async def fetch_all_collections(config):
 
 	print('All Done!')
 
-def parse_translations(collection, key, context, language):
+def parse_translations_name(collection, key, context, language):
 
 	filename = 'cache/%s_%s.json' % (collection, language)
 	with open(filename, 'r') as fin:
@@ -128,6 +132,32 @@ def parse_translations(collection, key, context, language):
 				if obj.translation != entry['nameKey']:
 					obj.translation = entry['nameKey']
 					obj.save()
+
+def parse_translations_desc(collection, key, context, language):
+
+	filename = 'cache/%s_%s.json' % (collection, language)
+	with open(filename, 'r') as fin:
+		jsondata = json.loads(fin.read())
+		with transaction.atomic():
+			for entry in jsondata:
+
+				tier_index = 1
+				string_id = '%s/tier%02d' % (entry[key], tier_index)
+				obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language)
+				if obj.translation != entry['descKey']:
+					obj.translation = entry['descKey']
+					obj.save()
+
+				tier_index = 2
+				for tier in entry['tierList']:
+
+					string_id = 'desc|%s|tier%02d' % (entry[key], tier_index)
+					obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language)
+					if obj.translation != tier['descKey']:
+						obj.translation = tier['descKey']
+						obj.save()
+
+					tier_index += 1
 
 WANTED_KEYS = {
 	'UnitStat_Accuracy':                    'Potency',
@@ -551,9 +581,10 @@ async def __main__():
 
 		print('Parsing %s translations...' % language.lower())
 
-		parse_translations('abilityList',   'id',     'abilities',  language)
-		parse_translations('equipmentList', 'id',     'gear-names', language)
-		parse_translations('unitsList',     'baseId', 'unit-names', language)
+		parse_translations_name('abilityList',   'id',     'abilities',  language)
+		parse_translations_name('equipmentList', 'id',     'gear-names', language)
+		parse_translations_name('unitsList',     'baseId', 'unit-names', language)
+		parse_translations_desc('abilityList',   'id',     'skill-desc', language)
 
 if __name__ == '__main__':
 	import asyncio
