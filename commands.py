@@ -9,6 +9,7 @@ from cmd.general.alias import *
 from cmd.general.ban import *
 from cmd.general.clear import *
 from cmd.general.clock import *
+from cmd.general.cogs import *
 from cmd.general.config import *
 from cmd.general.help import *
 from cmd.general.ignore import *
@@ -334,5 +335,20 @@ COMMANDS = [
 		'function': cmd_zetas,
 		'help': help_zetas,
 		'need_api': True,
+	},
+
+	{
+		'command': 'load',
+		'aliases': [ 'l', 'load', 'loadcog' ],
+		'function': cmd_load,
+		'help': help_load,
+		'need_api': False,
+	},
+	{
+		'command': 'unload',
+		'aliases': [ 'u', 'unload', 'unloadcog' ],
+		'function': cmd_unload,
+		'help': help_unload,
+		'need_api': False,
 	},
 ]
