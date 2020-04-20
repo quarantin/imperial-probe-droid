@@ -38,14 +38,19 @@ Show General Skywalker second special ability:
 }
 
 skill_types = {
-	'b':       'basicability',
-	'basic':   'basicability',
-	'l':       'leaderability',
-	'leader':  'leaderability',
-	's':       'specialability',
-	'special': 'specialability',
-	'u':       'uniqueability',
-	'unique':  'uniqueability',
+	'b':        'basicability',
+	'basic':    'basicability',
+	'c':        'contractability',
+	'contract': 'contractability',
+	'h':        'hardwareability',
+	'hw':       'hardwareability',
+	'hardware': 'hardwareability',
+	'l':        'leaderability',
+	'leader':   'leaderability',
+	's':        'specialability',
+	'special':  'specialability',
+	'u':        'uniqueability',
+	'unique':   'uniqueability',
 }
 
 def parse_opts_tier(args):
@@ -81,17 +86,23 @@ def parse_opts_skill_types(args):
 
 def fix_desc(desc):
 
-	replaceable_tokens = {
-		'[c][FFA500]': '__**',
-		'[c][B5E7F5]': '__**',
-		'[c][ffff33]': '__**',
-		'[c][f0ff23]': '__**',
-	}
+	colors = [
+		'f0ff23',
+		'ffff33',
+		'F0FF23',
+		'ffffff',
+		'FFCC33',
+		'FF0000',
+		'B5E7F5',
+		'FFA500',
+		'e60000',
+	]
 
 	count = 0
-	for token, replacement in replaceable_tokens.items():
+	for color in colors:
+		token = '[c][%s]' % color
 		while token in desc:
-			desc = desc.replace(token, replacement, 1)
+			desc = desc.replace(token, '__**', 1)
 			count += 1
 
 	return desc.replace('\\n', '\n').replace('[-][/c]', '**__', count).replace('[-][/c]', '')
@@ -106,7 +117,7 @@ async def cmd_kit(request):
 
 	selected_skill_types = parse_opts_skill_types(args)
 	if not selected_skill_types:
-		selected_skill_types = [ 'basicability', 'leaderability', 'specialability', 'uniqueability' ]
+		selected_skill_types = [ 'basicability', 'contractability', 'hardwareability', 'leaderability', 'specialability', 'uniqueability' ]
 
 	selected_tier = parse_opts_tier(args)
 
@@ -159,7 +170,7 @@ async def cmd_kit(request):
 							break
 
 				if not tier:
-					tier = 8
+					tier = (ability_type.startswith('hardware') or ability_type.startswith('contract')) and 3 or 8
 
 				string_id = '%s_tier%02d' % (skill.ability_ref, tier)
 
