@@ -159,9 +159,9 @@ async def cmd_kit(request):
 							break
 
 				if not tier:
-					tier = 6
+					tier = 8
 
-				string_id = 'desc|%s|tier%02d' % (skill.ability_ref, tier)
+				string_id = '%s_tier%02d' % (skill.ability_ref, tier)
 
 				unit_name = translate(unit.base_id, language)
 				skill_name = get_ability_name(skill.skill_id, language)

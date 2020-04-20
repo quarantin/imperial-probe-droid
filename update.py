@@ -109,7 +109,7 @@ async def fetch_all_collections(config):
 		for lang_project in lang_projects:
 
 			project = dict(lang_project)
-			project['language'] = language,
+			project['language'] = language
 
 			print('Downloading %s collection `%s`...' % (language, project['collection']))
 			data = await api_swgoh_data(config, project)
@@ -142,7 +142,7 @@ def parse_translations_desc(collection, key, context, language):
 			for entry in jsondata:
 
 				tier_index = 1
-				string_id = '%s/tier%02d' % (entry[key], tier_index)
+				string_id = '%s_tier%02d' % (entry[key], tier_index)
 				obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language)
 				if obj.translation != entry['descKey']:
 					obj.translation = entry['descKey']
@@ -151,7 +151,7 @@ def parse_translations_desc(collection, key, context, language):
 				tier_index = 2
 				for tier in entry['tierList']:
 
-					string_id = 'desc|%s|tier%02d' % (entry[key], tier_index)
+					string_id = '%s_tier%02d' % (entry[key], tier_index)
 					obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language)
 					if obj.translation != tier['descKey']:
 						obj.translation = tier['descKey']
