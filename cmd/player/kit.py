@@ -172,9 +172,11 @@ async def cmd_kit(request):
 							if unit_skill['id'] == skill.skill_id and 'tier' in unit_skill:
 								tier = unit_skill['tier']
 								break
+						else:
+							tier = 1
 
-				if not tier or tier == 'max':
-					tier = (ability_type.startswith('hardware') or ability_type.startswith('contract')) and 3 or 8
+				if not tier or tier == 'max' or tier > skill.max_tier:
+					tier = skill.max_tier
 
 				string_id = '%s_tier%02d' % (skill.ability_ref, tier)
 
@@ -188,11 +190,21 @@ async def cmd_kit(request):
 					'thumbnail': {
 						'url': 'http://zeroday.biz/avatar/%s' % unit.base_id,
 					},
-					'description': '__**%s** (%s)__\n*%s*' % (skill_name, ability_type, skill_desc),
+					'description': '__**%s** (%s, %d/%d)__\n*%s*' % (skill_name, ability_type, tier, skill.max_tier, skill_desc),
 					'image': {
 						'url': 'http://zeroday.biz/skill/%s/' % skill.skill_id,
 					},
 					'no-sep': True,
 				})
+
+	if not msgs:
+		units = '\n- '.join([ translate(unit.base_id, language) for unit in selected_units ])
+		skill_types = ', or '.join([ x.replace('ability', '') for x in selected_skill_types ])
+		plural = len(selected_units) > 1 and 's' or ''
+		plural_have = len(selected_units) > 1 and 'have' or 'has'
+		msgs.append({
+			'title': 'No Matching Skills',
+			'description': 'The following unit%s %s no %s skill%s:\n- %s' % (plural, plural_have, skill_types, plural, units),
+		})
 
 	return msgs
