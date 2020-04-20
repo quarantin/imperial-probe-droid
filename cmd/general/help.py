@@ -12,13 +12,13 @@ help_help = {
 **General Commands**
 **`help`**: This help menu.
 **`help <command>`**: Get help menu for command.
-**`config`**: Configure server settings such as bot prefix (**NEW**).
+**`config`**: Configure server settings such as bot prefix.
 **`register`**: Register your ally code.
 **`gregister`**: Register your guild mates (**NEW**).
 **`invite`**: Invite this bot to your server.
 %separator
 **Channel Commands**
-**`news`**: Keep track of official news from the game developers (**NEW**).
+**`news`**: Keep track of official news from the game developers.
 **`payout`**: Keep track of time left to payout for your shard members in arena.
 %separator
 **Guild Commands**
@@ -30,17 +30,18 @@ help_help = {
 **`arena`**: Show arena squad details.
 **`gac`**: Compare GAC statistics of different players (**NEW**).
 **`gear`**: List equipment needed for characters.
-**`gear13`**: List most popular gear 13 characters you don't have (**NEW**).
+**`gear13`**: List most popular gear 13 characters you don't have.
+**`kit`**: List skills of a given unit and their descriptions (**NEW**).
 **`locked`**: Show locked characters or ships.
-**`mc`**: Show characters with missing mods or having weak mods (**NEW**).
+**`mc`**: Show characters with missing mods or having weak mods.
 **`meta`**: Show information about best arena and fleet squads.
 **`needed`**: Show information about needed modsets globally.
 **`pc`**: Player comparison by roster.
 **`ps`**: Player comparison by stats.
 **`recos`**: Show information about recommended mods.
-**`relics`**: List most popular characters with relics (**NEW**).
+**`relics`**: List most popular characters with relics.
 **`wntm`**: List characters who needs mods with specific criteria.
-**`zetas`**: List most popular zetas you don't have (**NEW**)."""
+**`zetas`**: List most popular zetas you don't have."""
 #NOT WORKING **`mods`**: Show information about mods.
 #NOT WORKING **`stats`**: Show statistics about equipped mods."""
 }
