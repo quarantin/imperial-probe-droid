@@ -333,6 +333,13 @@ def parse_skills():
 		skill_id = skill['id']
 		skills[skill_id] = skill
 
+	filename = 'cache/abilityList_eng_us.json'
+	ability_list = load_json(filename)
+	max_tiers = {}
+	for ability in ability_list:
+		ability_ref = ability['id']
+		max_tiers[ability_ref] = len(ability['tierList']) + 1
+
 	filename = 'cache/unitsList.json'
 	units = load_json(filename)
 	with transaction.atomic():
@@ -351,11 +358,24 @@ def parse_skills():
 						unit_skills.extend(crew_member['skillReferenceList'])
 
 				for skill in unit_skills:
+
 					skill_id = skill['skillId']
 					ability = skills[skill_id]
 					ability_ref = ability['abilityReference']
-					is_zeta = ability['isZeta']
-					obj, created = BaseUnitSkill.objects.update_or_create(skill_id=skill_id, ability_ref=ability_ref, is_zeta=is_zeta, unit=real_unit)
+
+					try:
+						obj = BaseUnitSkill.objects.get(skill_id=skill_id)
+
+					except BaseUnitSkill.DoesNotExist:
+						obj = BaseUnitSkill(skill_id=skill_id)
+
+
+					obj.ability_ref = ability_ref
+					obj.max_tier = max_tiers[ability_ref]
+					obj.is_zeta = ability['isZeta']
+					obj.unit = real_unit
+
+					obj.save()
 
 			except BaseUnit.DoesNotExist:
 				print("WARN: Missing unit from DB: %s" % base_id)

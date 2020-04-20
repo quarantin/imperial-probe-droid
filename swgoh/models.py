@@ -398,6 +398,7 @@ class BaseUnitGear(models.Model):
 class BaseUnitSkill(models.Model):
 	skill_id = models.CharField(max_length=30)
 	ability_ref = models.CharField(max_length=30)
+	max_tier = models.IntegerField()
 	is_zeta = models.BooleanField(default=False)
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 
