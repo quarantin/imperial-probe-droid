@@ -8,24 +8,23 @@ help_help = {
 **Need support?**: Join us on [Discord](%discord)!
 **Like this bot?**: Support us on [Patreon](%patreon)!
 **Invite this bot?**: Click %invite!
-%separator
+
 **General Commands**
-**`help`**: This help menu.
 **`help <command>`**: Get help menu for command.
 **`config`**: Configure server settings such as bot prefix.
 **`register`**: Register your ally code.
 **`gregister`**: Register your guild mates (**NEW**).
 **`invite`**: Invite this bot to your server.
-%separator
+
 **Channel Commands**
 **`news`**: Keep track of official news from the game developers.
 **`payout`**: Keep track of time left to payout for your shard members in arena.
-%separator
+
 **Guild Commands**
 **`gc`**: Guild comparison by roster.
 **`gs`**: Guild comparison by stats.
 **`glist`**: List guild members by unit GP, gear, level, rarity.
-%separator
+
 **Player Commands**
 **`arena`**: Show arena squad details.
 **`gac`**: Compare GAC statistics of different players (**NEW**).
@@ -91,4 +90,5 @@ def cmd_help(request):
 	return [{
 		'title':       substitute_tokens(config, msg['title']),
 		'description': substitute_tokens(config, msg['description']),
+		'no-sep': True,
 	}]
