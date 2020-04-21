@@ -438,7 +438,7 @@ class BaseUnitSkill(models.Model):
 				if 'tier' not in skill:
 					skill['tier'] = 1
 
-				if skill_id in zetas and skill['tier'] == skill['max_tier']:
+				if skill_id in zetas and skill['tier'] == zetas[skill_id]['max_tier']:
 					count += 1
 
 		return count
