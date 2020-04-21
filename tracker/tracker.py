@@ -133,36 +133,33 @@ class Tracker(bot.Bot):
 
 	def prepare_message(self, server, config, message):
 
-		if 'nick' in message:
-			message['mention'] = message['nick']
+		if 'user' in message:
+			message['mention'] = message['user']
 
-		if 'key' in message and 'nick' in message and 'ally.code' in message:
+		if 'key' in message and 'user' in message and 'ally.code' in message:
 			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
 			mention, avatar = self.get_user_info(server, message['ally.code'])
 			if mention and prep_key in config and config[prep_key] is not False:
 				message['mention'] = mention
 			message['user.avatar'] = avatar
 
-		if 'unit' in message:
-			message['unit.id'] = message['unit']
-			message['unit'] = get_unit_name(message['unit'], config['language'])
+		if 'unit.id' in message:
+			message['unit'] = get_unit_name(message['unit.id'], config['language'])
 			message['alignment'] = BaseUnit.get_alignment(message['unit.id'])
 
-		if 'gear.level' in message:
-			gear_level = message['gear.level']
-			message['gear.level.roman'] = ROMAN[gear_level]
+		if 'gear' in message:
+			gear_level = message['gear']
+			message['roman.gear'] = ROMAN[gear_level]
 
-		if 'gear.piece' in message:
-			message['gear.piece.id'] = message['gear.piece']
-			message['gear.piece'] = translate(message['gear.piece'], config['language'])
+		if 'equip.id' in message:
+			message['equip'] = translate(message['equip.id'], config['language'])
 
 		if 'rarity' in message:
 			rarity = int(message['rarity'])
 			message['stars'] = ('★' * rarity) + ('☆' * (MAX_RARITY - rarity))
 
-		if 'skill' in message:
-			message['skill.id'] = message['skill']
-			message['skill'] = get_ability_name(message['skill'], config['language'])
+		if 'skill.id' in message:
+			message['skill'] = get_ability_name(message['skill.id'], config['language'])
 
 		if 'tier' in message:
 

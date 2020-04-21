@@ -1,9 +1,9 @@
 FORMAT_ARENA_RANK_DOWN = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
-	"title": "Got his ass kicked",
+	"title": "Got kicked back",
 	"thumbnail": {
 		"url": "${server}/media/sabers.png"
 	},
@@ -12,10 +12,10 @@ FORMAT_ARENA_RANK_DOWN = {
 
 FORMAT_ARENA_RANK_UP = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
-	"title": "Kicked someone\u2018s ass",
+	"title": "Moved up",
 	"thumbnail": {
 		"url": "${server}/media/sabers.png"
 	},
@@ -24,10 +24,10 @@ FORMAT_ARENA_RANK_UP = {
 
 FORMAT_FLEET_RANK_DOWN = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
-	"title": "Got his ass kicked",
+	"title": "Got kicked back",
 	"thumbnail": {
 		"url": "${server}/media/milf.png"
 	},
@@ -36,10 +36,10 @@ FORMAT_FLEET_RANK_DOWN = {
 
 FORMAT_FLEET_RANK_UP = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
-	"title": "Kicked someone\u2018s ass",
+	"title": "Moved up",
 	"thumbnail": {
 		"url": "${server}/media/milf.png"
 	},
@@ -55,12 +55,12 @@ FORMAT_INACTIVITY = {
 	"thumbnail": {
 		"url": "https://i.imgur.com/RLkJC1X.png"
 	},
-	"description": "\ud83d\udeab **${nick}** has been slacking away!!! \ud83d\udecf\ufe0f\ud83d\udca4\ud83d\udc7b\ud83d\udc4e\n\u274c Be __**Smart**__ buddy! \ud83d\ude0e \ud83d\ude07\n\u26d4 Don't let \ud83d\udca2Rooster's \ud83e\uddb6 into your \ud83c\udf51\n\ud83d\ude21 Or you **WILL** regret it! \ud83d\udcaa\ud83e\uddb7 \u2620\ufe0f\ud83d\udc80\ud83d\udc7b \n```Slacking for ${last.seen}```"
+	"description": "\ud83d\udeab **${user}** has been slacking away!!! \ud83d\udecf\ufe0f\ud83d\udca4\ud83d\udc7b\ud83d\udc4e\n\u274c Be __**Smart**__ buddy! \ud83d\ude0e \ud83d\ude07\n\u26d4 Don't let \ud83d\udca2Rooster's \ud83e\uddb6 into your \ud83c\udf51\n\ud83d\ude21 Or you **WILL** regret it! \ud83d\udcaa\ud83e\uddb7 \u2620\ufe0f\ud83d\udc80\ud83d\udc7b \n```Slacking for ${last.seen}```"
 }
 
 FORMAT_PLAYER_NICK = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
@@ -72,7 +72,7 @@ FORMAT_PLAYER_NICK = {
 
 FORMAT_PLAYER_LEVEL = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}",
 	},
 	"thumbnail": {
@@ -84,138 +84,150 @@ FORMAT_PLAYER_LEVEL = {
 
 FORMAT_UNIT_GEAR_LEVEL = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?gear=${gear.level}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Gear ${gear.level.roman}***"
+	"description": "***Gear ${roman.gear}***",
+	"image": {
+		"url": "${server}/avatar/${unit.id}?gear=${gear}&alignment=${alignment}"
+	}
 }
 
 FORMAT_UNIT_GEAR_PIECE = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/gear/${gear.piece.id}/"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***${gear.piece}***",
+	"description": "***${equip}***",
 	"image": {
-		"url": "${server}/avatar/${unit.id}"
+		"url": "${server}/gear/${equip.id}/"
 	}
 }
 
 FORMAT_UNIT_LEVEL = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Level ${level}***"
+	"description": "***Level ${level}***",
+	"image": {
+		"url": "${server}/avatar/${unit.id}?level=${level}"
+	}
 }
 
 FORMAT_UNIT_OMEGA = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/media/omega.png"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",
 	"image": {
-		"url": "${server}/avatar/${unit.id}"
+		"url": "${server}/media/omega.png"
 	}
 }
 
 FORMAT_UNIT_SKILL_INCREASED = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/skill/${skill.id}/"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***\n```Tier ${tier}```",
 	"image": {
-		"url": "${server}/avatar/${unit.id}"
+		"url": "${server}/skill/${skill.id}/"
 	}
 }
 
 FORMAT_UNIT_SKILL_UNLOCKED = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/skill/${skill.id}/"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***\n```Unlocked```",
 	"image": {
-		"url": "${server}/avatar/${unit.id}"
+		"url": "${server}/skill/${skill.id}/"
 	}
 }
 
 FORMAT_UNIT_RARITY = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?rarity=${rarity}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "${stars}"
+	"description": "${stars}",
+	"image": {
+		"url": "${server}/avatar/${unit.id}?rarity=${rarity}"
+	}
 }
 
 FORMAT_UNIT_RELIC = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/relic/${relic}/${alignment}/"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Relic ${relic}***",
+	"description": "***Relic ${relics}***",
 	"image": {
-		"url": "${server}/avatar/${unit.id}"
+		"url": "${server}/relic/${relics}/${alignment}/"
 	}
 }
 
 FORMAT_UNIT_UNLOCKED = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
 		"url": "${server}/avatar/${unit.id}"
 	},
 	"title": "Unlocked",
-	"description": "***${unit}***"
+	"description": "***${unit}***",
+	"image": {
+		"url": "${server}/avatar/${unit.id}"
+	}
 }
 
 FORMAT_UNIT_ZETA = {
 	"author": {
-		"name": "${nick}",
+		"name": "${user}",
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/media/zeta.png"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",
 	"image": {
-		"url": "${server}/avatar/${unit.id}"
+		"url": "${server}/media/zeta.png"
 	}
 }

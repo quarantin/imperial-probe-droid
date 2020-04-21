@@ -52,7 +52,7 @@ class TrackerThread(asyncio.Future):
 
 	async def handle_gear_level(config, message):
 
-		gear_level = message['gear.level']
+		gear_level = message['gear']
 
 		key = PremiumGuild.MSG_UNIT_GEAR_LEVEL
 		if key in config and config[key] is False:

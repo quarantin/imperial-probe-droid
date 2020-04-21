@@ -19,6 +19,9 @@ class CrawlerDiffer:
 
 		return 0
 
+	def get_zetas(self, unit):
+		return 0
+
 	def check_diff_player_units(self, guild, old_profile, new_profile, messages):
 
 		old_roster = { x['defId']: x for x in old_profile['roster'] }
@@ -28,10 +31,10 @@ class CrawlerDiffer:
 		new_player_name = new_profile['name']
 		if old_player_name != new_player_name:
 			messages.append({
-				'key': PremiumGuild.MSG_PLAYER_NICK,
-				'nick': old_player_name,
+				'key':       PremiumGuild.MSG_PLAYER_NICK,
+				'user':      old_player_name,
 				'ally.code': new_profile['allyCode'],
-				'new.nick': new_player_name,
+				'new.nick':  new_player_name,
 			})
 
 		for base_id, new_unit in new_roster.items():
@@ -39,10 +42,15 @@ class CrawlerDiffer:
 			# Handle new units unlocked.
 			if base_id not in old_roster:
 				messages.append({
-					'key': PremiumGuild.MSG_UNIT_UNLOCKED,
-					'nick': new_player_name,
+					'key':       PremiumGuild.MSG_UNIT_UNLOCKED,
+					'user':      new_player_name,
 					'ally.code': new_profile['allyCode'],
-					'unit': base_id,
+					'unit.id':   base_id,
+					'level':     new_unit['level'],
+					'gear':      new_unit['gear'],
+					'rarity':    new_unit['rarity'],
+					'relics':    self.get_relic(new_unit),
+					'zetas':     self.get_zetas(new_unit),
 				})
 				continue
 
@@ -51,11 +59,15 @@ class CrawlerDiffer:
 			new_level = new_unit['level']
 			if old_level < new_level:
 				messages.append({
-					'key': PremiumGuild.MSG_UNIT_LEVEL,
-					'nick': new_player_name,
+					'key':       PremiumGuild.MSG_UNIT_LEVEL,
+					'user':      new_player_name,
 					'ally.code': new_profile['allyCode'],
-					'unit': base_id,
-					'level': new_level,
+					'unit.id':   base_id,
+					'level':     new_unit['level'],
+					'gear':      new_unit['gear'],
+					'rarity':    new_unit['rarity'],
+					'relics':    self.get_relic(new_unit),
+					'zetas':     self.get_zetas(new_unit),
 				})
 
 			# Handle unit rarity increase.
@@ -63,11 +75,15 @@ class CrawlerDiffer:
 			new_rarity = new_unit['rarity']
 			if old_rarity < new_rarity:
 				messages.append({
-					'key': PremiumGuild.MSG_UNIT_RARITY,
-					'nick': new_player_name,
+					'key':       PremiumGuild.MSG_UNIT_RARITY,
+					'user':      new_player_name,
 					'ally.code': new_profile['allyCode'],
-					'unit': base_id,
-					'rarity': new_rarity,
+					'unit.id':   base_id,
+					'level':     new_unit['level'],
+					'gear':      new_unit['gear'],
+					'rarity':    new_unit['rarity'],
+					'relics':    self.get_relic(new_unit),
+					'zetas':     self.get_zetas(new_unit),
 				})
 
 			# Handle gear level increase.
@@ -75,11 +91,15 @@ class CrawlerDiffer:
 			new_gear_level = new_unit['gear']
 			if old_gear_level < new_gear_level:
 				messages.append({
-					'key': PremiumGuild.MSG_UNIT_GEAR_LEVEL,
-					'nick': new_player_name,
+					'key':       PremiumGuild.MSG_UNIT_GEAR_LEVEL,
+					'user':      new_player_name,
 					'ally.code': new_profile['allyCode'],
-					'unit': base_id,
-					'gear.level': new_gear_level,
+					'unit.id':   base_id,
+					'level':     new_unit['level'],
+					'gear':      new_unit['gear'],
+					'rarity':    new_unit['rarity'],
+					'relics':    self.get_relic(new_unit),
+					'zetas':     self.get_zetas(new_unit),
 				})
 
 			# Handle relic increase.
@@ -87,11 +107,15 @@ class CrawlerDiffer:
 			new_relic = self.get_relic(new_unit)
 			if old_relic < new_relic:
 				messages.append({
-					'key': PremiumGuild.MSG_UNIT_RELIC,
-					'nick': new_player_name,
+					'key':       PremiumGuild.MSG_UNIT_RELIC,
+					'user':      new_player_name,
 					'ally.code': new_profile['allyCode'],
-					'unit': base_id,
-					'relic': new_relic,
+					'unit.id':   base_id,
+					'level':     new_unit['level'],
+					'gear':      new_unit['gear'],
+					'rarity':    new_unit['rarity'],
+					'relics':    self.get_relic(new_unit),
+					'zetas':     self.get_zetas(new_unit),
 				})
 
 			# TODO Handle case when there was a gear level change because in that case we need to do things differently
@@ -101,11 +125,16 @@ class CrawlerDiffer:
 			if diff_equipped:
 				for gear in diff_equipped:
 					messages.append({
-						'key': PremiumGuild.MSG_UNIT_GEAR_PIECE,
-						'nick': new_player_name,
+						'key':       PremiumGuild.MSG_UNIT_GEAR_PIECE,
+						'user':      new_player_name,
 						'ally.code': new_profile['allyCode'],
-						'unit': base_id,
-						'gear.piece': gear['equipmentId']
+						'unit.id':   base_id,
+						'level':     new_unit['level'],
+						'gear':      new_unit['gear'],
+						'rarity':    new_unit['rarity'],
+						'relics':    self.get_relic(new_unit),
+						'zetas':     self.get_zetas(new_unit),
+						'equip.id':  gear['equipmentId'],
 					})
 
 			old_skills = { x['id']: x for x in old_roster[base_id]['skills'] }
@@ -115,11 +144,16 @@ class CrawlerDiffer:
 
 				if new_skill_id not in old_skills:
 					messages.append({
-						'key': PremiumGuild.MSG_UNIT_SKILL_UNLOCKED,
-						'nick': new_player_name,
+						'key':       PremiumGuild.MSG_UNIT_SKILL_UNLOCKED,
+						'user':      new_player_name,
 						'ally.code': new_profile['allyCode'],
-						'unit': base_id,
-						'skill': new_skill_id,
+						'unit.id':   base_id,
+						'level':     new_unit['level'],
+						'gear':      new_unit['gear'],
+						'rarity':    new_unit['rarity'],
+						'relics':    self.get_relic(new_unit),
+						'zetas':     self.get_zetas(new_unit),
+						'skill.id':  new_skill_id,
 					})
 					continue
 
@@ -134,12 +168,17 @@ class CrawlerDiffer:
 				if old_skill['tier'] < new_skill['tier']:
 
 					messages.append({
-						'key': PremiumGuild.MSG_UNIT_SKILL_INCREASED,
-						'nick': new_player_name,
+						'key':       PremiumGuild.MSG_UNIT_SKILL_INCREASED,
+						'user':      new_player_name,
 						'ally.code': new_profile['allyCode'],
-						'unit': base_id,
-						'skill': new_skill_id,
-						'tier': new_skill['tier']
+						'unit.id':   base_id,
+						'level':     new_unit['level'],
+						'gear':      new_unit['gear'],
+						'rarity':    new_unit['rarity'],
+						'relics':    self.get_relic(new_unit),
+						'zetas':     self.get_zetas(new_unit),
+						'skill.id':  new_skill_id,
+						'tier':      new_skill['tier'],
 					})
 
 	def check_diff_player_level(self, guild, old_profile, new_profile, messages):
@@ -149,10 +188,10 @@ class CrawlerDiffer:
 
 		if old_player_level < new_player_level:
 			messages.append({
-				'key': PremiumGuild.MSG_PLAYER_LEVEL,
-				'nick': new_profile['name'],
+				'key':       PremiumGuild.MSG_PLAYER_LEVEL,
+				'user':      new_profile['name'],
 				'ally.code': new_profile['allyCode'],
-				'level': new_player_level,
+				'level':     new_player_level,
 			})
 
 	def check_diff_arena_ranks(self, guild, old_profile, new_profile, messages):
@@ -171,12 +210,12 @@ class CrawlerDiffer:
 
 			if key:
 				messages.append({
-					'key': key,
-					'type': arena_type,
-					'nick': new_profile['name'],
+					'key':       key,
+					'type':      arena_type,
+					'user':      new_profile['name'],
 					'ally.code': new_profile['allyCode'],
-					'old.rank': old_rank,
-					'new.rank': new_rank
+					'old.rank':  old_rank,
+					'new.rank':  new_rank
 				})
 
 	def check_last_seen(self, guild, new_profile, messages):
@@ -202,8 +241,8 @@ class CrawlerDiffer:
 
 			last_activity = str(delta - timedelta(microseconds=delta.microseconds))
 			messages.append({
-				'key': PremiumGuild.MSG_INACTIVITY,
-				'nick': profile['name'],
+				'key':       PremiumGuild.MSG_INACTIVITY,
+				'user':      profile['name'],
 				'ally.code': new_profile['allyCode'],
 				'last.seen': last_activity,
 			})
