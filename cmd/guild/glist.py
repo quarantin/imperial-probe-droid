@@ -1,8 +1,11 @@
 from opts import *
 from errors import *
 
-from utils import get_relic_tier, get_star, translate
+from utils import get_star, translate
 from swgohhelp import sort_players, fetch_crinolo_stats, fetch_guilds
+
+import DJANGO
+from swgoh.models import BaseUnitSkill
 
 help_guild_list = {
 	'title': 'Guild List Help',
@@ -44,7 +47,7 @@ def unit_is_matching(unit, char_filters):
 	if unit['rarity'] < char_filters['rarity']:
 		return False
 
-	if get_relic_tier(unit) < char_filters['relic']:
+	if BaseUnitSkill.get_relic(unit) < char_filters['relic']:
 		return False
 
 	return True
@@ -122,7 +125,7 @@ async def cmd_guild_list(request):
 				'gear':    unit['gear'],
 				'level':   unit['level'],
 				'rarity':  unit['rarity'],
-				'relic':   get_relic_tier(unit),
+				'relic':   BaseUnitSkill.get_relic(unit),
 				'base_id': ref_unit.base_id,
 				'name':    translated_unit_name,
 				'url':     ref_unit.get_url(),

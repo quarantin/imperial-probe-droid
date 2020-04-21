@@ -3,11 +3,11 @@ from collections import OrderedDict
 from opts import *
 from errors import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
-from utils import dotify, get_banner_emoji, get_relic_tier, get_stars_as_emojis, roundup, translate
+from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate
 from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
 
 import DJANGO
-from swgoh.models import BaseUnit
+from swgoh.models import BaseUnit, BaseUnitSkill
 
 help_guild_stat = {
 	'title': 'Guild Stat Help',
@@ -90,7 +90,7 @@ def get_guild_stats(guild, players):
 				elif unit['gear'] == 11:
 					stats['g11-units'] += 1
 
-				relic = get_relic_tier(unit)
+				relic = BaseUnitSkill.get_relic(unit)
 				stats['r%d-units' % relic] += 1
 			else:
 				stats['s7-ships'] += (is_max_rarity and 1 or 0)

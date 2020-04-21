@@ -1,10 +1,13 @@
+import json
+
 from opts import *
 from errors import *
 
-from utils import get_relic_tier, get_star, translate
+from utils import get_star, translate
 from swgohhelp import fetch_guilds
 
-import json
+import DJANGO
+from swgoh.models import BaseUnitSkill
 
 help_guild_gp = {
 	'title': 'Guild List Help',
@@ -43,7 +46,7 @@ def unit_is_matching(unit, char_filters):
 	if unit['rarity'] < char_filters['rarity']:
 		return False
 
-	if get_relic_tier(unit) < char_filters['relic']:
+	if BaseUnitSkill.get_relic(unit) < char_filters['relic']:
 		return False
 
 	return True

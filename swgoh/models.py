@@ -396,22 +396,52 @@ class BaseUnitGear(models.Model):
 		return '%s / %d / %d / %s' % (self.unit.name, self.tier, self.slot, self.gear.name)
 
 class BaseUnitSkill(models.Model):
+
 	skill_id = models.CharField(max_length=30)
 	ability_ref = models.CharField(max_length=30)
 	max_tier = models.IntegerField()
 	is_zeta = models.BooleanField(default=False)
 	unit = models.ForeignKey(BaseUnit, on_delete=models.CASCADE)
 
+	@staticmethod
+	def get_relic(unit):
+
+		if 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic']:
+			return max(0, unit['relic']['currentTier'] - 2)
+
+		return 0
+
+	@staticmethod
 	def get_zetas():
+
 		zetas = {}
-		skills = list(BaseUnitSkill.objects.filter(is_zeta=True).values('skill_id', 'ability_ref'))
+		skills = list(BaseUnitSkill.objects.filter(is_zeta=True).values())
 		for skill in skills:
-			skill_id = skill['skill_id']
+
+			skill_id    = skill['skill_id']
 			ability_ref = skill['ability_ref']
-			zetas[skill_id] = True
-			zetas[ability_ref] = True
+
+			zetas[skill_id]    = skill
+			zetas[ability_ref] = skill
 
 		return zetas
+
+	@staticmethod
+	def count_zetas(unit):
+
+		count = 0
+		zetas = BaseUnitSkill.get_zetas()
+		if 'skills' in unit:
+			for skill in unit['skills']:
+
+				skill_id = skill['id']
+				if 'tier' not in skill:
+					skill['tier'] = 1
+
+				if skill_id in zetas and skill['tier'] == skill['max_tier']:
+					count += 1
+
+		return count
 
 # TODO Use me
 class PlayerUnit(models.Model):

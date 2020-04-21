@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS, MAX_SKILL_TIER
 from collections import OrderedDict
-from utils import get_relic_tier, get_stars_as_emojis, roundup
+from utils import get_stars_as_emojis, roundup
 from swgohhelp import fetch_crinolo_stats, get_ability_name
 
 import DJANGO
@@ -98,7 +98,7 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 		res['GP']    = '%d'  % unit['gp']
 		res['Level'] = '%d' % unit['level']
 		res['Gear']  = '%d' % unit['gear']
-		res['Relic'] = '%d' % get_relic_tier(unit)
+		res['Relic'] = '%d' % BaseUnitSkill.get_relic(unit)
 
 		# Health, Protection, Armor, Resistance
 		res['Health']     = get_stat_detail('Health',         stat)

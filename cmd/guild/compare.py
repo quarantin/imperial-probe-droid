@@ -3,8 +3,11 @@ from collections import OrderedDict
 from opts import *
 from errors import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
-from utils import dotify, get_banner_emoji, get_relic_tier, get_stars_as_emojis, roundup, translate
+from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate
 from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
+
+import DJANGO
+from swgoh.models import BaseUnitSkill
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
@@ -37,15 +40,15 @@ def get_unit_stats(config, roster, lang):
 		'zetas': {},
 	}
 
-	for unit_roster in roster:
+	for unit in roster:
 
 
-		gp    = unit_roster['gp'] or 0
-		level = unit_roster['level']
-		gear  = unit_roster['gear']
-		relic = get_relic_tier(unit_roster)
-		stars = unit_roster['rarity']
-		zetas = [ x for x in unit_roster['skills'] if 'tier' in x and x['tier'] == MAX_SKILL_TIER and x['isZeta'] ]
+		gp    = unit['gp'] or 0
+		level = unit['level']
+		gear  = unit['gear']
+		stars = unit['rarity']
+		relic = BaseUnitSkill.get_relic(unit)
+		zetas = BaseUnitSkill.count_zetas(unit)
 
 		stats['count'] += 1
 		stats['cumul-gp'] += gp

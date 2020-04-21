@@ -3,7 +3,6 @@
 import sys
 import json
 import asyncio
-import libswgoh
 import traceback
 from datetime import datetime, timedelta
 
@@ -15,6 +14,9 @@ from swgoh.models import PremiumGuild
 
 from crawlerdiffer import CrawlerDiffer
 
+import libswgoh
+import protos.swgoh_pb2 as swgoh_pb2
+
 SAFETY_TTL = 10 * MINUTE
 
 DEFAULT_GUILD_EXPIRE = 24
@@ -22,13 +24,22 @@ DEFAULT_PLAYER_EXPIRE = 24
 
 class Crawler(asyncio.Future):
 
-	async def update_player(self, guild, ally_code):
+	async def update_player(self, guild, ally_code, restart=True):
 
 		ally_code = str(ally_code)
-		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+		try:
+			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+
+		except libswgoh.LibSwgohException as err:
+			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
+				self.session = await libswgoh.get_auth_guest()
+				if restart is True:
+					return await self.update_player(guild, ally_code, restart=False)
+
 		if not profile:
-			self.logger.error('Failed retrieving profile for allycode %s' % ally_code)
-			raise Exception('Failed retrieving profile for %s, skipping.' % ally_code)
+			msg = 'Failed retrieving profile for allycode %s, skipping.' % ally_code
+			self.logger.error(msg)
+			raise Exception(msg)
 
 		# TODO: Fix this atrocity
 		profile = json.loads(json.dumps(profile))
@@ -61,14 +72,22 @@ class Crawler(asyncio.Future):
 
 		self.logger.debug(ally_code)
 
-	async def get_player(self, ally_code, fetch=True):
+	async def get_player(self, ally_code, fetch=True, restart=True):
 
 		key = 'player|%s' % ally_code
 		profile = self.redis.get(key)
 		if profile:
 			return json.loads(profile.decode('utf-8'))
 
-		profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+		try:
+			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
+
+		except libswogh.LibSwgohException as err:
+			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
+				self.session = await libswgoh.get_auth_guest()
+				if restart is True:
+					return self.get_player(ally_code, fetch=fetch, restart=False)
+
 		if profile:
 			id_key = 'playerid|%s' % profile['id']
 			expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
@@ -106,7 +125,6 @@ class Crawler(asyncio.Future):
 
 				except Exception as err:
 					print(err)
-					#print(traceback.format_exc())
 					failed_ac.append(str(member['allyCode']))
 					failed_ch.append(channel)
 
@@ -280,7 +298,7 @@ class Crawler(asyncio.Future):
 
 			self.logger.debug('Sleeping for %s seconds' % delay)
 
-			await asyncio.sleep(delay)
+			await asyncio.sleep(1)
 
 if __name__ == '__main__':
 

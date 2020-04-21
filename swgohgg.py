@@ -41,15 +41,6 @@ def get_swgohgg_player_unit_url(ally_code, base_id):
 	url = 'https://swgoh.gg/p/%s/characters/%s' % (ally_code, simple_name)
 	return url
 
-def count_zetas(unit):
-	zeta_skills = BaseUnitSkill.get_zetas()
-	zetas = 0
-	if 'skills' in unit:
-		for skill in unit['skills']:
-			if skill['id'] in zeta_skills and skill['tier'] == MAX_SKILL_TIER:
-				zetas += 1
-	return zetas
-
 def get_full_avatar_url(config, image, unit):
 
 	base_id = os.path.basename(os.path.dirname(image))
@@ -63,7 +54,7 @@ def get_full_avatar_url(config, image, unit):
 		rarity = 'rarity' in unit and unit['rarity']     or 0
 		zetas  = 'zetas'  in unit and len(unit['zetas']) or 0
 		if zetas == 0:
-			zetas = count_zetas(unit)
+			zetas = BaseUnitSkill.count_zetas(unit)
 
 		relics = 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic'] and unit['relic']['currentTier'] or 0
 		relics = max(0, relics - 2)

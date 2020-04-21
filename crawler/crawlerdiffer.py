@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 import DJANGO
-from swgoh.models import PremiumGuild
+from swgoh.models import BaseUnitSkill, PremiumGuild
 
 class CrawlerDiffer:
 
@@ -11,16 +11,6 @@ class CrawlerDiffer:
 		self.config = crawler.config
 		self.logger = crawler.logger
 		self.redis = crawler.redis
-
-	def get_relic(self, unit):
-
-		if 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic']:
-			return max(0, unit['relic']['currentTier'] - 2)
-
-		return 0
-
-	def get_zetas(self, unit):
-		return 0
 
 	def check_diff_player_units(self, guild, old_profile, new_profile, messages):
 
@@ -49,8 +39,8 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relic':     self.get_relic(new_unit),
-					'zetas':     self.get_zetas(new_unit),
+					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 				continue
 
@@ -66,8 +56,8 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relic':     self.get_relic(new_unit),
-					'zetas':     self.get_zetas(new_unit),
+					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 
 			# Handle unit rarity increase.
@@ -82,8 +72,8 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relic':     self.get_relic(new_unit),
-					'zetas':     self.get_zetas(new_unit),
+					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 
 			# Handle gear level increase.
@@ -98,13 +88,13 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relic':     self.get_relic(new_unit),
-					'zetas':     self.get_zetas(new_unit),
+					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 
 			# Handle relic increase.
-			old_relic = self.get_relic(old_roster[base_id])
-			new_relic = self.get_relic(new_unit)
+			old_relic = BaseUnitSkill.get_relic(old_roster[base_id])
+			new_relic = BaseUnitSkill.get_relic(new_unit)
 			if old_relic < new_relic:
 				messages.append({
 					'key':       PremiumGuild.MSG_UNIT_RELIC,
@@ -114,8 +104,8 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relic':     self.get_relic(new_unit),
-					'zetas':     self.get_zetas(new_unit),
+					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 
 			# TODO Handle case when there was a gear level change because in that case we need to do things differently
@@ -132,8 +122,8 @@ class CrawlerDiffer:
 						'level':     new_unit['level'],
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
-						'relic':     self.get_relic(new_unit),
-						'zetas':     self.get_zetas(new_unit),
+						'relic':     BaseUnitSkill.get_relic(new_unit),
+						'zetas':     BaseUnitSkill.count_zetas(new_unit),
 						'equip.id':  gear['equipmentId'],
 					})
 
@@ -151,8 +141,8 @@ class CrawlerDiffer:
 						'level':     new_unit['level'],
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
-						'relic':     self.get_relic(new_unit),
-						'zetas':     self.get_zetas(new_unit),
+						'relic':     BaseUnitSkill.get_relic(new_unit),
+						'zetas':     BaseUnitSkill.count_zetas(new_unit),
 						'skill.id':  new_skill_id,
 					})
 					continue
@@ -175,8 +165,8 @@ class CrawlerDiffer:
 						'level':     new_unit['level'],
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
-						'relic':     self.get_relic(new_unit),
-						'zetas':     self.get_zetas(new_unit),
+						'relic':     BaseUnitSkill.get_relic(new_unit),
+						'zetas':     BaseUnitSkill.count_zetas(new_unit),
 						'skill.id':  new_skill_id,
 						'tier':      new_skill['tier'],
 					})
