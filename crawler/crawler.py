@@ -27,6 +27,7 @@ class Crawler(asyncio.Future):
 	async def update_player(self, guild, ally_code, restart=True):
 
 		ally_code = str(ally_code)
+		profile = None
 		try:
 			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 
