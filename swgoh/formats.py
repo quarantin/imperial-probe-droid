@@ -7,7 +7,7 @@ FORMAT_ARENA_RANK_DOWN = {
 	"thumbnail": {
 		"url": "${server}/media/sabers.png"
 	},
-	"description": "In *Squad Arena*\n```Rank ${old.rank} \u21d8 ${new.rank}```"
+	"description": "In *Squad Arena*\n```Rank ${old.rank} ➘ ${new.rank}```"
 }
 
 FORMAT_ARENA_RANK_UP = {
@@ -19,7 +19,7 @@ FORMAT_ARENA_RANK_UP = {
 	"thumbnail": {
 		"url": "${server}/media/sabers.png"
 	},
-	"description": "In *Squad Arena*\n```Rank ${old.rank} \u21d7 ${new.rank}```"
+	"description": "In *Squad Arena*\n```Rank ${old.rank} ➚ ${new.rank}```"
 }
 
 FORMAT_FLEET_RANK_DOWN = {
@@ -31,7 +31,7 @@ FORMAT_FLEET_RANK_DOWN = {
 	"thumbnail": {
 		"url": "${server}/media/milf.png"
 	},
-	"description": "In *Fleet Arena*\n```Rank ${old.rank} \u21d8 ${new.rank}```"
+	"description": "In *Fleet Arena*\n```Rank ${old.rank} ➘ ${new.rank}```"
 }
 
 FORMAT_FLEET_RANK_UP = {
@@ -43,7 +43,7 @@ FORMAT_FLEET_RANK_UP = {
 	"thumbnail": {
 		"url": "${server}/media/milf.png"
 	},
-	"description": "In *Fleet Arena*\n```Rank ${old.rank} \u21d7 ${new.rank}```"
+	"description": "In *Fleet Arena*\n```Rank ${old.rank} ➚ ${new.rank}```"
 }
 
 FORMAT_INACTIVITY = {
