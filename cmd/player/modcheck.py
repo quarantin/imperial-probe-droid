@@ -25,7 +25,7 @@ help_modcheck = {
 **`5pips`** (or **`5`**): To show units with mods less than 5 pips.
 **`6pips`** (or **`6`**): To show units with mods less than 6 pips.
 **`tier`** (or **`t`**): To show units with mods less than gold quality.
-**`gear<N>`** (or **`g<N>`**): To choose minimun gear level to consider (default is g""" + str(DEFAULT_MIN_GEAR_LEVEL) + """).
+**`gear<N>`** (or **`g<N>`**): To choose minimun gear level to consider (default is **`g""" + str(DEFAULT_MIN_GEAR_LEVEL) + """`**).
 If no option is specified, the following options will be selected by default:
 Count, missing, incomplete, level and 5pips.
 
