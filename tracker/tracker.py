@@ -137,9 +137,9 @@ class Tracker(bot.Bot):
 			message['mention'] = message['user']
 
 		if 'key' in message and 'user' in message and 'ally.code' in message:
-			prep_key = '%s.%s.mention' % (message['key'], message['ally.code'])
+			pref_key = '%s.%s.mention' % (message['key'], message['ally.code'])
 			mention, avatar = self.get_user_info(server, message['ally.code'])
-			if mention and prep_key in config and config[prep_key] is not False:
+			if mention and pref_key in config and config[pref_key] is not False:
 				message['mention'] = mention
 			message['user.avatar'] = avatar
 
