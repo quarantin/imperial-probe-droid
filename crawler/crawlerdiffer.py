@@ -49,7 +49,7 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relics':    self.get_relic(new_unit),
+					'relic':     self.get_relic(new_unit),
 					'zetas':     self.get_zetas(new_unit),
 				})
 				continue
@@ -66,7 +66,7 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relics':    self.get_relic(new_unit),
+					'relic':     self.get_relic(new_unit),
 					'zetas':     self.get_zetas(new_unit),
 				})
 
@@ -82,7 +82,7 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relics':    self.get_relic(new_unit),
+					'relic':     self.get_relic(new_unit),
 					'zetas':     self.get_zetas(new_unit),
 				})
 
@@ -98,7 +98,7 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relics':    self.get_relic(new_unit),
+					'relic':     self.get_relic(new_unit),
 					'zetas':     self.get_zetas(new_unit),
 				})
 
@@ -114,7 +114,7 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relics':    self.get_relic(new_unit),
+					'relic':     self.get_relic(new_unit),
 					'zetas':     self.get_zetas(new_unit),
 				})
 
@@ -132,7 +132,7 @@ class CrawlerDiffer:
 						'level':     new_unit['level'],
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
-						'relics':    self.get_relic(new_unit),
+						'relic':     self.get_relic(new_unit),
 						'zetas':     self.get_zetas(new_unit),
 						'equip.id':  gear['equipmentId'],
 					})
@@ -151,7 +151,7 @@ class CrawlerDiffer:
 						'level':     new_unit['level'],
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
-						'relics':    self.get_relic(new_unit),
+						'relic':     self.get_relic(new_unit),
 						'zetas':     self.get_zetas(new_unit),
 						'skill.id':  new_skill_id,
 					})
@@ -175,7 +175,7 @@ class CrawlerDiffer:
 						'level':     new_unit['level'],
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
-						'relics':    self.get_relic(new_unit),
+						'relic':     self.get_relic(new_unit),
 						'zetas':     self.get_zetas(new_unit),
 						'skill.id':  new_skill_id,
 						'tier':      new_skill['tier'],

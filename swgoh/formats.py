@@ -88,7 +88,7 @@ FORMAT_UNIT_GEAR_LEVEL = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***Gear ${roman.gear}***",
@@ -103,7 +103,7 @@ FORMAT_UNIT_GEAR_PIECE = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${equip}***",
@@ -118,7 +118,7 @@ FORMAT_UNIT_LEVEL = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***Level ${level}***",
@@ -133,7 +133,7 @@ FORMAT_UNIT_OMEGA = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",
@@ -148,7 +148,7 @@ FORMAT_UNIT_SKILL_INCREASED = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***\n```Tier ${tier}```",
@@ -163,7 +163,7 @@ FORMAT_UNIT_SKILL_UNLOCKED = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***\n```Unlocked```",
@@ -178,7 +178,7 @@ FORMAT_UNIT_RARITY = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "${stars}",
@@ -193,12 +193,12 @@ FORMAT_UNIT_RELIC = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Relic ${relics}***",
+	"description": "***Relic ${relic}***",
 	"image": {
-		"url": "${server}/relic/${relics}/${alignment}/"
+		"url": "${server}/relic/${relic}/${alignment}/"
 	}
 }
 
@@ -223,7 +223,7 @@ FORMAT_UNIT_ZETA = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relics}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",

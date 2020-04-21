@@ -43,7 +43,7 @@ class Demo:
 		msg['user']      = msg['new.nick'] = msg['old.nick'] = player.game_nick
 		msg['old.rank']  = str(int(msg['new.rank']) + random.randint(0, 8) * drop)
 		msg['rarity']    = str(random.randint(1, MAX_RARITY))
-		msg['relics']    = str(random.randint(1, MAX_RELIC))
+		msg['relic']     = str(random.randint(1, MAX_RELIC))
 		msg['zetas']     = str(random.randint(1, 3))
 		msg['skill.id']  = BaseUnitSkill.objects.filter(unit=unit).order_by('?').first().skill_id
 		msg['tier']      = str(random.randint(1, MAX_SKILL_TIER))
