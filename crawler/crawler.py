@@ -124,7 +124,7 @@ class Crawler(asyncio.Future):
 					await self.update_player(premium_guild, member['allyCode'])
 
 				except Exception as err:
-					print(err)
+					print(traceback.format_exc())
 					failed_ac.append(str(member['allyCode']))
 					failed_ch.append(channel)
 
