@@ -52,7 +52,9 @@ def get_stat(stats, key):
 
 	for stat in stats:
 		if stat['nameKey'] == key:
+			if 'value' in stat:
 				return str(stat['value'])
+			break
 
 	return str(0)
 
