@@ -22,6 +22,9 @@ SAFETY_TTL = 10 * MINUTE
 DEFAULT_GUILD_EXPIRE = 24
 DEFAULT_PLAYER_EXPIRE = 24
 
+class CrawlerError(Exception):
+	pass
+
 class Crawler(asyncio.Future):
 
 	async def update_player(self, guild, ally_code, restart=True):
@@ -40,7 +43,7 @@ class Crawler(asyncio.Future):
 		if not profile:
 			msg = 'Failed retrieving profile for allycode %s, skipping.' % ally_code
 			self.logger.error(msg)
-			raise Exception(msg)
+			raise CrawlerError(msg)
 
 		# TODO: Fix this atrocity
 		profile = json.loads(json.dumps(profile))
@@ -83,11 +86,11 @@ class Crawler(asyncio.Future):
 		try:
 			profile = await libswgoh.get_player_profile(ally_code=ally_code, session=self.session)
 
-		except libswogh.LibSwgohException as err:
+		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
 				self.session = await libswgoh.get_auth_guest()
 				if restart is True:
-					return self.get_player(ally_code, fetch=fetch, restart=False)
+					return await self.get_player(ally_code, fetch=fetch, restart=False)
 
 		if profile:
 			id_key = 'playerid|%s' % profile['id']
@@ -124,8 +127,14 @@ class Crawler(asyncio.Future):
 				try:
 					await self.update_player(premium_guild, member['allyCode'])
 
+				except CrawlerError:
+					# Don't print stacktrace for CrawlerError
+					pass
+
 				except Exception as err:
 					print(traceback.format_exc())
+
+				finally:
 					failed_ac.append(str(member['allyCode']))
 					failed_ch.append(channel)
 
