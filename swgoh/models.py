@@ -412,7 +412,7 @@ class BaseUnitSkill(models.Model):
 		return 0
 
 	@staticmethod
-	def get_zetas():
+	def get_all_zetas():
 
 		zetas = {}
 		skills = list(BaseUnitSkill.objects.filter(is_zeta=True).values())
@@ -427,10 +427,10 @@ class BaseUnitSkill(models.Model):
 		return zetas
 
 	@staticmethod
-	def count_zetas(unit):
+	def get_zetas(unit):
 
-		count = 0
-		zetas = BaseUnitSkill.get_zetas()
+		skills = []
+		zetas = BaseUnitSkill.get_all_zetas()
 		if 'skills' in unit:
 			for skill in unit['skills']:
 
@@ -439,9 +439,13 @@ class BaseUnitSkill(models.Model):
 					skill['tier'] = 1
 
 				if skill_id in zetas and skill['tier'] == zetas[skill_id]['max_tier']:
-					count += 1
+					skills.append(skill)
 
-		return count
+		return skills
+
+	@staticmethod
+	def count_zetas(unit):
+		return len(BaseUnitSkill.get_zetas(unit))
 
 # TODO Use me
 class PlayerUnit(models.Model):

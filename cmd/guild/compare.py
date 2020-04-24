@@ -48,7 +48,7 @@ def get_unit_stats(config, roster, lang):
 		gear  = unit['gear']
 		stars = unit['rarity']
 		relic = BaseUnitSkill.get_relic(unit)
-		zetas = BaseUnitSkill.count_zetas(unit)
+		zetas = BaseUnitSkill.get_zetas(unit)
 
 		stats['count'] += 1
 		stats['cumul-gp'] += gp
