@@ -3560,5 +3560,25 @@
 			"Offense"
 		],
 		"info": "Best"
+	},
+	{
+		"source": "Capital Games",
+		"base_id": "CARADUNE",
+		"set1": "Health",
+		"set2": "Health",
+		"set3": "Health",
+		"square": "Offense",
+		"arrow": "Speed",
+		"diamond": "Defense",
+		"triangle": "Protection",
+		"circle": "Protection",
+		"cross": "Tenacity",
+		"secondary_stats": [
+			"Health %",
+			"Protection %",
+			"Speed",
+			"Tenacity"
+		],
+		"info": "Best"
 	}
 ]
