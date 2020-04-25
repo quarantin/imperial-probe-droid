@@ -50,7 +50,7 @@ class TicketsCog(commands.Cog):
 		total_raid_tickets = 0
 		session = await libswgoh.get_auth_google()
 		guild = await libswgoh.get_guild(session=session)
-		for member in guild['members']:
+		for member in guild['roster']:
 
 			discord_id = member['name']
 
