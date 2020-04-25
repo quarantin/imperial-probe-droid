@@ -32,6 +32,7 @@ class TicketsCog(commands.Cog):
 			return None
 
 		result = {}
+		player = json.loads(player.decode('utf-8'))
 		players = Player.objects.filter(ally_code=str(player['allyCode']))
 		for player in players:
 			result[player.game_nick] = player.discord_id
