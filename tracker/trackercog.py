@@ -45,11 +45,17 @@ class TrackerCog(commands.Cog):
 			self.logger.warning('TrackerCog.get_guild(%s): No player found' % author.id)
 			return None
 
-		ally_code = str(player.ally_code)
-		profile_key = 'player|%s' % player.ally_code
+		player_key = 'playerid|%s' % player.ally_code
+		player_id = self.redis.get(player_key)
+		if not player_id:
+			self.logger.warning('Failed retrieving player ID of %s' % player.ally_code)
+			return None
+
+		player_id = player_id.decode('utf-8')
+		profile_key = 'player|%s' % player_id
 		profile = self.redis.get(profile_key)
 		if not profile:
-			self.logger.warning('Failed retrieving profile of %s' % player.ally_code)
+			self.logger.warning('Failed retrieving profile of %s' % player_id)
 			return None
 
 		profile = json.loads(profile.decode('utf-8'))

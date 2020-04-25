@@ -26,13 +26,13 @@ class TicketsCog(commands.Cog):
 
 	def get_discord_ids(self, player_id):
 
-		key = 'playerid|%s' % player_id
-		ally_code = self.redis.get(key)
-		if not ally_code:
+		key = 'player|%s' % player_id
+		player = self.redis.get(key)
+		if not player:
 			return None
 
 		result = {}
-		players = Player.objects.filter(ally_code=ally_code)
+		players = Player.objects.filter(ally_code=str(player['allyCode']))
 		for player in players:
 			result[player.game_nick] = player.discord_id
 

@@ -298,18 +298,18 @@ class TrackerThread(asyncio.Future):
 
 			for guild in self.guilds:
 
-				ally_code = guild.ally_code
+				player_id = guild.selector
 				config = guild.get_config()
 
-				player_key = 'player|%s' % ally_code
+				player_key = 'player|%s' % player_id
 				player = self.redis.get(player_key)
 				if not player:
-					self.logger.error('Could not find profile in redis: %s' % ally_code)
+					self.logger.error('Could not find profile in redis: %s' % player_id)
 					continue
 
 				player = json.loads(player.decode('utf-8'))
 				if 'guildRefId' not in player:
-					self.logger.error('Profile from redis is invalid: %s' % ally_code)
+					self.logger.error('Profile from redis is invalid: %s' % player_id)
 					continue
 
 				if guild.channel_id:

@@ -772,7 +772,7 @@ class PremiumGuild(models.Model):
 		MSG_FLEET_RANK_DOWN:      json.dumps(FORMAT_FLEET_RANK_DOWN, indent=4),
 	}
 
-	ally_code = models.IntegerField()
+	selector = models.CharField(max_length=32)
 	guild_id = models.CharField(max_length=32)
 	channel_id = models.IntegerField(null=True, blank=True)
 	language = models.CharField(max_length=6, default='eng_us', choices=Player.LANGUAGES)
@@ -803,28 +803,6 @@ class PremiumGuild(models.Model):
 		except PremiumGuild.DoesNotExist:
 			print('Could not find guild with ID: `%s`' % guild_id)
 			return None
-
-	def find_guild_for_selector(selector, guilds=None):
-
-		for guild in guilds:
-			for member in guild['roster']:
-				if str(member['allyCode']) == str(selector):
-					return guild
-
-		return None
-
-	def guilds_to_dict(guild_selectors, guilds):
-
-		result = {}
-		for selector in guild_selectors:
-			guild = PremiumGuild.find_guild_for_selector(selector, guilds)
-			if not guild:
-				print('Could not find guild for allycode: %s' % selector)
-				continue
-
-			result[selector] = guild
-
-		return result
 
 	def get_config_value(self, item):
 
