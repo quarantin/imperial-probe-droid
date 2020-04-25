@@ -48,14 +48,23 @@ class TicketsCog(commands.Cog):
 
 		total_guild_tokens = 0
 		total_raid_tickets = 0
-		session = await libswgoh.get_auth_google()
+		session = await libswgoh.get_auth_google(creds_id='anraeth')
 		guild = await libswgoh.get_guild(session=session)
 		for member in guild['roster']:
 
-			discord_id = member['name']
+			player_id = member['playerId']
+			profile_key = 'player|%s' % player_id
+			profile = self.redis.get(profile_key)
+			if not profile:
+				print('Could not find profile in redis: %s' % player_id)
+				continue
+
+			profile = json.loads(profile.decode('utf-8'))
+
+			discord_id = profile['name']
 
 			if command.lower() in [ 'alert', 'mention', 'notify' ]:
-				discord_ids = self.get_discord_ids(member['id'])
+				discord_ids = self.get_discord_ids(player_id)
 				if discord_ids and discord_id in discord_ids:
 					discord_id = '<@!%s>' % discord_ids[discord_id]
 
