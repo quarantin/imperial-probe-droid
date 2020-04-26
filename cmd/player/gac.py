@@ -158,7 +158,11 @@ async def cmd_gac(request):
 
 	for i in range(1, 4):
 
-		seasons = history.pop('Season ID%d' % i)
+		season_id = 'Season ID%d' % i
+		if season_id not in history:
+			continue
+
+		seasons = history.pop(season_id)
 		dates = history.pop('Date%d' % i)
 
 		title = '__**Season %s**__ (*%s*)' % (seasons[0], dates[0].strip())
