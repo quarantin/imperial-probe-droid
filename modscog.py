@@ -28,7 +28,7 @@ class ModsCog(commands.Cog):
 
 		headers = [ 'Equipped', 'Set', 'Slot', 'Level', 'Tier', 'Pips', 'Primary Stat Value', 'Primary Stat Name', 'Sec Stat 1 Value', 'Sec Stat 1 Name', 'Sec Stat 2 Value', 'Sec Stat 2 Name', 'Sec Stat 3 Value', 'Sec Stat 3 Name', 'Sec Stat 4 Value', 'Sec Stat 4 Name' ]
 
-		csv = ';'.join(headers) + '\n'
+		csv = ','.join(headers) + '\n'
 
 		return bytes(csv, encoding='utf-8')
 
@@ -69,7 +69,7 @@ class ModsCog(commands.Cog):
 				sec_stat_4_value = str(sec_stats[3]['value'])
 
 		fields = [ equipped, modset, slot, level, tier, pips, prim_stat_value, prim_stat_name, sec_stat_1_value, sec_stat_1_name, sec_stat_2_value, sec_stat_2_name, sec_stat_3_value, sec_stat_3_name, sec_stat_4_value, sec_stat_4_name ]
-		csv = ';'.join(fields) + '\n'
+		csv = ','.join(fields) + '\n'
 		return bytes(csv, encoding='utf-8')
 
 	def get_csv_file(self, init_data):
