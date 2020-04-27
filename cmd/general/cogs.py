@@ -1,5 +1,6 @@
 from errors import *
 
+from modscog import ModsCog
 from ticketscog import TicketsCog
 
 help_load = {
@@ -42,6 +43,7 @@ Unloading tickets cog:
 }
 
 loadable_cogs = {
+	'mods': ModsCog,
 	'tickets': TicketsCog,
 }
 
