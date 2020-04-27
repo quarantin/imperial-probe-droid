@@ -48,9 +48,9 @@ def get_player_stats(config, roster, lang):
 	for i in range(0, MAX_GEAR_LEVEL + 1):
 		stats['gears'][i] = 0
 
-	stats['relics'] = {}
+	stats['relic'] = {}
 	for i in range(0, MAX_RELIC + 1):
-		stats['relics'][i] = 0
+		stats['relic'][i] = 0
 
 	stats['stars'] = {}
 	stats['char']['stars'] = {}
@@ -80,7 +80,7 @@ def get_player_stats(config, roster, lang):
 		stats['count']         += 1
 		stats['levels'][level] += 1
 		stats['gears'][gear]   += 1
-		stats['relics'][relic] += 1
+		stats['relic'][relic] += 1
 		stats['stars'][stars]  += 1
 
 		stats[typ]['levels'][level] += 1
@@ -162,11 +162,11 @@ def player_to_embedfield(config, player, roster, lang):
 		gear_label = 'G%d Units' % gear
 		res[gear_label] = stats['gears'][gear]
 
-	relics = []
-	relics.extend(range(1, MAX_RELIC + 1))
-	for relic in reversed(relics):
+	relic_list = []
+	relic_list.extend(range(1, MAX_RELIC + 1))
+	for relic in reversed(relic_list):
 		relic_label = 'R%d Units' % relic
-		res[relic_label] = stats['relics'][relic]
+		res[relic_label] = stats['relic'][relic]
 
 	res['Zetas'] = stats['zetas']
 	res['Omegas'] = stats['omegas']

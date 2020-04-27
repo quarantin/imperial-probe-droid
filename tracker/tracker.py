@@ -147,16 +147,20 @@ class Tracker(bot.Bot):
 			message['unit'] = get_unit_name(message['unit.id'], config['language'])
 			message['alignment'] = BaseUnit.get_alignment(message['unit.id'])
 
-		if 'gear' in message:
-			gear_level = message['gear']
-			message['roman.gear'] = ROMAN[gear_level]
+		for key in [ 'gear', 'gear.new', 'gear.old' ]:
+			if key in message:
+				roman_key = 'roman.%s' % key
+				message[roman_key] = ROMAN[ message[key] ]
 
 		if 'equip.id' in message:
 			message['equip'] = translate(message['equip.id'], config['language'])
 
-		if 'rarity' in message:
-			rarity = int(message['rarity'])
-			message['stars'] = ('★' * rarity) + ('☆' * (MAX_RARITY - rarity))
+		for suffix in [ '', '.new', '.old' ]:
+			key = 'rarity%s' % suffix
+			if key in message:
+				rarity = int(message[key])
+				star_key = 'stars%s' % suffix
+				message[star_key] = ('★' * rarity) + ('☆' * (MAX_RARITY - rarity))
 
 		if 'skill.id' in message:
 			message['skill'] = get_ability_name(message['skill.id'], config['language'])

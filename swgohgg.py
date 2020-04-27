@@ -46,7 +46,7 @@ def get_full_avatar_url(config, image, unit):
 	base_id = os.path.basename(os.path.dirname(image))
 	alignment = BaseUnit.get_alignment(base_id)
 
-	level, gear, rarity, zetas, relics = 1, 1, 0, 0, 0
+	level, gear, rarity, zetas, relic = 1, 1, 0, 0, 0
 
 	if unit is not None:
 		level  = 'level'  in unit and unit['level']      or 1
@@ -56,10 +56,10 @@ def get_full_avatar_url(config, image, unit):
 		if zetas == 0:
 			zetas = BaseUnitSkill.count_zetas(unit)
 
-		relics = 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic'] and unit['relic']['currentTier'] or 0
-		relics = max(0, relics - 2)
+		relic = 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic'] and unit['relic']['currentTier'] or 0
+		relic = max(0, relic - 2)
 
-	return '%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&relics=%s&alignment=%s&version=2' % (config.get_server_url(), base_id, level, gear, rarity, zetas, relics, alignment)
+	return '%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&relic=%s&alignment=%s&version=2' % (config.get_server_url(), base_id, level, gear, rarity, zetas, relic, alignment)
 
 def get_full_ship_avatar_url(ally_code, base_id):
 	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),

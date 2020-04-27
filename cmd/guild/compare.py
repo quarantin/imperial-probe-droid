@@ -35,7 +35,7 @@ def get_unit_stats(config, roster, lang):
 		'cumul-gp': 0,
 		'levels': {},
 		'gears': {},
-		'relics': {},
+		'relic': {},
 		'stars': {},
 		'zetas': {},
 	}
@@ -61,9 +61,9 @@ def get_unit_stats(config, roster, lang):
 			stats['gears'][gear] = 0
 		stats['gears'][gear] += 1
 
-		if relic not in stats['relics']:
-			stats['relics'][relic] = 0
-		stats['relics'][relic] += 1
+		if relic not in stats['relic']:
+			stats['relic'][relic] = 0
+		stats['relic'][relic] += 1
 
 		if stars not in stats['stars']:
 			stats['stars'][stars] = 0
@@ -113,8 +113,8 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 			for relic in reversed(range(1, MAX_RELIC + 1)):
 
 				count = 0
-				if relic in stats['relics']:
-					count = stats['relics'][relic]
+				if relic in stats['relic']:
+					count = stats['relic'][relic]
 
 				res['**Relic %d**' % relic] = str(count)
 

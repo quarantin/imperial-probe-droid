@@ -88,12 +88,12 @@ FORMAT_UNIT_GEAR_LEVEL = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear.old}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Gear ${roman.gear}***",
+	"description": "***Gear ${roman.gear.new}***",
 	"image": {
-		"url": "${server}/avatar/${unit.id}?gear=${gear}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?gear=${gear.new}&alignment=${alignment}"
 	}
 }
 
@@ -103,7 +103,7 @@ FORMAT_UNIT_GEAR_PIECE = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${equip}***",
@@ -118,12 +118,12 @@ FORMAT_UNIT_LEVEL = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level.old}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Level ${level}***",
+	"description": "***Level ${level.new}***",
 	"image": {
-		"url": "${server}/avatar/${unit.id}?level=${level}"
+		"url": "${server}/avatar/${unit.id}?level=${level.new}"
 	}
 }
 
@@ -133,7 +133,7 @@ FORMAT_UNIT_OMEGA = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",
@@ -148,7 +148,7 @@ FORMAT_UNIT_SKILL_INCREASED = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***\n```Tier ${tier}```",
@@ -163,7 +163,7 @@ FORMAT_UNIT_SKILL_UNLOCKED = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***\n```Unlocked```",
@@ -178,12 +178,12 @@ FORMAT_UNIT_RARITY = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity.old}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "${stars}",
 	"image": {
-		"url": "${server}/avatar/${unit.id}?rarity=${rarity}"
+		"url": "${server}/avatar/${unit.id}?rarity=${rarity.new}"
 	}
 }
 
@@ -193,12 +193,12 @@ FORMAT_UNIT_RELIC = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic.old}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***Relic ${relic}***",
+	"description": "***Relic ${relic.new}***",
 	"image": {
-		"url": "${server}/relic/${relic}/${alignment}/"
+		"url": "${server}/avatar/${unit.id}?relic=${relic.new}&alignment=${alignment}"
 	}
 }
 
@@ -223,7 +223,7 @@ FORMAT_UNIT_ZETA = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relics=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",

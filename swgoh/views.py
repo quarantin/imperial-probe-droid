@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
-from django.http import HttpResponse, Http404
+from django.http import FileResponse, HttpResponse, Http404
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -144,7 +144,7 @@ def gear(request, base_id):
 
 def relic(request, relic, align):
 
-	image = get_relics(relic, align, raw=True)
+	image = get_relic(relic, align, raw=True)
 	return HttpResponse(image, content_type='image/png')
 
 def skill(request, skill_id):
@@ -274,9 +274,9 @@ def get_zetas(zetas):
 	draw.text((20, 12), '%d' % zetas, (255, 255, 255), font=font)
 	return zeta_image
 
-def get_relics(relics, alignment, raw=False):
+def get_relic(relic, alignment, raw=False):
 
-	final_path = 'images/relic-%s-side-%d.png' % (alignment, relics)
+	final_path = 'images/relic-%s-side-%d.png' % (alignment, relic)
 	if os.path.exists(final_path) and os.path.getsize(final_path) > 0:
 		return raw is False and Image.open(final_path) or file_content(final_path)
 
@@ -290,9 +290,9 @@ def get_relics(relics, alignment, raw=False):
 	x = 23
 	y = 19
 
-	draw.text((x + 1, y + 1), '%d' % relics, font=font, fill='black')
-	draw.text((x + 2, y + 1), '%d' % relics, font=font, fill='black')
-	draw.text((x, y), '%d' % relics, font=font, fill='white')
+	draw.text((x + 1, y + 1), '%d' % relic, font=font, fill='black')
+	draw.text((x + 2, y + 1), '%d' % relic, font=font, fill='black')
+	draw.text((x, y), '%d' % relic, font=font, fill='white')
 
 	relic_image.save(final_path)
 	return raw is False and relic_image or file_content(final_path)
@@ -305,14 +305,6 @@ def format_image(image, radius):
 	data = ImageOps.fit(image, mask.size, centering=(0.5, 0.5))
 	data.putalpha(mask)
 	return data
-
-def img2png(image):
-
-	with io.BytesIO() as output:
-		image.save(output, format='PNG')
-		return output.getvalue()
-
-	return None
 
 def get_param(request, param, default=0):
 
@@ -328,6 +320,23 @@ def has_params(request):
 	return False
 
 def get_avatar(request, base_id):
+
+	alignment = get_param(request, 'alignment', 'neutral').lower()
+	gear      = get_param(request, 'gear')
+	level     = get_param(request, 'level')
+	rarity    = get_param(request, 'rarity')
+	zeta      = get_param(request, 'zetas')
+	relic     = get_param(request, 'relic')
+
+	gear_str   = 'G%d' % gear
+	level_str  = 'L%d' % level
+	rarity_str = 'S%d' % rarity
+	zeta_str   = 'Z%d' % zeta
+	relic_str  = 'R%d' % relic
+
+	filename = './images/%s.png' % '_'.join([ base_id, alignment, gear_str, level_str, rarity_str, zeta_str, relic_str ])
+	if os.path.exists(filename):
+		return filename, Image.open(filename)
 
 	width, height = 256, 256
 	size = (width, height)
@@ -352,79 +361,45 @@ def get_avatar(request, base_id):
 		image = ImageOps.fit(image, size)
 		image.putalpha(mask)
 
-	alignment  = get_param(request, 'alignment', 'neutral').lower()
 	if alignment not in ALIGNMENTS:
 		alignment = 'neutral'
 
-	gear = get_param(request, 'gear')
 	if gear > 0:
 		gear_image   = get_gear(gear, alignment)
 		gear_x = int(image.width  / 2 - gear_image.width / 2)
 		gear_y = int(image.height / 2 - gear_image.height / 2)
 		image.paste(gear_image, (gear_x, gear_y), gear_image)
 
-	level = get_param(request, 'level')
-	if  level > 0:
+	if level > 0:
 		level_image  = get_level(level)
 		level_x = int(image.width / 2 - level_image.width / 2)
 		level_y = int(image.height / 2 - level_image.height / 2 + 10)
 		image.paste(level_image, (level_x, level_y), level_image)
 
-	rarity = get_param(request, 'rarity')
 	if rarity > 0:
 		rarity_image = get_rarity(rarity)
 		rarity_x = int(image.width / 2 - portrait.width / 2 + rarity_image.height / 4)
 		rarity_y = int(image.height / 2 - portrait.height / 2 - rarity_image.height)
 		image.paste(rarity_image, (rarity_x, rarity_y), rarity_image)
 
-	zeta = get_param(request, 'zetas')
 	if zeta > 0:
 		zeta_image   = get_zetas(zeta)
 		zeta_x = int(image.width / 4 - 10)
 		zeta_y = int(image.height / 2 + zeta_image.height / 4 + 5)
 		image.paste(zeta_image, (zeta_x, zeta_y), zeta_image)
 
-	relic = get_param(request, 'relics')
 	if relic > 0:
-		relic_image  = get_relics(relic, alignment)
+		relic_image  = get_relic(relic, alignment)
 		relic_x = int(image.width / 2 + relic_image.width / 4 + 5)
 		relic_y = int(image.height / 2 + relic_image.height / 4 - 3)
 		image.paste(relic_image, (relic_x, relic_y), relic_image)
 
 	image = image.crop((radius - 10, radius - 20, radius * 3 + 10, radius * 3 + 10))
 
-	return image
+	image.save(filename, format='PNG')
+
+	return filename, image
 
 def avatar(request, base_id):
-	avatar = get_avatar(request, base_id)
-	image = img2png(avatar)
-	return HttpResponse(image, content_type='image/png')
-
-def stats(request, portrait, ally_code):
-
-
-	full_image = Image.open('./images/background.png')
-
-	avatar = get_avatar(request, portrait)
-
-	full_image.paste(avatar, (10, 10), avatar)
-
-	draw = ImageDraw.Draw(full_image)
-	font = ImageFont.truetype('fonts/arial.ttf', 16)
-
-	x = 150
-	y = 20
-
-	for key in request.GET:
-		string = '%s:' % key.title()
-		draw.text((x, y), string, (255, 255, 255), font=font)
-		y += 20
-
-	x = 250
-	y = 20
-
-	for key, val in request.GET.items():
-		draw.text((x, y), val, (255, 255, 255), font=font)
-		y += 20
-
-	return HttpResponse(img2png(full_image), content_type='image/png')
+	filename, image = get_avatar(request, base_id)
+	return FileResponse(open(filename, 'rb'))

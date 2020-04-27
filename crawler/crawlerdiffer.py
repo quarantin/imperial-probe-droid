@@ -72,6 +72,8 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
+					'rarity.new':new_rarity,
+					'rarity.old':old_rarity,
 					'relic':     BaseUnitSkill.get_relic(new_unit),
 					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
@@ -87,6 +89,8 @@ class CrawlerDiffer:
 					'unit.id':   base_id,
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
+					'gear.new':  new_gear_level,
+					'gear.old':  old_gear_level,
 					'rarity':    new_unit['rarity'],
 					'relic':     BaseUnitSkill.get_relic(new_unit),
 					'zetas':     BaseUnitSkill.count_zetas(new_unit),
@@ -104,7 +108,9 @@ class CrawlerDiffer:
 					'level':     new_unit['level'],
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
-					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'relic':     new_relic,
+					'relic.new': new_relic,
+					'relic.old': old_relic,
 					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 
@@ -182,6 +188,8 @@ class CrawlerDiffer:
 				'user':      new_profile['name'],
 				'ally.code': new_profile['allyCode'],
 				'level':     new_player_level,
+				'level.new': new_player_level,
+				'level.old': old_player_level,
 			})
 
 	def check_diff_arena_ranks(self, guild, old_profile, new_profile, messages):
@@ -204,8 +212,12 @@ class CrawlerDiffer:
 					'type':      arena_type,
 					'user':      new_profile['name'],
 					'ally.code': new_profile['allyCode'],
+					'rank':      new_rank,
+					'rank.new':  new_rank,
+					'rank.old':  old_rank,
+					# Compat
+					'new.rank':  new_rank,
 					'old.rank':  old_rank,
-					'new.rank':  new_rank
 				})
 
 	def check_last_seen(self, guild, new_profile, messages):

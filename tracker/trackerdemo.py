@@ -30,20 +30,49 @@ class Demo:
 
 		player = random.choice(Player.objects.filter(discord_id=author.id))
 		unit = BaseUnit.objects.filter(combat_type=1).order_by('?').first()
+		equip = Gear.objects.order_by('?').first()
+
 		gear_level = random.randint(1, MAX_GEAR_LEVEL)
-		gear = Gear.objects.order_by('?').first()
+		new_gear = gear_level
+		old_gear = gear_level - 1
+
+		relic = random.randint(1, MAX_RELIC)
+		new_relic = str(relic)
+		old_relic = str(relic - 1)
+
+		rarity = random.randint(1, MAX_RARITY)
+		new_rarity = str(rarity)
+		old_rarity = str(rarity - 1)
+
+		rank = random.randint(1, 10000)
+		new_rank = str(rank)
+		old_rank = str(rank + random.randint(0, 8) * drop)
+
+		level = random.randint(1, MAX_LEVEL)
+		new_level = str(level)
+		old_level = str(level - 1)
 
 		msg['ally.code'] = player.ally_code
-		msg['gear']      = gear_level
-		msg['equip.id']  = gear.base_id
+		msg['gear']      = new_gear
+		msg['gear.new']  = new_gear
+		msg['gear.old']  = old_gear
+		msg['equip.id']  = equip.base_id
 		msg['key']       = key.replace('.format', '')
 		msg['last.seen'] = Demo.get_random_last_seen()
-		msg['level']     = str(random.randint(1, MAX_LEVEL))
-		msg['new.rank']  = str(random.randint(1, 10000))
+		msg['level']     = new_level
+		msg['level.new'] = new_level
+		msg['level.old'] = old_level
+		msg['new.rank']  = new_rank
+		msg['rank.new']  = new_rank
+		msg['old.rank']  = old_rank
+		msg['rank.old']  = old_rank
 		msg['user']      = msg['new.nick'] = msg['old.nick'] = player.game_nick
-		msg['old.rank']  = str(int(msg['new.rank']) + random.randint(0, 8) * drop)
-		msg['rarity']    = str(random.randint(1, MAX_RARITY))
-		msg['relic']     = str(random.randint(1, MAX_RELIC))
+		msg['rarity']    = new_rarity
+		msg['rarity.new']= new_rarity
+		msg['rarity.old']= old_rarity
+		msg['relic']     = new_relic
+		msg['relic.new'] = new_relic
+		msg['relic.old'] = old_relic
 		msg['zetas']     = str(random.randint(1, 3))
 		msg['skill.id']  = BaseUnitSkill.objects.filter(unit=unit).order_by('?').first().skill_id
 		msg['tier']      = str(random.randint(1, MAX_SKILL_TIER))
