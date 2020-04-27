@@ -24,7 +24,6 @@ from . import views
 urlpatterns = [
 	path('admin/', admin.site.urls),
 	path('avatar/<str:base_id>', views.avatar),
-	path('stats/<str:portrait>/<str:ally_code>/', views.stats),
 	path('gear/<str:base_id>/', views.gear),
 	path('relic/<int:relic>/<str:align>/', views.relic),
 	path('skill/<str:skill_id>/', views.skill),
