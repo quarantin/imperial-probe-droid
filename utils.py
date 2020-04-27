@@ -189,7 +189,7 @@ def translate(string_id, language='eng_us'):
 		except Translation.DoesNotExist:
 			pass
 
-	print('WARN: Missing translation for string ID: %s' % string_id)
+	print('WARN: Missing translation for string ID: %s (%s)' % (string_id, language))
 	return string_id
 
 def format_char_details(unit, fmt):
