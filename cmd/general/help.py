@@ -38,7 +38,7 @@ help_help = {
 **`pc`**: Player comparison by roster.
 **`ps`**: Player comparison by stats.
 **`recos`**: Show information about recommended mods.
-**`relics`**: List most popular characters with relics.
+**`relic`**: List most popular characters relic.
 **`wntm`**: List characters who needs mods with specific criteria.
 **`zetas`**: List most popular zetas you don't have."""
 #NOT WORKING **`mods`**: Show information about mods.
