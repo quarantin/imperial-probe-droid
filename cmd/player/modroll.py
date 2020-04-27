@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 from utils import translate
 from swgohhelp import fetch_players, get_unit_name
-from constants import MODSLOTS, MODSETS, MODSECONDARYSTATS, EMOJIS
+from constants import MODSLOTS, MODSETS, UNIT_STATS, EMOJIS
 
 help_modroll= {
 	'title': 'Modroll Help',
@@ -96,7 +96,7 @@ async def cmd_modroll(request):
 				modset_emoji = EMOJIS[modset]
 				for sec in mod['secondaryStat']:
 					if sec['roll'] >= MIN_ROLLS:
-						stat_name = MODSECONDARYSTATS[ sec['unitStat'] ]
+						stat_name = UNIT_STATS[ sec['unitStat'] ]
 						stat_value = ('%.2f' % sec['value']).replace('.00', '')
 						lines.append('%s%s %dD (%d) +%s %s' % (modset_emoji, slot_emoji, mod['pips'], sec['roll'], stat_value, stat_name))
 		msgs.append({
