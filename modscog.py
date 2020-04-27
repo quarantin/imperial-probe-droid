@@ -96,7 +96,7 @@ class ModsCog(commands.Cog):
 
 		return csv_name, csv_data.getvalue()
 
-	def get_zip_file(file_name, file_data):
+	def get_zip_file(self, file_name, file_data):
 		zip_filename = file_name + '.zip'
 		zip_file = zipfile.ZipFile(zip_filename, mode='w', compression=zipfile.ZIP_DEFLATED)
 		zip_file.writestr(file_name, file_data)
