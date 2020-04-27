@@ -26,9 +26,6 @@ mimetypes.add_type("image/svg+xml", ".svgz", True)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'b79n^ldflfl5ioah+@ok&mwqnfet361-((=kdf4t4jkk_r4&60'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 ALLOWED_HOSTS = [
 	socket.gethostname(),
 ]
@@ -37,6 +34,10 @@ IPD_CONFIG = json.load(open(os.path.join(BASE_DIR, 'config.json')))
 if 'server' in IPD_CONFIG:
 	ALLOWED_HOSTS.append(IPD_CONFIG['server'])
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = 'env' in IPD_CONFIG and IPD_CONFIG['env'] == 'dev'
+if DEBUG is True:
+	ALLOWED_HOSTS.append('127.0.0.1')
 
 # Application definition
 
