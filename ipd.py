@@ -419,10 +419,7 @@ class ImperialProbeDroid(bot.Bot):
 
 async def __main__():
 
-	#from ticketscog import TicketsCog
-
 	try:
-
 		ipd_logger     = setup_logs('ipd',     'logs/ipd.log')
 		opts_logger    = setup_logs('opts',    'logs/ipd-blacklist.log')
 		discord_logger = setup_logs('discord', 'logs/ipd-discord.log')
@@ -433,7 +430,6 @@ async def __main__():
 		bot.config = config
 		bot.logger = ipd_logger
 		bot.redis = config.redis
-		#bot.add_cog(TicketsCog(bot))
 
 		token = config['token']
 		if 'env' in config:
