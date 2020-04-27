@@ -116,7 +116,7 @@ class ModsCog(commands.Cog):
 		session = await libswgoh.get_auth_google(creds_id='anraeth')
 		init_data = await libswgoh.get_initial_data(player_id='1', session=session)
 		csv_name, csv_data = self.get_csv_file(init_data)
-		zip_filename = self.get_zip_file(csv_filename, csv_data)
+		zip_filename = self.get_zip_file(csv_name, csv_data)
 		await ctx.send(file=discord.File(zip_filename))
 		os.remove(zip_filename)
 
