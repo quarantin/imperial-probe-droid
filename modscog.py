@@ -26,7 +26,28 @@ class ModsCog(commands.Cog):
 
 	def get_csv_header(self):
 
-		headers = [ 'Equipped', 'Set', 'Slot', 'Level', 'Tier', 'Pips', 'Primary Stat Value', 'Primary Stat Name', 'Sec Stat 1 Value', 'Sec Stat 1 Name', 'Sec Stat 2 Value', 'Sec Stat 2 Name', 'Sec Stat 3 Value', 'Sec Stat 3 Name', 'Sec Stat 4 Value', 'Sec Stat 4 Name' ]
+		headers = [
+			'Equipped',
+			'Set',
+			'Slot',
+			'Level',
+			'Tier',
+			'Pips',
+			'Primary Stat Value',
+			'Primary Stat Name',
+			'Sec Stat 1 Value',
+			'Sec Stat 1 Name',
+			'Sec Stat 1 Roll',
+			'Sec Stat 2 Value',
+			'Sec Stat 2 Name',
+			'Sec Stat 2 Roll',
+			'Sec Stat 3 Value',
+			'Sec Stat 3 Name',
+			'Sec Stat 3 Roll',
+			'Sec Stat 4 Value',
+			'Sec Stat 4 Name',
+			'Sec Stat 4 Roll',
+		]
 
 		csv = ','.join(headers) + '\n'
 
@@ -49,26 +70,53 @@ class ModsCog(commands.Cog):
 		sec_stat_3_name = sec_stat_3_value = ''
 		sec_stat_4_name = sec_stat_4_value = ''
 
+		sec_stat_1_roll = sec_stat_2_roll = sec_stat_3_roll = sec_stat_4_roll = str(0)
+
 		if 'secondaryStat' in mod:
 			sec_stats = mod['secondaryStat']
 
 			if len(sec_stats) > 0:
 				sec_stat_1_name  = sec_stats[0]['stat']
 				sec_stat_1_value = str(sec_stats[0]['value'])
+				sec_stat_1_roll  = str(sec_stats[0]['roll'])
 
 			if len(sec_stats) > 1:
 				sec_stat_2_name  = sec_stats[1]['stat']
 				sec_stat_2_value = str(sec_stats[1]['value'])
+				sec_stat_2_roll  = str(sec_stats[1]['roll'])
 
 			if len(sec_stats) > 2:
 				sec_stat_3_name  = sec_stats[2]['stat']
 				sec_stat_3_value = str(sec_stats[2]['value'])
+				sec_stat_3_roll  = str(sec_stats[2]['roll'])
 
 			if len(sec_stats) > 3:
 				sec_stat_4_name  = sec_stats[3]['stat']
 				sec_stat_4_value = str(sec_stats[3]['value'])
+				sec_stat_4_roll  = str(sec_stats[3]['roll'])
 
-		fields = [ equipped, modset, slot, level, tier, pips, prim_stat_value, prim_stat_name, sec_stat_1_value, sec_stat_1_name, sec_stat_2_value, sec_stat_2_name, sec_stat_3_value, sec_stat_3_name, sec_stat_4_value, sec_stat_4_name ]
+		fields = [
+			equipped,
+			modset,
+			slot,
+			level,
+			tier,
+			pips,
+			prim_stat_value,
+			prim_stat_name,
+			sec_stat_1_value,
+			sec_stat_1_name,
+			sec_stat_1_roll,
+			sec_stat_2_value,
+			sec_stat_2_name,
+			sec_stat_2_roll,
+			sec_stat_3_value,
+			sec_stat_3_name,
+			sec_stat_3_roll,
+			sec_stat_4_value,
+			sec_stat_4_name,
+			sec_stat_4_roll,
+		]
 		csv = ','.join(fields) + '\n'
 		return bytes(csv, encoding='utf-8')
 
