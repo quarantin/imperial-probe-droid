@@ -110,14 +110,14 @@ class Crawler(asyncio.Future):
 
 			guild = await self.get_guild(selector)
 			if not guild:
-				self.logger.warning('Guild not found in redis: %s' % selector)
+				print('Guild not found in redis for selector: %s' % selector)
 				continue
 
 			self.logger.debug('%s (%s)' % (guild['id'], guild['name']))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
 			if not premium_guild:
-				self.logger.warning('Guild not found in redis: %s' % guild['id'])
+				print('Guild not found in redis: %s (selector: %s)' % (guild['id'], selector))
 				continue
 
 			for member in guild['roster']:
