@@ -174,8 +174,10 @@ async def cmd_guild_stat(request):
 	fields = []
 	guild_list = await fetch_guilds(config, [ str(x.ally_code) for x in selected_players ])
 
-	ally_codes = [ x.ally_code for x in selected_players ]
-	for dummy, guild in guild_list.items():
+	ally_codes = []
+	selectors = [ str(x.ally_code) for x in selected_players ]
+	for selector in selectors:
+		guild = guild_list[selector]
 		for ally_code_str, player in guild['roster'].items():
 			ally_code = player['allyCode']
 			if ally_code not in ally_codes:
@@ -191,7 +193,8 @@ async def cmd_guild_stat(request):
 	players = sort_players(players)
 
 	guilds = {}
-	for ally_code, guild in guild_list.items():
+	for selector in selectors:
+		guild = guild_list[selector]
 		guild_name = guild['name']
 		guilds[guild_name] = guild
 		fields.append(guild_to_dict(guild, players))

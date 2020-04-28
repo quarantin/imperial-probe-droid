@@ -165,14 +165,17 @@ async def cmd_guild_compare(request):
 
 	fields = []
 	guild_list = await fetch_guilds(config, [ str(x.ally_code) for x in selected_players ])
+	selectors = [ str(p.ally_code) for p in selected_players ]
 
 	guilds = {}
-	for ally_code, guild in guild_list.items():
+	for selector in selectors:
+		guild = guild_list[selector]
 		guild_name = guild['name']
 		guilds[guild_name] = guild
 
-	ally_codes = [ x.ally_code for x in selected_players ]
-	for dummy, guild in guild_list.items():
+	ally_codes = []
+	for selector in selectors:
+		guild = guild_list[selector]
 		for ally_code_str, player in guild['roster'].items():
 			ally_code = player['allyCode']
 			if ally_code not in ally_codes:

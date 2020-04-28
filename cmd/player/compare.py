@@ -174,14 +174,19 @@ async def cmd_player_compare(request):
 	ally_codes = [ player.ally_code for player in selected_players ]
 	stats, players = await fetch_crinolo_stats(config, ally_codes, units=selected_units)
 
+	players = { p['allyCode']: p for p in players }
+
+	for player in selected_players:
+		print(player)
+
 	msgs = []
 	for unit in selected_units:
 
 		units = []
 		fields = OrderedDict()
-		for player in players:
-			ally_code = player['allyCode']
-			units.append(unit_to_dict(config, player, stats[ally_code], stats[ally_code], unit.base_id, lang))
+		for player in selected_players:
+			ally_code = player.ally_code
+			units.append(unit_to_dict(config, players[ally_code], stats[ally_code], stats[ally_code], unit.base_id, lang))
 
 		for someunit in units:
 			for key, val in someunit.items():
