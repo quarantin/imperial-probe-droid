@@ -26,6 +26,9 @@ class CrawlerError(Exception):
 
 class Crawler(asyncio.Future):
 
+	creds_id = None
+	#creds_id = 'anraeth'
+
 	async def update_player(self, guild, player_id, restart=True):
 
 		profile = None
@@ -34,7 +37,7 @@ class Crawler(asyncio.Future):
 
 		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
-				self.session = await libswgoh.get_auth_google()
+				self.session = await libswgoh.get_auth_google(creds_id=self.creds_id)
 				if restart is True:
 					return await self.update_player(guild, player_id, restart=False)
 
@@ -86,7 +89,7 @@ class Crawler(asyncio.Future):
 
 		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
-				self.session = await libswgoh.get_auth_google()
+				self.session = await libswgoh.get_auth_google(creds_id=self.creds_id)
 				if restart is True:
 					return await self.get_player(player_id, fetch=fetch, restart=False)
 
@@ -163,7 +166,7 @@ class Crawler(asyncio.Future):
 			try:
 				return await libswgoh.get_guilds(selectors=selectors, session=self.session)
 
-			except LibSwgohException as err:
+			except libswgoh.LibSwgohException as err:
 				self.logger.error('Failed retrieving guilds with selectors: %s' % selectors)
 				self.logger.error(err)
 				pass
@@ -275,7 +278,7 @@ class Crawler(asyncio.Future):
 		print('Crawler bot ready!')
 
 		self.differ = CrawlerDiffer(self)
-		self.session = await libswgoh.get_auth_google()
+		self.session = await libswgoh.get_auth_google(creds_id=creds_id)
 
 		while True:
 
@@ -323,7 +326,7 @@ if __name__ == '__main__':
 
 		asyncio.get_event_loop().run_until_complete(crawler.run())
 
-	except LibSwgohException as err:
+	except libswgoh.LibSwgohException as err:
 		print(err)
 		print(err.data)
 
