@@ -54,6 +54,8 @@ class CrawlerDiffer:
 					'ally.code': new_profile['allyCode'],
 					'unit.id':   base_id,
 					'level':     new_unit['level'],
+					'level.new': new_level,
+					'level.old': old_level,
 					'gear':      new_unit['gear'],
 					'rarity':    new_unit['rarity'],
 					'relic':     BaseUnitSkill.get_relic(new_unit),
