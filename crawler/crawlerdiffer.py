@@ -92,7 +92,7 @@ class CrawlerDiffer:
 					'gear.new':  new_gear_level,
 					'gear.old':  old_gear_level,
 					'rarity':    new_unit['rarity'],
-					'relic':     BaseUnitSkill.get_relic(new_unit),
+					'relic':     old_gear_level >= 13 and BaseUnitSkill.get_relic(new_unit) or 0,
 					'zetas':     BaseUnitSkill.count_zetas(new_unit),
 				})
 
