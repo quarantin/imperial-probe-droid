@@ -139,19 +139,23 @@ def parse_opts_mentions(request):
 		m = re.search(r'^<@!?([0-9]+)>$', arg)
 		if m:
 			args.remove(arg)
-			discord_ids.append(int(m.group(1)))
+			discord_id = int(m.group(1))
+			if discord_id not in discord_ids:
+				discord_ids.append()
 
 		elif arg.lower() in [ 'me', '@me' ]:
 			args.remove(arg)
-			discord_ids.append(author.id)
+			if author.id not in discord_ids:
+				discord_ids.append(author.id)
 
 		else:
 			p = Player.get_player_by_nick(arg)
 			if p:
 				args.remove(arg)
-				discord_ids.append(p.discord_id)
+				if p.discord_id not in discord_ids:
+					discord_ids.append(p.discord_id)
 
-	return list(set(discord_ids))
+	return discord_ids
 
 def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, exclude_author=False, language='eng_us'):
 
