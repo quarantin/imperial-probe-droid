@@ -32,7 +32,7 @@ class Demo:
 		unit = BaseUnit.objects.filter(combat_type=1).order_by('?').first()
 		equip = Gear.objects.order_by('?').first()
 
-		gear_level = random.randint(1, MAX_GEAR_LEVEL)
+		gear_level = random.randint(2, MAX_GEAR_LEVEL)
 		new_gear = gear_level
 		old_gear = gear_level - 1
 
