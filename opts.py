@@ -108,9 +108,10 @@ def parse_opts_ally_codes(request):
 		ally_code = parse_opts_ally_code(arg)
 		if ally_code:
 			args.remove(arg)
-			ally_codes.append(ally_code)
+			if ally_code not in ally_codes:
+				ally_codes.append(ally_code)
 
-	return list(set(ally_codes))
+	return ally_codes
 
 def parse_opts_ally_codes_excluded(request):
 
@@ -122,9 +123,10 @@ def parse_opts_ally_codes_excluded(request):
 		ally_code = parse_opts_ally_code_excluded(arg)
 		if ally_code:
 			args.remove(arg)
-			excluded.append(ally_code)
+			if ally_code not in excluded:
+				excluded.append(ally_code)
 
-	return list(set(excluded))
+	return excluded
 
 def parse_opts_mentions(request):
 
