@@ -223,11 +223,11 @@ FORMAT_UNIT_ZETA = {
 		"icon_url": "${user.avatar}"
 	},
 	"thumbnail": {
-		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
+		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas.old}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
 	"description": "***${skill}***",
 	"image": {
-		"url": "${server}/media/zeta.png"
+		"url": "${server}/avatar/${unit.id}?zetas=${zetas.new}"
 	}
 }

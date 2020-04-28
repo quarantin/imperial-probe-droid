@@ -52,6 +52,10 @@ class Demo:
 		new_level = str(level)
 		old_level = str(level - 1)
 
+		zetas = random.randint(1, 3)
+		new_zetas = str(zetas)
+		old_zetas = str(zetas - 1)
+
 		msg['ally.code'] = player.ally_code
 		msg['gear']      = new_gear
 		msg['gear.new']  = new_gear
@@ -73,7 +77,9 @@ class Demo:
 		msg['relic']     = new_relic
 		msg['relic.new'] = new_relic
 		msg['relic.old'] = old_relic
-		msg['zetas']     = str(random.randint(1, 3))
+		msg['zetas']     = new_zetas
+		msg['zetas.new'] = new_zetas
+		msg['zetas.old'] = old_zetas
 		msg['skill.id']  = BaseUnitSkill.objects.filter(unit=unit).order_by('?').first().skill_id
 		msg['tier']      = str(random.randint(1, MAX_SKILL_TIER))
 		msg['unit.id']   = unit.base_id

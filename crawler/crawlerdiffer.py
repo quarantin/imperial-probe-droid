@@ -29,6 +29,8 @@ class CrawlerDiffer:
 
 		for base_id, new_unit in new_roster.items():
 
+			old_unit = old_roster[base_id]
+
 			# Handle new units unlocked.
 			if base_id not in old_roster:
 				messages.append({
@@ -163,6 +165,9 @@ class CrawlerDiffer:
 
 				if old_skill['tier'] < new_skill['tier']:
 
+					new_zetas = BaseUnitSkill.count_zetas(new_unit)
+					old_zetas = BaseUnitSkill.count_zetas(old_unit)
+
 					messages.append({
 						'key':       PremiumGuild.MSG_UNIT_SKILL_INCREASED,
 						'user':      new_player_name,
@@ -172,7 +177,9 @@ class CrawlerDiffer:
 						'gear':      new_unit['gear'],
 						'rarity':    new_unit['rarity'],
 						'relic':     BaseUnitSkill.get_relic(new_unit),
-						'zetas':     BaseUnitSkill.count_zetas(new_unit),
+						'zetas':     new_zetas,
+						'zetas.new': new_zetas,
+						'zetas.old': old_zetas,
 						'skill.id':  new_skill_id,
 						'tier':      new_skill['tier'],
 					})
