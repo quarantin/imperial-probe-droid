@@ -145,7 +145,9 @@ async def cmd_gear(request):
 				'name': unit.name,
 				'icon_url': unit.get_image(),
 			},
-			'image': get_full_avatar_url(config, unit.image, player_unit),
+			'image': {
+				'url': get_full_avatar_url(config, unit.image, player_unit),
+			},
 			'fields': fields,
 		})
 
