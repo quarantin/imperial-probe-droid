@@ -570,6 +570,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 	async def config(self, ctx, pref_key: str = None, pref_value: str = None):
 
 		guild = self.get_guild(ctx.author)
+		if guild is None:
+			await ctx.send('Guild not found for <@!%s>' % ctx.author.id)
+			return
 
 		if pref_key and pref_value:
 			return await self.set_config(ctx, guild, pref_key, pref_value)
@@ -580,6 +583,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 	async def channels(self, ctx, pref_key: str = None, pref_value: str = None):
 
 		guild = self.get_guild(ctx.author)
+		if guild is None:
+			await ctx.send('Guild not found for <@!%s>' % ctx.author.id)
+			return
 
 		if pref_key and pref_value:
 			return await self.set_channels(ctx, guild, pref_key, pref_value)
@@ -590,6 +596,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 	async def formats(self, ctx, pref_key: str = None, *, pref_value: str = None):
 
 		guild = self.get_guild(ctx.author)
+		if guild is None:
+			await ctx.send('Guild not found for <@!%s>' % ctx.author.id)
+			return
 
 		if pref_key and pref_value:
 			return await self.set_formats(ctx, guild, pref_key, pref_value)
@@ -600,6 +609,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 	async def mentions(self, ctx, pref_key: str = None, pref_value: str = None):
 
 		guild = self.get_guild(ctx.author)
+		if guild is None:
+			await ctx.send('Guild not found for <@!%s>' % ctx.author.id)
+			return
 
 		if pref_key and pref_value:
 			return await self.set_mentions(ctx, guild, pref_key, pref_value)
