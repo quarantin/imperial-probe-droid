@@ -29,8 +29,6 @@ class CrawlerDiffer:
 
 		for base_id, new_unit in new_roster.items():
 
-			old_unit = old_roster[base_id]
-
 			# Handle new units unlocked.
 			if base_id not in old_roster:
 				messages.append({
@@ -166,7 +164,7 @@ class CrawlerDiffer:
 				if old_skill['tier'] < new_skill['tier']:
 
 					new_zetas = BaseUnitSkill.count_zetas(new_unit)
-					old_zetas = BaseUnitSkill.count_zetas(old_unit)
+					old_zetas = base_id in old_roster and BaseUnitSkill.count_zetas(old_roster[base_id]) or 0
 
 					messages.append({
 						'key':       PremiumGuild.MSG_UNIT_SKILL_INCREASED,
