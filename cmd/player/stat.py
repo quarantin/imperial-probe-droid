@@ -12,7 +12,7 @@ from swgoh.models import BaseUnit, BaseUnitSkill
 
 help_player_stat = {
 	'title': 'Player Stat Help',
-	'description': """Compare stats of different players.
+	'description': """Show stats of selected players.
 
 **Syntax**
 ```
@@ -21,12 +21,12 @@ help_player_stat = {
 Show your player stats:
 ```
 %prefixps```
-Compare your player stats to another player:
+Show stats of another player:
 ```
 %prefixps 123456789```
-Compare player stats of two different players:
+Compare your stats to another player:
 ```
-%prefixps 123456789 234567890```"""
+%prefixps me 234567890```"""
 }
 
 def get_player_stats(config, roster, lang):
@@ -196,9 +196,12 @@ async def cmd_player_stat(request):
 
 	lang = parse_opts_lang(request)
 
-	selected_players, error = parse_opts_players(request, expected_allies=2)
+	selected_players, error = parse_opts_players(request)
 	if error:
 		return error
+
+	if args:
+		return error_unknown_parameters(args)
 
 	fields = []
 	ally_codes = [ player.ally_code for player in selected_players ]

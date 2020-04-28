@@ -164,7 +164,7 @@ async def cmd_guild_stat(request):
 
 	excluded_ally_codes = parse_opts_ally_codes_excluded(request)
 
-	selected_players, error = parse_opts_players(request, expected_allies=2)
+	selected_players, error = parse_opts_players(request)
 	if error:
 		return error
 

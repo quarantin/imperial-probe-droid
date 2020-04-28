@@ -11,21 +11,21 @@ from swgoh.models import BaseUnitSkill
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
-	'description': """Compare units of different guilds.
+	'description': """Show units of selected guilds.
 
 **Syntax**
 ```
 %prefixgc [players] [units]```
 **Examples**
-Show stats about General Skywalker (GAS) in your guild:
+Show stats for Darth Traya in your guild:
 ```
-%prefixgc gas```
-Compare General Skywalker (GAS) of your guild and another:
+%prefixgc traya```
+Show stats for Darth Traya in another guild:
 ```
-%prefixgc 123456789 gas```
-Compare General Skywalker (GAS) of two different guilds:
+%prefixfgc 123456789 traya```
+Compare your guild stats for Darth Traya to another guild:
 ```
-%prefixgc 123456789 234567891 gas```"""
+%prefixgc me 123456789 traya```"""
 }
 
 def get_unit_stats(config, roster, lang):
@@ -152,7 +152,7 @@ async def cmd_guild_compare(request):
 
 	excluded_ally_codes = parse_opts_ally_codes_excluded(request)
 
-	selected_players, error = parse_opts_players(request, expected_allies=2)
+	selected_players, error = parse_opts_players(request)
 	if error:
 		return error
 

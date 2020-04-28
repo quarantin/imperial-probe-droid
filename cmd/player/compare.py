@@ -12,21 +12,21 @@ from swgoh.models import BaseUnit, BaseUnitSkill
 
 help_player_compare = {
 	'title': 'Player Compare Help',
-	'description': """Compare different players, optionally comparing their respective units.
+	'description': """Show units of selected players.
 
 **Syntax**
 ```
 %prefixpc [players] [units]```
 **Examples**
-Compare your profile to another by ally code (assuming you're registered):
+Show your bounty hunters:
 ```
-%prefixpc 123456789```
-Compare two different players:
+%prefixpc bh```
+Show bounty hunters of another player:
 ```
-%prefixpc 123456789 234567890```
-Compare two different players and show stats differences about Revan and Traya:
+%prefixpc 123456789 bh```
+Compare your bounty hunters to another player:
 ```
-%prefixpc 123456789 234567891 revan traya```"""
+%prefixpc me 123456789 bh```"""
 }
 
 base_stats = [
@@ -160,7 +160,7 @@ async def cmd_player_compare(request):
 
 	lang = parse_opts_lang(request)
 
-	selected_players, error = parse_opts_players(request, expected_allies=2)
+	selected_players, error = parse_opts_players(request)
 	if error:
 		return error
 

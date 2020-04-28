@@ -8,7 +8,7 @@ from swgohhelp import fetch_players
 
 help_gac = {
 	'title': 'Player GAC Help',
-	'description': """Compare Grand Arena stats of different players.
+	'description': """Show Grand Arena stats of selected players.
 
 **Syntax**
 ```
@@ -17,12 +17,12 @@ help_gac = {
 Show your GAC stats:
 ```
 %prefixgac```
-Compare your GAC stats to another player:
+Show GAC stats of another player:
 ```
 %prefixgac 123456789```
-Compare GAC stats of two different players:
+Compare your GAC stats to another player:
 ```
-%prefixgac 123456789 234567890```"""
+%prefixgac me 123456789```"""
 }
 
 wanted_stats = {
@@ -81,7 +81,7 @@ async def cmd_gac(request):
 
 	lang = parse_opts_lang(request)
 
-	selected_players, error = parse_opts_players(request, expected_allies=2)
+	selected_players, error = parse_opts_players(request)
 	if error:
 		return error
 
