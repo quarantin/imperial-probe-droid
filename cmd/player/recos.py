@@ -191,7 +191,9 @@ async def cmd_recos(request):
 					'name': ref_unit.name,
 					'icon_url': ref_unit.get_image(),
 				},
-				'image': get_full_avatar_url(config, ref_unit.image, unit),
+				'image': {
+					'url': get_full_avatar_url(config, ref_unit.image, unit),
+				},
 				'fields': [ get_field_legend(config) ],
 			})
 
