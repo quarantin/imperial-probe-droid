@@ -143,7 +143,7 @@ def parse_opts_mentions(request):
 			args.remove(arg)
 			discord_id = int(m.group(1))
 			if discord_id not in discord_ids:
-				discord_ids.append()
+				discord_ids.append(discord_id)
 
 		elif arg.lower() in [ 'me', '@me' ]:
 			args.remove(arg)
