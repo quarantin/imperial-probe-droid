@@ -106,14 +106,16 @@ class Crawler(asyncio.Future):
 		failed_ac = []
 		failed_ch = []
 
+		print('SELECTORS BEFORE LOOP: %s' % selectors)
 		for selector, channel in zip(selectors, channels):
 
+			print('SELECTOR INSIDE LOOP: %s' % selector)
 			guild = await self.get_guild(selector)
 			if not guild:
 				print('Guild not found in redis for selector: %s' % selector)
 				continue
 
-			self.logger.debug('%s (%s)' % (guild['id'], guild['name']))
+			print('%s - %s' % (guild['id'], guild['guild']['name']))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
 			if not premium_guild:
@@ -293,9 +295,11 @@ class Crawler(asyncio.Future):
 			if selectors:
 				await self.get_guilds(selectors)
 
+			print('Pass 1')
 			failed_ac, failed_ch = await self.refresh_players(guild_selectors, guild_channels)
 
 			if failed_ac:
+				print('Pass 2')
 				failed_ac2, failed_ch2 = await self.refresh_players(failed_ac, failed_ch, selectors_only=True)
 				if failed_ac2:
 					self.logger.error('Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(failed_ac2))
