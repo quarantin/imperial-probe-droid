@@ -278,7 +278,7 @@ class Crawler(asyncio.Future):
 		print('Crawler bot ready!')
 
 		self.differ = CrawlerDiffer(self)
-		self.session = await libswgoh.get_auth_google(creds_id=creds_id)
+		self.session = await libswgoh.get_auth_google(creds_id=self.creds_id)
 
 		while True:
 
