@@ -1,5 +1,6 @@
 from errors import *
 
+from twcog import TWCog
 from modscog import ModsCog
 from ticketscog import TicketsCog
 
@@ -43,8 +44,9 @@ Unloading tickets cog:
 }
 
 loadable_cogs = {
-	'mods': ModsCog,
+	'mods':    ModsCog,
 	'tickets': TicketsCog,
+	'tw':      TWCog,
 }
 
 def parse_opts_cogs(args):
@@ -91,6 +93,16 @@ def cmd_load(request):
 		return error_permission_denied()
 
 	cogs = parse_opts_cogs(args)
+
+	if args:
+		return error_unknown_parameters(args)
+
+	if not cogs:
+		return [{
+			'title': 'Error',
+			'description': 'You need to supply a valid cog name',
+		}]
+
 	for cog in cogs:
 		bot.add_cog(cog(bot))
 
