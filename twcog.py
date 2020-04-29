@@ -73,19 +73,25 @@ class TWCog(commands.Cog):
 			for ref_squad in squad_orders:
 				if self.is_same_squad(squad, ref_squad) and self.is_wrong_order(squad, ref_squad):
 					if player not in wrong_order:
-						wrong_order[player] = []
+						wrong_order[player] = {}
 
-					wrong_order[player].append((territory, squad))
+					if territory not in wrong_order[player]:
+						wrong_order[player][territory] = []
+
+					wrong_order[player][territory].append(squad)
 
 		fields = []
-		for player, squads in sorted(wrong_order.items()):
+		for player, territories in sorted(wrong_order.items()):
 			value = []
 			field = {
 				'name': player,
 				'inline': True,
 			}
-			for territory, squad in squads:
-				value.append('__**%s**__\n%s' % (territory.title(), '\n'.join(translate_multi(squad))))
+			for territory in client.territories_by_name:
+				if territory in territories:
+					squads = territories[territory]
+					for squad in squads:
+						value.append('__**%s**__\n```%s```' % (territory, '\n'.join(translate_multi(squad))))
 			field['value'] = '\n'.join(value) + '\n'
 			fields.append(field)
 
