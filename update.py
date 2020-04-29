@@ -78,6 +78,9 @@ lang_projects = [
 
 async def fetch_all_collections(config):
 
+	print('Downloading game data.')
+	print('This might take a while.')
+
 	for filename, url in urls.items():
 		response, error = await http_get(url)
 		if not response:
@@ -552,7 +555,9 @@ async def save_all_recos():
 
 async def __main__():
 
-	forced_update = len(sys.argv) > 1 and sys.argv[1] == '--force'
+	forced_update = '-f' in sys.argv or '--force'         in sys.argv
+	download_only = '-d' in sys.argv or '--download-only' in sys.argv
+	update_only   = '-u' in sys.argv or '--update-only'   in sys.argv
 
 	first_time = False
 	version_url = 'https://api.swgoh.help/version'
@@ -584,7 +589,14 @@ async def __main__():
 
 	config = load_config()
 
-	await fetch_all_collections(config)
+	if not update_only:
+		await fetch_all_collections(config)
+
+	if download_only:
+		return
+
+	print('Updating game data.')
+	print('This might take a while.')
 
 	parse_rss_feeds(config)
 	parse_gear()
