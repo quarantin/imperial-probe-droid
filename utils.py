@@ -192,6 +192,14 @@ def translate(string_id, language='eng_us'):
 	print('WARN: Missing translation for string ID: %s (%s)' % (string_id, language))
 	return string_id
 
+def translate_multi(string_ids, language='eng_us'):
+
+	translations = []
+	for string_id in string_ids:
+		translations.append(translate(string_id, language))
+
+	return translations
+
 def format_char_details(unit, fmt):
 
 	import DJANGO
