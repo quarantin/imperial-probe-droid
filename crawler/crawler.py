@@ -106,16 +106,15 @@ class Crawler(asyncio.Future):
 		failed_ac = []
 		failed_ch = []
 
-		print('SELECTORS BEFORE LOOP: %s' % selectors)
 		for selector, channel in zip(selectors, channels):
 
-			print('SELECTOR INSIDE LOOP: %s' % selector)
 			guild = await self.get_guild(selector)
 			if not guild:
 				print('Guild not found in redis for selector: %s' % selector)
 				continue
 
-			print('%s - %s' % (guild['id'], guild['name']))
+			if selectors_only is True:
+				print('Crawling guild %s - %s' % (guild['id'], guild['name']))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
 			if not premium_guild:
