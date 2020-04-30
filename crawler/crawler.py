@@ -115,7 +115,7 @@ class Crawler(asyncio.Future):
 				print('Guild not found in redis for selector: %s' % selector)
 				continue
 
-			print('%s - %s' % (guild['id'], guild['guild']['name']))
+			print('%s - %s' % (guild['id'], guild['name']))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
 			if not premium_guild:
