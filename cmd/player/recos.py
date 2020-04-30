@@ -192,7 +192,7 @@ async def cmd_recos(request):
 					'icon_url': ref_unit.get_image(),
 				},
 				'image': {
-					'url': get_full_avatar_url(config, ref_unit.image, unit),
+					'url': get_full_avatar_url(config, ref_unit, unit),
 				},
 				'fields': [ get_field_legend(config) ],
 			})

@@ -41,10 +41,9 @@ def get_swgohgg_player_unit_url(ally_code, base_id):
 	url = 'https://swgoh.gg/p/%s/characters/%s' % (ally_code, simple_name)
 	return url
 
-def get_full_avatar_url(config, image, unit):
+def get_full_avatar_url(config, ref_unit, unit):
 
-	base_id = os.path.basename(os.path.dirname(image))
-	alignment = BaseUnit.get_alignment(base_id)
+	alignment = BaseUnit.get_alignment(ref_unit.base_id)
 
 	level, gear, rarity, zetas, relic = 1, 1, 0, 0, 0
 
@@ -59,11 +58,8 @@ def get_full_avatar_url(config, image, unit):
 		relic = 'relic' in unit and unit['relic'] and 'currentTier' in unit['relic'] and unit['relic']['currentTier'] or 0
 		relic = max(0, relic - 2)
 
-	return '%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&relic=%s&alignment=%s&version=2' % (config.get_server_url(), base_id, level, gear, rarity, zetas, relic, alignment)
+	return '%s/avatar/%s?level=%s&gear=%s&rarity=%s&zetas=%s&relic=%s&alignment=%s&version=2' % (config.get_server_url(), ref_unit.base_id, level, gear, rarity, zetas, relic, alignment)
 
-def get_full_ship_avatar_url(ally_code, base_id):
-	#return 'https://api.swgoh.help/image/ship/%s?rarity=%s&level=%s&bg=36393E&pilots=DEATHTROOPER-7-85-12-null%7CSHORETROOPER-7-85-12-null' % (base_id),
-	pass
 #
 # Meta Reports
 #

@@ -155,7 +155,12 @@ async def cmd_kit(request):
 
 	msgs = []
 	for player in selected_players:
+
+		jplayer = players[player.ally_code]
+
 		for unit in selected_units:
+
+			player_unit = unit.base_id in jplayer['roster'] and jplayer['roster'][unit.base_id] or None
 
 			skills = BaseUnitSkill.objects.filter(unit=unit)
 			for skill in skills:
@@ -188,7 +193,7 @@ async def cmd_kit(request):
 				msgs.append({
 					'title': unit_name,
 					'thumbnail': {
-						'url': 'http://zeroday.biz/avatar/%s' % unit.base_id,
+						'url': get_full_avatar_url(config, unit, player_unit),
 					},
 					'description': '__**%s** (%s, %d/%d)__\n*%s*' % (skill_name, ability_type, tier, skill.max_tier, skill_desc),
 					'image': {
