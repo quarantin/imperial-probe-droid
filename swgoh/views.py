@@ -315,7 +315,7 @@ def get_param(request, param, default=0):
 
 def has_params(request):
 	for param in [ 'level', 'gear', 'rarity', 'zetas', 'relic' ]:
-		if param in request.GET and request.GET[param]:
+		if param in request.GET and int(request.GET[param]):
 			return True
 	return False
 
