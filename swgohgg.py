@@ -45,11 +45,11 @@ def get_full_avatar_url(config, ref_unit, unit):
 
 	alignment = BaseUnit.get_alignment(ref_unit.base_id)
 
-	level, gear, rarity, zetas, relic = 1, 1, 0, 0, 0
+	level, gear, rarity, zetas, relic = 0, 0, 0, 0, 0
 
 	if unit is not None:
-		level  = 'level'  in unit and unit['level']      or 1
-		gear   = 'gear'   in unit and unit['gear']       or 1
+		level  = 'level'  in unit and unit['level']      or 0
+		gear   = 'gear'   in unit and unit['gear']       or 0
 		rarity = 'rarity' in unit and unit['rarity']     or 0
 		zetas  = 'zetas'  in unit and len(unit['zetas']) or 0
 		if zetas == 0:
