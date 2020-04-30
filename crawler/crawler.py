@@ -27,7 +27,7 @@ class CrawlerError(Exception):
 class Crawler(asyncio.Future):
 
 	creds_id = None
-	#creds_id = 'anraeth'
+	#creds_id = 'reverseswgoh@gmail.com'
 
 	async def update_player(self, guild, player_id, restart=True):
 
@@ -113,7 +113,7 @@ class Crawler(asyncio.Future):
 				print('Guild not found in redis for selector: %s' % selector)
 				continue
 
-			if selectors_only is True:
+			if selectors_only is False:
 				print('Crawling guild %s - %s' % (guild['id'], guild['name']))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
