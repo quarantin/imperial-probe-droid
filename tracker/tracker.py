@@ -73,64 +73,6 @@ class Tracker(bot.Bot):
 	def get_webhook_name(self):
 		return 'IPD Tracker'
 
-	async def get_webhook(self, name, channel):
-
-		try:
-			webhooks = await channel.webhooks()
-			for webhook in webhooks:
-				if webhook.name.lower() == name.lower():
-					return webhook, None
-
-		except discord.Forbidden:
-			errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id
-			return None, errmsg
-
-		except discord.HTTPException:
-			errmsg = 'I was not able to retrieve the webhook in <#%s> due to a network error.\nPlease try again.' % channel.id
-			return None, errmsg
-
-		return None, None
-
-	async def create_webhook(self, name, avatar, channel):
-
-		perms = channel.permissions_for(channel.guild.me)
-		if not perms.manage_webhooks:
-			return [{
-				'title': 'Permission Denied',
-				'color': 'red',
-				'description': 'I don\'t have permission to manage WebHooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
-			}]
-
-		try:
-			webhook = await channel.create_webhook(name=name, avatar=avatar)
-			return webhook, None
-
-		except discord.Forbidden:
-			errmsg = 'I\'m not allowed to create webhooks in <#%s>.\nI need the following permission to proceed:\n- __**Manage Webhooks**__' % channel.id,
-			return None, errmsg
-
-		except discord.HTTPException as err:
-			errmsg = 'I was not able to create the webhook in <#%s> due to a network error: `%s`\nPlease try again.' % (channel.id, err)
-			return None, errmsg
-
-	def get_user_info(self, server, ally_code):
-
-		try:
-			players = Player.objects.filter(ally_code=ally_code)
-
-			for player in players:
-				if player.discord_id:
-					nick = '<@!%s>' % player.discord_id
-					member = server and server.get_member(player.discord_id)
-					avatar = member and member.avatar_url_as(format='png', size=64) or self.user.default_avatar_url
-					return nick, str(avatar)
-
-		except Player.DoesNotExist:
-			print(traceback.format_exc())
-
-		self.logger_unreg.info('Unregistered allycode: %s (%s)' % (ally_code, server.name))
-		return None, str(self.user.default_avatar_url)
-
 	def prepare_message(self, server, config, message):
 
 		if 'user' in message:
