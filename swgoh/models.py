@@ -76,6 +76,7 @@ class Player(models.Model):
 	discord_nick         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_display_name = models.CharField(max_length=128, default='', blank=True, null=True)
 	game_nick            = models.CharField(max_length=128, default='', blank=True, null=True)
+	player_id            = models.CharField(max_length=22, default='',  blank=True, null=True)
 	ally_code            = models.IntegerField(blank=True, null=True)
 	language             = models.CharField(max_length=6, default='eng_us', choices=LANGUAGES)
 	timezone             = TimeZoneField(blank=True, null=True)
