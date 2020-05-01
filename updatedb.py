@@ -15,7 +15,7 @@ async def main():
 
 	session = await libswgoh.get_auth_guest()
 
-	for player in Player.objects.all():
+	for player in Player.objects.filter(player_id=''):
 
 		if player.ally_code in players:
 			print('duplicate allycode: %s' % player.ally_code)
