@@ -104,7 +104,6 @@ def parse_opts_skill_types(args):
 					args.remove(arg)
 					skill_type = skill_types[a_skill_type]
 					types[skill_type] = int(match.group(1))
-					print('%s %s' % (skill_type, types[skill_type]))
 					break
 
 	return types
@@ -209,8 +208,8 @@ async def cmd_kit(request):
 					continue
 
 				skill_index = selected_skill_types[ability_type]
-				ends_with_digits = re.search(r'\d$', skill.ability_ref)
-				if ends_with_digits:
+				ends_with_index = re.search(r'0[0-9]$', skill.ability_ref)
+				if ends_with_index:
 
 					if skill_index != -1 and not skill.ability_ref.endswith('%02d' % skill_index):
 						continue
