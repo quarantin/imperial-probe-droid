@@ -130,7 +130,7 @@ async def cmd_gregister(request):
 	if len(unregistered) == 1:
 		unregistered.append('*All players registered.*')
 
-	lines = sorted(registered) + [ '' ] + sorted(unregistered)
+	lines = sorted(registered, key=str.casefold) + [ '' ] + sorted(unregistered, key=str.casefold)
 
 	msgs = []
 	if auto:
