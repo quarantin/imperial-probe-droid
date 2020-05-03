@@ -130,15 +130,11 @@ class Crawler(asyncio.Future):
 					await self.update_player(premium_guild, member['playerId'])
 
 				except CrawlerError:
-					# Don't print stacktrace for CrawlerError
-					pass
+					failed_ac.append(member['playerId'])
+					failed_ch.append(channel)
 
 				except Exception as err:
 					print(traceback.format_exc())
-
-				finally:
-					failed_ac.append(member['playerId'])
-					failed_ch.append(channel)
 
 		return failed_ac, failed_ch
 
