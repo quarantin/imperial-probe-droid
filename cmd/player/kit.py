@@ -2,6 +2,7 @@ from opts import *
 from errors import *
 from utils import translate
 
+from constants import EMOJIS
 from swgohgg import get_full_avatar_url
 from swgohhelp import fetch_players, get_ability_name
 
@@ -37,6 +38,15 @@ Show General skywalker leader ability:
 Show General Skywalker second special ability:
 ```
 %prefixkit gas special 2```"""
+}
+
+default_types = {
+	'basicability': -1,
+	'contractability': -1,
+	'hardwareability': -1,
+	'leaderability': -1,
+	'specialability': -1,
+	'uniqueability': -1,
 }
 
 skill_types = {
@@ -75,15 +85,27 @@ def parse_opts_tier(args):
 
 def parse_opts_skill_types(args):
 
-	types = []
+	types = {}
+
 	args_cpy = list(args)
 	for arg in args_cpy:
+
 		larg = arg.lower()
 		if larg in skill_types:
 			skill_type = skill_types[larg]
 			args.remove(arg)
 			if skill_type not in types:
-				types.append(skill_type)
+				types[skill_type] = -1
+		else:
+			for a_skill_type in skill_types:
+				pattern = r'^%s(\d+)$' % a_skill_type
+				match = re.search(pattern, larg)
+				if match:
+					args.remove(arg)
+					skill_type = skill_types[a_skill_type]
+					types[skill_type] = int(match.group(1))
+					print('%s %s' % (skill_type, types[skill_type]))
+					break
 
 	return types
 
@@ -110,6 +132,19 @@ def fix_desc(desc):
 
 	return desc.replace('\\n', '\n').replace('[-][/c]', '**__', count).replace('[-][/c]', '')
 
+def get_emoji(skill, tier):
+
+	if skill.is_zeta:
+		emoji = skill.max_tier == tier and 'zeta' or 'zetadisabled'
+
+	elif skill.max_tier != 3:
+		emoji = skill.max_tier == tier and 'omega' or 'omegadisabled'
+
+	else:
+		return ''
+
+	return EMOJIS[emoji]
+
 async def cmd_kit(request):
 
 	args = request.args
@@ -120,7 +155,7 @@ async def cmd_kit(request):
 
 	selected_skill_types = parse_opts_skill_types(args)
 	if not selected_skill_types:
-		selected_skill_types = [ 'basicability', 'contractability', 'hardwareability', 'leaderability', 'specialability', 'uniqueability' ]
+		selected_skill_types = default_types
 
 	selected_tier = parse_opts_tier(args)
 
@@ -173,6 +208,16 @@ async def cmd_kit(request):
 				if ability_type not in selected_skill_types:
 					continue
 
+				skill_index = selected_skill_types[ability_type]
+				ends_with_digits = re.search(r'\d$', skill.ability_ref)
+				if ends_with_digits:
+
+					if skill_index != -1 and not skill.ability_ref.endswith('%02d' % skill_index):
+						continue
+
+				elif skill_index not in [ -1, 1 ]:
+					continue
+
 				tier = selected_tier
 				if not tier:
 					if unit.base_id in players[player.ally_code]['roster']:
@@ -194,12 +239,14 @@ async def cmd_kit(request):
 				skill_desc = fix_desc(translate(string_id, language))
 				ability_type = ability_type.replace('ability', '').title()
 
+				emoji = get_emoji(skill, tier)
+
 				msgs.append({
 					'title': unit_name,
 					'thumbnail': {
 						'url': get_full_avatar_url(config, unit, player_unit),
 					},
-					'description': '__**%s** (%s, %d/%d)__\n*%s*' % (skill_name, ability_type, tier, skill.max_tier, skill_desc),
+					'description': '%s __**%s** (%s, %d/%d)__\n*%s*' % (emoji, skill_name, ability_type, tier, skill.max_tier, skill_desc),
 					'image': {
 						'url': 'http://zeroday.biz/skill/%s/' % skill.skill_id,
 					},
@@ -208,12 +255,11 @@ async def cmd_kit(request):
 
 	if not msgs:
 		units = '\n- '.join([ translate(unit.base_id, language) for unit in selected_units ])
-		skill_types = ', or '.join([ x.replace('ability', '') for x in selected_skill_types ])
-		plural = len(selected_units) > 1 and 's' or ''
-		plural_have = len(selected_units) > 1 and 'have' or 'has'
+		plural_units = len(selected_units) > 1 and 's' or ''
+		plural_skills = len(selected_skill_types) > 1 and 'ies' or 'y'
 		msgs.append({
 			'title': 'No Matching Skills',
-			'description': 'The following unit%s %s no %s skill%s:\n- %s' % (plural, plural_have, skill_types, plural, units),
+			'description': 'Could not find matching abilit%s for the following unit%s:\n- %s' % (plural_skills, plural_units, units),
 		})
 
 	return msgs
