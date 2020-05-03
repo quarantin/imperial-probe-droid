@@ -148,6 +148,10 @@ async def cmd_kit(request):
 			'name': 1,
 			'roster': {
 				'defId': 1,
+				'gear': 1,
+				'level': 1,
+				'rarity': 1,
+				'relic': 1,
 				'skills': 1,
 			},
 		},
