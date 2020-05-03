@@ -16,6 +16,7 @@ Django==2.2.10
 django-timezone-field==3.0
 et-xmlfile==1.0.1
 feedparser==5.2.1
+fuzzywuzzy==0.18.0
 google==2.0.3
 idna==2.8
 jdcal==1.4.1

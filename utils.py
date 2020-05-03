@@ -6,6 +6,7 @@ import aiohttp
 import requests
 import subprocess
 import traceback
+from fuzzywuzzy import fuzz
 from urllib.parse import urlencode
 from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
@@ -411,6 +412,9 @@ def is_supported_timezone(tzinfo, timezones):
 			return tz
 
 	return False
+
+def get_fuzz_ratio(str1, str2):
+	return fuzz.ratio(str1, str2)
 
 def check_permission(request):
 
