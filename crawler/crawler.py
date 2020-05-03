@@ -75,7 +75,7 @@ class Crawler(asyncio.Future):
 			messages_key = 'messages|%s' % guild.guild_id
 			self.redis.rpush(messages_key, *formated)
 
-		self.logger.debug(player_id)
+		self.logger.debug('%s - %s' % (guild.guild_id, player_id))
 
 	async def get_player(self, player_id, fetch=True, restart=True):
 
