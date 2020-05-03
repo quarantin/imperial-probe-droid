@@ -2,6 +2,7 @@ import DJANGO
 from swgoh.models import Player
 
 from errors import *
+from utils import get_fuzz_ratio
 from opts import parse_opts_players
 from swgohhelp import fetch_guilds
 
@@ -32,7 +33,21 @@ def parse_opts_auto(request):
 	return False
 
 def lowerstrip(string):
-	return string and string.replace(' ', '').lower() or string
+
+	if not string:
+		return ''
+
+	replaceable = {
+		' ': '',
+		'-': '',
+		'_': '',
+	}
+
+	string = string.lower()
+	for pattern, replace in replaceable.items():
+		string = string.replace(pattern, replace)
+
+	return string
 
 async def cmd_gregister(request):
 
@@ -40,6 +55,9 @@ async def cmd_gregister(request):
 	args = request.args
 	author = request.author
 	config = request.config
+
+	min_length = 4
+	min_fuzz_ratio = 90
 
 	auto = parse_opts_auto(request)
 
@@ -59,25 +77,35 @@ async def cmd_gregister(request):
 
 	guilds = await fetch_guilds(config, ally_codes)
 
-	for selector_allycode, guild in guilds.items():
+	for selector, guild in guilds.items():
 
-		for allycode_str, player in guild['roster'].items():
+		for player_id, player in guild['roster'].items():
 
+			player_name = lowerstrip(player['name'])
 			match = list(Player.objects.filter(ally_code=player['allyCode']))
 			if match:
-				registered.append('%s => @%s' % (player['name'], match[0]))
+				registered.append('%s => <@%s>' % (player['name'], match[0].discord_id))
+
 			else:
 				nick = None
 				member = None
 				for m in request.server.members:
 
 					member = m
-					player_name = lowerstrip(player['name'])
 
 					for attr in [ 'nick', 'display_name', 'name' ]:
 
-						if hasattr(m, attr) and lowerstrip(getattr(m, attr)) == player_name:
-							nick = getattr(m, attr)
+						member_name = hasattr(member, attr) and lowerstrip(getattr(member, attr)) or ''
+						if not member_name:
+							continue
+
+						if len(member_name) >= min_length and len(player_name) >= min_length and (member_name in player_name or player_name in member_name):
+							nick = getattr(member, attr)
+							break
+
+						fuzz_ratio = get_fuzz_ratio(player_name, member_name)
+						if fuzz_ratio >= min_fuzz_ratio:
+							nick = getattr(member, attr)
 							break
 
 					if nick:
@@ -85,16 +113,16 @@ async def cmd_gregister(request):
 				else:
 					print("MISSING MEMBER: %s <=> %s" % (player['name'], nick))
 
-				msg = '**Not Found** (%s)' % player['allyCode']
+				msg = '%s => **Not Found** (%s)' % (player['name'], player['allyCode'])
 				if nick:
 					auto_ids.append(member.id)
 					auto_allycodes.append(player['allyCode'])
-					msg = '%s *(auto)*' % nick
+					msg = '%s => <@%s> *(auto)*' % (player['name'], member.id)
 					if auto:
-						registered.append('%s => @%s *(auto)*' % (player['name'], nick))
+						registered.append(msg)
 
 				if not auto or not nick:
-					unregistered.append('%s => %s' % (player['name'], msg))
+					unregistered.append(msg)
 
 	if len(registered) == 1:
 		registered.append('*No player registered yet.*')
@@ -102,7 +130,7 @@ async def cmd_gregister(request):
 	if len(unregistered) == 1:
 		unregistered.append('*All players registered.*')
 
-	lines = registered + [ '' ] + unregistered
+	lines = sorted(registered) + [ '' ] + sorted(unregistered)
 
 	msgs = []
 	if auto:
