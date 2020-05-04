@@ -176,9 +176,6 @@ async def cmd_player_compare(request):
 
 	players = { p['allyCode']: p for p in players }
 
-	for player in selected_players:
-		print(player)
-
 	msgs = []
 	for unit in selected_units:
 
