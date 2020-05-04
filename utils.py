@@ -141,15 +141,17 @@ async def http_get(url, headOnly=False):
 		return response, False
 
 async def http_post(url, *args, **kwargs):
+	errmsg = 'Unknown Error'
 	async with aiohttp.ClientSession() as session:
 		async with session.post(url, *args, **kwargs) as response:
 			try:
 				return await response.json(), False
 			except Exception as err:
+				errmsg = str(err)
 				print(err)
 				print(traceback.format_exc())
 
-	return None, 'Unknown Error'
+	return None, errmsg
 
 removable_chars = """`'"()[]{}"""
 
