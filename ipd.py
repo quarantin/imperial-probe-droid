@@ -431,6 +431,9 @@ async def __main__():
 		bot.logger = ipd_logger
 		bot.redis = config.redis
 
+		import client
+		bot.swgohclient = client.SwgohClient(bot)
+
 		token = config['token']
 		if 'env' in config:
 			env = config['env']
