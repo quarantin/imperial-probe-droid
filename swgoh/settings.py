@@ -43,6 +43,7 @@ if DEBUG is True:
 
 INSTALLED_APPS = [
     'swgoh',
+	'grandarena',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
