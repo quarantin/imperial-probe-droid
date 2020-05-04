@@ -104,6 +104,42 @@ class TWCog(commands.Cog):
 		for embed in embeds:
 			await ctx.send(embed=embed)
 
+	def parse_territory(self, data):
+
+		orders = {}
+
+		for territory in data['territories']:
+
+			info = territory['info']
+
+			territory     = info['territoryId']
+
+			officer_order = 'orders'   in info and info['orders']   or 'No orders'
+			command       = 'command'  in info and info['command']  or 'No command'
+
+			command = command.replace('Command_', '')
+
+			orders[territory] = (command, officer_order)
+
+		return orders
+
+	# Set TW Orders
+	@commands.command()
+	async def stwo(self, ctx, territory=''):
+		pass
+
+	# Get TW Orders
+	@commands.command()
+	async def gtwo(self, ctx, creds_id='anraeth', territory='all'):
+
+		tw = await client.get_tw_info(creds_id=creds_id)
+
+		defend_orders = self.parse_territory(tw['defendingGuild'])
+		attack_orders = self.parse_territory(tw['attackingGuild'])
+
+		print(json.dumps(defend_orders, indent=4))
+		print(json.dumps(attack_orders, indent=4))
+
 async def main():
 	#cog = TWCog(None)
 	#session = await libswgoh.get_auth_google(creds_id='anraeth')
