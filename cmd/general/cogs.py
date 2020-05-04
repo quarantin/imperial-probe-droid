@@ -98,10 +98,7 @@ def cmd_load(request):
 		return error_unknown_parameters(args)
 
 	if not cogs:
-		return [{
-			'title': 'Error',
-			'description': 'You need to supply a valid cog name',
-		}]
+		cogs = list(loadable_cogs.values())
 
 	for cog in cogs:
 		bot.add_cog(cog(bot))
