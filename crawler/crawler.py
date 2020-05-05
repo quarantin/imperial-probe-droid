@@ -108,7 +108,7 @@ class Crawler(asyncio.Future):
 
 		for selector, channel in zip(selectors, channels):
 
-			guild = await self.get_guild(selector)
+			guild = await self.client.guild(selector=selector, session=self.session)
 			if not guild:
 				print('Guild not found in redis for selector: %s' % selector)
 				continue
@@ -162,7 +162,7 @@ class Crawler(asyncio.Future):
 		if guild is None:
 			guild = await self.client.guild(selector=selector, session=self.session)
 			if not guild:
-				self.logger.warning('libswgoh.get_guilds failed with selector: %s' % selector)
+				self.logger.warning('swgohclient.guild() failed with selector: %s' % selector)
 				return None
 
 		player = await self.get_player(selector)
@@ -180,7 +180,7 @@ class Crawler(asyncio.Future):
 
 		guilds = await self.client.guilds(selectors=selectors, session=self.session)
 		if not guilds:
-			self.logger.error('libswgoh.get_guilds failed with selectors: %s' % selectors)
+			self.logger.error('swgohclient.guild() failed with selectors: %s' % selectors)
 			return {}
 
 		return guilds
