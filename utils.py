@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 import pytz
 import aiohttp
 import requests
@@ -251,6 +252,25 @@ def format_char_stats(stats, fmt):
 			fmt = fmt.replace(pattern, str(data))
 
 	return fmt
+
+def get_ships_crew():
+
+	fin = open('cache/characters.json', 'r')
+	data = json.loads(fin.read())
+	fin.close()
+
+	ships = {}
+
+	for unit in data:
+		base_id = unit['base_id']
+		ship = unit['ship']
+		if ship:
+			if ship not in ships:
+				ships[ship] = []
+
+			ships[ship].append(base_id)
+
+	return ships
 
 def update_source_code():
 	script = 'scripts/update.sh'

@@ -2,37 +2,18 @@ import sys
 import json
 import traceback
 
-from utils import http_post
+from utils import http_post, get_ships_crew
 
 CRINOLO_URLS = [
 	'http://localhost:8081/api',
 	#'https://swgoh-stat-calc.glitch.me/api',
 ]
 
-def get_ships_crew():
-
-	fin = open('cache/characters.json', 'r')
-	data = json.loads(fin.read())
-	fin.close()
-
-	ships = {}
-
-	for item in data:
-		base_id = item['base_id']
-		ship = item['ship']
-		if ship:
-			if ship not in ships:
-				ships[ship] = []
-
-			ships[ship].append(base_id)
-
-	return ships
-
-async def api_crinolo(players):
+async def api_crinolo(players, units=[]):
 
 	for crinolo_url in CRINOLO_URLS:
 
-		url = '%s?flags=gameStyle,calcGP' % crinolo_url
+		url = '%s?flags=gameStyle' % crinolo_url
 
 		try:
 			data, error = await http_post(url, json=players)
@@ -66,7 +47,6 @@ async def fetch_crinolo_stats(players=[], units=[]):
 	for zeta in all_zetas:
 		db[zeta.skill_id] = True
 
-	print(json.dumps(db, indent=4))
 	# Remove units not requested
 	to_remove = []
 	if units:
@@ -94,7 +74,6 @@ async def fetch_crinolo_stats(players=[], units=[]):
 				if skill['id'] in db:
 					skill['isZeta'] = True
 
-	#print(json.dumps(players, indent=4))
 	stats = await api_crinolo(players)
 
 	result = {}
@@ -108,7 +87,6 @@ async def fetch_crinolo_stats(players=[], units=[]):
 				result[ally_code][base_id] = unit
 
 			for skill in unit['skills']:
-				print(skill['id'])
 				if skill['id'] in db:
 					skill['isZeta'] = True
 
