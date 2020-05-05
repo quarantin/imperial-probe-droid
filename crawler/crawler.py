@@ -33,7 +33,7 @@ class Crawler(asyncio.Future):
 
 		profile = None
 		try:
-			profile = await libswgoh.get_player_profile(player_id=player_id, session=self.session)
+			profile = await self.client.player(player_id=player_id, session=self.session)
 
 		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
@@ -85,7 +85,7 @@ class Crawler(asyncio.Future):
 			return json.loads(profile.decode('utf-8'))
 
 		try:
-			profile = await libswgoh.get_player_profile(player_id=player_id, session=self.session)
+			profile = await self.client.player(player_id=player_id, session=self.session)
 
 		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
@@ -115,6 +115,7 @@ class Crawler(asyncio.Future):
 
 			if selectors_only is False:
 				print('Crawling guild %s - %s' % (guild['id'], guild['name']))
+				#print(json.dumps(guild, indent=4))
 
 			premium_guild = PremiumGuild.get_guild(guild['id'])
 			if not premium_guild:
@@ -156,31 +157,13 @@ class Crawler(asyncio.Future):
 
 		self.redis.setex(guild_key, guild_expire, guild_data)
 
-	async def libswgoh_guilds(self, selectors):
-
-		for i in range(0, 3):
-
-			try:
-				return await libswgoh.get_guilds(selectors=selectors, session=self.session)
-
-			except libswgoh.LibSwgohException as err:
-				self.logger.error('Failed retrieving guilds with selectors: %s' % selectors)
-				self.logger.error(err)
-				pass
-
-			await asyncio.sleep(1)
-
-		return None
-
 	async def fetch_guild(self, selector, guild=None):
 
 		if guild is None:
-			guilds = await libswgoh.get_guilds(selectors=[ selector ], session=self.session)
-			if not guilds:
+			guild = await self.client.guild(selector=selector, session=self.session)
+			if not guild:
 				self.logger.warning('libswgoh.get_guilds failed with selector: %s' % selector)
 				return None
-
-			guild = guilds[selector]
 
 		player = await self.get_player(selector)
 		if player:
@@ -195,14 +178,10 @@ class Crawler(asyncio.Future):
 			self.logger.error('fetch_guilds got no selector')
 			return {}
 
-		guilds = await libswgoh.get_guilds(selectors=selectors, session=self.session)
+		guilds = await self.client.guilds(selectors=selectors, session=self.session)
 		if not guilds:
 			self.logger.error('libswgoh.get_guilds failed with selectors: %s' % selectors)
 			return {}
-
-		for selector in selectors:
-			guild = guilds[selector]
-			await self.fetch_guild(selector, guild)
 
 		return guilds
 
@@ -322,6 +301,9 @@ if __name__ == '__main__':
 		crawler.config = config
 		crawler.redis = config.redis
 		crawler.logger = logger
+
+		from client import SwgohClient
+		crawler.client = SwgohClient(crawler)
 
 		asyncio.get_event_loop().run_until_complete(crawler.run())
 
