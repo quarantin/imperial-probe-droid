@@ -29,11 +29,15 @@ class Crawler(asyncio.Future):
 	creds_id = None
 	#creds_id = 'reverseswgoh@gmail.com'
 
+	def redis_get(self, key):
+		value = self.redis.get(key)
+		return value and json.loads(value.decode('utf-8')) or None
+
 	async def update_player(self, guild, player_id, restart=True):
 
 		profile = None
 		try:
-			profile = await self.client.player(player_id=player_id, session=self.session)
+			profile = await self.client.player(player_id=player_id, session=self.session, no_cache=True)
 
 		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
@@ -58,7 +62,7 @@ class Crawler(asyncio.Future):
 
 		player_key = 'player|%s' % player_id
 		new_profile = profile
-		old_profile = await self.get_player(player_id, fetch=False)
+		old_profile = self.redis_get(player_key)
 		if not old_profile:
 			old_profile = new_profile
 
@@ -76,30 +80,6 @@ class Crawler(asyncio.Future):
 			self.redis.rpush(messages_key, *formated)
 
 		self.logger.debug('%s - %s' % (guild.guild_id, player_id))
-
-	async def get_player(self, player_id, fetch=True, restart=True):
-
-		key = 'player|%s' % player_id
-		profile = self.redis.get(key)
-		if profile:
-			return json.loads(profile.decode('utf-8'))
-
-		try:
-			profile = await self.client.player(player_id=player_id, session=self.session)
-
-		except libswgoh.LibSwgohException as err:
-			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
-				self.session = await libswgoh.get_auth_google(creds_id=self.creds_id)
-				if restart is True:
-					return await self.get_player(player_id, fetch=fetch, restart=False)
-
-		if profile:
-			id_key = 'playerid|%s' % profile['allyCode']
-			expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
-			self.redis.setex(key, expire, json.dumps(profile))
-			self.redis.setex(id_key, expire, player_id)
-
-		return profile
 
 	async def refresh_players(self, selectors, channels, selectors_only=False):
 
@@ -131,6 +111,8 @@ class Crawler(asyncio.Future):
 					await self.update_player(premium_guild, member['playerId'])
 
 				except CrawlerError:
+
+					print(traceback.format_exc())
 					failed_ac.append(member['playerId'])
 					failed_ch.append(channel)
 
@@ -157,97 +139,6 @@ class Crawler(asyncio.Future):
 
 		self.redis.setex(guild_key, guild_expire, guild_data)
 
-	async def fetch_guild(self, selector, guild=None):
-
-		if guild is None:
-			guild = await self.client.guild(selector=selector, session=self.session)
-			if not guild:
-				self.logger.warning('swgohclient.guild() failed with selector: %s' % selector)
-				return None
-
-		player = await self.get_player(selector)
-		if player:
-			guild['id'] = player['guildRefId']
-			self.cache_guild(guild)
-
-		return guild
-
-	async def fetch_guilds(self, selectors):
-
-		if not selectors:
-			self.logger.error('fetch_guilds got no selector')
-			return {}
-
-		guilds = await self.client.guilds(selectors=selectors, session=self.session)
-		if not guilds:
-			self.logger.error('swgohclient.guild() failed with selectors: %s' % selectors)
-			return {}
-
-		return guilds
-
-	async def get_guild(self, selector, fetch=True):
-
-		player = await self.get_player(selector)
-		if not player:
-			self.logger.warning('get_player failed with selector: %s' % selector)
-			return None
-
-		if 'guildRefId' not in player:
-			self.logger.warning('Key \'guildRefId\' missing from player profile: %s' % selector)
-			return None
-
-		guild_key = 'guild|%s' % player['guildRefId']
-		guild = self.redis.get(guild_key)
-		if guild:
-			return json.loads(guild.decode('utf-8'))
-
-		if fetch is True:
-			return await self.fetch_guild(selector)
-
-		return None
-
-	async def get_guilds(self, selectors):
-
-		guilds = {}
-		to_fetch = []
-
-		for selector in selectors:
-
-			guild = await self.get_guild(selector, fetch=False)
-			if not guild:
-				to_fetch.append(selector)
-				continue
-
-			guilds[selector] = guild
-
-		guilds.update(await self.fetch_guilds(to_fetch))
-
-		return guilds
-
-	async def get_selectors_to_refresh(self):
-
-		selectors = []
-
-		guild_selectors = [ guild.selector for guild in self.guilds ]
-		for selector in guild_selectors:
-
-			player = await self.get_player(selector)
-			if not player:
-				selectors.append(selector)
-				continue
-
-			guild_key = 'guild|%s' % player['guildRefId']
-			if not self.redis.exists(guild_key):
-				selectors.append(selector)
-				continue
-
-			expire = self.redis.ttl(guild_key)
-			if expire < SAFETY_TTL:
-				selectors.append(selector)
-				continue
-
-		return selectors
-
 	async def run(self):
 
 		print("Starting crawler thread.")
@@ -264,10 +155,6 @@ class Crawler(asyncio.Future):
 
 			guild_selectors = [ guild.selector   for guild in self.guilds ]
 			guild_channels  = [ guild.channel_id for guild in self.guilds ]
-
-			selectors = await self.get_selectors_to_refresh()
-			if selectors:
-				await self.get_guilds(selectors)
 
 			print('Pass 1')
 			failed_ac, failed_ch = await self.refresh_players(guild_selectors, guild_channels)
