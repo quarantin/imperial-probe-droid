@@ -243,12 +243,20 @@ class BaseUnit(models.Model):
 		return 'neutral'
 
 	@staticmethod
+	def get_combat_type(base_id):
+		return BaseUnit.is_ship(base_id) and 2 or 1
+
+	@staticmethod
 	def is_ship(base_id):
 		try:
 			ship = BaseUnit.objects.get(base_id=base_id)
 			return ship.combat_type == 2
 		except:
 			return False
+
+	@staticmethod
+	def get_ship_crew(base_id, ships_crew):
+		return base_id in ships_crew and ships_crew[base_id] or []
 
 	def get_all_units():
 		return list(BaseUnit.objects.filter(combat_type=1).order_by('name'))
