@@ -432,7 +432,7 @@ async def __main__():
 		bot.redis = config.redis
 
 		import client
-		bot.swgohclient = client.SwgohClient(bot)
+		bot.client = client.SwgohClient(bot)
 
 		token = config['token']
 		if 'env' in config:
