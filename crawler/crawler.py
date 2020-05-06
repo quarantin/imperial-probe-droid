@@ -88,7 +88,7 @@ class Crawler(asyncio.Future):
 
 		for selector, channel in zip(selectors, channels):
 
-			guild = await self.client.guild(selector=selector, session=self.session)
+			guild = await self.client.guild(player_id=selector, session=self.session)
 			if not guild:
 				print('Guild not found in redis for selector: %s' % selector)
 				continue
