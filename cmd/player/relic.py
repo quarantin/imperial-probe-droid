@@ -1,7 +1,7 @@
 from opts import *
 from errors import *
 
-from swgohhelp import fetch_players, get_unit_name
+from swgohhelp import get_unit_name
 
 import DJANGO
 from swgoh.models import RelicStat
@@ -64,16 +64,17 @@ async def cmd_relic(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
-	limit = 25
+	per_user_limit = 25
 	relic_tier = parse_opts_relic_tier(request)
 	relic_field = 'relic%d_percentage' % relic_tier
 	relic_filter = '-%s' % relic_field
 	include_locked = parse_opts_include_locked(request)
 
-	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
+	selected_players, error = parse_opts_players(request)
 
 	if error:
 		return error
@@ -84,18 +85,9 @@ async def cmd_relic(request):
 	if args:
 		return error_unknown_parameters(args)
 
-	ally_code = selected_players[0].ally_code
-	players = await fetch_players(config, {
-		'allycodes': [ ally_code ],
-		'project': {
-			'allyCode': 1,
-			'name': 1,
-			'roster': {
-				'defId': 1,
-				'relic': 1,
-			},
-		},
-	})
+	ally_codes = [ x.ally_code for x in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	msgs = []
 	all_relic = OrderedDict()
@@ -105,11 +97,14 @@ async def cmd_relic(request):
 		unit = BaseUnit.objects.get(id=unit_id)
 		all_relic[unit.base_id] = relic
 
-	for ally_code_str, player in players.items():
+	for player in selected_players:
 
+		limit = per_user_limit
 		relic_list = dict(all_relic)
+		jplayer = players[player.ally_code]
+		jroster = { x['defId']: x for x in jplayer['roster'] }
 
-		for base_id, unit in player['roster'].items():
+		for base_id, unit in jroster.items():
 
 			if 'relic' in unit and unit['relic'] is not None and 'currentTier' in unit['relic'] and unit['relic']['currentTier'] >= relic_tier:
 				del relic_list[base_id]
@@ -136,7 +131,7 @@ async def cmd_relic(request):
 				break
 
 		msgs.append({
-			'title': 'Relic Recommendations for %s' % player['name'],
+			'title': 'Relic Recommendations for %s' % jplayer['name'],
 			'description': '\n'.join(lines),
 		})
 
