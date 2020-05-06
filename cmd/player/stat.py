@@ -5,7 +5,6 @@ from errors import *
 from constants import EMOJIS, MAX_GEAR_LEVEL, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from collections import OrderedDict
 from utils import get_stars_as_emojis
-from swgohhelp import fetch_crinolo_stats
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
@@ -68,7 +67,7 @@ def get_player_stats(config, roster, lang):
 	stats['zetas'] = 0
 	for base_id, unit in roster.items():
 
-		gp     = unit['gp'] or 0
+		gp     = 'gp' in unit and unit['gp'] or 0
 		typ    = BaseUnit.is_ship(base_id) and 'ship' or 'char'
 		level  = unit['level']
 		gear   = unit['gear']
@@ -92,7 +91,7 @@ def get_player_stats(config, roster, lang):
 			if 'tier' not in skill or skill['tier'] != MAX_SKILL_TIER:
 				continue
 
-			key = skill['isZeta'] and 'zetas' or 'omegas'
+			key = BaseUnitSkill.is_zeta_ability(skill['id']) and 'zetas' or 'omegas'
 			stats[key] += 1
 
 	return stats
@@ -102,33 +101,6 @@ def parse_gac_season(season_id):
 	zones, variant, dummy1, layout, dummy2, season = season_id.split('_')
 
 	return zones, variant, layout, int(season)
-
-def get_player_gac_history(player):
-
-	gac_history = []
-	gac_lifetime = '0K'
-
-
-	if 'grandArenaLifeTime' in player:
-		gac_lifetime = '%dK' % int(player['grandArenaLifeTime'] / 1000)
-
-	if 'grandArena' in player:
-		for entry in player['grandArena']:
-			zones, variant, layout, season = parse_gac_season(entry['seasonId'])
-			gac_history.append({
-				'zones': zones,
-				'variant': variant,
-				'layout': layout,
-				'season': season,
-				'division': entry['division'],
-				'league': entry['league'],
-				'rank': entry['rank'],
-				'points': entry['seasonPoints'],
-			})
-
-	gac_history = sorted(gac_history, key=lambda k: k['season'])
-
-	return gac_history, gac_lifetime
 
 def player_to_embedfield(config, player, roster, lang):
 
@@ -178,12 +150,6 @@ def player_to_embedfield(config, player, roster, lang):
 
 	res['L85 Ships'] = MAX_LEVEL in stats['ship']['levels'] and stats['ship']['levels'][MAX_LEVEL] or 0
 
-	# TODO
-	#gac_history, gac_lifetime = get_player_gac_history(player)
-	#res['Grand Arena'] = {}
-	#res['Grand Arena']['History'] = gac_history
-	#res['Grand Arena']['Lifetime'] = gac_lifetime
-
 	return res
 
 def get_player_division(division):
@@ -193,6 +159,7 @@ async def cmd_player_stat(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
 	lang = parse_opts_lang(request)
 
@@ -204,12 +171,14 @@ async def cmd_player_stat(request):
 		return error_unknown_parameters(args)
 
 	fields = []
-	ally_codes = [ player.ally_code for player in selected_players ]
-	stats, players = await fetch_crinolo_stats(config, ally_codes)
+	ally_codes = [ x.ally_code for x in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes, stats=True)
+	players = { x['allyCode']: x for x in players }
 
-	for player in players:
-		ally_code = player['allyCode']
-		fields.append(player_to_embedfield(config, player, stats[ally_code], lang))
+	for player in selected_players:
+		jplayer = players[player.ally_code]
+		jroster = { x['defId']: x for x in jplayer['roster'] }
+		fields.append(player_to_embedfield(config, jplayer, jroster, lang))
 
 	player_fields = OrderedDict()
 	for field in fields:
