@@ -94,6 +94,7 @@ async def cmd_gear(request):
 			gear_levels = get_gear_levels(unit.base_id)
 			for name, data in gear_levels.items():
 				unit_name = translate(unit.base_id, language)
+				lines.append('**%s Needed Gear**' % jplayer['name'])
 				lines.append('**[%s](%s)**' % (unit_name, unit.get_url()))
 				min_gear_level = player_unit and player_unit['gear'] or 1
 				for tier in reversed(range(min_gear_level, 13)):
@@ -107,7 +108,6 @@ async def cmd_gear(request):
 							for gear in player_unit['equipped']:
 								if tier == player_unit['gear']:
 									# gear['slot'] is an index, so add one for comparison
-									print(json.dumps(gear, indent=4))
 									if int(slot) == gear['slot'] + 1:
 										equipped = True
 										break
