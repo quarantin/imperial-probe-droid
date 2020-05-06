@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from swgohhelp import fetch_players, get_unit_name
+from swgohhelp import get_unit_name
 
 help_locked = {
 	'title': 'Locked Help',
@@ -74,6 +74,7 @@ async def cmd_locked(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
@@ -88,7 +89,8 @@ async def cmd_locked(request):
 		return error
 
 	ally_codes = [ player.ally_code for player in players ]
-	players = await fetch_players(config, ally_codes)
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	units = BaseUnit.objects.filter(combat_type=1).values()
 	ships = BaseUnit.objects.filter(combat_type=2).values()
@@ -99,7 +101,7 @@ async def cmd_locked(request):
 	lines = []
 	for ally_code, player in players.items():
 
-		ally_units = player['roster']
+		ally_units = { x['defId']: x for x in player['roster'] }
 
 		if opts in [ 'chars', 'all' ]:
 
