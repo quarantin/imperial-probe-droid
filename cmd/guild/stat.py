@@ -31,6 +31,7 @@ Compare stats of two different guilds:
 def get_guild_stats(guild, players):
 
 	stats = {
+		'gp': 0,
 		'gpChar': 0,
 		'gpShip': 0,
 		'level': 0,
@@ -61,16 +62,22 @@ def get_guild_stats(guild, players):
 
 	for ally_code, player in players.items():
 
-		for key in [ 'gpChar', 'gpShip', 'level' ]:
+		player_roster = {}
+		for unit in player['roster']:
 
-			if key not in player:
-				# Disable warning until we fixed GP values
-				#print('WARN: Missing key `%s` in guild roster object for ally code: %s' % (key, ally_code))
-				continue
+			base_id = unit['defId']
 
-			stats[key] += player[key]
+			if 'gp' in unit and unit['gp']:
 
-		player_roster = { x['defId']: x for x in player['roster'] }
+				stats['gp'] += unit['gp']
+
+				if BaseUnit.is_ship(base_id):
+					stats['gpShip'] += unit['gp']
+
+				else:
+					stats['gpChar'] += unit['gp']
+
+			player_roster[ base_id ] = unit
 
 		for base_id, unit in player_roster.items():
 
