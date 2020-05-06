@@ -1,7 +1,7 @@
 from opts import *
 from errors import *
 from utils import translate
-from swgohhelp import fetch_players, get_unit_name
+from swgohhelp import get_unit_name
 from constants import MODSLOTS, MODSETS, UNIT_STATS, EMOJIS
 
 help_modroll= {
@@ -32,6 +32,7 @@ async def cmd_modroll(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	msgs = []
 
@@ -50,27 +51,16 @@ async def cmd_modroll(request):
 
 	ally_codes = [ p.ally_code for p in selected_players ]
 
-	data = await fetch_players(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'allyCode': 1,
-			'name': 1,
-			'roster': {
-				'defId': 1,
-				'mods': 1,
-			},
-		},
-	})
-
-	players = {}
-	for ally_code_str, player in data.items():
-		ally_code = player['allyCode']
-		players[ally_code] = player
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	result = {}
 	for ally_code, player in players.items():
+
 		player_name = player['name']
-		for def_id, unit in player['roster'].items():
+		player_roster = { x['defId']: x for x in player['roster'] }
+
+		for def_id, unit in player_roster.items():
 			unit_name = get_unit_name(def_id, language)
 			for mod in unit['mods']:
 				for sec_stat in mod['secondaryStat']:
