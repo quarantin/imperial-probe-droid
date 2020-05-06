@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate
-from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
+from swgohhelp import get_ability_name, sort_players
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
@@ -43,7 +43,7 @@ def get_unit_stats(config, roster, lang):
 	for unit in roster:
 
 
-		gp    = unit['gp'] or 0
+		gp    = 'gp' in unit and unit['gp'] or 0
 		level = unit['level']
 		gear  = unit['gear']
 		stars = unit['rarity']
@@ -147,6 +147,7 @@ async def cmd_guild_compare(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
@@ -164,31 +165,14 @@ async def cmd_guild_compare(request):
 		return error_unknown_parameters(args)
 
 	fields = []
-	guild_list = await fetch_guilds(config, [ str(x.ally_code) for x in selected_players ])
-	selectors = [ str(p.ally_code) for p in selected_players ]
+	ally_codes = [ x.ally_code for x in selected_players ]
+	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
 
-	guilds = {}
-	for selector in selectors:
-		guild = guild_list[selector]
+	result = {}
+	for ally_code in ally_codes:
+		guild = guilds[ally_code]
 		guild_name = guild['name']
-		guilds[guild_name] = guild
-
-	ally_codes = []
-	for selector in selectors:
-		guild = guild_list[selector]
-		for ally_code_str, player in guild['roster'].items():
-			ally_code = player['allyCode']
-			if ally_code not in ally_codes:
-				ally_codes.append(ally_code)
-
-	copy = list(ally_codes)
-	for ally_code in copy:
-		if ally_code in excluded_ally_codes:
-			ally_codes.remove(ally_code)
-
-	stats, players = await fetch_crinolo_stats(config, ally_codes, units=selected_units)
-
-	players = sort_players(players)
+		result[guild_name] = guild
 
 	msgs = []
 	for unit in selected_units:
@@ -196,24 +180,20 @@ async def cmd_guild_compare(request):
 		units = []
 		unit_name = translate(unit.base_id, language)
 		fields = OrderedDict()
-		for guild_name, guild in guilds.items():
+		for guild_name, guild in result.items():
 
-			roster = {}
-			for dummy, dummy_player in guild['roster'].items():
-				ally_code = dummy_player['allyCode']
-				if ally_code not in players:
-					print('WARN: Player missing from swgoh.help/api/players: %s' % ally_code)
-					continue
+			roster_for_unit = {}
+			guild_roster = { x['id']: x for x in guild['roster'] }
+			for player_id , player in guild_roster.items():
 
-				#player = players[ally_code]
-				player = stats[ally_code]
-				for base_id, player_unit in player.items():
-					if base_id not in roster:
-						roster[base_id] = []
+				player_roster = { x['defId']: x for x in player['roster'] }
+				for base_id, player_unit in player_roster.items():
+					if base_id not in roster_for_unit:
+						roster_for_unit[base_id] = []
 
-					roster[base_id].append(player_unit)
+					roster_for_unit[base_id].append(player_unit)
 
-			units.append(unit_to_dict(config, guild, roster, unit.base_id, language))
+			units.append(unit_to_dict(config, guild, roster_for_unit, unit.base_id, language))
 
 		for someunit in units:
 			for key, val in someunit.items():
