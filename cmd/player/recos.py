@@ -4,7 +4,6 @@ from utils import basicstrip, get_banner_emoji, get_mod_sets_emojis, get_mod_pri
 from constants import EMOJIS
 
 from swgohgg import get_full_avatar_url
-from swgohhelp import fetch_players
 
 import DJANGO
 
@@ -73,6 +72,7 @@ async def cmd_recos(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
@@ -97,7 +97,9 @@ async def cmd_recos(request):
 
 	ally_codes = [ player.ally_code for player in selected_players ]
 
-	players = await fetch_players(config, ally_codes)
+	players = await bot.client.players(ally_codes=ally_codes)
+
+	players = { x['allyCode']: x for x in players }
 
 	msgs = []
 	for player in selected_players:
@@ -117,7 +119,7 @@ async def cmd_recos(request):
 			if ref_unit.combat_type != 1:
 				continue
 
-			roster = player_data['roster']
+			roster = { x['defId']: x for x in player_data['roster'] }
 			recos  = ModRecommendation.objects.filter(character_id=ref_unit.id).values()
 
 			for reco in recos:
