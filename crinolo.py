@@ -6,7 +6,7 @@ from utils import http_post, get_ships_crew
 
 CRINOLO_URLS = [
 	'http://localhost:8081/api',
-	#'https://swgoh-stat-calc.glitch.me/api',
+	'https://swgoh-stat-calc.glitch.me/api',
 ]
 
 def add_pilots(players, units):
