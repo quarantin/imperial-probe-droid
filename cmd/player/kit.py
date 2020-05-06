@@ -4,7 +4,7 @@ from utils import translate
 
 from constants import EMOJIS
 from swgohgg import get_full_avatar_url
-from swgohhelp import fetch_players, get_ability_name
+from swgohhelp import get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
@@ -149,6 +149,7 @@ async def cmd_kit(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
@@ -175,30 +176,18 @@ async def cmd_kit(request):
 		return error_unknown_parameters(args)
 
 	ally_codes = [ x.ally_code for x in selected_players ]
-	players = await fetch_players(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'allyCode': 1,
-			'name': 1,
-			'roster': {
-				'defId': 1,
-				'gear': 1,
-				'level': 1,
-				'rarity': 1,
-				'relic': 1,
-				'skills': 1,
-			},
-		},
-	})
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	msgs = []
 	for player in selected_players:
 
 		jplayer = players[player.ally_code]
+		jroster = { x['defId']: x for x in jplayer['roster'] }
 
 		for unit in selected_units:
 
-			player_unit = unit.base_id in jplayer['roster'] and jplayer['roster'][unit.base_id] or None
+			player_unit = unit.base_id in jroster and jroster[unit.base_id] or None
 
 			skills = BaseUnitSkill.objects.filter(unit=unit)
 			for skill in skills:
@@ -219,8 +208,8 @@ async def cmd_kit(request):
 
 				tier = selected_tier
 				if not tier:
-					if unit.base_id in players[player.ally_code]['roster']:
-						unit_skills = players[player.ally_code]['roster'][unit.base_id]['skills']
+					if unit.base_id in jroster:
+						unit_skills = jroster[unit.base_id]['skills']
 						for unit_skill in unit_skills:
 							if unit_skill['id'] == skill.skill_id and 'tier' in unit_skill:
 								tier = unit_skill['tier']
