@@ -456,6 +456,18 @@ class BaseUnitSkill(models.Model):
 	def count_zetas(unit):
 		return len(BaseUnitSkill.get_zetas(unit))
 
+	@staticmethod
+	def is_zeta_ability(skill_id):
+
+		try:
+			skill = BaseUnitSkill.objects.get(skill_id=skill_id, is_zeta=True)
+			return True
+
+		except BaseUnitSkill.DoesNotExist:
+			pass
+
+		return False
+
 # TODO Use me
 class PlayerUnit(models.Model):
 	player = models.ForeignKey(Player, on_delete=models.CASCADE)
