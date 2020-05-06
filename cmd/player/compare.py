@@ -5,7 +5,7 @@ from errors import *
 from constants import EMOJIS, MAX_SKILL_TIER
 from collections import OrderedDict
 from utils import get_stars_as_emojis, roundup
-from swgohhelp import fetch_crinolo_stats, get_ability_name
+from swgohhelp import get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
@@ -51,7 +51,7 @@ base_stats = [
 	'Unit still locked',
 ]
 
-def get_stat_detail(name, stats, percent=False):
+def get_stat_detail(name, unit, percent=False):
 
 	coef = 1
 	percent_sign = ''
@@ -59,7 +59,7 @@ def get_stat_detail(name, stats, percent=False):
 		coef = 100
 		percent_sign = '%'
 
-	final_stat = name in stats['stats']['final'] and stats['stats']['final'][name] * coef or 0
+	final_stat = name in unit['stats']['final'] and unit['stats']['final'][name] * coef or 0
 
 	if percent is True:
 
@@ -83,42 +83,43 @@ def get_cd_stat_detail(name, stats):
 	final_stat = (name in stats['stats']['final'] and stats['stats']['final'][name] or 0) * 100
 	return '%d%%' % final_stat
 
-def unit_to_dict(config, player, roster, stats, base_id, lang):
+def unit_to_dict(config, player, roster, base_id, lang):
 
 	res = OrderedDict()
 
 	res['Players'] = player['name']
 
 	spacer = EMOJIS['']
+	for base_id in sorted(roster):
+
 	if base_id in roster:
-		stat = stats[base_id]
 		unit = roster[base_id]
 
 		res['Stars'] = get_stars_as_emojis(unit['rarity'])
-		res['GP']    = '%d'  % unit['gp']
+		res['GP']    = '%d'  % ('gp' in unit and unit['gp'] or 0)
 		res['Level'] = '%d' % unit['level']
 		res['Gear']  = '%d' % unit['gear']
 		res['Relic'] = '%d' % BaseUnitSkill.get_relic(unit)
 
 		# Health, Protection, Armor, Resistance
-		res['Health']     = get_stat_detail('Health',         stat)
-		res['Protection'] = get_stat_detail('Protection',     stat)
-		res['Armor']      = get_def_stat_detail('Armor',      stat)
-		res['Resistance'] = get_def_stat_detail('Resistance', stat)
+		res['Health']     = get_stat_detail('Health',         unit)
+		res['Protection'] = get_stat_detail('Protection',     unit)
+		res['Armor']      = get_def_stat_detail('Armor',      unit)
+		res['Resistance'] = get_def_stat_detail('Resistance', unit)
 
 		# Speed
-		res['Speed'] = get_stat_detail('Speed', stat)
+		res['Speed'] = get_stat_detail('Speed', unit)
 
 		# Potency, Tenacity
-		res['Potency']  = get_stat_detail('Potency',  stat, percent=True)
-		res['Tenacity'] = get_stat_detail('Tenacity', stat, percent=True)
+		res['Potency']  = get_stat_detail('Potency',  unit, percent=True)
+		res['Tenacity'] = get_stat_detail('Tenacity', unit, percent=True)
 
 		# CD, CC, Damage
-		res['Phys.Damage'] = get_stat_detail('Physical Damage',             stat)
-		res['Spec.Damage'] = get_stat_detail('Special Damage',              stat)
-		res['CD']          = get_cd_stat_detail('Critical Damage',          stat)
-		res['CC.Phys']     = get_cc_stat_detail('Physical Critical Chance', stat)
-		res['CC.Spec']     = get_cc_stat_detail('Special Critical Chance',  stat)
+		res['Phys.Damage'] = get_stat_detail('Physical Damage',             unit)
+		res['Spec.Damage'] = get_stat_detail('Special Damage',              unit)
+		res['CD']          = get_cd_stat_detail('Critical Damage',          unit)
+		res['CC.Phys']     = get_cc_stat_detail('Physical Critical Chance', unit)
+		res['CC.Spec']     = get_cc_stat_detail('Special Critical Chance',  unit)
 
 		real_unit = BaseUnit.objects.get(base_id=base_id)
 		unit_skills = BaseUnitSkill.objects.filter(unit=real_unit)
@@ -132,7 +133,7 @@ def unit_to_dict(config, player, roster, stats, base_id, lang):
 			}
 
 		# Abilities
-		for skill in stat['skills']:
+		for skill in unit['skills']:
 			skill_id = skill['id']
 			skill_tier = skill['tier']
 			emoji = ' T%d ' % skill_tier
@@ -157,6 +158,7 @@ async def cmd_player_compare(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
 	lang = parse_opts_lang(request)
 
@@ -171,10 +173,9 @@ async def cmd_player_compare(request):
 	if args:
 		return error_unknown_parameters(args)
 
-	ally_codes = [ player.ally_code for player in selected_players ]
-	stats, players = await fetch_crinolo_stats(config, ally_codes, units=selected_units)
-
-	players = { p['allyCode']: p for p in players }
+	ally_codes = [ x.ally_code for x in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes, units=selected_units, stats=True)
+	players = { x['allyCode']: x for x in players }
 
 	msgs = []
 	for unit in selected_units:
@@ -182,8 +183,12 @@ async def cmd_player_compare(request):
 		units = []
 		fields = OrderedDict()
 		for player in selected_players:
+
 			ally_code = player.ally_code
-			units.append(unit_to_dict(config, players[ally_code], stats[ally_code], stats[ally_code], unit.base_id, lang))
+			jplayer = players[ally_code]
+			jroster = { x['defId']: x for x in jplayer['roster'] }
+
+			units.append(unit_to_dict(config, jplayer, jroster, unit.base_id, lang))
 
 		for someunit in units:
 			for key, val in someunit.items():
