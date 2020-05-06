@@ -90,7 +90,6 @@ def unit_to_dict(config, player, roster, base_id, lang):
 	res['Players'] = player['name']
 
 	spacer = EMOJIS['']
-	for base_id in sorted(roster):
 
 	if base_id in roster:
 		unit = roster[base_id]
