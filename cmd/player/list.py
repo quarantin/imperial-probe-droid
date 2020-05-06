@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from swgohhelp import fetch_players, get_unit_name
+from swgohhelp import get_unit_name
 
 help_list = {
 	'title': 'List Help',
