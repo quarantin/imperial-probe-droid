@@ -4,7 +4,7 @@ from opts import *
 from errors import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate
-from swgohhelp import fetch_guilds, fetch_crinolo_stats, get_ability_name, sort_players
+from swgohhelp import get_ability_name, sort_players
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
@@ -59,23 +59,20 @@ def get_guild_stats(guild, players):
 		'offense-mods+150': 0,
 	}
 
-	for ally_code_str, profile in guild['roster'].items():
-		ally_code = profile['allyCode']
+	for ally_code, player in players.items():
 
 		for key in [ 'gpChar', 'gpShip', 'level' ]:
 
-			if key not in profile:
-				print('WARN: Missing key `%s` in guild roster object for ally code: %s' % (key, ally_code))
+			if key not in player:
+				# Disable warning until we fixed GP values
+				#print('WARN: Missing key `%s` in guild roster object for ally code: %s' % (key, ally_code))
 				continue
 
-			stats[key] += profile[key]
+			stats[key] += player[key]
 
-		if ally_code not in players:
-			print('WARN: Ally code not found in guild: %s' % ally_code)
-			continue
+		player_roster = { x['defId']: x for x in player['roster'] }
 
-		player = players[ally_code]
-		for base_id, unit in player['roster'].items():
+		for base_id, unit in player_roster.items():
 
 			is_max_level  = (unit['level'] == MAX_LEVEL)
 			is_max_rarity = (unit['rarity'] == MAX_RARITY)
@@ -120,8 +117,8 @@ def guild_to_dict(guild, players):
 	res['**Compared Guilds**']['__GUILD__']       = '__**%s**__' % guild['name']
 	res['**Compared Guilds**']['**Members**']     = str(guild['members'])
 	res['**Compared Guilds**']['**Banner**']      = get_banner_emoji(guild['bannerLogo'])
-	res['**Compared Guilds**']['**Topic**']       = guild['message']
-	res['**Compared Guilds**']['**Description**'] = guild['desc']
+	res['**Compared Guilds**']['**Topic**']       = guild['topic']
+	res['**Compared Guilds**']['**Description**'] = guild['description']
 
 	#'**Avg.Rank** %s'      % guild['stats']['arena_rank'],
 
@@ -159,6 +156,7 @@ async def cmd_guild_stat(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
@@ -172,32 +170,17 @@ async def cmd_guild_stat(request):
 		return error_unknown_parameters(args)
 
 	fields = []
-	guild_list = await fetch_guilds(config, [ str(x.ally_code) for x in selected_players ])
 
-	ally_codes = []
-	selectors = [ str(x.ally_code) for x in selected_players ]
-	for selector in selectors:
-		guild = guild_list[selector]
-		for ally_code_str, player in guild['roster'].items():
-			ally_code = player['allyCode']
-			if ally_code not in ally_codes:
-				ally_codes.append(ally_code)
+	ally_codes = [ x.ally_code for x in selected_players ]
 
-	copy = list(ally_codes)
-	for ally_code in copy:
-		if ally_code in excluded_ally_codes:
-			ally_codes.remove(ally_code)
+	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
 
-	stats, players = await fetch_crinolo_stats(config, ally_codes)
-
-	players = sort_players(players)
-
-	guilds = {}
-	for selector in selectors:
-		guild = guild_list[selector]
+	result = {}
+	for ally_code, guild in guilds.items():
 		guild_name = guild['name']
-		guilds[guild_name] = guild
-		fields.append(guild_to_dict(guild, players))
+		guild_roster = { x['id']: x for x in guild['roster'] }
+		result[guild_name] = guild
+		fields.append(guild_to_dict(guild, guild_roster))
 
 	accu = {}
 	for guild in fields:
