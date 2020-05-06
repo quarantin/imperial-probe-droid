@@ -4,7 +4,6 @@ from cmd.guild.compare import *
 from cmd.guild.ggp import *
 from cmd.guild.glist import *
 from cmd.guild.stat import *
-from cmd.guild.ulist import *
 from cmd.general.alias import *
 from cmd.general.ban import *
 from cmd.general.clear import *
@@ -308,13 +307,6 @@ COMMANDS = [
 		'function': cmd_timezone,
 		'help': help_timezone,
 		'need_api': False,
-	},
-	{
-		'command': 'ulist',
-		'aliases': [ 'ul', 'ulist' ],
-		'function': cmd_unit_list,
-		'help': help_unit_list,
-		'need_api': True,
 	},
 	{
 		'command': 'update',
