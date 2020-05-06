@@ -30,7 +30,7 @@ def add_pilots(players, units):
 	for player in players:
 		new_roster = []
 		for unit in list(player['roster']):
-			if unit['defId'] in base_ids:
+			if unit['defId'] not in base_ids:
 				player['roster'].remove(unit)
 
 	return pilots
@@ -54,7 +54,7 @@ async def api_crinolo(players, units=[]):
 		url = '%s?flags=gameStyle&calcGP' % crinolo_url
 
 		try:
-			data, error = await http_post(url, json=players)
+			players, error = await http_post(url, json=players)
 
 		except Exception as err:
 			print(err)
@@ -65,10 +65,10 @@ async def api_crinolo(players, units=[]):
 		if error:
 			raise Exception('http_post(%s) failed: %s' % (url, error))
 
-		if 'error' in data:
+		if 'error' in players:
 			error = SwgohHelpException()
 			error.title = 'Error from Crinolo API'
-			error.data = data;
+			error.data = players;
 			raise error
 
 		remove_pilots(players, pilots)
