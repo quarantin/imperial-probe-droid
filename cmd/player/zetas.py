@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 
 from swgohgg import get_full_avatar_url
-from swgohhelp import fetch_players, get_ability_name, get_unit_name
+from swgohhelp import get_ability_name, get_unit_name
 
 import DJANGO
 from swgoh.models import ZetaStat
@@ -68,13 +68,14 @@ async def cmd_zetas(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
-	limit = parse_opts_limit(request)
+	limit_per_user = parse_opts_limit(request)
 	include_locked = parse_opts_include_locked(request)
 
-	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
+	selected_players, error = parse_opts_players(request)
 
 	if error:
 		return error
@@ -85,25 +86,9 @@ async def cmd_zetas(request):
 	if args:
 		return error_unknown_parameters(args)
 
-	ally_code = selected_players[0].ally_code
-	players = await fetch_players(config, {
-		'allycodes': [ ally_code ],
-		'project': {
-			'allyCode': 1,
-			'name': 1,
-			'roster': {
-				'defId': 1,
-				'gear': 1,
-				'level': 1,
-				'rarity': 1,
-				'relic': 1,
-				'skills': 1,
-				'equipped': {
-					'slot': 1,
-				},
-			},
-		},
-	})
+	ally_codes = [ x.ally_code for x in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	msgs = []
 	all_zetas = OrderedDict()
@@ -112,11 +97,14 @@ async def cmd_zetas(request):
 		zeta['locked'] = True
 		all_zetas[skill_id] = zeta
 
-	for ally_code_str, player in players.items():
+	for player in selected_players:
 
 		zetas = dict(all_zetas)
 
-		for base_id, unit in player['roster'].items():
+		jplayer = players[player.ally_code]
+		jroster = { x['defId']: x for x in jplayer['roster'] }
+
+		for base_id, unit in jroster.items():
 			for skill in unit['skills']:
 
 				skill_id = skill['id']
@@ -133,6 +121,7 @@ async def cmd_zetas(request):
 				zetas[skill_id]['locked'] = False
 
 		lines = []
+		limit = limit_per_user
 		for zeta_id, zeta in zetas.items():
 
 			if zeta['locked'] is not include_locked:
@@ -150,7 +139,10 @@ async def cmd_zetas(request):
 				break
 
 		msgs.append({
-			'title': 'Zeta Recommendations for %s' % player['name'],
+			'author': {
+				'name': jplayer['name'],
+			},
+			'title': 'Most Popular Zetas',
 			'description': '\n'.join(lines),
 		})
 
