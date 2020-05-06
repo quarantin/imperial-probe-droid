@@ -2,7 +2,7 @@ from opts import *
 from errors import *
 
 from swgohgg import get_full_avatar_url
-from swgohhelp import fetch_players, get_unit_name
+from swgohhelp import get_unit_name
 
 import DJANGO
 from swgoh.models import Gear13Stat
@@ -68,13 +68,14 @@ async def cmd_gear13(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
-	limit = parse_opts_limit(request)
+	limit_per_user = parse_opts_limit(request)
 	include_locked = parse_opts_include_locked(request)
 
-	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
+	selected_players, error = parse_opts_players(request)
 
 	if error:
 		return error
@@ -85,18 +86,9 @@ async def cmd_gear13(request):
 	if args:
 		return error_unknown_parameters(args)
 
-	ally_code = selected_players[0].ally_code
-	players = await fetch_players(config, {
-		'allycodes': [ ally_code ],
-		'project': {
-			'allyCode': 1,
-			'name': 1,
-			'roster': {
-				'defId': 1,
-				'gear': 1,
-			},
-		},
-	})
+	ally_codes = [ x.ally_code for x in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	msgs = []
 	all_g13 = OrderedDict()
@@ -106,11 +98,14 @@ async def cmd_gear13(request):
 		unit = BaseUnit.objects.get(id=unit_id)
 		all_g13[unit.base_id] = g13
 
-	for ally_code_str, player in players.items():
+	for player in selected_players:
 
 		g13_list = dict(all_g13)
 
-		for base_id, unit in player['roster'].items():
+		jplayer = players[player.ally_code]
+		jroster = { x['defId']: x for x in jplayer['roster'] }
+
+		for base_id, unit in jroster.items():
 
 			if unit['gear'] == 13:
 				del g13_list[base_id]
@@ -122,6 +117,7 @@ async def cmd_gear13(request):
 			g13_list[base_id]['locked'] = False
 
 		lines = []
+		limit = limit_per_user
 		for base_id, g13 in g13_list.items():
 
 			if g13['locked'] is not include_locked:
@@ -137,7 +133,10 @@ async def cmd_gear13(request):
 				break
 
 		msgs.append({
-			'title': 'Gear 13 Recommendations for %s' % player['name'],
+			'author': {
+				'name': jplayer['name'],
+			},
+			'title': 'Most Populat Gear 13',
 			'description': '\n'.join(lines),
 		})
 
