@@ -4,7 +4,6 @@ from datetime import datetime
 from opts import *
 from errors import *
 from utils import lpad
-from swgohhelp import fetch_players
 
 help_gac = {
 	'title': 'Player GAC Help',
@@ -78,6 +77,7 @@ async def cmd_gac(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
 	lang = parse_opts_lang(request)
 
@@ -86,23 +86,24 @@ async def cmd_gac(request):
 		return error
 
 	fields = []
-	ally_codes = [ player.ally_code for player in selected_players ]
-	players = await fetch_players(config, ally_codes)
+	ally_codes = [ x.ally_code for x in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	result = {}
 	history = {}
 
-	for selected_player in selected_players:
+	for player in selected_players:
 
-		player = players[selected_player.ally_code]
-		max_len = max(len(player['name']), 8)
+		jplayer = players[player.ally_code]
+		max_len = max(len(jplayer['name']), 8)
 
 		key = 'Players'
 		if key not in result:
 			result[key] = []
-		result[key].append(lpad(player['name'], max_len))
+		result[key].append(lpad(jplayer['name'], max_len))
 
-		pstats = player['stats']
+		pstats = jplayer['stats']
 		for key, real_key in wanted_stats.items():
 
 			if real_key not in result:
@@ -112,7 +113,7 @@ async def cmd_gac(request):
 			result[real_key].append(lpad(value, max_len))
 
 		i = 1
-		for entry in reversed(player['grandArena']):
+		for entry in reversed(jplayer['grandArena']):
 
 			if 'eliteDivision' not in entry:
 				entry['eliteDivision'] = False
