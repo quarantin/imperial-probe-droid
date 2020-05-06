@@ -51,7 +51,7 @@ async def api_crinolo(players, units=[]):
 
 	for crinolo_url in CRINOLO_URLS:
 
-		url = '%s?flags=gameStyle&calcGP' % crinolo_url
+		url = '%s?flags=gameStyle,calcGP' % crinolo_url
 
 		try:
 			players, error = await http_post(url, json=players)
