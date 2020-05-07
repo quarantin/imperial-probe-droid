@@ -356,24 +356,6 @@ async def fetch_crinolo_stats(config, project, players=None, units=None):
 # Localized functions
 #
 
-def get_unit_name(base_id, language):
-
-	import DJANGO
-	from swgoh.models import Translation
-
-	try:
-		t = Translation.objects.get(string_id=base_id, language=language)
-		return t.translation
-
-	except Translation.DoesNotExist:
-		pass
-
-	print('No character name found for base id: %s' % base_id, file=sys.stderr)
-	return None
-
-def get_simple_unit_name(base_id):
-	return get_unit_name(base_id, 'eng_us').lower().replace(' ', '-').replace('"', '').replace('(', '').replace(')', '').replace('î', 'i').replace('Î', 'i').replace("'", '')
-
 def get_ability_name(skill_id, language):
 
 	import DJANGO
