@@ -7,8 +7,7 @@ import traceback
 
 import bot
 from constants import *
-from utils import translate
-from swgohhelp import get_unit_name, get_ability_name
+from utils import translate, get_ability_name
 
 import DJANGO
 from swgoh.models import Player, PremiumGuild, BaseUnit, BaseUnitSkill
@@ -86,7 +85,7 @@ class Tracker(bot.Bot):
 			message['user.avatar'] = avatar
 
 		if 'unit.id' in message:
-			message['unit'] = get_unit_name(message['unit.id'], config['language'])
+			message['unit'] = translate(message['unit.id'], config['language'])
 			message['alignment'] = BaseUnit.get_alignment(message['unit.id'])
 
 		for key in [ 'gear', 'gear.new', 'gear.old' ]:
