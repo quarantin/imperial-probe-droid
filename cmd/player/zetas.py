@@ -1,13 +1,12 @@
+from collections import OrderedDict
+
 from opts import *
 from errors import *
-
 from swgohgg import get_full_avatar_url
-from swgohhelp import get_ability_name, get_unit_name
+from utils import translate, get_ability_name
 
 import DJANGO
 from swgoh.models import ZetaStat
-
-from collections import OrderedDict
 
 help_zetas = {
 	'title': 'Zetas Help',
@@ -129,7 +128,7 @@ async def cmd_zetas(request):
 
 			percent = zeta['of_all_this_unit']
 			unit = BaseUnit.objects.get(pk=zeta['unit_id'])
-			unit_name = get_unit_name(unit.base_id, language)
+			unit_name = translate(unit.base_id, language)
 			skill_name = get_ability_name(zeta['skill_id'], language)
 
 			lines.append('`%.2f` **%s** %s' % (percent, unit_name, skill_name))
