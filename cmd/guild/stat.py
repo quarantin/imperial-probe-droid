@@ -3,8 +3,7 @@ from collections import OrderedDict
 from opts import *
 from errors import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
-from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate
-from swgohhelp import get_ability_name, sort_players
+from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate, get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
