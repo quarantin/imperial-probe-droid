@@ -1,7 +1,7 @@
 from opts import *
 from errors import *
+from utils import translate
 from swgohgg import get_swgohgg_player_unit_url
-from swgohhelp import get_unit_name
 from constants import MODSETS_NEEDED
 
 DEFAULT_MIN_GEAR_LEVEL = 9
@@ -240,7 +240,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_no_mods:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				sublines.append('**[%s](%s)** (No mods)' % (unit_name, unit_url))
 
@@ -254,7 +254,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_missing_mods:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				sublines.append('**[%s](%s)** (**%d** missing)' % (unit_name, unit_url, unit['missing-mods']))
 
@@ -268,7 +268,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_incomplete_modsets:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				sublines.append('**[%s](%s)** (Incomplete modset)' % (unit_name, unit_url))
 
@@ -282,7 +282,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_incomplete_modlevels:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				plural = len(unit['mods-no-max-level']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < L15)' % (unit_name, unit_url, len(unit['mods-no-max-level']), plural))
@@ -297,7 +297,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_mods_less_5_pips:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				plural = len(unit['mods-not-5-pips']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < 5 pips)' % (unit_name, unit_url, len(unit['mods-not-5-pips']), plural))
@@ -312,7 +312,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_mods_less_6_pips:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				plural = len(unit['mods-not-6-pips']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < 6 pips)' % (unit_name, unit_url, len(unit['mods-not-6-pips']), plural))
@@ -327,7 +327,7 @@ async def cmd_modcheck(request):
 
 			sublines = []
 			for unit in units_with_mods_weak_tier:
-				unit_name = get_unit_name(unit['defId'], language)
+				unit_name = translate(unit['defId'], language)
 				unit_url = get_swgohgg_player_unit_url(ally_code, unit['defId'])
 				plural = len(unit['weak-tier']) > 1 and 's' or ''
 				sublines.append('**[%s](%s)** (**%d** mod%s < Gold)' % (unit_name, unit_url, len(unit['weak-tier']), plural))
