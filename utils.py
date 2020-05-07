@@ -13,17 +13,6 @@ from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
-SQUAD_ROLES = {
-	1: 'Member',
-	2: 'Leader',
-	3: 'Commander',
-	5: 'Reinforcement',
-	'Member': 'Member',
-	'Leader': 'Leader',
-	'Commander': 'Commander',
-	'Reinforcement': 'Reinforcement',
-}
-
 PERCENT_STATS = [
 	'%armor',
 	'%resistance',
@@ -216,9 +205,7 @@ def format_char_details(unit, fmt):
 		fmt = fmt.replace('%name', chars[base_id]['name'])
 
 	if '%role' in fmt:
-
-		role = unit['squadUnitType']
-		fmt = fmt.replace('%role', SQUAD_ROLES[role])
+		fmt = fmt.replace('%role', unit['role'].title())
 
 	for pattern, json_key in FORMAT_LUT.items():
 		if pattern in fmt:
