@@ -4,7 +4,6 @@ from opts import *
 from errors import *
 from utils import check_permission
 from swgohgg import get_swgohgg_profile_url
-from swgohhelp import api_swgoh_players
 
 import DJANGO
 from swgoh.models import Player, Shard, ShardMember
@@ -190,6 +189,7 @@ async def handle_payout_add(request):
 	args = request.args
 	channel = request.channel
 	config = request.config
+	bot = request.bot
 
 	players, error = parse_opts_players(request)
 	if error:
@@ -208,14 +208,7 @@ async def handle_payout_add(request):
 	invalid_ally_codes = []
 
 	try:
-		data = await api_swgoh_players(config, {
-			'allycodes': ally_codes,
-			'project': {
-				'name': 1,
-				'allyCode': 1,
-			},
-		}, force=False)
-
+		data = await bot.client.players(ally_codes=ally_codes)
 		data = { x['allyCode']: x for x in data }
 		for ally_code in ally_codes:
 			if ally_code not in data:
@@ -295,6 +288,7 @@ async def handle_payout_rank(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	if args:
 		return error_unknown_parameters(args)
@@ -313,24 +307,9 @@ async def handle_payout_rank(request):
 		return error_no_shard_found(config)
 
 	payout_times = get_payout_times(shard)
-	ally_codes = list(payout_times)
 
-	data = await api_swgoh_players(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'name': 1,
-			'allyCode': 1,
-			'updated': 1,
-			'arena': {
-				'char': {
-					'rank': 1,
-				},
-				'ship': {
-					'rank': 1,
-				},
-			},
-		},
-	})
+	ally_codes = list(payout_times)
+	data = await bot.client.players(ally_codes=ally_codes)
 
 	lines = []
 	players = sorted([ p for p in data ], key=lambda x: x['arena'][shard.type]['rank'])
@@ -376,6 +355,7 @@ async def handle_payout_stats(request):
 	author = request.author
 	channel = request.channel
 	config = request.config
+	bot = request.bot
 	from_user = request.from_user
 
 	if args:
@@ -398,22 +378,7 @@ async def handle_payout_stats(request):
 	payout_times = get_payout_times(shard)
 	ally_codes = list(payout_times)
 
-	data = await api_swgoh_players(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'name': 1,
-			'allyCode': 1,
-			'updated': 1,
-			'arena': {
-				'char': {
-					'rank': 1,
-				},
-				'ship': {
-					'rank': 1,
-				},
-			},
-		},
-	})
+	data = await bot.client.players(ally_codes=ally_codes)
 
 	now = datetime.now(pytz.utc)
 
