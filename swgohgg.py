@@ -34,6 +34,9 @@ async def get_swgohgg_profile_url(ally_code, no_check=False):
 
 	return None
 
+def get_simple_unit_name(base_id):
+	return translate(base_id, 'eng_us').lower().replace(' ', '-').replace('"', '').replace('(', '').replace(')', '').replace('î', 'i').replace('Î', 'i').replace("'", '')
+
 def get_swgohgg_player_unit_url(ally_code, base_id):
 
 	from swgohhelp import get_simple_unit_name
