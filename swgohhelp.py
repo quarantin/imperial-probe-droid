@@ -356,36 +356,6 @@ async def fetch_crinolo_stats(config, project, players=None, units=None):
 # Localized functions
 #
 
-def get_ability_name(skill_id, language):
-
-	import DJANGO
-	from swgoh.models import BaseUnitSkill, Translation
-
-	try:
-		skill = BaseUnitSkill.objects.get(skill_id=skill_id)
-		try:
-			t = Translation.objects.get(string_id=skill.ability_ref, language=language)
-			return t.translation
-
-		except Translation.DoesNotExist:
-			print("Missing translation for string ID %s" % skill.ability_ref)
-
-	except BaseUnitSkill.DoesNotExist:
-		pass
-
-	except BaseUnitSkill.MultipleObjectsReturned:
-		skills = list(BaseUnitSkill.objects.filter(skill_id=skill_id).values())
-		if len(skills) > 1:
-			print('* Warning: Duplicate skill for skill ID: %s' % skill_id)
-			i = 1
-			for skill in skills:
-				print('# %d:' % i)
-				print(json.dumps(skill, indent=4))
-				i += 1
-	# TODO
-	#print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
-	return None
-
 def get_ships_crew():
 
 	fin = open('cache/characters.json', 'r')

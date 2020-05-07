@@ -13,6 +13,9 @@ from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
+import DJANGO
+from swgoh.models import BaseUnit, BaseUnitSkill, Translation
+
 PERCENT_STATS = [
 	'%armor',
 	'%resistance',
@@ -166,9 +169,6 @@ def basicstrip(string):
 
 def translate(string_id, language='eng_us'):
 
-	import DJANGO
-	from swgoh.models import Translation
-
 	langs = [ language ]
 	if language != 'eng_us':
 		langs.append('eng_us')
@@ -193,10 +193,34 @@ def translate_multi(string_ids, language='eng_us'):
 
 	return translations
 
-def format_char_details(unit, fmt):
+def get_ability_name(skill_id, language):
 
-	import DJANGO
-	from swgoh.models import BaseUnit
+	try:
+		skill = BaseUnitSkill.objects.get(skill_id=skill_id)
+		try:
+			t = Translation.objects.get(string_id=skill.ability_ref, language=language)
+			return t.translation
+
+		except Translation.DoesNotExist:
+			print("Missing translation for string ID %s" % skill.ability_ref)
+
+	except BaseUnitSkill.DoesNotExist:
+		pass
+
+	except BaseUnitSkill.MultipleObjectsReturned:
+		skills = list(BaseUnitSkill.objects.filter(skill_id=skill_id).values())
+		if len(skills) > 1:
+			print('* Warning: Duplicate skill for skill ID: %s' % skill_id)
+			i = 1
+			for skill in skills:
+				print('# %d:' % i)
+				print(json.dumps(skill, indent=4))
+				i += 1
+	# TODO
+	#print('No ability name found for skill id: %s' % skill_id, file=sys.stderr)
+	return None
+
+def format_char_details(unit, fmt):
 
 	if '%name' in fmt:
 		base_id = unit['defId']
