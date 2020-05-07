@@ -393,15 +393,10 @@ class ImperialProbeDroid(bot.Bot):
 
 		except Exception as err:
 
-			desc = str(err)
-			if hasattr(err, 'data'):
-				data = err.data
-				desc = '**%s:** %s' % (data['error'], data['error_description'])
-
 			await send_embed(self, channel, {
-				'title': err.title,
+				'title': 'Error',
 				'color': 'red',
-				'description': desc,
+				'description': str(err),
 			})
 
 		except Exception as err:
