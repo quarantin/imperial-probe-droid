@@ -1,7 +1,6 @@
 from opts import *
 from errors import *
-
-from swgohhelp import get_unit_name
+from utils import translate
 
 import DJANGO
 from swgoh.models import RelicStat
@@ -121,7 +120,7 @@ async def cmd_relic(request):
 			if relic['locked'] is not include_locked:
 					continue
 
-			unit_name = get_unit_name(base_id, language)
+			unit_name = translate(base_id, language)
 			percentage = relic[relic_field]
 
 			lines.append('`%.2f` **%s**' % (percentage, unit_name))
