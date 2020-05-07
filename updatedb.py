@@ -2,8 +2,8 @@
 
 import asyncio
 
-import client
 import libswgoh
+from client import SwgohClient
 
 import DJANGO
 
@@ -13,6 +13,7 @@ async def main():
 
 	players = {}
 
+	client = SwgohClient()
 	session = await libswgoh.get_auth_guest()
 
 	for player in Player.objects.filter(player_id=''):
@@ -22,7 +23,7 @@ async def main():
 			continue
 
 		players[player.ally_code] = True
-		profile = await client.get_player_profile(ally_code=str(player.ally_code), session=session)
+		profile = await client.player(ally_code=player.ally_code, session=session)
 		if not profile:
 			print('failed retrieving profile for: %s' % player.ally_code)
 			continue
