@@ -4,7 +4,6 @@ from swgoh.models import Player
 from errors import *
 from utils import get_fuzz_ratio
 from opts import parse_opts_players
-from swgohhelp import fetch_guilds
 
 from cmd.general.register import register_users
 
@@ -73,13 +72,16 @@ async def cmd_gregister(request):
 	registered = [ '**Registered Players**' ]
 	unregistered = [ '**Unregistered Players**' ]
 
-	ally_codes = [ str(p.ally_code) for p in selected_players ]
+	ally_codes = [ x.ally_code for x in selected_players ]
+	guilds = await bot.client.guilds(ally_codes=ally_codes, full=True)
 
-	guilds = await fetch_guilds(config, ally_codes)
+	for player in selected_players:
 
-	for selector, guild in guilds.items():
+		selector = player.ally_code
+		guild = guilds[selector]
+		guild_roster = { x['playerId']: x for x in guild['roster'] }
 
-		for player_id, player in guild['roster'].items():
+		for player_id, player in guild_roster.items():
 
 			player_name = lowerstrip(player['name'])
 			match = list(Player.objects.filter(ally_code=player['allyCode']))
