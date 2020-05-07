@@ -36,6 +36,10 @@ class Crawler(asyncio.Future):
 		value = self.redis.get(key)
 		return value and json.loads(value.decode('utf-8')) or None
 
+	def redis_setex(self, key, value, as_json=False):
+		expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
+		self.redis.setex(key, as_json is True and json.dumps(value) or value)
+
 	async def update_player(self, premium, guild, player_id):
 
 		player_key = 'player|%s' % player_id
@@ -69,6 +73,11 @@ class Crawler(asyncio.Future):
 
 			messages_key = 'messages|%s' % guild['id']
 			self.redis.rpush(messages_key, *formated)
+
+		# Actually save profile to cache because we used no_cache=True
+		playerid_key = 'playerid|%s' % new_profile['allyCode']
+		self.redis_setex(player_key, new_profile, as_json=True)
+		self.redis_setex(playerid_key, player_id)
 
 		self.logger.debug('%s - %s  (%d messages)' % (guild['id'], player_id, len(messages)))
 
