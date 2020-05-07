@@ -38,7 +38,8 @@ class Crawler(asyncio.Future):
 
 	def redis_setex(self, key, value, as_json=False):
 		expire = timedelta(hours=DEFAULT_PLAYER_EXPIRE)
-		self.redis.setex(key, as_json is True and json.dumps(value) or value)
+		redis_value = as_json is True and json.dumps(value) or value
+		self.redis.setex(key, expire, redis_value)
 
 	async def update_player(self, premium, guild, player_id):
 
