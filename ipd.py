@@ -342,8 +342,6 @@ class ImperialProbeDroid(bot.Bot):
 
 	async def on_message_handler(self, request):
 
-		from swgohhelp import SwgohHelpException
-
 		author = request.author
 		channel = request.channel
 		command = request.command
@@ -393,11 +391,11 @@ class ImperialProbeDroid(bot.Bot):
 
 				await self.process_commands(message)
 
-		except SwgohHelpException as swgohError:
+		except Exception as err:
 
-			data = swgohError.data
+			data = err.data
 			await send_embed(self, channel, {
-				'title': swgohError.title,
+				'title': err.title,
 				'color': 'red',
 				'description': '**%s:** %s' % (data['error'], data['error_description']),
 			})
