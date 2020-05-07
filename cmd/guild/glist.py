@@ -2,7 +2,6 @@ from opts import *
 from errors import *
 
 from utils import get_star, translate
-from swgohhelp import sort_players, fetch_crinolo_stats, fetch_guilds
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
@@ -57,6 +56,7 @@ async def cmd_guild_list(request):
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
@@ -79,27 +79,29 @@ async def cmd_guild_list(request):
 		return error_no_unit_selected()
 
 	fields = []
-	ally_codes = [ p.ally_code for p in selected_players ]
-	guild_list = await fetch_guilds(config, [ str(x) for x in ally_codes ])
 
-	for root_ally_code, guild in guild_list.items():
-		for ally_code, player in guild['roster'].items():
-			if int(player['allyCode']) not in ally_codes:
-				ally_codes.append(int(player['allyCode']))
+	ally_codes = [ x.ally_code for x in selected_players ]
+	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True, units=selected_units)
 
 	images = {}
 	matches = {}
-	stats, players = await fetch_crinolo_stats(config, ally_codes, units=selected_units)
 
-	players = sort_players(players)
+	for player in selected_players:
 
-	for ally_code, player in players.items():
-		if 'guildName' not in player:
-			config['bot'].logger.info('Ignoring player with no guild: %s' % ally_code)
+		ally_code = player.ally_code
+
+		guild = guilds[ally_code]
+		guild_roster = { x['allyCode']: x for x in guild['roster'] }
+
+		jplayer = guild_roster[ally_code]
+		jroster = { x['defId']: x for x in jplayer['roster'] }
+
+		if 'guildName' not in jplayer:
+			bot.logger.info('Ignoring player with no guild: %s' % ally_code)
 			continue
 
-		guild_name = player['guildName']
-		player_name = player['name']
+		guild_name = jplayer['guildName']
+		player_name = jplayer['name']
 		for ref_unit in selected_units:
 
 			if guild_name not in matches:
@@ -109,17 +111,17 @@ async def cmd_guild_list(request):
 				matches[guild_name][player_name] = {}
 
 			base_id = ref_unit.base_id
-			if base_id not in player['roster']:
+			if base_id not in jroster:
 				#print('Unit is locked for: %s' % player_name)
 				continue
 
-			unit = stats[ally_code][base_id]
+			unit = jroster[base_id]
 			if not unit_is_matching(unit, selected_char_filters):
 				#print('Unit does not match criteria for: %s' % player_name)
 				continue
 
 			images[ref_unit.name] = ref_unit.get_image()
-			translated_unit_name = translate(ref_unit.base_id, language)
+			unit_name = translate(ref_unit.base_id, language)
 			matches[guild_name][player_name][ref_unit.name] = {
 				'gp':      unit['gp'],
 				'gear':    unit['gear'],
@@ -127,7 +129,7 @@ async def cmd_guild_list(request):
 				'rarity':  unit['rarity'],
 				'relic':   BaseUnitSkill.get_relic(unit),
 				'base_id': ref_unit.base_id,
-				'name':    translated_unit_name,
+				'name':    unit_name,
 				'url':     ref_unit.get_url(),
 			}
 
