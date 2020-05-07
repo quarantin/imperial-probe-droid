@@ -1,10 +1,8 @@
 from opts import *
 from errors import *
-from utils import translate
-
 from constants import EMOJIS
 from swgohgg import get_full_avatar_url
-from swgohhelp import get_ability_name
+from utils import translate, get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
