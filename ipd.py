@@ -20,7 +20,7 @@ from config import load_config, load_help, setup_logs
 from utils import *
 from embed import *
 from commands import *
-from constants import EMOJI_HOURGLASS
+from constants import EMOJI_HOURGLASS, EMOJI_THUMBSUP
 
 import DJANGO
 from swgoh.models import DiscordServer, NewsChannel, NewsEntry, NewsFeed, Player, Shard, ShardMember
@@ -372,7 +372,7 @@ class ImperialProbeDroid(bot.Bot):
 						msgs = cmd['function'](request)
 
 					if cmd['need_api'] and request.from_user:
-						await self.remove_reaction(message, EMOJI_HOURGLASS)
+						await self.add_reaction(message, EMOJI_THUMBSUP)
 
 					for msg in msgs:
 						await send_embed(self, channel, msg)
