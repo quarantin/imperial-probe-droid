@@ -12,7 +12,7 @@ class CrawlerDiffer:
 		self.logger = crawler.logger
 		self.redis = crawler.redis
 
-	def check_diff_player_units(self, guild, old_profile, new_profile, messages):
+	def check_diff_player_units(self, premium, guild, old_profile, new_profile, messages):
 
 		old_roster = { x['defId']: x for x in old_profile['roster'] }
 		new_roster = { x['defId']: x for x in new_profile['roster'] }
@@ -184,7 +184,7 @@ class CrawlerDiffer:
 						'tier':      new_skill['tier'],
 					})
 
-	def check_diff_player_level(self, guild, old_profile, new_profile, messages):
+	def check_diff_player_level(self, premium, guild, old_profile, new_profile, messages):
 
 		new_player_level = new_profile['level']
 		old_player_level = old_profile['level']
@@ -199,7 +199,7 @@ class CrawlerDiffer:
 				'level.old': old_player_level,
 			})
 
-	def check_diff_arena_ranks(self, guild, old_profile, new_profile, messages):
+	def check_diff_arena_ranks(self, premium, guild, old_profile, new_profile, messages):
 
 		for arena_type in [ 'char', 'ship' ]:
 
@@ -227,9 +227,9 @@ class CrawlerDiffer:
 					'old.rank':  old_rank,
 				})
 
-	def check_last_seen(self, guild, new_profile, messages):
+	def check_last_seen(self, premium, guild, new_profile, messages):
 
-		config = guild.get_config()
+		config = premium.get_config()
 		last_seen_max      = int(config[PremiumGuild.MSG_INACTIVITY_MIN    + '.config'])
 		last_seen_interval = int(config[PremiumGuild.MSG_INACTIVITY_REPEAT + '.config'])
 
@@ -256,16 +256,18 @@ class CrawlerDiffer:
 				'last.seen': last_activity,
 			})
 
-	def check_diff(self, guild, old_profile, new_profile):
+	def check_diff(self, premium, guild, old_profile, new_profile):
 
 		messages = []
 
-		self.check_diff_arena_ranks(guild, old_profile, new_profile, messages)
+		if old_profile is not None:
 
-		self.check_diff_player_level(guild, old_profile, new_profile, messages)
+			self.check_diff_arena_ranks(premium, guild, old_profile, new_profile, messages)
 
-		self.check_diff_player_units(guild, old_profile, new_profile, messages)
+			self.check_diff_player_level(premium, guild, old_profile, new_profile, messages)
 
-		self.check_last_seen(guild, new_profile, messages)
+			self.check_diff_player_units(premium, guild, old_profile, new_profile, messages)
+
+		self.check_last_seen(premium, guild, new_profile, messages)
 
 		return messages
