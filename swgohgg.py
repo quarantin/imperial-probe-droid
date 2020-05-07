@@ -39,7 +39,6 @@ def get_simple_unit_name(base_id):
 
 def get_swgohgg_player_unit_url(ally_code, base_id):
 
-	from swgohhelp import get_simple_unit_name
 	simple_name = get_simple_unit_name(base_id)
 	url = 'https://swgoh.gg/p/%s/characters/%s' % (ally_code, simple_name)
 	return url
