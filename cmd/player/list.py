@@ -1,6 +1,6 @@
 from opts import *
 from errors import *
-from swgohhelp import get_unit_name
+from utils import translate
 
 help_list = {
 	'title': 'List Help',
@@ -35,8 +35,8 @@ def cmd_list(request):
 	msgs = []
 	translations = []
 	for unit in selected_units:
-		translated_name = get_unit_name(unit.base_id, language)
-		translations.append(translated_name)
+		name = translate(unit.base_id, language)
+		translations.append(name)
 
 	unit_list = '\n- '.join(translations)
 	return [{
