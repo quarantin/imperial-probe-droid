@@ -1,8 +1,8 @@
 from opts import *
 from errors import *
+from utils import translate
 
 from swgohgg import get_full_avatar_url
-from swgohhelp import get_unit_name
 
 import DJANGO
 from swgoh.models import Gear13Stat
@@ -123,7 +123,7 @@ async def cmd_gear13(request):
 			if g13['locked'] is not include_locked:
 					continue
 
-			unit_name = get_unit_name(base_id, language)
+			unit_name = translate(base_id, language)
 			percentage = g13['percentage']
 
 			lines.append('`%.2f` **%s**' % (percentage, unit_name))
