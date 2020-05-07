@@ -1,11 +1,10 @@
 import json
+from collections import OrderedDict
 
 from opts import *
 from errors import *
 from constants import EMOJIS, MAX_SKILL_TIER
-from collections import OrderedDict
-from utils import get_stars_as_emojis, roundup
-from swgohhelp import get_ability_name
+from utils import get_stars_as_emojis, roundup, get_ability_name
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
