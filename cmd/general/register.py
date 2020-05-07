@@ -3,7 +3,6 @@ from swgoh.models import Player
 
 from errors import *
 from opts import parse_opts_ally_codes, parse_opts_mentions, parse_opts_lang, parse_opts_players
-from swgohhelp import fetch_players
 
 help_me = {
 	'title': 'Me Help',
@@ -81,6 +80,7 @@ async def register_users(request, discord_ids, ally_codes):
 
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	if len(discord_ids) != len(ally_codes):
 		return error_register_mismatch(config, author, discord_ids, ally_codes)
@@ -88,16 +88,13 @@ async def register_users(request, discord_ids, ally_codes):
 	lang = parse_opts_lang(request)
 	language = Player.get_language_info(lang)
 
-	players = await fetch_players(config, {
-		'allycodes': ally_codes,
-		'project': {
-			'name': 1,
-			'allyCode': 1,
-		},
-	})
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
 	lines = []
 	for discord_id, ally_code in zip(discord_ids, ally_codes):
+
+		jplayer = players[ally_code]
 
 		db_player, created = Player.objects.get_or_create(discord_id=discord_id)
 
@@ -107,8 +104,9 @@ async def register_users(request, discord_ids, ally_codes):
 		if db_player.ally_code and db_player.ally_code != ally_code:
 			ally_code_full_str = '%s has changed from **`%s`** to **`%s`**.' % (author_str, db_player.get_ally_code(), ally_code_str)
 		db_player.ally_code = ally_code
-		db_player.game_nick = players[ally_code]['name']
-		db_player.timezone = 'Europe/London'
+		db_player.game_nick = jplayer['name']
+		db_player.timezone  = 'Europe/London'
+		db_player.player_id = jplayer['id']
 		await fill_user_info(config, db_player)
 
 		db_player.save()
