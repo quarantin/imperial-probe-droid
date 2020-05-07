@@ -21,10 +21,12 @@ from django.views.generic import TemplateView
 
 from . import views
 from grandarena import views as ga_views
+from territorybattle import views as tb_views
 
 urlpatterns = [
 	path('admin/', admin.site.urls),
 	path('ga/', ga_views.index),
+	path('tb/', tb_views.index),
 	path('avatar/<str:base_id>', views.avatar),
 	path('gear/<str:base_id>/', views.gear),
 	path('relic/<int:relic>/<str:align>/', views.relic),
