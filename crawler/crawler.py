@@ -127,7 +127,7 @@ class Crawler(asyncio.Future):
 					if errors2:
 						self.logger.error('Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(errors2))
 					else:
-						self.logger.info('Retrieved previously failed profiles:\n%s' % '\n'.join(errors))
+						self.logger.info('Retrieved previously failed profiles:\n%s' % '\n'.join([ x['playerId'] for x in errors ]))
 
 			delta = datetime.now() - time_start
 			delay = max(0, (10 * MINUTE) - delta.total_seconds())
