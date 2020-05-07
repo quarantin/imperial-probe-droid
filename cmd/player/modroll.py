@@ -1,7 +1,6 @@
 from opts import *
 from errors import *
 from utils import translate
-from swgohhelp import get_unit_name
 from constants import MODSLOTS, MODSETS, UNIT_STATS, EMOJIS
 
 help_modroll= {
@@ -61,7 +60,7 @@ async def cmd_modroll(request):
 		player_roster = { x['defId']: x for x in player['roster'] }
 
 		for def_id, unit in player_roster.items():
-			unit_name = get_unit_name(def_id, language)
+			unit_name = translate(def_id, language)
 			for mod in unit['mods']:
 				for sec_stat in mod['secondaryStat']:
 					if sec_stat['roll'] >= MIN_ROLLS:
