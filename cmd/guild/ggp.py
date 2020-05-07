@@ -4,7 +4,6 @@ from opts import *
 from errors import *
 
 from utils import get_star, translate
-from swgohhelp import fetch_guilds
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
@@ -51,11 +50,34 @@ def unit_is_matching(unit, char_filters):
 
 	return True
 
+def compute_gp(player):
+
+	total_gp = 0
+	char_gp = 0
+	ship_gp = 0
+
+	for unit in player['roster']:
+
+		gp = 'gp' in unit and unit['gp'] or 0
+
+		total_gp += gp
+
+		if BaseUnit.is_ship(unit['defId']):
+			ship_gp += gp
+
+		else:
+			char_gp += gp
+
+	player['gp'] = total_gp
+	player['gpChar'] = char_gp
+	player['gpShip'] = ship_gp
+
 async def cmd_guild_gp(request):
 
 	args = request.args
 	author = request.author
 	config = request.config
+	bot = request.bot
 
 	language = parse_opts_lang(request)
 
@@ -73,27 +95,29 @@ async def cmd_guild_gp(request):
 		return error_no_ally_code_specified(config, author)
 
 	fields = []
-	ally_codes = [ p.ally_code for p in selected_players ]
-	guild_list = await fetch_guilds(config, [ str(x) for x in ally_codes ])
+	ally_codes = [ x.ally_code for x in selected_players ]
+	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
 
-	guilds = {}
-	for target_ally_code, guild in guild_list.items():
+	result = {}
+	for selector, guild in guilds.items():
 
 		guild_name = guild['name']
-		if guild_name not in guilds:
-			guilds[guild_name] = {}
+		if guild_name not in result:
+			result[guild_name] = {}
 
-		for ally_code_str, player in guild['roster'].items():
+		guild_roster = { x['id']: x for x in guild['roster'] }
+		for player_id, player in guild_roster.items():
 
 			player_name = player['name']
-			if player_name not in guilds[guild_name]:
-				guilds[guild_name][player_name] = player
+			if player_name not in result[guild_name]:
+				result[guild_name][player_name] = player
 
 	lines = []
 	lines.append('Name;AllyCode;GP;CharGP;ShipGP')
-	for guild_name, guild in sorted(guilds.items()):
+	for guild_name, guild in sorted(result.items()):
 		for player_name in sorted(guild.keys(), key=str.casefold):
 			player = guild[player_name]
+			compute_gp(player)
 			line = '%s;%s;%s;%s;%s' % (player_name, player['allyCode'], player['gp'], player['gpChar'], player['gpShip'])
 			lines.append(line)
 
