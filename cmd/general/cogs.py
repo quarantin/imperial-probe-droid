@@ -1,5 +1,6 @@
 from errors import *
 
+from tbcog import TBCog
 from twcog import TWCog
 from modscog import ModsCog
 from ticketscog import TicketsCog
@@ -47,6 +48,7 @@ loadable_cogs = {
 	'mods':    ModsCog,
 	'tickets': TicketsCog,
 	'tw':      TWCog,
+	'tb':      TBCog,
 }
 
 def parse_opts_cogs(args):
