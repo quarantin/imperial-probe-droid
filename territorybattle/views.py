@@ -1,40 +1,109 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template.loader import get_template
-
-#from .forms import AllyCodeForm
-
+from django.views.generic import ListView
+from django.views.decorators.csrf import csrf_exempt
 from client import SwgohClient
 
-import json
+from .models import TerritoryBattle, TerritoryBattleHistory
 
-from asgiref.sync import async_to_sync
+import pytz
+from datetime import datetime
 
-def parse_json():
+def ts2date(ts, dateformat='%Y/%m/%d'):
+	return datetime.fromtimestamp(int(int(ts) / 1000)).strftime(dateformat)
 
-	fin = open('tb-events-20200507-now.json', 'r')
-	events = json.loads(fin.read())
-	fin.close()
+class TerritoryBattleHistoryView(ListView):
 
-	result = {}
-	for event in events:
-		typ = event['type']
-		if typ not in result:
-			result[typ] = []
+	model = TerritoryBattleHistory
+	template_name = 'territorybattle/territorybattlehistory_list.html'
+	object_list = TerritoryBattleHistory.objects.all()
+	queryset = TerritoryBattleHistory.objects.all()
 
-		if 'zone' in event:
-			event['zone'] = event['zone'].replace('geonosis_separatist_', '')
+	def get_queryset(self):
+		return self.queryset
 
-		result[typ].append(event)
+	def convert_date(self, utc_date, timezone):
 
-	return result
+		local_tz = pytz.timezone(timezone)
+		local_dt = utc_date.astimezone(local_tz)
 
-@async_to_sync
-async def index(request):
+		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
 
-	ctx = {}
+	def get_context_data(self, **kwargs):
 
-	events = parse_json()
-	ctx['types'] = events
+		context = super().get_context_data(**kwargs)
 
-	return render(request, 'territorybattle/index.html', ctx)
+		filter_kwargs = {}
+
+		if 'phase' in kwargs:
+			filter_kwargs['phase'] = kwargs['phase']
+
+		if 'tb' in kwargs:
+			filter_kwargs['tb_id'] = kwargs['tb']
+
+		if 'territory' in kwargs:
+			filter_kwargs['territory'] = kwargs['territory']
+
+		if 'activity' in kwargs:
+			filter_kwargs['event_type'] = kwargs['activity']
+
+		queryset = self.queryset.filter(**filter_kwargs).values()
+
+		timezone = kwargs.pop('timezone', 'UTC')
+
+		context['events'] = queryset
+		for event in context['events']:
+			event['tb'] = TerritoryBattle.objects.get(id=event['tb_id'])
+			event['event_type'] = TerritoryBattleHistory.get_activity_by_num(event['event_type'])
+			event['timestamp'] = self.convert_date(event['timestamp'], timezone)
+
+		return context
+
+	@csrf_exempt
+	def get(self, request, *args, **kwargs):
+
+		context = {}
+
+		if 'phase' in request.GET:
+			phase = int(request.GET['phase'])
+			kwargs['phase'] = phase
+			context['phase'] = phase
+
+		if 'tb' in request.GET:
+			tb = int(request.GET['tb'])
+			kwargs['tb'] = tb
+			context['tb'] = tb
+
+		if 'territory' in request.GET:
+			territory = int(request.GET['territory'])
+			kwargs['territory'] = territory
+			context['territory'] = territory
+
+		if 'activity' in request.GET:
+			activity = int(request.GET['activity'])
+			kwargs['activity'] = activity
+			context['activity'] = activity
+
+		if 'timezone' in request.GET:
+			timezone = request.GET['timezone']
+			kwargs['timezone'] = timezone
+			context['timezone'] = timezone
+
+		context.update(self.get_context_data(**kwargs))
+
+		tbs = TerritoryBattle.objects.all()
+		timezones = pytz.all_timezones
+		if 'UTC' in timezones:
+			timezones.remove('UTC')
+			timezones.insert(0, 'UTC')
+
+		context['tbs'] = { x.id: '%s - %s' % (ts2date(x.tb_id), x.get_name()) for x in tbs }
+
+		context['timezones'] = { x: x for x in timezones }
+
+		context['activities'] = { x: y for x, y in TerritoryBattleHistory.EVENT_TYPE_CHOICES }
+
+		context['phases'] = { x: x for x in range(1, 5) }
+
+		return self.render_to_response(context)
