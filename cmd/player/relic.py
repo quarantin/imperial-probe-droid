@@ -133,7 +133,7 @@ async def cmd_relic(request):
 			'author': {
 				'name': jplayer['name'],
 			},
-			'title': 'Most Popular Relics',
+			'title': 'Most Popular Relics %d' % relic_tier,
 			'description': '\n'.join(lines),
 		})
 
