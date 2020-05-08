@@ -130,7 +130,10 @@ async def cmd_relic(request):
 				break
 
 		msgs.append({
-			'title': 'Relic Recommendations for %s' % jplayer['name'],
+			'author': {
+				'name': jplayer['name'],
+			},
+			'title': 'Most Popular Relics',
 			'description': '\n'.join(lines),
 		})
 
