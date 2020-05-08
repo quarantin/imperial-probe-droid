@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import TerritoryBattleHistory
+
+class TerritoryBattleHistoryAdmin(admin.ModelAdmin):
+	pass
+
+admin.site.register(TerritoryBattleHistory, TerritoryBattleHistoryAdmin)
