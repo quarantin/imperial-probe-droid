@@ -136,7 +136,7 @@ async def cmd_gear13(request):
 			'author': {
 				'name': jplayer['name'],
 			},
-			'title': 'Most Populat Gear 13',
+			'title': 'Most Popular Gear 13',
 			'description': '\n'.join(lines),
 		})
 
