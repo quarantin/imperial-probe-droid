@@ -24,6 +24,7 @@ from grandarena import views as ga_views
 from territorybattle import views as tb_views
 
 urlpatterns = [
+	path('', views.index),
 	path('admin/', admin.site.urls),
 	path('ga/', ga_views.index),
 	path('tb/', tb_views.TerritoryBattleHistoryView.as_view()),

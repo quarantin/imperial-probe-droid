@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import math
+from django.shortcuts import render
 from django.http import FileResponse, HttpResponse, Http404
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -10,6 +11,14 @@ from cairosvg import svg2png
 import io, os, requests
 
 from .models import Gear, BaseUnit, BaseUnitSkill
+
+def index(request):
+
+	ctx = {}
+
+	ctx['image_path'] = '/media/ipd-coming-soon.gif'
+
+	return render(request, 'swgoh/index.html', ctx)
 
 def file_content(path):
 	fin = open(path, 'rb')
