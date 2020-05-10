@@ -86,52 +86,48 @@ async def cmd_guild_list(request):
 	images = {}
 	matches = {}
 
-	for player in selected_players:
+	for selector in selected_players:
 
-		ally_code = player.ally_code
+		ally_code = selector.ally_code
 
 		guild = guilds[ally_code]
 		guild_roster = { x['allyCode']: x for x in guild['roster'] }
 
-		jplayer = guild_roster[ally_code]
-		jroster = { x['defId']: x for x in jplayer['roster'] }
+		for ally_code, player in guild_roster.items():
 
-		if 'guildName' not in jplayer:
-			bot.logger.info('Ignoring player with no guild: %s' % ally_code)
-			continue
+			player_name = player['name']
+			guild_name = player['guildName']
+			roster = { x['defId']: x for x in player['roster'] }
+			for ref_unit in selected_units:
 
-		guild_name = jplayer['guildName']
-		player_name = jplayer['name']
-		for ref_unit in selected_units:
+				if guild_name not in matches:
+					matches[guild_name] = {}
 
-			if guild_name not in matches:
-				matches[guild_name] = {}
+				if player_name not in matches[guild_name]:
+					matches[guild_name][player_name] = {}
 
-			if player_name not in matches[guild_name]:
-				matches[guild_name][player_name] = {}
+				base_id = ref_unit.base_id
+				if base_id not in roster:
+					#print('Unit is locked for: %s' % player_name)
+					continue
 
-			base_id = ref_unit.base_id
-			if base_id not in jroster:
-				#print('Unit is locked for: %s' % player_name)
-				continue
+				unit = roster[base_id]
+				if not unit_is_matching(unit, selected_char_filters):
+					#print('Unit does not match criteria for: %s' % player_name)
+					continue
 
-			unit = jroster[base_id]
-			if not unit_is_matching(unit, selected_char_filters):
-				#print('Unit does not match criteria for: %s' % player_name)
-				continue
-
-			images[ref_unit.name] = ref_unit.get_image()
-			unit_name = translate(ref_unit.base_id, language)
-			matches[guild_name][player_name][ref_unit.name] = {
-				'gp':      unit['gp'],
-				'gear':    unit['gear'],
-				'level':   unit['level'],
-				'rarity':  unit['rarity'],
-				'relic':   BaseUnitSkill.get_relic(unit),
-				'base_id': ref_unit.base_id,
-				'name':    unit_name,
-				'url':     ref_unit.get_url(),
-			}
+				images[ref_unit.name] = ref_unit.get_image()
+				unit_name = translate(ref_unit.base_id, language)
+				matches[guild_name][player_name][ref_unit.name] = {
+					'gp':      unit['gp'],
+					'gear':    unit['gear'],
+					'level':   unit['level'],
+					'rarity':  unit['rarity'],
+					'relic':   BaseUnitSkill.get_relic(unit),
+					'base_id': ref_unit.base_id,
+					'name':    unit_name,
+					'url':     ref_unit.get_url(),
+				}
 
 	meta = {}
 	units = {}
