@@ -16,6 +16,7 @@ def index(request):
 
 	ctx = {}
 
+	ctx['patreon_url'] = 'https://www.patreon.com/imperial_probe_droid'
 	ctx['image_path'] = '/media/ipd-coming-soon.gif'
 
 	return render(request, 'swgoh/index.html', ctx)
