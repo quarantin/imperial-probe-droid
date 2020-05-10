@@ -10,7 +10,6 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-import client
 import libswgoh
 from embed import new_embeds
 from utils import translate, translate_multi
@@ -22,9 +21,11 @@ class TWCog(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
-		#self.config = bot.config
-		#self.logger = bot.logger
-		#self.redis = bot.redis
+		if bot:
+			self.client = bot.client
+			self.config = bot.config
+			self.logger = bot.logger
+			self.redis = bot.redis
 
 	def get_squad_orders(self):
 		fin = open('squad-orders.json', 'r')
@@ -67,7 +68,7 @@ class TWCog(commands.Cog):
 
 		wrong_order = {}
 
-		tw_squads = await client.get_tw_squads(creds_id='anraeth')
+		tw_squads = await self.client.get_tw_squads(creds_id='anraeth')
 		squad_orders = self.get_squad_orders()
 		for territory, player, squad in tw_squads:
 			for ref_squad in squad_orders:
@@ -87,7 +88,7 @@ class TWCog(commands.Cog):
 				'name': player,
 				'inline': True,
 			}
-			for territory in client.territories_by_name:
+			for territory in libswgoh.territories_by_name:
 				if territory in territories:
 					squads = territories[territory]
 					for squad in squads:
@@ -132,18 +133,10 @@ class TWCog(commands.Cog):
 	@commands.command()
 	async def gtwo(self, ctx, creds_id='anraeth', territory='all'):
 
-		tw = await client.get_tw_info(creds_id=creds_id)
+		tw = await self.client.get_tw_info(creds_id=creds_id)
 
 		defend_orders = self.parse_territory(tw['defendingGuild'])
 		attack_orders = self.parse_territory(tw['attackingGuild'])
 
 		print(json.dumps(defend_orders, indent=4))
 		print(json.dumps(attack_orders, indent=4))
-
-async def main():
-	#cog = TWCog(None)
-	#session = await libswgoh.get_auth_google(creds_id='anraeth')
-	pass
-
-if __name__ == '__main__':
-	asyncio.get_event_loop().run_until_complete(main())
