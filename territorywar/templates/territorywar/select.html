@@ -78,7 +78,7 @@
 				<label for="target">Choose a Target:</label>
 				<select id="target" onchange="refresh()">
 					<option value="all">--</option>{% for player_id, player_name in targets.items %}
-					<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
+					<option value="{{ player_id }}"{% if player_id == target %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
 				</select>
 			</div>
 		</div>
