@@ -27,7 +27,7 @@
 								<th>Territory</th>
 								<th>Player</th>
 								<th>Score</th>
-								<th>Guild Score</th>
+								<th>Target</th>
 							</tr>
 							</thead>
 							<tfoot>
@@ -38,7 +38,7 @@
 								<th>Territory</th>
 								<th>Player</th>
 								<th>Score</th>
-								<th>Guild Score</th>
+								<th>Target</th>
 							</tr>
 							</tfoot>
 							<tbody>{% for event in events %}
@@ -49,7 +49,7 @@
 								<td>{{ event.territory }}</td>
 								<td>{{ event.player_name }}</td>
 								<td>{{ event.score }}</td>
-								<td>{{ event.total }}</td>
+								<td value="{{ event.target_id }}">{{ event.target_name }}</td>
 							</tr>
 							{% endfor %}
 							</tbody>

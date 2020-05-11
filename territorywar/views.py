@@ -54,6 +54,9 @@ class TerritoryWarHistoryView(ListView):
 		if 'player' in kwargs:
 			filter_kwargs['player_id'] = kwargs['player']
 
+		if 'target' in kwargs:
+			filter_kwargs['squad__player_id'] = kwargs['target']
+
 		queryset = self.queryset.filter(**filter_kwargs).values()
 
 		timezone = kwargs.pop('timezone', 'UTC')
@@ -63,6 +66,12 @@ class TerritoryWarHistoryView(ListView):
 			event['tw'] = TerritoryWar.objects.get(id=event['tw_id'])
 			event['event_type'] = TerritoryWarHistory.get_activity_by_num(event['event_type'])
 			event['timestamp'] = self.convert_date(event['timestamp'], timezone)
+			try:
+				target = TerritoryWarSquad.objects.get(event_id=event['id'])
+				event['target_id'] = target.player_id
+				event['target_name'] = target.player_name
+			except TerritoryWarSquad.DoesNotExist:
+				pass
 
 		return context
 
@@ -101,6 +110,11 @@ class TerritoryWarHistoryView(ListView):
 			kwargs['player'] = player
 			context['player'] = player
 
+		if 'target' in request.GET:
+			target = request.GET['target']
+			kwargs['target'] = target
+			context['target'] = target
+
 		context.update(self.get_context_data(**kwargs))
 
 		players = OrderedDict()
@@ -111,7 +125,7 @@ class TerritoryWarHistoryView(ListView):
 			players[id] = name
 
 		tws = TerritoryWar.objects.all()
-		timezones = pytz.all_timezones
+		timezones = pytz.common_timezones
 		if 'UTC' in timezones:
 			timezones.remove('UTC')
 		timezones.insert(0, 'UTC')
@@ -126,5 +140,7 @@ class TerritoryWarHistoryView(ListView):
 		context['phases'] = { x: x for x in range(1, 5) }
 
 		context['players'] = players
+
+		context['targets'] = players
 
 		return self.render_to_response(context)
