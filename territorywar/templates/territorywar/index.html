@@ -1,0 +1,16 @@
+<html>
+<head>
+</head>
+<body>
+	<!--<select>{% for type in types %}
+		<option>{{ type }}</option>{% endfor %}
+	</select>-->
+
+	<div id="content">
+	{% for type, events in types.items %}
+		<ul id="{{ type }}">{% for event in events %}
+			<li>{{ type }} - {{ event.date }} {{ event.zone }} - {{ event.score }} - {{ event.score2 }} - {{ event.player }}</li>{% endfor %}
+		</ul>{% endfor %}
+	</div>
+</body>
+</html>

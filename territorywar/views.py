@@ -5,21 +5,22 @@ from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 from client import SwgohClient
 
-from .models import TerritoryBattle, TerritoryBattleHistory
+from .models import TerritoryWar, TerritoryWarHistory
 
+import json
 import pytz
 from datetime import datetime
 
-def ts2date(ts, dateformat='%Y/%m/%d'):
-	return datetime.fromtimestamp(int(int(ts) / 1000)).strftime(dateformat)
+def tw2date(tw, dateformat='%Y/%m/%d'):
+	ts = int(str(tw).split(':')[1][1:]) / 1000
+	return datetime.fromtimestamp(int(ts)).strftime(dateformat)
 
-class TerritoryBattleHistoryView(ListView):
+class TerritoryWarHistoryView(ListView):
 
-	model = TerritoryBattleHistory
-	template_name = 'territorybattle/territorybattlehistory_list.html'
-	#template_name = 'territorybattle/tables.html'
-	object_list = TerritoryBattleHistory.objects.all()
-	queryset = TerritoryBattleHistory.objects.all()
+	model = TerritoryWarHistory
+	template_name = 'territorywar/territorywarhistory_list.html'
+	object_list = TerritoryWarHistory.objects.all()
+	queryset = TerritoryWarHistory.objects.all()
 
 	def get_queryset(self):
 		return self.queryset
@@ -40,8 +41,8 @@ class TerritoryBattleHistoryView(ListView):
 		if 'phase' in kwargs:
 			filter_kwargs['phase'] = kwargs['phase']
 
-		if 'tb' in kwargs:
-			filter_kwargs['tb_id'] = kwargs['tb']
+		if 'tw' in kwargs:
+			filter_kwargs['tw'] = kwargs['tw']
 
 		if 'territory' in kwargs:
 			filter_kwargs['territory'] = kwargs['territory']
@@ -55,8 +56,10 @@ class TerritoryBattleHistoryView(ListView):
 
 		context['events'] = queryset
 		for event in context['events']:
-			event['tb'] = TerritoryBattle.objects.get(id=event['tb_id'])
-			event['event_type'] = TerritoryBattleHistory.get_activity_by_num(event['event_type'])
+			print("WTF")
+			print(event)
+			event['tw'] = TerritoryWar.objects.get(id=event['tw_id'])
+			event['event_type'] = TerritoryWarHistory.get_activity_by_num(event['event_type'])
 			event['timestamp'] = self.convert_date(event['timestamp'], timezone)
 
 		return context
@@ -71,10 +74,10 @@ class TerritoryBattleHistoryView(ListView):
 			kwargs['phase'] = phase
 			context['phase'] = phase
 
-		if 'tb' in request.GET:
-			tb = int(request.GET['tb'])
-			kwargs['tb'] = tb
-			context['tb'] = tb
+		if 'tw' in request.GET:
+			tw = int(request.GET['tw'])
+			kwargs['tw'] = tw
+			context['tw'] = tw
 
 		if 'territory' in request.GET:
 			territory = int(request.GET['territory'])
@@ -93,17 +96,17 @@ class TerritoryBattleHistoryView(ListView):
 
 		context.update(self.get_context_data(**kwargs))
 
-		tbs = TerritoryBattle.objects.all()
+		tws = TerritoryWar.objects.all()
 		timezones = pytz.all_timezones
 		if 'UTC' in timezones:
 			timezones.remove('UTC')
-			timezones.insert(0, 'UTC')
+		timezones.insert(0, 'UTC')
 
-		context['tbs'] = { x.id: '%s - %s' % (ts2date(x.tb_id), x.get_name()) for x in tbs }
+		context['tws'] = { x.id: '%s - %s' % (tw2date(x), x.get_name()) for x in tws }
 
 		context['timezones'] = { x: x for x in timezones }
 
-		context['activities'] = { x: y for x, y in TerritoryBattleHistory.EVENT_TYPE_CHOICES }
+		context['activities'] = { x: y for x, y in TerritoryWarHistory.EVENT_TYPE_CHOICES }
 
 		context['phases'] = { x: x for x in range(1, 5) }
 

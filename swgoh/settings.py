@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'swgoh',
 	'grandarena',
 	'territorybattle',
+	'territorywar',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

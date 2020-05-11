@@ -1,10 +1,12 @@
-<html>
-<head>
+{% extends "swgoh/base.html" %}
+
+{% block headers %}
 <style>
 @font-face {
 	font-family: starjedi;
 	src: url(/media/Starjedi.ttf);
 }
+
 .center {
 	margin: auto;
 	width: 50%;
@@ -13,9 +15,15 @@
 	font-size: 200%;
 	font-family: starjedi;
 }
+
+body {
+	background-color: black;
+}
 </style>
-</head>
-<body style="background-color: black;">
+{% endblock %}
+
+{% block title %}Coming Soon!{% endblock %}
+{% block content %}
 	<div class="center">
 		<img src="{{ image_path }}">
 	</div>
@@ -25,5 +33,4 @@
 	<div class="center">
 		Please support me on <a href="{{ patreon_url }}">Patreon</a>
 	</div>
-</body>
-</html>
+{% endblock %}
