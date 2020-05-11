@@ -3,9 +3,10 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
+from collections import OrderedDict
 from client import SwgohClient
 
-from .models import TerritoryWar, TerritoryWarHistory
+from .models import TerritoryWar, TerritoryWarSquad, TerritoryWarHistory
 
 import json
 import pytz
@@ -50,14 +51,15 @@ class TerritoryWarHistoryView(ListView):
 		if 'activity' in kwargs:
 			filter_kwargs['event_type'] = kwargs['activity']
 
+		if 'player' in kwargs:
+			filter_kwargs['player_id'] = kwargs['player']
+
 		queryset = self.queryset.filter(**filter_kwargs).values()
 
 		timezone = kwargs.pop('timezone', 'UTC')
 
 		context['events'] = queryset
 		for event in context['events']:
-			print("WTF")
-			print(event)
 			event['tw'] = TerritoryWar.objects.get(id=event['tw_id'])
 			event['event_type'] = TerritoryWarHistory.get_activity_by_num(event['event_type'])
 			event['timestamp'] = self.convert_date(event['timestamp'], timezone)
@@ -94,7 +96,19 @@ class TerritoryWarHistoryView(ListView):
 			kwargs['timezone'] = timezone
 			context['timezone'] = timezone
 
+		if 'player' in request.GET:
+			player = request.GET['player']
+			kwargs['player'] = player
+			context['player'] = player
+
 		context.update(self.get_context_data(**kwargs))
+
+		players = OrderedDict()
+		players_data = list(TerritoryWarSquad.objects.values('player_id', 'player_name').distinct())
+		for player in sorted(players_data, key=lambda x: x['player_name']):
+			id = player['player_id']
+			name = player['player_name']
+			players[id] = name
 
 		tws = TerritoryWar.objects.all()
 		timezones = pytz.all_timezones
@@ -103,11 +117,14 @@ class TerritoryWarHistoryView(ListView):
 		timezones.insert(0, 'UTC')
 
 		context['tws'] = { x.id: '%s - %s' % (tw2date(x), x.get_name()) for x in tws }
+		print('WTF: %s' % context['tws'])
 
 		context['timezones'] = { x: x for x in timezones }
 
 		context['activities'] = { x: y for x, y in TerritoryWarHistory.EVENT_TYPE_CHOICES }
 
 		context['phases'] = { x: x for x in range(1, 5) }
+
+		context['players'] = players
 
 		return self.render_to_response(context)
