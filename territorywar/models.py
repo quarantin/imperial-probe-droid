@@ -193,10 +193,12 @@ class TerritoryWarHistory(models.Model):
 	@staticmethod
 	def parse(event):
 
+		created = True
 		to_save_all = []
 		try:
 			event_id = event['id']
 			o = TerritoryWarHistory.objects.get(id=event_id)
+			created = False
 
 		except TerritoryWarHistory.DoesNotExist:
 
@@ -247,7 +249,7 @@ class TerritoryWarHistory(models.Model):
 				o.squad = TerritoryWarSquad.parse(event_id, data['squad'])
 
 		o.save()
-		return o
+		return o, created
 
 	class Meta:
 		ordering = ('timestamp',)
