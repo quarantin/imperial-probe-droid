@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from utils import http_get
+from utils import http_get, translate
 
 import os
 import json
