@@ -1,0 +1,78 @@
+
+	<script>
+
+		function get_selected_value(select_id, result) {
+			select = document.getElementById(select_id);
+			if (select) {
+				select_value = select.options[select.selectedIndex].value;
+				if (select_value != '--' && select_value != 'all')
+					result[select_id] = select_value;
+			}
+		}
+
+		function get_base_url() {
+			url = window.location.href;
+			tokens = url.split('?');
+			return tokens[0];
+		}
+
+		function refresh() {
+
+			query = {};
+
+			get_selected_value('timezone', query);
+			get_selected_value('tb',       query);
+			get_selected_value('activity', query);
+			get_selected_value('phase',    query);
+			get_selected_value('player',   query);
+
+			tokens = []
+			for (key in query) {
+				tokens.push(key + '=' + query[key]);
+			}
+
+			redirect_params = tokens.join('&');
+			base_url = get_base_url();
+			window.location = base_url + '?' + redirect_params;
+		}
+
+	</script>
+
+		<div id="filters" class="card shadow mb-4">
+			<div>
+				<label for="timezone">Choose a Timezone:</label>
+				<select id="timezone" onchange="refresh()">
+					<option value="all">--</option>{% for tz_id, tz_name in timezones.items %}
+					<option value="{{ tz_id }}"{% if tz_id == timezone %} selected{% endif %}>{{ tz_name }}</option>{% endfor %}
+				</select>
+			</div>
+			<div>
+				<label for="tb">Choose a Territory Battle:</label>
+				<select id="tb" onchange="refresh()">
+					<option value="all">--</option>{% for tb_id, tb_name in tbs.items %}
+					<option value="{{ tb_id }}"{%if tb_id == tb %} selected{% endif %}>{{ tb_name }}</option>{% endfor %}
+				</select>
+			</div>
+			<div>
+				<label for="phase">Choose a Phase:</label>
+				<select id="phase" onchange="refresh()">
+					<option value="all">--</option>{% for phase_id, phase_name in phases.items %}
+					<option value="{{ phase_id }}"{% if phase_id == phase %} selected{% endif %}>{{ phase_name }}</option>{% endfor %}
+				</select>
+			</div>
+			<div>
+				<label for="activity">Choose some Activity:</label>
+				<select id="activity" onchange="refresh()">
+					<option value="all">--</option>{% for activity_id, activity_name in activities.items %}
+					<option value="{{ activity_id }}"{% if activity_id == activity %} selected{% endif %}>{{ activity_name }}</option>{% endfor %}
+				</select>
+			</div>
+			<div>
+				<label for="player">Choose a Player:</label>
+				<select id="player" onchange="refresh()">
+					<option value="all">--</option>{% for player_id, player_name in players.items %}
+					<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
+				</select>
+			</div>
+		</div>
+
