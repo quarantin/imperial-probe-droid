@@ -1,4 +1,0 @@
-git clone https://api.glitch.com/git/swgoh-stat-calc
-cd swgoh-stat-calc
-npm install
-PORT=8081 SWGOH_HELP_UNAME="USERNAME" SWGOH_HELP_PASS="PASSWORD" node server.js
