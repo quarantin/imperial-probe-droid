@@ -2,7 +2,7 @@ import traceback
 
 from opts import *
 from errors import *
-from utils import roundup, get_field_legend, extract_modstats, extract_modstats_from_roster
+from utils import roundup, get_banner_emoji, get_field_legend, extract_modstats, extract_modstats_from_roster
 from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
 
 import DJANGO
@@ -108,7 +108,7 @@ def get_field_modset_stats(config):
 		'inline': True,
 	}
 
-def get_field_primary_stats(config, roster, selected_slots, selected_primaries):
+def get_field_primary_stats(config, profile, selected_slots, selected_primaries):
 
 	spacer = EMOJIS['']
 
@@ -133,7 +133,7 @@ def get_field_primary_stats(config, roster, selected_slots, selected_primaries):
 		extract_modstats(stats, recos)
 
 	player_stats = {}
-	extract_modstats_from_roster(player_stats, roster)
+	extract_modstats_from_roster(player_stats, profile['roster'])
 
 	lines = []
 	for slot in selected_slots:
@@ -173,13 +173,15 @@ def get_field_primary_stats(config, roster, selected_slots, selected_primaries):
 
 	sources = ModRecommendation.objects.all().values('source').distinct()
 	sources = [ x['source'] for x in sources ]
-	sources.append('crimsondeathwatch')
 
 	emojis = []
 	for source in sources:
 		emoji_key = source.replace(' ', '').lower()
 		if emoji_key in EMOJIS:
 			emojis.append(EMOJIS[emoji_key])
+
+	guild_logo = 'guildBannerLogo' in profile and profile['guildBannerLogo'] or None
+	emojis.append(get_banner_emoji(guild_logo))
 
 	lines = [
 		'%s\u202F\u202F\u202F%s`|Primary Stats`' % (spacer, '|'.join(emojis)),
@@ -217,7 +219,7 @@ async def cmd_needed(request):
 		ally_code = player.ally_code
 		profile = players[ally_code]
 
-		field_primary_stats = get_field_primary_stats(config, profile['roster'], selected_slots, selected_primaries)
+		field_primary_stats = get_field_primary_stats(config, profile, selected_slots, selected_primaries)
 		field_modset_stats  = get_field_modset_stats(config)
 		field_legend        = get_field_legend(config)
 
