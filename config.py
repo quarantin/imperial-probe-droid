@@ -52,36 +52,6 @@ def parse_mod_primaries(filename='cache/mod-primaries.json'):
 	data = json.loads(data)
 	config['mod-primaries'] = { int(x): data[x] for x in data }
 
-def count_recos_per_source(source, recos):
-
-	count = 0
-	for reco in recos:
-		if reco['source'] == source:
-			count += 1
-
-	return count
-
-def extract_modstats(stats, recos):
-
-	for reco in recos:
-
-		source = reco['source']
-		count = count_recos_per_source(source, recos)
-
-		for slot in [ 'square', 'arrow', 'diamond', 'triangle', 'circle', 'cross' ]:
-
-			primary = reco[slot]
-
-			if slot not in stats:
-				stats[slot] = {}
-
-			if primary not in stats[slot]:
-				stats[slot][primary] = {}
-
-			if source not in stats[slot][primary]:
-				stats[slot][primary][source] = 0.0
-			stats[slot][primary][source] += 1.0 / count
-
 def parse_json(filename):
 	filepath = os.path.join('cache', filename)
 	if not os.path.exists(filepath):

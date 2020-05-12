@@ -479,3 +479,54 @@ def check_permission(request):
 		return True
 
 	return False
+
+def count_recos_per_source(source, recos):
+
+	count = 0
+	for reco in recos:
+		if reco['source'] == source:
+			count += 1
+
+	return count
+
+def extract_modstats(stats, recos):
+
+	for reco in recos:
+
+		source = reco['source']
+		count = count_recos_per_source(source, recos)
+
+		for slot in [ 'square', 'arrow', 'diamond', 'triangle', 'circle', 'cross' ]:
+
+			primary = reco[slot]
+
+			if slot not in stats:
+				stats[slot] = {}
+
+			if primary not in stats[slot]:
+				stats[slot][primary] = {}
+
+			if source not in stats[slot][primary]:
+				stats[slot][primary][source] = 0.0
+			stats[slot][primary][source] += 1.0 / count
+
+def extract_modstats_from_roster(stats, roster):
+
+	from constants import MODSLOTS, UNIT_STATS
+
+	for unit in roster:
+
+		if 'mods' not in unit or not unit['mods']:
+			continue
+
+		for mod in unit['mods']:
+
+			slot = MODSLOTS[ mod['slot'] ].lower()
+			if slot not in stats:
+				stats[slot] = {}
+
+			primary = UNIT_STATS[ mod['primaryStat']['unitStat'] ].replace('%', '').strip()
+			if primary not in stats[slot]:
+				stats[slot][primary] = 0
+
+			stats[slot][primary] += 1
