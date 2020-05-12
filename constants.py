@@ -160,7 +160,6 @@ EMOJIS = {
 	'capitalgames':      '<:ea:546234326191308801>',
 	'crouchingrancor':   '<:cr:535545454214119434>',
 	'swgoh.gg':          '<:gg:546166559123701770>',
-	'crimsondeathwatch': '<:cdw:535779958686089216>',
 	'square':            '<:square:535541049570099211>',
 	1:                   '<:square:535541049570099211>',
 	'arrow':             '<:arrow:535541036986925066>',
