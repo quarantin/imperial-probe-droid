@@ -411,9 +411,20 @@ def get_field_legend(config, inline=True):
 		'inline': inline,
 	}
 
+MODSETS_TO_FIX = {
+	'Crit Chance': 'Critical Chance',
+	'Crit Damage': 'Critical Damage',
+	'Crit Avoidance': 'Critical Avoidance',
+}
+
 def parse_modsets(td):
 
-	modsets = sorted([ div['data-title'] for div in td.find_all('div') ])
+	modsets = []
+	for div in td.find_all('div'):
+		modset = div['data-title']
+		if modset in MODSETS_TO_FIX:
+			modset = MODSETS_TO_FIX[modset]
+		modsets.append(modset)
 
 	modsets += [''] * (3 - len(modsets))
 
