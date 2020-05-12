@@ -1,7 +1,8 @@
+import traceback
+
 from opts import *
 from errors import *
-from config import extract_modstats
-from utils import roundup, get_field_legend
+from utils import roundup, get_field_legend, extract_modstats, extract_modstats_from_roster
 from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
 
 import DJANGO
@@ -107,7 +108,7 @@ def get_field_modset_stats(config):
 		'inline': True,
 	}
 
-def get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries):
+def get_field_primary_stats(config, roster, selected_slots, selected_primaries):
 
 	spacer = EMOJIS['']
 
@@ -130,6 +131,9 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 
 	for unit, recos in result.items():
 		extract_modstats(stats, recos)
+
+	player_stats = {}
+	extract_modstats_from_roster(player_stats, roster)
 
 	lines = []
 	for slot in selected_slots:
@@ -154,6 +158,8 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 					gg_count = roundup(stats[slot][primary]['swgoh.gg'])
 
 				ally_count = 0
+				if slot in player_stats and primary in player_stats[slot]:
+					ally_count = player_stats[slot][primary]
 
 				pad1 = pad_numbers(cg_count)
 				pad2 = pad_numbers(cr_count)
@@ -181,12 +187,13 @@ def get_field_primary_stats(config, ally_codes, selected_slots, selected_primari
 
 	return '\n'.join(lines)
 
-def cmd_needed(request):
+async def cmd_needed(request):
 
 	args = request.args
 	config = request.config
+	bot = request.bot
 
-	players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(request)
 	selected_slots = parse_opts_modslots(args)
 	selected_primaries = parse_opts_modprimaries(args)
 
@@ -200,16 +207,27 @@ def cmd_needed(request):
 	if error:
 		return error
 
-	ally_codes = [ player.ally_code for player in players ]
-	field_primary_stats = get_field_primary_stats(config, ally_codes, selected_slots, selected_primaries)
-	field_modset_stats  = get_field_modset_stats(config)
-	field_legend        = get_field_legend(config)
+	msgs = []
+	ally_codes = [ player.ally_code for player in selected_players ]
+	players = await bot.client.players(ally_codes=ally_codes)
+	players = { x['allyCode']: x for x in players }
 
-	return [{
-		'title': '== Needed Mod Primaries ==',
-		'description': field_primary_stats,
-		'fields': [
-			field_modset_stats,
-			field_legend,
-		],
-	}]
+	for player in selected_players:
+
+		ally_code = player.ally_code
+		profile = players[ally_code]
+
+		field_primary_stats = get_field_primary_stats(config, profile['roster'], selected_slots, selected_primaries)
+		field_modset_stats  = get_field_modset_stats(config)
+		field_legend        = get_field_legend(config)
+
+		msgs.append({
+			'title': '== Needed Mod Primaries ==',
+			'description': field_primary_stats,
+			'fields': [
+				field_modset_stats,
+				field_legend,
+			],
+		})
+
+	return msgs
