@@ -5,7 +5,7 @@ import sys
 import json
 import traceback
 from config import load_config
-from swgohhelp import api_swgoh_data
+from swgohhelp import SwgohHelp
 from recos import fetch_all_recos
 from utils import http_get
 from bs4 import BeautifulSoup
@@ -81,6 +81,8 @@ async def fetch_all_collections(config):
 	print('Downloading game data.')
 	print('This might take a while.')
 
+	swgohhelp = SwgohHelp(config)
+
 	for filename, url in urls.items():
 		response, error = await http_get(url)
 		if not response:
@@ -101,7 +103,7 @@ async def fetch_all_collections(config):
 			project.pop('project')
 
 		print('Downloading base collection `%s`...' % project['collection'])
-		data = await api_swgoh_data(config, project)
+		data = await swgohhelp.api_swgoh_data(project)
 
 		filename = 'cache/%s.json' % project['collection']
 		with open(filename, 'w') as fout:
@@ -115,7 +117,7 @@ async def fetch_all_collections(config):
 			project['language'] = language
 
 			print('Downloading %s collection `%s`...' % (language, project['collection']))
-			data = await api_swgoh_data(config, project)
+			data = await swgohhelp.api_swgoh_data(project)
 
 			filename = 'cache/%s_%s.json' % (project['collection'], language)
 			with open(filename, 'w') as fout:
