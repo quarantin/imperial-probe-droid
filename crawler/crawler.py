@@ -135,7 +135,7 @@ class Crawler(asyncio.Future):
 				if errors:
 					errors2 = await self.refresh_guild(premium, guild, errors)
 					if errors2:
-						self.logger.error('Could not fetch profiles after multiple attempts:\n%s' % '\n'.join(errors2))
+						self.logger.error('Could not fetch profiles after multiple attempts:\n%s' % '\n'.join([ x['playerId'] for x in errors2 ]))
 					else:
 						self.logger.info('Retrieved previously failed profiles:\n%s' % '\n'.join([ x['playerId'] for x in errors ]))
 
