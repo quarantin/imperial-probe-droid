@@ -182,6 +182,7 @@ EMOJIS = {
 
 	# Guild banners
 
+	'noguild':      '<:noguild:709900719238414376>',
 	'blacksun':     '<:blacksun:590894952297267203>',
 	'blast':        '<:blast:590894952486141955>',
 	'cis':          '<:cis:590894952683405322>',
