@@ -10,7 +10,7 @@ class SwgohHelpException(Exception):
 
 class SwgohHelp:
 
-	def __init__(config, url='https://api.swgoh.help'):
+	def __init__(self, config, url='https://api.swgoh.help'):
 		self.url = url
 		self.config = config
 
