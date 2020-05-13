@@ -184,9 +184,9 @@ async def cmd_guild_stat(request):
 	result = {}
 	for ally_code, guild in guilds.items():
 		guild_name = guild['name']
-		guild_roster = { x['id']: x for x in guild['roster'] }
+		members = { x['id']: x for x in guild['members'] }
 		result[guild_name] = guild
-		fields.append(guild_to_dict(guild, guild_roster))
+		fields.append(guild_to_dict(guild, members))
 
 	accu = {}
 	for guild in fields:
