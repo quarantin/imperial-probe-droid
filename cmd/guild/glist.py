@@ -88,12 +88,10 @@ async def cmd_guild_list(request):
 
 	for selector in selected_players:
 
-		ally_code = selector.ally_code
+		guild = guilds[selector.ally_code]
+		members = { x['id']: x for x in guild['members'] }
 
-		guild = guilds[ally_code]
-		guild_roster = { x['allyCode']: x for x in guild['roster'] }
-
-		for ally_code, player in guild_roster.items():
+		for player_id, player in members.items():
 
 			player_name = player['name']
 			guild_name = player['guildName']
