@@ -80,15 +80,21 @@ class TerritoryWarHistoryView(ListView):
 
 		context = {}
 
-		if 'phase' in request.GET:
-			phase = int(request.GET['phase'])
-			kwargs['phase'] = phase
-			context['phase'] = phase
-
 		if 'tw' in request.GET:
 			tw = int(request.GET['tw'])
 			kwargs['tw'] = tw
 			context['tw'] = tw
+
+		tws = TerritoryWar.objects.all()
+		if 'tw' not in context:
+			tw = tws and tws[0].id or None
+			kwargs['tw'] = tw
+			context['tw'] = tw
+
+		if 'phase' in request.GET:
+			phase = int(request.GET['phase'])
+			kwargs['phase'] = phase
+			context['phase'] = phase
 
 		if 'territory' in request.GET:
 			territory = int(request.GET['territory'])
@@ -124,14 +130,12 @@ class TerritoryWarHistoryView(ListView):
 			name = player['player_name']
 			players[id] = name
 
-		tws = TerritoryWar.objects.all()
 		timezones = pytz.common_timezones
 		if 'UTC' in timezones:
 			timezones.remove('UTC')
 		timezones.insert(0, 'UTC')
 
 		context['tws'] = { x.id: '%s - %s' % (tw2date(x), x.get_name()) for x in tws }
-		print('WTF: %s' % context['tws'])
 
 		context['timezones'] = { x: x for x in timezones }
 
