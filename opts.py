@@ -5,7 +5,7 @@ from errors import *
 from utils import basicstrip, get_available_timezones, is_supported_timezone
 
 import DJANGO
-from swgoh.models import Player, BaseUnit, BaseUnitFaction
+from swgoh.models import Player, BaseUnit, BaseUnitFaction, PremiumUser
 
 DEFAULT_FORMAT = '**%name** (%role)\n**GP**: %gp **Level**: %level **Gear**: %gear **Health**: %health **Protection**: %protection **Speed**: %speed\n**Potency**: %potency **Tenacity**: %tenacity **CD**: %critical-damage **CC (phy)**: %physical-critical-chance **CC (spe)**: %special-critical-chance\n**Armor**: %armor **Resistance**: %resistance\n'
 
@@ -87,6 +87,14 @@ def parse_opts_format(request, opts):
 			return fmt
 
 	return DEFAULT_FORMAT
+
+def parse_opts_premium_user(author):
+
+	try:
+		return PremiumUser.objects.get(discord_id=author.id)
+
+	except PremiumUser.DoesNotExist:
+		return None
 
 def parse_opts_ally_code(arg):
 	regex = r'^[0-9]{9}$|^[0-9]{3}-[0-9]{3}-[0-9]{3}$'
