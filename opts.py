@@ -96,6 +96,21 @@ def parse_opts_premium_user(author):
 	except PremiumUser.DoesNotExist:
 		return None
 
+def parse_opts_integer(args):
+
+	selected_value = None
+	args_cpy = list(args)
+	for arg in args_cpy:
+
+		try:
+			selected_value = int(arg)
+			args.remove(arg)
+
+		except:
+			pass
+
+	return selected_value
+
 def parse_opts_ally_code(arg):
 	regex = r'^[0-9]{9}$|^[0-9]{3}-[0-9]{3}-[0-9]{3}$'
 	m = re.search(regex, arg)
