@@ -95,7 +95,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 		res['__GUILD__']  = '__**%s**__' % guild['name']
 		res['**Avg.GP**'] = str(int(stats['cumul-gp'] / stats['count']))
-		res['**Locked**'] = str(guild['members'] - stats['count'])
+		#res['**Locked**'] = str(guild['members'] - stats['count'])
 		res['**Count**']  = str(stats['count'])
 		res['**Lvl85**']  = str(stats['levels'][85])
 		res[seven_stars]  = str(7 in stats['stars'] and stats['stars'][7] or 0)
@@ -182,8 +182,8 @@ async def cmd_guild_compare(request):
 		for guild_name, guild in result.items():
 
 			roster_for_unit = {}
-			guild_roster = { x['id']: x for x in guild['roster'] }
-			for player_id , player in guild_roster.items():
+			guild_roster = { x['id']: x for x in guild['members'] }
+			for player_id, player in guild_roster.items():
 
 				player_roster = { x['defId']: x for x in player['roster'] }
 				for base_id, player_unit in player_roster.items():
