@@ -392,14 +392,6 @@ class ImperialProbeDroid(bot.Bot):
 				await self.process_commands(message)
 
 		except Exception as err:
-
-			await send_embed(self, channel, {
-				'title': 'Error',
-				'color': 'red',
-				'description': str(err),
-			})
-
-		except Exception as err:
 			print('Error in on_message_handler...')
 			print(traceback.format_exc())
 
