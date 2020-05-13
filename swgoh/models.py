@@ -711,6 +711,27 @@ class RelicStat(models.Model):
 	relic6_percentage = models.FloatField()
 	relic7_percentage = models.FloatField()
 
+class PremiumUser(models.Model):
+
+	PREMIUM_TYPE_CHOICES = (
+		(0, 'Single'),
+		(1, 'Guild'),
+	)
+
+	player = models.ForeignKey(Player, on_delete=models.CASCADE)
+	premium_type = models.IntegerField(choices=PREMIUM_TYPE_CHOICES)
+	creds_id = models.CharField(max_length=32)
+	discord_id = models.IntegerField()
+
+class PremiumUserConfig(models.Model):
+
+	CONFIG_NOTIFY_RAID_TICKETS = 'notify-raid-tickets'
+
+	premium_user = models.ForeignKey(PremiumUser, on_delete=models.CASCADE)
+	channel_id = models.IntegerField()
+	key = models.CharField(max_length=32)
+	value = models.CharField(max_length=32)
+
 class PremiumGuild(models.Model):
 
 	MSG_ARENA_RANK_UP              = 'arena.rank.up'
