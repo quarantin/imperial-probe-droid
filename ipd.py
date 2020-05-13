@@ -431,6 +431,9 @@ async def __main__():
 		import client
 		bot.client = client.SwgohClient(bot)
 
+		from ticketscog import TicketsCog
+		bot.add_cog(TicketsCog(bot))
+
 		token = config['token']
 		if 'env' in config:
 			env = config['env']
