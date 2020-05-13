@@ -211,7 +211,8 @@ class ImperialProbeDroid(bot.Bot):
 			return
 
 		except Forbidden:
-			self.logger.error("I don't have permission to fetch channel %s" % news_channel)
+			self.logger.error("I don't have permission to fetch channel %s, deleting news channel" % news_channel)
+			news_channel.delete()
 			return
 
 		except HTTPException:
@@ -231,7 +232,8 @@ class ImperialProbeDroid(bot.Bot):
 			return
 
 		except Forbidden:
-			self.logger.error("I don't have permission to fetch webhook for channel %s" % news_channel)
+			self.logger.error("I don't have permission to fetch webhook for channel %s, deleting news channel" % news_channel)
+			news_channel.delete()
 			return
 
 		except HTTPException:
