@@ -123,6 +123,9 @@ async def cmd_gac(request):
 				if the_real_key not in history:
 					history[the_real_key] = []
 
+				if key not in entry:
+					entry[key] = 0
+
 				value = str(entry[key])
 
 				if the_real_key.startswith('Season ID'):
