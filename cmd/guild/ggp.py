@@ -105,8 +105,8 @@ async def cmd_guild_gp(request):
 		if guild_name not in result:
 			result[guild_name] = {}
 
-		guild_roster = { x['id']: x for x in guild['roster'] }
-		for player_id, player in guild_roster.items():
+		members = { x['id']: x for x in guild['members'] }
+		for player_id, player in members.items():
 
 			player_name = player['name']
 			if player_name not in result[guild_name]:
