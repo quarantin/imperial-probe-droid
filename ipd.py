@@ -431,6 +431,9 @@ async def __main__():
 		import client
 		bot.client = client.SwgohClient(bot)
 
+		from chatcog import ChatCog
+		bot.add_cog(ChatCog(bot))
+
 		from ticketscog import TicketsCog
 		bot.add_cog(TicketsCog(bot))
 
