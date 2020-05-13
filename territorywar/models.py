@@ -29,6 +29,9 @@ class TerritoryWar(models.Model):
 		event, created = TerritoryWar.objects.get_or_create(event_id=event_id)
 		return event
 
+	class Meta:
+		ordering = ('event_id',)
+
 class  TerritoryWarUnit(models.Model):
 	
 	squad = models.ForeignKey('TerritoryWarSquad', on_delete=models.CASCADE)
