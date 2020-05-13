@@ -5,6 +5,13 @@ def error_generic(title, description):
 		'description': description,
 	}]
 
+def error_not_premium():
+	return [{
+		'title': 'Error: Not a Premium User',
+		'color': 'red',
+		'description': 'This command is only available to premium users.',
+	}]
+
 def error_no_such_command(command):
 	return [{
 		'title': 'Error: No Such Command',
