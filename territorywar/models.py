@@ -161,6 +161,27 @@ class TerritoryWarHistory(models.Model):
 		ACTIVITY_WIN_SQUAD,
 	]
 
+	TERRITORIES = {
+		1: {
+			1: 'Top 1',
+			2: 'Bottom 1',
+		},
+		2: {
+			1: 'Top 2',
+			2: 'Bottom 2',
+		},
+		3: {
+			1: 'Top 3',
+			2: 'Middle 3',
+			3: 'Bottom 3',
+		},
+		4: {
+			1: 'Top 4',
+			2: 'Middle 4',
+			3: 'Bottom 4',
+		},
+	}
+
 	@staticmethod
 	def get_activity_by_num(num_activity):
 		for num, activity in TerritoryWarHistory.EVENT_TYPE_CHOICES:
@@ -180,6 +201,21 @@ class TerritoryWarHistory(models.Model):
 	score = models.IntegerField(null=True)
 	total = models.IntegerField(null=True)
 	squad = models.ForeignKey(TerritoryWarSquad, null=True, on_delete=models.CASCADE)
+
+	@property
+	def get_territory(self):
+		return TerritoryWarHistory.TERRITORIES[self.phase][self.territory]
+
+	@staticmethod
+	def get_territory_list():
+
+		territory_list = {}
+		for phase, territories in TerritoryWarHistory.TERRITORIES.items():
+			for territory, name in territories.items():
+				key = '%d-%d' % (phase, territory)
+				territory_list[key] = name
+
+		return territory_list
 
 	@staticmethod
 	def parse_territory(territory_name):
