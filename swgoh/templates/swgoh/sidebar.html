@@ -13,7 +13,7 @@
 			<hr class="sidebar-divider my-0">
 
 			<!-- Nav Item - Dashboard -->
-			<li class="nav-item active">
+			<li class="nav-item {% block dashboard_active %}{% endblock %}">
 				<a class="nav-link" href="index.html">
 					<i class="fas fa-fw fa-tachometer-alt"></i>
 					<span>Dashboard</span>
@@ -21,10 +21,32 @@
 			</li>
 
 			<!-- Divider -->
+			<hr class="sidebar-divider my-0">
+
+			<!-- Nav Item - Profile -->
+			<li class="nav-item {% block profile_active %}{% endblock %}">
+				<a class="nav-link" href="index.html">
+					<i class="fas fa-fw fa-cog"></i>
+					<span>Profile</span>
+				</a>
+			</li>
+
+			<!-- Divider -->
+			<hr class="sidebar-divider my-0">
+
+			<!-- Nav Item - Guild -->
+			<li class="nav-item {% block guild_active %}{% endblock %}">
+				<a class="nav-link" href="index.html">
+					<i class="fas fa-fw fa-cog"></i>
+					<span>Guild</span>
+				</a>
+			</li>
+
+			<!-- Divider -->
 			<hr class="sidebar-divider">
 
 			<!-- Nav Item - Grand Arena -->
-			<li class="nav-item">
+			<li class="nav-item {% block ga_active %}{% endblock %}">
 				<a class="nav-link" href="/ga/">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Grand Arena</span>
@@ -35,7 +57,7 @@
 			<hr class="sidebar-divider">
 
 			<!-- Nav Item - Territory Battles-->
-			<li class="nav-item">
+			<li class="nav-item {% block tb_active %}{% endblock %}">
 				<a class="nav-link" href="/tb/">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Battles</span>
@@ -46,7 +68,7 @@
 			<hr class="sidebar-divider">
 
 			<!-- Nav Item - Territory Wars -->
-			<li class="nav-item">
+			<li class="nav-item {% block tw_active %}{% endblock %}">
 				<a class="nav-link" href="/tw/">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Wars</span>
