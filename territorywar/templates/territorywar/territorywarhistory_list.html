@@ -1,5 +1,4 @@
 {% extends "territorywar/base.html" %}
-{% load static %}
 {% block title %}Territory Wars{% endblock %}
 {% block content %}
 			<div id="content">
@@ -23,7 +22,6 @@
 							<tr>
 								<th>Timestamp</th>
 								<th>Activity</th>
-								<th>Phase</th>
 								<th>Territory</th>
 								<th>Player</th>
 								<th>Score</th>
@@ -34,7 +32,6 @@
 							<tr>
 								<th>Timestamp</th>
 								<th>Activity</th>
-								<th>Phase</th>
 								<th>Territory</th>
 								<th>Player</th>
 								<th>Score</th>
@@ -45,8 +42,7 @@
 								<tr>
 								<td>{{ event.timestamp }}</td>
 								<td>{{ event.event_type }}</td>
-								<td>{{ event.phase }}</td>
-								<td>{{ event.territory }}</td>
+								<td>{{ event.get_territory }}</td>
 								<td>{{ event.player_name }}</td>
 								<td>{{ event.score }}</td>
 								<td value="{{ event.target_id }}">{{ event.target_name }}</td>

@@ -20,12 +20,12 @@
 
 			query = {};
 
-			get_selected_value('timezone', query);
-			get_selected_value('tw',       query);
-			get_selected_value('activity', query);
-			get_selected_value('phase',    query);
-			get_selected_value('player',   query);
-			get_selected_value('target',   query);
+			get_selected_value('timezone',  query);
+			get_selected_value('tw',        query);
+			get_selected_value('activity',  query);
+			get_selected_value('territory', query);
+			get_selected_value('player',    query);
+			get_selected_value('target',    query);
 
 			tokens = []
 			for (key in query) {
@@ -54,30 +54,31 @@
 				</select>
 			</div>
 			<div>
-				<label for="phase">Choose a Phase:</label>
-				<select id="phase" onchange="refresh()">
-					<option value="all">--</option>{% for phase_id, phase_name in phases.items %}
-					<option value="{{ phase_id }}"{% if phase_id == phase %} selected{% endif %}>{{ phase_name }}</option>{% endfor %}
+				<label for="territory">Choose a Territory:</label>
+				<select id="territory" onchange="refresh()">
+					<option value="all">All</option>{% for territory_id, territory_name in territories.items %}
+					<!-- {{ territory_id }} == {{ territory }}-->
+					<option value="{{ territory_id }}"{% if territory_id == territory %} selected{% endif %}>{{ territory_name }}</option>{% endfor %}
 				</select>
 			</div>
 			<div>
 				<label for="activity">Choose some Activity:</label>
 				<select id="activity" onchange="refresh()">
-					<option value="all">--</option>{% for activity_id, activity_name in activities.items %}
+					<option value="all">All<option>{% for activity_id, activity_name in activities.items %}
 					<option value="{{ activity_id }}"{% if activity_id == activity %} selected{% endif %}>{{ activity_name }}</option>{% endfor %}
 				</select>
 			</div>
 			<div>
 				<label for="player">Choose a Player:</label>
 				<select id="player" onchange="refresh()">
-					<option value="all">--</option>{% for player_id, player_name in players.items %}
+					<option value="all">All</option>{% for player_id, player_name in players.items %}
 					<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
 				</select>
 			</div>
 			<div>
 				<label for="target">Choose a Target:</label>
 				<select id="target" onchange="refresh()">
-					<option value="all">--</option>{% for player_id, player_name in targets.items %}
+					<option value="all">All</option>{% for player_id, player_name in targets.items %}
 					<option value="{{ player_id }}"{% if player_id == target %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
 				</select>
 			</div>
