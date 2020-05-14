@@ -1,14 +1,14 @@
 {% extends "territorybattle/base.html" %}
-{% load static %}
 {% block title %}Territory Battles{% endblock %}
 {% block content %}
 			<div id="content">
 				<div class="container-fluid">
 
-					{% include "territorybattle/select.html" %}
 					<!-- Page Heading -->
-					<h1 class="h3 mb-2 text-gray-800">Tables</h1>
-					<p class="mb-4">DataTables is a third party plugin that is used to generate the demo table below. For more information about DataTables, please visit the <a target="_blank" href="https://datatables.net">official DataTables documentation</a>.</p>
+					<h1 class="h3 mb-2 text-gray-800">Territory Battle</h1>
+					<p class="mb-4">TODO</p>
+
+					{% include "territorybattle/select.html" %}
 
 					<!-- DataTales Example -->
 					<div class="card shadow mb-4">
@@ -22,33 +22,30 @@
 							<tr>
 								<th>Timestamp</th>
 								<th>Activity</th>
-								<th>Phase</th>
 								<th>Territory</th>
 								<th>Player</th>
 								<th>Score</th>
-								<th>Guild Score</th>
+								<th>Target</th>
 							</tr>
 							</thead>
 							<tfoot>
 							<tr>
 								<th>Timestamp</th>
 								<th>Activity</th>
-								<th>Phase</th>
 								<th>Territory</th>
 								<th>Player</th>
 								<th>Score</th>
-								<th>Guild Score</th>
+								<th>Target</th>
 							</tr>
 							</tfoot>
 							<tbody>{% for event in events %}
 								<tr>
 								<td>{{ event.timestamp }}</td>
 								<td>{{ event.event_type }}</td>
-								<td>{{ event.phase }}</td>
-								<td>{{ event.territory }}</td>
+								<td>{{ event.get_territory }}</td>
 								<td>{{ event.player_name }}</td>
 								<td>{{ event.score }}</td>
-								<td>{{ event.total }}</td>
+								<td value="{{ event.target_id }}">{{ event.target_name }}</td>
 							</tr>
 							{% endfor %}
 							</tbody>
