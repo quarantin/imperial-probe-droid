@@ -11,6 +11,8 @@ import discord
 from discord.ext import commands
 
 import libswgoh
+from opts import *
+from errors import *
 from embed import new_embeds
 from utils import translate, translate_multi
 
@@ -66,9 +68,13 @@ class TWCog(commands.Cog):
 	@commands.group()
 	async def wso(self, ctx, command=''):
 
+		premium_user = parse_opts_premium_user(ctx.author)
+		if not premium_user:
+			return error_not_premium()
+
 		wrong_order = {}
 
-		tw_squads = await self.client.get_tw_squads(creds_id='anraeth')
+		tw_squads = await self.client.get_tw_squads(creds_id=premium_user.creds_id)
 		squad_orders = self.get_squad_orders()
 		for territory, player, squad in tw_squads:
 			for ref_squad in squad_orders:
