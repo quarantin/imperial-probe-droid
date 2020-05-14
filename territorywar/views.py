@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core import serializers
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import ListView
@@ -57,19 +58,19 @@ class TerritoryWarHistoryView(ListView):
 		if 'target' in kwargs:
 			filter_kwargs['squad__player_id'] = kwargs['target']
 
-		queryset = self.queryset.filter(**filter_kwargs).values()
+		queryset = self.queryset.filter(**filter_kwargs)
 
 		timezone = kwargs.pop('timezone', 'UTC')
 
 		context['events'] = queryset
 		for event in context['events']:
-			event['tw'] = TerritoryWar.objects.get(id=event['tw_id'])
-			event['event_type'] = TerritoryWarHistory.get_activity_by_num(event['event_type'])
-			event['timestamp'] = self.convert_date(event['timestamp'], timezone)
+			event.tw = TerritoryWar.objects.get(id=event.tw_id)
+			event.event_type = TerritoryWarHistory.get_activity_by_num(event.event_type)
+			event.timestamp = self.convert_date(event.timestamp, timezone)
 			try:
-				target = TerritoryWarSquad.objects.get(event_id=event['id'])
-				event['target_id'] = target.player_id
-				event['target_name'] = target.player_name
+				target = TerritoryWarSquad.objects.get(event_id=event.id)
+				event.target_id = target.player_id
+				event.target_name = target.player_name
 			except TerritoryWarSquad.DoesNotExist:
 				pass
 
@@ -91,15 +92,13 @@ class TerritoryWarHistoryView(ListView):
 			kwargs['tw'] = tw
 			context['tw'] = tw
 
-		if 'phase' in request.GET:
-			phase = int(request.GET['phase'])
-			kwargs['phase'] = phase
-			context['phase'] = phase
-
 		if 'territory' in request.GET:
-			territory = int(request.GET['territory'])
-			kwargs['territory'] = territory
+			territory = request.GET['territory']
+			tokens = territory.split('-')
+			kwargs['phase'] = tokens[0]
+			kwargs['territory'] = tokens[1]
 			context['territory'] = territory
+			print('WTF1: %s' % context['territory'])
 
 		if 'activity' in request.GET:
 			activity = int(request.GET['activity'])
@@ -123,6 +122,10 @@ class TerritoryWarHistoryView(ListView):
 
 		context.update(self.get_context_data(**kwargs))
 
+		# We have to do this after context.update() because it will override territory
+		if 'territory' in request.GET:
+			context['territory'] = request.GET['territory']
+
 		players = OrderedDict()
 		players_data = list(TerritoryWarSquad.objects.values('player_id', 'player_name').distinct())
 		for player in sorted(players_data, key=lambda x: x['player_name']):
@@ -141,7 +144,7 @@ class TerritoryWarHistoryView(ListView):
 
 		context['activities'] = { x: y for x, y in TerritoryWarHistory.EVENT_TYPE_CHOICES }
 
-		context['phases'] = { x: x for x in range(1, 5) }
+		context['territories'] = TerritoryWarHistory.get_territory_list()
 
 		context['players'] = players
 
