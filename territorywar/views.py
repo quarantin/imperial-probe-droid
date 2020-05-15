@@ -127,17 +127,13 @@ class TerritoryWarHistoryView(ListView):
 		if 'preloaded' in request.GET:
 			preloaded = (request.GET['preloaded'].lower() == 'yes')
 			kwargs['preloaded'] = preloaded and 1 or 0
-			context['preloaded'] = preloaded and 'yes' or 'no'
+			context['preloaded'] = preloaded and 1 or 0
 
 		context.update(self.get_context_data(**kwargs))
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:
 			context['territory'] = request.GET['territory']
-
-		# We have to do this after context.update() because it will override preloaded
-		if 'preloaded' in context:
-			context['preloaded'] = context['preloaded'] == 1 and 'yes' or 'no'
 
 		players = OrderedDict()
 		players_data = list(TerritoryWarSquad.objects.values('player_id', 'player_name').distinct())
