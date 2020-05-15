@@ -50,7 +50,7 @@
 								<td>{% for unit in event.units %}
 									{{ unit}}<br>{% endfor %}
 								</td>
-								<td>{{ event.preloaded }}</td>
+								<td>{% if event.preloaded %}Yes{% else %}No{% endif %}</td>
 							</tr>
 							{% endfor %}
 							</tbody>
