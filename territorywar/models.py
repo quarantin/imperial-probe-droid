@@ -113,7 +113,7 @@ class TerritoryWarSquad(models.Model):
 	is_preloaded = models.BooleanField(default=False)
 
 	@staticmethod
-	def parse(event_id, squad):
+	def parse(event_id, event_type, squad):
 
 		if 'squad' not in squad or 'units' not in squad['squad']:
 			raise Exception('Invalid squad with no units!')
@@ -142,6 +142,9 @@ class TerritoryWarSquad(models.Model):
 			unit = TerritoryWarUnit.parse(o, unit)
 			if unit.is_preloaded:
 				o.is_preloaded = True
+
+		if event_type in [ TerritoryWarHistory.ACTIVITY_WIN_FLEET[0], TerritoryWarHistory.ACTIVITY_WIN_SQUAD[0] ]:
+			o.is_preloaded = False
 
 		o.save()
 		return o
@@ -313,7 +316,7 @@ class TerritoryWarHistory(models.Model):
 						o.event_type = TerritoryWarHistory.ACTIVITY_TYPES[activity_type][0]
 
 			if 'squad' in data and 'squad' in data['squad']:
-				o.squad = TerritoryWarSquad.parse(event_id, data['squad'])
+				o.squad = TerritoryWarSquad.parse(event_id, o.event_type, data['squad'])
 
 		o.save()
 		return o, created
