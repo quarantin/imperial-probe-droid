@@ -39,8 +39,8 @@
 					<br>
 					<select id="preloaded" onchange="refresh()">
 						<option value="all">All</option>
-						<option value="yes"{% if preloaded %} selected{% endif %}>Yes</option>
-						<option value="no"{% if not preloaded %} selected{% endif %}>No</option>
+						<option value="yes"{% if preloaded == "yes" or preloaded == 1 %} selected{% endif %}>Yes</option>
+						<option value="no"{% if preloaded == "no" or preloaded == 0 %} selected{% endif %}>No</option>
 					</select>
 				</div>
 
