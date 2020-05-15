@@ -1,0 +1,9 @@
+
+table#dataTable td {
+	width: 10%;
+}
+
+div.card-body select {
+	width: 277px;
+	height: 26px;
+}
