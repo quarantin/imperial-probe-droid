@@ -1,0 +1,36 @@
+{% extends "swgoh/select.html" %}
+{% block refresh %}
+		<script>
+			function refresh() {
+
+				query = {};
+
+				get_selected_value('timezone',  query);
+				get_selected_value('ga',        query);
+				get_selected_value('activity',  query);
+				get_selected_value('territory', query);
+				get_selected_value('player',    query);
+				get_selected_value('target',    query);
+
+				tokens = []
+				for (key in query) {
+					tokens.push(key + '=' + query[key]);
+				}
+
+				redirect_params = tokens.join('&');
+				base_url = get_base_url();
+				window.location = base_url + '?' + redirect_params;
+			}
+		</script>
+{% endblock %}
+
+{% block event %}
+				<div>
+					<label for="ga">Select Grand Arena Instance</label>
+					<br>
+					<select id="ga" onchange="refresh()">
+						<option value="all">--</option>{% for ga_id, ga_name in gas.items %}
+						<option value="{{ ga_id }}"{%if ga_id == ga %} selected{% endif %}>{{ ga_name }}</option>{% endfor %}
+					</select>
+				</div>
+{% endblock %}

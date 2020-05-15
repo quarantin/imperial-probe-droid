@@ -1,0 +1,61 @@
+{% extends "grandarena/base.html" %}
+{% block title %}Grand Arena{% endblock %}
+{% block content %}
+			<div id="content">
+				<div class="container-fluid">
+
+					<!-- Page Heading -->
+					<h1 class="h3 mb-2 text-gray-800">Grand Arena Championship</h1>
+
+					{% include "grandarena/select.html" %}
+
+					<!-- DataTales Example -->
+					<div class="card shadow mb-4">
+					<div class="card-header py-3">
+						<h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+					</div>
+					<div class="card-body">
+						<div class="table-responsive">
+						<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+							<thead>
+							<tr>
+								<th>Timestamp</th>
+								<th>Activity</th>
+								<th>Territory</th>
+								<th>Player</th>
+								<th>Score</th>
+								<th>Target</th>
+							</tr>
+							</thead>
+							<tfoot>
+							<tr>
+								<th>Timestamp</th>
+								<th>Activity</th>
+								<th>Territory</th>
+								<th>Player</th>
+								<th>Score</th>
+								<th>Target</th>
+							</tr>
+							</tfoot>
+							<tbody>{% for event in events %}
+								<tr>
+								<td>{{ event.timestamp }}</td>
+								<td>{{ event.event_type }}</td>
+								<td>{{ event.get_territory }}</td>
+								<td>{{ event.player_name }}</td>
+								<td>{{ event.score }}</td>
+								<td value="{{ event.target_id }}">{{ event.target_name }}</td>
+							</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+						</div>
+					</div>
+					</div>
+
+				</div>
+				<!-- /.container-fluid -->
+
+			</div>
+			<!-- End of Main Content -->
+{% endblock %}
