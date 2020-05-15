@@ -14,26 +14,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 from . import views
-from grandarena import views as ga_views
-from territorywar import views as tw_views
-from territorybattle import views as tb_views
+from .models import TerritoryWarHistory, TerritoryWarSquad
 
 urlpatterns = [
-	path('', views.index),
-	path('admin/', admin.site.urls),
-	path('ga/', ga_views.GrandArenaHistoryView.as_view()),
-	path('tb/', tb_views.TerritoryBattleHistoryView.as_view()),
-	path('tw/', include('territorywar.urls')),
-	path('avatar/<str:base_id>', views.avatar),
-	path('gear/<str:base_id>/', views.gear),
-	path('relic/<int:relic>/<str:align>/', views.relic),
-	path('skill/<str:skill_id>/', views.skill),
-	path('login', TemplateView.as_view(template_name='swgoh/login.html')),
-	path('success', views.login_success),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+	path('', views.TerritoryWarHistoryView.as_view()),
+	path('squad/<str:event_id>', views.TerritoryWarSquadView.as_view()),
+]

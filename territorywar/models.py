@@ -97,6 +97,10 @@ class  TerritoryWarUnit(models.Model):
 				if o.unit_turn_meter != 0:
 					o.is_preloaded = True
 
+			# If the unit is dead (0 health) then we don't count it as preloading
+			if 'health' in context and float(context['health']) == 0:
+				o.is_preloaded = False
+
 		o.save()
 		return o
 

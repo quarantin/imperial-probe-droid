@@ -1,20 +1,57 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template.loader import get_template
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 from django.views.decorators.csrf import csrf_exempt
 from collections import OrderedDict
 from client import SwgohClient
 
-from .models import TerritoryWar, TerritoryWarSquad, TerritoryWarHistory
+from .models import TerritoryWar, TerritoryWarHistory, TerritoryWarSquad, TerritoryWarUnit
 
 import json
 import pytz
 from datetime import datetime
 
+from utils import translate
+
 def tw2date(tw, dateformat='%Y/%m/%d'):
 	ts = int(str(tw).split(':')[1][1:]) / 1000
 	return datetime.fromtimestamp(int(ts)).strftime(dateformat)
+
+class TerritoryWarSquadView(DetailView):
+
+	model = TerritoryWarSquad
+	template_name = 'territorywar/territorywarsquad_detail.html'
+
+	def get_object(self, *args, **kwargs):
+
+		if 'event_id' in kwargs:
+
+			try:
+				return TerritoryWarSquad.objects.get(event_id=kwargs['event_id'])
+
+			except:
+				pass
+
+		raise Http404('No such squad')
+
+	def get_context_data(self, **kwargs):
+
+		context = super().get_context_data(**kwargs)
+
+		context['units'] = list(TerritoryWarUnit.objects.filter(squad=self.object))
+		for unit in context['units']:
+			unit.name = translate(unit.base_unit.base_id, language='eng_us')
+
+		return context
+
+	def get(self, request, *args, **kwargs):
+
+		self.object = self.get_object(*args, **kwargs)
+
+		context = self.get_context_data(**kwargs)
+
+		return self.render_to_response(context)
 
 class TerritoryWarHistoryView(ListView):
 

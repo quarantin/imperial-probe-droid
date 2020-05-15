@@ -1,0 +1,15 @@
+{% extends "swgoh/base.html" %}
+
+{% block title %}Squad Detail{% endblock%}
+
+{% block content %}
+			<h1>{{ object.player_name }}</h1>
+			<div>{{ object.player_id }}</div>{% for unit in units %}
+			<div>{{ unit.name }}
+				<ul>
+					<li>Health: {{ unit.unit_health }}%</li>
+					<li>Protection: {{ unit.unit_protection }}%</li>
+					<li>Turn-Meter: {{ unit.unit_turn_meter }}%</li>
+				</ul>
+			</p>{% endfor %}
+{% endblock %}
