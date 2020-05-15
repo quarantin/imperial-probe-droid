@@ -25,25 +25,22 @@
 	<link href="{% static "/style.css" %}" rel="stylesheet">
 
 	<title>{% block title %}{% endblock %}</title>
-
 	{% block headers %}{% endblock %}
-
 </head>
 
 <body id="page-top">
 
 	<!-- Page Wrapper -->
 	<div id="wrapper">
-
 {% block sidebar %}{% endblock %}
+		<!-- Content Wrapper -->
 		<div id="content-wrapper">
 
 {% block content %}{% endblock %}
-
 {% block footer %}{% endblock %}
-		</div><!-- End of content-wrapper -->
+		</div><!-- End of Content Wrapper -->
 
-	</div><!-- End of wrapper -->
+	</div><!-- End of Page Wrapper -->
 
 	<!-- Bootstrap core JavaScript-->
 	<script src="{% static "vendor/jquery/jquery.min.js" %}"></script>
