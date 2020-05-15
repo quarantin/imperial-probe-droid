@@ -1,9 +1,9 @@
-from django.db import models
-
 import json
 import pytz
 import traceback
 from datetime import datetime
+
+from django.db import models
 
 from swgoh.models import BaseUnit
 
@@ -43,6 +43,7 @@ class  TerritoryWarUnit(models.Model):
 	unit_health = models.IntegerField()
 	unit_protection = models.IntegerField()
 	unit_turn_meter = models.IntegerField()
+	is_preloaded = models.BooleanField(default=False)
 
 	@staticmethod
 	def parse(squad, unit):
@@ -76,20 +77,32 @@ class  TerritoryWarUnit(models.Model):
 			if 'unitGear' in stats:
 				o.unit_gear = stats['unitGear']
 
+		o.is_preloaded = False
+
 		if 'context' in unit:
 			context = unit['context']
 
 			if 'health' in context:
 				o.unit_health = float(context['health'])
+				if o.unit_health != 100:
+					o.is_preloaded = True
 
 			if 'protection' in context:
 				o.unit_protection = float(context['protection'])
+				if o.unit_protection != 100:
+					o.is_preloaded = True
 
 			if 'turnMeter' in context:
 				o.unit_turn_meter = float(context['turnMeter'])
+				if o.unit_turn_meter != 0:
+					o.is_preloaded = True
 
 		o.save()
 		return o
+
+	def get_name(self, language='eng_us'):
+		from utils import translate
+		return translate(self.base_unit.base_id, language=language)
 
 class TerritoryWarSquad(models.Model):
 
@@ -97,6 +110,7 @@ class TerritoryWarSquad(models.Model):
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
 	squad_gp = models.IntegerField()
+	is_preloaded = models.BooleanField(default=False)
 
 	@staticmethod
 	def parse(event_id, squad):
@@ -120,13 +134,28 @@ class TerritoryWarSquad(models.Model):
 		if 'squadGp' in squad:
 			o.squad_gp = squad['squadGp']
 
+		o.is_preloaded = False
 		o.save()
 
 		units = squad['squad']['units']
 		for unit in units:
 			unit = TerritoryWarUnit.parse(o, unit)
+			if unit.is_preloaded:
+				o.is_preloaded = True
 
+		o.save()
 		return o
+
+	def get_units(self):
+		return list(TerritoryWarUnit.objects.filter(squad=self))
+
+	def get_units_names(self, language='eng_us'):
+		names = []
+		units = self.get_units()
+		for unit in units:
+			names.append(unit.get_name(language=language))
+
+		return names
 
 class TerritoryWarHistory(models.Model):
 
@@ -258,7 +287,6 @@ class TerritoryWarHistory(models.Model):
 
 		if 'data' in event:
 			data = event['data']
-
 
 			if 'activity' in data:
 				activity = data['activity']

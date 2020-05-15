@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.core import serializers
 from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import ListView
@@ -58,6 +57,9 @@ class TerritoryWarHistoryView(ListView):
 		if 'target' in kwargs:
 			filter_kwargs['squad__player_id'] = kwargs['target']
 
+		if 'preloaded' in kwargs:
+			filter_kwargs['squad__is_preloaded'] = kwargs['preloaded']
+
 		queryset = self.queryset.filter(**filter_kwargs)
 
 		timezone = kwargs.pop('timezone', 'UTC')
@@ -71,6 +73,9 @@ class TerritoryWarHistoryView(ListView):
 				target = TerritoryWarSquad.objects.get(event_id=event.id)
 				event.target_id = target.player_id
 				event.target_name = target.player_name
+				event.squad = target
+				event.units = target.get_units_names(language='eng_us')
+				event.preloaded = target.is_preloaded
 			except TerritoryWarSquad.DoesNotExist:
 				pass
 
@@ -98,7 +103,6 @@ class TerritoryWarHistoryView(ListView):
 			kwargs['phase'] = tokens[0]
 			kwargs['territory'] = tokens[1]
 			context['territory'] = territory
-			print('WTF1: %s' % context['territory'])
 
 		if 'activity' in request.GET:
 			activity = int(request.GET['activity'])
@@ -119,6 +123,11 @@ class TerritoryWarHistoryView(ListView):
 			target = request.GET['target']
 			kwargs['target'] = target
 			context['target'] = target
+
+		if 'preloaded' in request.GET:
+			preloaded = (request.GET['preloaded'].lower() == 'yes')
+			kwargs['preloaded'] = preloaded and 1 or 0
+			context['preloaded'] = preloaded
 
 		context.update(self.get_context_data(**kwargs))
 
