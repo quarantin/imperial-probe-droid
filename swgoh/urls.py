@@ -27,7 +27,7 @@ from territorybattle import views as tb_views
 urlpatterns = [
 	path('', views.index),
 	path('admin/', admin.site.urls),
-	path('ga/', ga_views.index),
+	path('ga/', ga_views.GrandArenaHistoryView.as_view()),
 	path('tb/', tb_views.TerritoryBattleHistoryView.as_view()),
 	path('tw/', tw_views.TerritoryWarHistoryView.as_view()),
 	path('avatar/<str:base_id>', views.avatar),
