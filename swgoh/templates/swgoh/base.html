@@ -21,6 +21,9 @@
 	<!-- Custom styles for this page -->
 	<link href="{% static "/vendor/datatables/dataTables.bootstrap4.min.css" %}" rel="stylesheet">
 
+	<!-- Custom styles -->
+	<link href="{% static "/style.css" %}" rel="stylesheet">
+
 	<title>{% block title %}{% endblock %}</title>
 
 	{% block headers %}{% endblock %}
@@ -34,8 +37,6 @@
 
 {% block sidebar %}{% endblock %}
 		<div id="content-wrapper">
-
-{% block topbar %}{% endblock%}
 
 {% block content %}{% endblock %}
 
