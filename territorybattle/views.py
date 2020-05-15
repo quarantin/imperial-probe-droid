@@ -42,7 +42,7 @@ class TerritoryBattleHistoryView(ListView):
 			filter_kwargs['phase'] = kwargs['phase']
 
 		if 'tb' in kwargs:
-			filter_kwargs['tb_id'] = kwargs['tb']
+			filter_kwargs['tb'] = kwargs['tb']
 
 		if 'territory' in kwargs:
 			filter_kwargs['territory'] = kwargs['territory']
@@ -53,15 +53,18 @@ class TerritoryBattleHistoryView(ListView):
 		if 'player' in kwargs:
 			filter_kwargs['player_id'] = kwargs['player']
 
-		queryset = self.queryset.filter(**filter_kwargs).values()
+		if 'target' in kwargs:
+			filter_kwargs['squad__player_id'] = kwargs['target']
+
+		queryset = self.queryset.filter(**filter_kwargs)
 
 		timezone = kwargs.pop('timezone', 'UTC')
 
 		context['events'] = queryset
 		for event in context['events']:
-			event['tb'] = TerritoryBattle.objects.get(id=event['tb_id'])
-			event['event_type'] = TerritoryBattleHistory.get_activity_by_num(event['event_type'])
-			event['timestamp'] = self.convert_date(event['timestamp'], timezone)
+			event.tb = TerritoryBattle.objects.get(id=event.tb_id)
+			event.event_type = TerritoryBattleHistory.get_activity_by_num(event.event_type)
+			event.timestamp = self.convert_date(event.timestamp, timezone)
 
 		return context
 
@@ -70,19 +73,22 @@ class TerritoryBattleHistoryView(ListView):
 
 		context = {}
 
-		if 'phase' in request.GET:
-			phase = int(request.GET['phase'])
-			kwargs['phase'] = phase
-			context['phase'] = phase
-
 		if 'tb' in request.GET:
 			tb = int(request.GET['tb'])
 			kwargs['tb'] = tb
 			context['tb'] = tb
 
+		tbs = TerritoryBattle.objects.all()
+		if 'tb' not in context:
+			tb = tbs and tbs[0].id or None
+			kwargs['tb'] = tb
+			context['tb'] = tb
+
 		if 'territory' in request.GET:
-			territory = int(request.GET['territory'])
-			kwargs['territory'] = territory
+			territory = request.GET['territory']
+			tokens = territory.split('-')
+			kwargs['phase'] = tokens[0]
+			kwargs['territory'] = tokens[1]
 			context['territory'] = territory
 
 		if 'activity' in request.GET:
@@ -100,7 +106,16 @@ class TerritoryBattleHistoryView(ListView):
 			kwargs['player'] = player
 			context['player'] = player
 
+		if 'target' in request.GET:
+			target = request.GET['target']
+			kwargs['target'] = target
+			context['target'] = target
+
 		context.update(self.get_context_data(**kwargs))
+
+		# We have to do this after context.update() because it will override territory
+		if 'territory' in request.GET:
+			context['territory'] = request.GET['territory']
 
 		players = OrderedDict()
 		players_data = list(TerritoryBattleHistory.objects.values('player_id', 'player_name').distinct())
@@ -109,8 +124,7 @@ class TerritoryBattleHistoryView(ListView):
 			name = player['player_name']
 			players[id] = name
 
-		tbs = TerritoryBattle.objects.all()
-		timezones = pytz.all_timezones
+		timezones = pytz.common_timezones
 		if 'UTC' in timezones:
 			timezones.remove('UTC')
 		timezones.insert(0, 'UTC')
@@ -121,8 +135,10 @@ class TerritoryBattleHistoryView(ListView):
 
 		context['activities'] = { x: y for x, y in TerritoryBattleHistory.EVENT_TYPE_CHOICES }
 
-		context['phases'] = { x: x for x in range(1, 5) }
+		#context['territories'] = TerritoryBattleHistory.get_territory_list()
 
 		context['players'] = players
+
+		context['targets'] = players
 
 		return self.render_to_response(context)

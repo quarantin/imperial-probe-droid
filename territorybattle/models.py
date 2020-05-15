@@ -87,5 +87,27 @@ class TerritoryBattleHistory(models.Model):
 	score = models.IntegerField(null=True)
 	total = models.IntegerField(null=True)
 
+	@property
+	def get_territory(self):
+		return None
+
+	@staticmethod
+	def get_territory_list():
+
+		territory_list = {}
+		return territory_list
+
+	@staticmethod
+	def parse_territory(territory_name):
+
+		tokens = territory_name.split('_') 
+		if len(tokens) != 4:
+			raise Exception('Invalid data!')
+
+		phase = int(tokens[2][-2:])
+		territory = int(tokens[3][-2:])
+
+		return phase, territory
+
 	class Meta:
 		ordering = ('timestamp',)
