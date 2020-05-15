@@ -1,0 +1,69 @@
+		<script>
+
+			function get_selected_value(select_id, result) {
+				select = document.getElementById(select_id);
+				if (select) {
+					select_value = select.options[select.selectedIndex].value;
+					if (select_value != '--' && select_value != 'all')
+						result[select_id] = select_value;
+				}
+			}
+
+			function get_base_url() {
+				url = window.location.href;
+				tokens = url.split('?');
+				return tokens[0];
+			}
+
+		</script>
+
+{% block refresh %}{% endblock %}
+
+		<div id="filters" class="card shadow mb-4">
+			<div class="card-header py-3">
+				<h6 class="m-0 font-weight-bold text-primary">Filters</h6>
+			</div>
+			<div class="card-body">
+				<div>
+					<label for="timezone">Select your Timezone</label>
+					<br>
+					<select id="timezone" onchange="refresh()">{% for tz_id, tz_name in timezones.items %}
+						<option value="{{ tz_id }}"{% if tz_id == timezone %} selected{% endif %}>{{ tz_name }}</option>{% endfor %}
+					</select>
+				</div>
+{% block event %}{% endblock %}
+				<div>
+					<label for="territory">Select a Territory</label>
+					<br>
+					<select id="territory" onchange="refresh()">
+						<option value="all">All</option>{% for territory_id, territory_name in territories.items %}
+						<option value="{{ territory_id }}"{% if territory_id == territory %} selected{% endif %}>{{ territory_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="activity">Select some Activity</label>
+					<br>
+					<select id="activity" onchange="refresh()">
+						<option value="all">All<option>{% for activity_id, activity_name in activities.items %}
+						<option value="{{ activity_id }}"{% if activity_id == activity %} selected{% endif %}>{{ activity_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="player">Select a Player</label>
+					<br>
+					<select id="player" onchange="refresh()">
+						<option value="all">All</option>{% for player_id, player_name in players.items %}
+						<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="target">Select a Target</label>
+					<br>
+					<select id="target" onchange="refresh()">
+						<option value="all">All</option>{% for player_id, player_name in targets.items %}
+						<option value="{{ player_id }}"{% if player_id == target %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
+					</select>
+				</div>
+			</div>
+		</div>
+
