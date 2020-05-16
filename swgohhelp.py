@@ -53,14 +53,16 @@ class SwgohHelp:
 		return config['swgoh.help']['access_token']
 
 	async def get_headers(self):
+		access_token = await self.get_access_token()
 		return {
 			'method': 'post',
 			'content-type': 'application/json',
-			'authorization': 'Bearer %s' % await get_access_token(),
+			'authorization': 'Bearer %s' % access_token,
 		}
 
 	async def call_api(self, project, url):
 
+		url = self.url + url
 		headers = await self.get_headers()
 
 		if 'debug' in self.config and self.config['debug'] is True:
@@ -88,7 +90,7 @@ class SwgohHelp:
 
 		while len(result) < expected_players:
 
-			returned = await self.call_api(new_proj, '%s/swgoh/players' % SWGOH_HELP)
+			returned = await self.call_api(new_proj, '/swgoh/players')
 			for player in returned:
 				result.append(player)
 				new_proj['allycodes'].remove(player['allyCode'])
@@ -96,22 +98,22 @@ class SwgohHelp:
 		return result
 
 	async def api_swgoh_guilds(self, project):
-		return await self.call_api(project, '%s/swgoh/guilds' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/guilds')
 
 	async def api_swgoh_roster(self, project):
-		return await self.call_api(project, '%s/swgoh/roster' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/roster')
 
 	async def api_swgoh_units(self, project):
-		return await self.call_api(project, '%s/swgoh/units' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/units')
 
 	async def api_swgoh_zetas(self, project):
-		return await self.call_api(project, '%s/swgoh/zetas' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/zetas')
 
 	async def api_swgoh_squads(self, project):
-		return await self.call_api(project, '%s/swgoh/squads' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/squads')
 
 	async def api_swgoh_events(self, project):
-		return await self.call_api(project, '%s/swgoh/events' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/events')
 
 	async def api_swgoh_data(self, project):
-		return await self.call_api(project, '%s/swgoh/data' % SWGOH_HELP)
+		return await self.call_api(project, '/swgoh/data')
