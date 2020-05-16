@@ -79,7 +79,7 @@ async def cmd_gregister(request):
 
 		selector = player.ally_code
 		guild = guilds[selector]
-		guild_roster = { x['id']: x for x in guild['roster'] }
+		guild_roster = { x['id']: x for x in guild['members'] }
 
 		for player_id, player in guild_roster.items():
 
