@@ -36,6 +36,7 @@ if 'server' in IPD_CONFIG:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'env' in IPD_CONFIG and IPD_CONFIG['env'] == 'dev'
+DEBUG = True
 if DEBUG is True:
 	ALLOWED_HOSTS.append('127.0.0.1')
 
@@ -64,6 +65,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+LOGIN_REDIRECT_URL = '/profile/'
 
 ROOT_URLCONF = 'swgoh.urls'
 

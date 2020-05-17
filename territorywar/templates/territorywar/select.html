@@ -29,8 +29,8 @@
 				<div>
 					<label for="tw">Select a Territory War Instance</label>
 					<br>
-					<select id="tw" onchange="refresh()">
-						<option value="all">--</option>{% for tw_id, tw_name in tws.items %}
+					<select id="tw" onchange="refresh()">{% if not tws %}
+						<option value="all">--</option>{% endif %}{% for tw_id, tw_name in tws.items %}
 						<option value="{{ tw_id }}"{%if tw_id == tw %} selected{% endif %}>{{ tw_name }}</option>{% endfor %}
 					</select>
 				</div>

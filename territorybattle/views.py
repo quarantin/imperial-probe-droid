@@ -3,9 +3,13 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 from collections import OrderedDict
 from client import SwgohClient
 
+from swgoh.models import WebUser
 from .models import TerritoryBattle, TerritoryBattleHistory
 
 import pytz
@@ -18,12 +22,10 @@ class TerritoryBattleHistoryView(ListView):
 
 	model = TerritoryBattleHistory
 	template_name = 'territorybattle/territorybattlehistory_list.html'
-	#template_name = 'territorybattle/tables.html'
-	object_list = TerritoryBattleHistory.objects.all()
 	queryset = TerritoryBattleHistory.objects.all()
 
-	def get_queryset(self):
-		return self.queryset
+	def get_queryset(self, *args, **kwargs):
+		return self.queryset.filter(**kwargs)
 
 	def convert_date(self, utc_date, timezone):
 
@@ -32,31 +34,15 @@ class TerritoryBattleHistoryView(ListView):
 
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
 
-	def get_context_data(self, **kwargs):
+	@method_decorator(login_required)
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
 
-		context = super().get_context_data(**kwargs)
+	def get_context_data(self, *args, **kwargs):
 
-		filter_kwargs = {}
+		context = super().get_context_data(*args, **kwargs)
 
-		if 'phase' in kwargs:
-			filter_kwargs['phase'] = kwargs['phase']
-
-		if 'tb' in kwargs:
-			filter_kwargs['tb'] = kwargs['tb']
-
-		if 'territory' in kwargs:
-			filter_kwargs['territory'] = kwargs['territory']
-
-		if 'activity' in kwargs:
-			filter_kwargs['event_type'] = kwargs['activity']
-
-		if 'player' in kwargs:
-			filter_kwargs['player_id'] = kwargs['player']
-
-		if 'target' in kwargs:
-			filter_kwargs['squad__player_id'] = kwargs['target']
-
-		queryset = self.queryset.filter(**filter_kwargs)
+		queryset = self.get_queryset(**kwargs)
 
 		timezone = kwargs.pop('timezone', 'UTC')
 
@@ -71,7 +57,13 @@ class TerritoryBattleHistoryView(ListView):
 	@csrf_exempt
 	def get(self, request, *args, **kwargs):
 
+		web_user = WebUser.objects.get(user=request.user)
+		guild_id = web_user.premium.guild_id
+
 		context = {}
+
+		kwargs['guild_id'] = guild_id
+		context['guild_id'] = guild_id
 
 		if 'tb' in request.GET:
 			tb = int(request.GET['tb'])
@@ -93,6 +85,7 @@ class TerritoryBattleHistoryView(ListView):
 
 		if 'activity' in request.GET:
 			activity = int(request.GET['activity'])
+			kwargs['event_type'] = activity
 			kwargs['activity'] = activity
 			context['activity'] = activity
 
@@ -108,10 +101,13 @@ class TerritoryBattleHistoryView(ListView):
 
 		if 'target' in request.GET:
 			target = request.GET['target']
+			kwargs['squad__player_id'] = target
 			kwargs['target'] = target
 			context['target'] = target
 
-		context.update(self.get_context_data(**kwargs))
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		context.update(self.get_context_data(*args, **kwargs))
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:

@@ -1,0 +1,9 @@
+{% extends "swgoh/card.html" %}
+{% load i18n %}
+{% block cardtitle %}Logged Out{% endblock %}
+{% block cardbody %}
+
+<p>{% trans "Thanks for using the website!" %}</p>
+<p><a href="/accounts/login/">{% trans 'Log in again' %}</a></p>
+
+{% endblock %}

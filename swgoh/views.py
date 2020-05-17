@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import math
-from django.shortcuts import render
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import UpdateView
 from django.http import FileResponse, HttpResponse, Http404
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -10,7 +16,7 @@ from cairosvg import svg2png
 
 import io, os, requests
 
-from .models import Gear, BaseUnit, BaseUnitSkill
+from .models import Gear, BaseUnit, BaseUnitSkill, Player, WebUser
 
 def index(request):
 
@@ -21,6 +27,57 @@ def index(request):
 	ctx['image_path'] = '/media/ipd-coming-soon.gif'
 
 	return render(request, 'swgoh/index.html', ctx)
+
+@login_required
+def dashboard(request):
+
+	ctx = {}
+	return render(request, 'swgoh/dashboard.html', ctx)
+
+class WebUserDetailView(DetailView):
+
+	model = WebUser
+
+	def get_context_data(self, *args, **kwargs):
+		context = super().get_context_data(*args, **kwargs)
+		return context
+
+	@method_decorator(login_required)
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
+
+	def get(self, request, *args, **kwargs):
+
+		self.object = WebUser.objects.get(user=request.user)
+
+		context = self.get_context_data(*args, **kwargs)
+
+		return self.render_to_response(context)
+
+class PlayerUpdateView(UpdateView):
+
+	model = Player
+	fields = [ 'ally_code', 'language', 'timezone' ]
+	template_name_suffix = '_update_form'
+	success_url = '/settings/'
+
+	@method_decorator(login_required)
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
+
+	def get_object(self):
+		user = get_object_or_404(User, pk=self.request.user.id)
+		webuser = get_object_or_404(WebUser, user=user)
+		return webuser.player
+
+	def get_success_url(self):
+		messages.success(self.request, 'Settings updated successfully.')
+		return self.success_url
+
+@login_required
+def guild(request):
+	ctx = {}
+	return render(request, 'swgoh/guild.html', ctx)
 
 def file_content(path):
 	fin = open(path, 'rb')

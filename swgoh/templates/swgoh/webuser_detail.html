@@ -1,0 +1,15 @@
+{% extends "swgoh/base.html" %}
+
+{% block title %}Profile{% endblock%}
+
+{% block sidebar %}{% include "swgoh/webuser_sidebar.html" %}{% endblock %}
+
+{% block topbar %}{% include "swgoh/topbar.html" %}{% endblock%}
+
+{% block content %}
+			<h1>{{ object.player.game_nick }}</h1>
+			<div><b>Ally Code:</b> {{ object.player.get_ally_code }}</div>
+			<div><b>Player ID:</b> {{ object.player.player_id }}</div>
+{% endblock %}
+
+{% block footer %}{% include "swgoh/footer.html" %}{% endblock %}

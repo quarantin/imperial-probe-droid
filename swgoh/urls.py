@@ -17,23 +17,23 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
 
 from . import views
-from grandarena import views as ga_views
-from territorywar import views as tw_views
-from territorybattle import views as tb_views
 
 urlpatterns = [
 	path('', views.index),
 	path('admin/', admin.site.urls),
-	path('ga/', ga_views.GrandArenaHistoryView.as_view()),
-	path('tb/', tb_views.TerritoryBattleHistoryView.as_view()),
-	path('tw/', include('territorywar.urls')),
+	path('accounts/', include('django_registration.backends.activation.urls')),
+	path('accounts/', include('django.contrib.auth.urls')),
+	path('dashboard/', views.dashboard),
+	path('profile/', views.WebUserDetailView.as_view()),
+	path('settings/', views.PlayerUpdateView.as_view()),
+	path('guild/', views.guild),
+	path('grand-arena/', include('grandarena.urls')),
+	path('territory-battle/', include('territorybattle.urls')),
+	path('territory-war/', include('territorywar.urls')),
 	path('avatar/<str:base_id>', views.avatar),
 	path('gear/<str:base_id>/', views.gear),
 	path('relic/<int:relic>/<str:align>/', views.relic),
 	path('skill/<str:skill_id>/', views.skill),
-	path('login', TemplateView.as_view(template_name='swgoh/login.html')),
-	path('success', views.login_success),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

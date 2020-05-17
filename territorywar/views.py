@@ -3,9 +3,13 @@ from django.http import HttpResponse, Http404
 from django.template.loader import get_template
 from django.views.generic import DetailView, ListView
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 from collections import OrderedDict
 from client import SwgohClient
 
+from swgoh.models import WebUser
 from .models import TerritoryWar, TerritoryWarHistory, TerritoryWarSquad, TerritoryWarUnit
 
 import json
@@ -35,6 +39,10 @@ class TerritoryWarSquadView(DetailView):
 
 		raise Http404('No such squad')
 
+	@method_decorator(login_required)
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
+
 	def get_context_data(self, **kwargs):
 
 		context = super().get_context_data(**kwargs)
@@ -57,11 +65,10 @@ class TerritoryWarHistoryView(ListView):
 
 	model = TerritoryWarHistory
 	template_name = 'territorywar/territorywarhistory_list.html'
-	object_list = TerritoryWarHistory.objects.all()
 	queryset = TerritoryWarHistory.objects.all()
 
-	def get_queryset(self):
-		return self.queryset
+	def get_queryset(self, *args, **kwargs):
+		return self.queryset.filter(**kwargs)
 
 	def convert_date(self, utc_date, timezone):
 
@@ -70,34 +77,15 @@ class TerritoryWarHistoryView(ListView):
 
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
 
-	def get_context_data(self, **kwargs):
+	@method_decorator(login_required)
+	def dispatch(self, *args, **kwargs):
+		return super().dispatch(*args, **kwargs)
 
-		context = super().get_context_data(**kwargs)
+	def get_context_data(self, *args, **kwargs):
 
-		filter_kwargs = {}
+		context = super().get_context_data(*args, **kwargs)
 
-		if 'phase' in kwargs:
-			filter_kwargs['phase'] = kwargs['phase']
-
-		if 'tw' in kwargs:
-			filter_kwargs['tw'] = kwargs['tw']
-
-		if 'territory' in kwargs:
-			filter_kwargs['territory'] = kwargs['territory']
-
-		if 'activity' in kwargs:
-			filter_kwargs['event_type'] = kwargs['activity']
-
-		if 'player' in kwargs:
-			filter_kwargs['player_id'] = kwargs['player']
-
-		if 'target' in kwargs:
-			filter_kwargs['squad__player_id'] = kwargs['target']
-
-		if 'preloaded' in kwargs:
-			filter_kwargs['squad__is_preloaded'] = kwargs['preloaded']
-
-		queryset = self.queryset.filter(**filter_kwargs)
+		queryset = self.get_queryset(**kwargs)
 
 		timezone = kwargs.pop('timezone', 'UTC')
 
@@ -121,7 +109,13 @@ class TerritoryWarHistoryView(ListView):
 	@csrf_exempt
 	def get(self, request, *args, **kwargs):
 
+		web_user = WebUser.objects.get(user=request.user)
+		guild_id = web_user.premium.guild_id
+
 		context = {}
+
+		kwargs['guild_id'] = guild_id
+		context['guild_id'] = guild_id
 
 		if 'tw' in request.GET:
 			tw = int(request.GET['tw'])
@@ -143,6 +137,7 @@ class TerritoryWarHistoryView(ListView):
 
 		if 'activity' in request.GET:
 			activity = int(request.GET['activity'])
+			kwargs['event_type'] = activity
 			kwargs['activity'] = activity
 			context['activity'] = activity
 
@@ -158,15 +153,19 @@ class TerritoryWarHistoryView(ListView):
 
 		if 'target' in request.GET:
 			target = request.GET['target']
+			kwargs['squad__player_id'] = target
 			kwargs['target'] = target
 			context['target'] = target
 
 		if 'preloaded' in request.GET:
-			preloaded = (request.GET['preloaded'].lower() == 'yes')
-			kwargs['preloaded'] = preloaded and 1 or 0
-			context['preloaded'] = preloaded and 1 or 0
+			preloaded = (request.GET['preloaded'].lower() == 'yes') and 1 or 0
+			kwargs['squad__is_preloaded'] = preloaded
+			kwargs['preloaded'] = preloaded
+			context['preloaded'] = preloaded
 
-		context.update(self.get_context_data(**kwargs))
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		context.update(self.get_context_data(*args, **kwargs))
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:

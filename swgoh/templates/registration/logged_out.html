@@ -1,0 +1,8 @@
+{% extends "swgoh/base.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}<div class="breadcrumbs"><a href="/">{% trans 'Home' %}</a></div>{% endblock %}
+
+{% block content %}
+{% include "registration/logged_out-card.html" %}
+{% endblock %}

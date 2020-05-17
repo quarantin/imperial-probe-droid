@@ -32,12 +32,18 @@
 
 	<!-- Page Wrapper -->
 	<div id="wrapper">
-{% block sidebar %}{% endblock %}
+{% block sidebar %}{% include "swgoh/sidebar.html" %}{% endblock %}
 		<!-- Content Wrapper -->
 		<div id="content-wrapper">
-
+{% block topbar %}{% include "swgoh/topbar.html" %}{% endblock %}
+{% if messages %}
+<div class="card bg-success text-white shadow">{% for message in messages %}
+    <div{% if message.tags %} class="card-body {{ message.tags }}"{% endif %}>{{ message }}</div>{% endfor %}
+</div>
+{% endif %}
+{% block breadcrumbs %}{% endblock %}
 {% block content %}{% endblock %}
-{% block footer %}{% endblock %}
+{% block footer %}{% include "swgoh/footer.html" %}{% endblock %}
 		</div><!-- End of Content Wrapper -->
 
 	</div><!-- End of Page Wrapper -->

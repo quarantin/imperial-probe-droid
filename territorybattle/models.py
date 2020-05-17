@@ -1,5 +1,7 @@
 from django.db import models
 
+from swgoh.models import Guild
+
 import pytz
 from datetime import datetime
 
@@ -77,6 +79,7 @@ class TerritoryBattleHistory(models.Model):
 		return 'Unknown'
 
 	id = models.CharField(max_length=64, primary_key=True)
+	guild = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
 	tb = models.ForeignKey(TerritoryBattle, on_delete=models.CASCADE)
 	timestamp = models.DateTimeField()
 	event_type = models.IntegerField(choices=EVENT_TYPE_CHOICES)

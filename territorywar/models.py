@@ -5,7 +5,7 @@ from datetime import datetime
 
 from django.db import models
 
-from swgoh.models import BaseUnit
+from swgoh.models import BaseUnit, Guild
 
 import protos.PlayerRpc_pb2 as PlayerRpc
 
@@ -227,6 +227,7 @@ class TerritoryWarHistory(models.Model):
 		return 'Unknown'
 
 	id = models.CharField(max_length=64, primary_key=True)
+	guild = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
 	tw = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
 	timestamp = models.DateTimeField()
 	event_type = models.IntegerField(choices=EVENT_TYPE_CHOICES)
@@ -266,7 +267,7 @@ class TerritoryWarHistory(models.Model):
 		return phase, territory
 
 	@staticmethod
-	def parse(event):
+	def parse(guild, event):
 
 		created = True
 		to_save_all = []
@@ -279,9 +280,14 @@ class TerritoryWarHistory(models.Model):
 
 			o = TerritoryWarHistory(id=event_id)
 
+		o.guild = guild
+
 		if 'type' in event:
 			if event['type'] != 'TERRITORY_WAR_CONFLICT_ACTIVITY':
-				raise Exception('Invalid event type: %s' % event['type'])
+				#raise Exception('Invalid event type: %s' % event['type'])
+				print('Invalid event type: %s' % event['type'])
+				print(event)
+				return None, False
 
 		if 'timestamp' in event:
 			o.timestamp = event['timestamp']

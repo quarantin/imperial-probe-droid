@@ -1,5 +1,6 @@
 from django.db import models
 from django.db import transaction
+from django.contrib.auth.models import User
 from timezone_field import TimeZoneField
 
 import os, json, pytz, requests
@@ -39,6 +40,10 @@ ROLES = (
 	('support',      'Support'),
 	('tank',         'Tank'),
 )
+
+class Guild(models.Model):
+
+	guild_id = models.CharField(max_length=22)
 
 class Player(models.Model):
 
@@ -718,6 +723,7 @@ class PremiumUser(models.Model):
 		(1, 'Guild'),
 	)
 
+	guild = models.ForeignKey(Guild, on_delete=models.CASCADE)
 	player = models.ForeignKey(Player, on_delete=models.CASCADE)
 	premium_type = models.IntegerField(choices=PREMIUM_TYPE_CHOICES)
 	creds_id = models.CharField(max_length=32)
@@ -987,3 +993,9 @@ class PremiumGuildConfig(models.Model):
 			types[key] = typ.__name__
 
 		return types
+
+class WebUser(models.Model):
+
+	user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+	player = models.OneToOneField(Player, on_delete=models.CASCADE)
+	premium = models.ForeignKey(PremiumUser, on_delete=models.CASCADE)
