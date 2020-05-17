@@ -151,7 +151,7 @@ FORMAT_UNIT_SKILL_INCREASED = {
 		"url": "${server}/avatar/${unit.id}?level=${level}&rarity=${rarity}&gear=${gear}&zetas=${zetas}&relic=${relic}&alignment=${alignment}"
 	},
 	"title": "${unit}",
-	"description": "***${skill}***\n```Tier ${tier}```",
+	"description": "***${skill}***\n```Tier ${tier.new}/${tiers}```",
 	"image": {
 		"url": "${server}/skill/${skill.id}/"
 	}
