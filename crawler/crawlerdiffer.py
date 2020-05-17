@@ -182,6 +182,9 @@ class CrawlerDiffer:
 						'zetas.old': old_zetas,
 						'skill.id':  new_skill_id,
 						'tier':      new_skill['tier'],
+						'tier.new':  new_skill['tier'],
+						'tier.old':  old_skill['tier'],
+						'tiers':     new_skill['tiers'],
 					})
 
 	def check_diff_player_level(self, premium, guild, old_profile, new_profile, messages):
