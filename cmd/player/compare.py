@@ -133,7 +133,7 @@ def unit_to_dict(config, player, roster, base_id, lang):
 		# Abilities
 		for skill in unit['skills']:
 			skill_id = skill['id']
-			skill_tier = skill['tier']
+			skill_tier = 'tier' in skill and skill['tier'] or 0
 			emoji = ' T%d ' % skill_tier
 			if skill_tier == 8:
 				emoji = '`%s`' % (skill['isZeta'] and EMOJIS['zeta'] or EMOJIS['omega'])
