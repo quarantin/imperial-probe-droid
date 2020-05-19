@@ -2,7 +2,6 @@
 
 import math
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
@@ -16,7 +15,8 @@ from cairosvg import svg2png
 
 import io, os, requests
 
-from .models import Gear, BaseUnit, BaseUnitSkill, Player, WebUser
+#from django.contrib.auth.models import User
+from .models import Gear, BaseUnit, BaseUnitSkill, Player, User
 
 def index(request):
 
@@ -34,9 +34,9 @@ def dashboard(request):
 	ctx = {}
 	return render(request, 'swgoh/dashboard.html', ctx)
 
-class WebUserDetailView(DetailView):
+class UserDetailView(DetailView):
 
-	model = WebUser
+	model = User
 
 	def get_context_data(self, *args, **kwargs):
 		context = super().get_context_data(*args, **kwargs)
@@ -48,7 +48,7 @@ class WebUserDetailView(DetailView):
 
 	def get(self, request, *args, **kwargs):
 
-		self.object = WebUser.objects.get(user=request.user)
+		self.object = request.user
 
 		context = self.get_context_data(*args, **kwargs)
 
@@ -67,8 +67,7 @@ class PlayerUpdateView(UpdateView):
 
 	def get_object(self):
 		user = get_object_or_404(User, pk=self.request.user.id)
-		webuser = get_object_or_404(WebUser, user=user)
-		return webuser.player
+		return user.player
 
 	def get_success_url(self):
 		messages.success(self.request, 'Settings updated successfully.')

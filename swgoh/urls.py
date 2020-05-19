@@ -26,7 +26,7 @@ urlpatterns = [
 	path('accounts/', include('django_registration.backends.activation.urls')),
 	path('accounts/', include('django.contrib.auth.urls')),
 	path('dashboard/', views.dashboard),
-	path('profile/', views.WebUserDetailView.as_view()),
+	path('profile/', views.UserDetailView.as_view()),
 	path('settings/', views.PlayerUpdateView.as_view()),
 	path('guild/', views.guild),
 	path('grand-arena/', include('grandarena.urls')),

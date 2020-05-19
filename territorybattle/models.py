@@ -86,7 +86,7 @@ class TerritoryBattleHistory(models.Model):
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
 	phase = models.IntegerField()
-	territory = models.IntegerField()
+	territory = models.IntegerField(null=True)
 	score = models.IntegerField(null=True)
 	total = models.IntegerField(null=True)
 

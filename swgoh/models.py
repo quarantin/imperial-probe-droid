@@ -1,6 +1,6 @@
 from django.db import models
 from django.db import transaction
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from timezone_field import TimeZoneField
 
 import os, json, pytz, requests
@@ -44,6 +44,7 @@ ROLES = (
 class Guild(models.Model):
 
 	guild_id = models.CharField(max_length=22)
+	guild_name = models.CharField(max_length=64)
 
 class Player(models.Model):
 
@@ -85,7 +86,7 @@ class Player(models.Model):
 	ally_code            = models.IntegerField(blank=True, null=True)
 	language             = models.CharField(max_length=6, default='eng_us', choices=LANGUAGES)
 	timezone             = TimeZoneField(blank=True, null=True)
-	banned               = models.BooleanField(default=False)
+	banned               = models.BooleanField(default=False, null=True)
 
 	def format_ally_code(ally_code):
 		ally_code = str(ally_code)
@@ -133,7 +134,10 @@ class Player(models.Model):
 		if self.discord_name:
 			return self.discord_name
 
-		return self.discord_id
+		if self.discord_id:
+			return str(self.discord_id)
+
+		return str(self.id)
 
 class Gear(models.Model):
 
@@ -716,28 +720,6 @@ class RelicStat(models.Model):
 	relic6_percentage = models.FloatField()
 	relic7_percentage = models.FloatField()
 
-class PremiumUser(models.Model):
-
-	PREMIUM_TYPE_CHOICES = (
-		(0, 'Single'),
-		(1, 'Guild'),
-	)
-
-	guild = models.ForeignKey(Guild, on_delete=models.CASCADE)
-	player = models.ForeignKey(Player, on_delete=models.CASCADE)
-	premium_type = models.IntegerField(choices=PREMIUM_TYPE_CHOICES)
-	creds_id = models.CharField(max_length=32)
-	discord_id = models.IntegerField()
-
-class PremiumUserConfig(models.Model):
-
-	CONFIG_NOTIFY_RAID_TICKETS = 'notify-raid-tickets'
-
-	premium_user = models.ForeignKey(PremiumUser, on_delete=models.CASCADE)
-	channel_id = models.IntegerField()
-	key = models.CharField(max_length=32)
-	value = models.CharField(max_length=32)
-
 class PremiumGuild(models.Model):
 
 	MSG_ARENA_RANK_UP              = 'arena.rank.up'
@@ -994,8 +976,25 @@ class PremiumGuildConfig(models.Model):
 
 		return types
 
-class WebUser(models.Model):
+class User(AbstractUser):
 
-	user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-	player = models.OneToOneField(Player, on_delete=models.CASCADE)
-	premium = models.ForeignKey(PremiumUser, on_delete=models.CASCADE)
+	PREMIUM_TYPE_CHOICES = (
+		(0, 'None'),
+		(1, 'Single Player'),
+		(2, 'Guild'),
+	)
+
+	player = models.ForeignKey(Player, on_delete=models.CASCADE, null=True)
+	guild = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
+	discord_id = models.IntegerField(null=True)
+	creds_id = models.CharField(max_length=32, null=True)
+	premium_type = models.IntegerField(choices=PREMIUM_TYPE_CHOICES, default=0)
+
+class UserConfig(models.Model):
+
+	CONFIG_NOTIFY_RAID_TICKETS = 'notify-raid-tickets'
+
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+	channel_id = models.IntegerField()
+	key = models.CharField(max_length=32)
+	value = models.CharField(max_length=32)

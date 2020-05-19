@@ -9,7 +9,8 @@ from django.utils.decorators import method_decorator
 from collections import OrderedDict
 from client import SwgohClient
 
-from swgoh.models import WebUser
+#from django.contrib.auth.models import User
+from swgoh.models import User
 from .models import TerritoryBattle, TerritoryBattleHistory
 
 import pytz
@@ -57,8 +58,7 @@ class TerritoryBattleHistoryView(ListView):
 	@csrf_exempt
 	def get(self, request, *args, **kwargs):
 
-		web_user = WebUser.objects.get(user=request.user)
-		guild_id = web_user.premium.guild_id
+		guild_id = request.user.guild_id
 
 		context = {}
 
