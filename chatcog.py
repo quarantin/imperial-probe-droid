@@ -26,8 +26,8 @@ class ChatCog(commands.Cog):
 		if isinstance(error, commands.CommandNotFound):
 			return
 
-		raise error
-		await ctx.send('\n'.join(lines))
+		#raise error
+		#await ctx.send('\n'.join(lines))
 
 	@commands.command(aliases=['sct'])
 	async def set_chat_topic(self, ctx, *, channel_topic: str = ''):
