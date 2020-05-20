@@ -9,7 +9,7 @@ from opts import *
 from errors import *
 
 import DJANGO
-from swgoh.models import Player, User, UserConfig
+from swgoh.models import Player, PlayerConfig
 
 class ChatCog(commands.Cog):
 
