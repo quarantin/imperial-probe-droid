@@ -6,8 +6,6 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.http import FileResponse, HttpResponse, Http404
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -28,7 +26,6 @@ def index(request):
 
 	return render(request, 'swgoh/index.html', ctx)
 
-@login_required
 def dashboard(request):
 
 	ctx = {}
@@ -41,10 +38,6 @@ class UserDetailView(DetailView):
 	def get_context_data(self, *args, **kwargs):
 		context = super().get_context_data(*args, **kwargs)
 		return context
-
-	@method_decorator(login_required)
-	def dispatch(self, *args, **kwargs):
-		return super().dispatch(*args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
 
@@ -61,10 +54,6 @@ class PlayerUpdateView(UpdateView):
 	template_name_suffix = '_update_form'
 	success_url = '/settings/'
 
-	@method_decorator(login_required)
-	def dispatch(self, *args, **kwargs):
-		return super().dispatch(*args, **kwargs)
-
 	def get_object(self):
 		user = get_object_or_404(User, pk=self.request.user.id)
 		return user.player
@@ -73,7 +62,6 @@ class PlayerUpdateView(UpdateView):
 		messages.success(self.request, 'Settings updated successfully.')
 		return self.success_url
 
-@login_required
 def guild(request):
 	ctx = {}
 	return render(request, 'swgoh/guild.html', ctx)
