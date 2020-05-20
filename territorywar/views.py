@@ -66,7 +66,7 @@ class TerritoryWarHistoryView(ListView):
 
 		user = request.user
 		if not user.is_authenticated:
-			user = User.objects.get(id=3)
+			user = User.objects.get(id=2)
 
 		try:
 			return Player.objects.get(user=user)
