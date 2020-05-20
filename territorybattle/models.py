@@ -86,7 +86,7 @@ class TerritoryBattleHistory(models.Model):
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
 	phase = models.IntegerField()
-	territory = models.IntegerField(null=True)
+	territory = models.IntegerField()
 	score = models.IntegerField(null=True)
 	total = models.IntegerField(null=True)
 
@@ -111,6 +111,45 @@ class TerritoryBattleHistory(models.Model):
 		territory = int(tokens[3][-2:])
 
 		return phase, territory
+
+	@staticmethod
+	def parse(guild, event):
+
+		created = True
+		to_save_all = []
+
+		try:
+			event_id = event['id']
+			o = TerritoryBattleHistory.objects.get(id=event_id)
+			created = False
+
+		except TerritoryBattleHistory.DoesNotExist:
+
+			o = TerritoryBattleHistory(id=event_id)
+
+		if 'type' in event:
+			if event['type'] != 'TERRITORY_CONFLICT_ACTIVITY':
+				print('Invalid event type: %s' % event['type'])
+				return None, False
+
+		o.timestamp = event['timestamp']
+
+		o.player_id = event['playerId']
+
+		o.player_name = event['playerName']
+
+		o.tb = TerritoryBattle.parse(event['eventId'])
+
+		o.phase = event['phase']
+		o.territory = event['territory']
+
+		o.score = event['score']
+		o.total = event['total']
+
+		o.event_type = event['eventType']
+
+		o.save()
+		return o, created
 
 	class Meta:
 		ordering = ('timestamp',)
