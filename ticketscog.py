@@ -9,7 +9,7 @@ from opts import *
 from errors import *
 
 import DJANGO
-from swgoh.models import Player, PremiumUser, PremiumUserConfig
+from swgoh.models import Player, User, UserConfig
 
 class TicketsCog(commands.Cog):
 
@@ -54,10 +54,10 @@ class TicketsCog(commands.Cog):
 		return ' ' * spaces
 
 	def get_raid_tickets_config(self):
-		return PremiumUserConfig.objects.filter(key=PremiumUserConfig.CONFIG_NOTIFY_RAID_TICKETS)
+		return UserConfig.objects.filter(key=UserConfig.CONFIG_NOTIFY_RAID_TICKETS)
 
 	def get_guild_tokens_config(self):
-		return PremiumUserConfig.objects.filter(key=PremiumUserConfig.CONFIG_NOTIFY_GUILD_TOKENS)
+		return UserConfig.objects.filter(key=UserConfig.CONFIG_NOTIFY_GUILD_TOKENS)
 
 	def get_discord_id(self, player_id):
 
