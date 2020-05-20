@@ -33,14 +33,6 @@
 				</div>
 {% block event %}{% endblock %}
 				<div>
-					<label for="territory">Select a Territory</label>
-					<br>
-					<select id="territory" onchange="refresh()">
-						<option value="all">All</option>{% for territory_id, territory_name in territories.items %}
-						<option value="{{ territory_id }}"{% if territory_id == territory %} selected{% endif %}>{{ territory_name }}</option>{% endfor %}
-					</select>
-				</div>
-				<div>
 					<label for="activity">Select some Activity</label>
 					<br>
 					<select id="activity" onchange="refresh()">
@@ -54,14 +46,6 @@
 					<select id="player" onchange="refresh()">
 						<option value="all">All</option>{% for player_id, player_name in players.items %}
 						<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
-					</select>
-				</div>
-				<div>
-					<label for="target">Select a Target</label>
-					<br>
-					<select id="target" onchange="refresh()">
-						<option value="all">All</option>{% for player_id, player_name in targets.items %}
-						<option value="{{ player_id }}"{% if player_id == target %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
 					</select>
 				</div>
 			</div>

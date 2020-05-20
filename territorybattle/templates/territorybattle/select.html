@@ -8,9 +8,9 @@
 				get_selected_value('timezone',  query);
 				get_selected_value('tb',        query);
 				get_selected_value('activity',  query);
+				get_selected_value('phase',     query);
 				get_selected_value('territory', query);
 				get_selected_value('player',    query);
-				get_selected_value('target',    query);
 
 				tokens = []
 				for (key in query) {
@@ -31,6 +31,22 @@
 					<select id="tb" onchange="refresh()">{% if not tbs %}
 						<option value="all">--</option>{% endif %}{% for tb_id, tb_name in tbs.items %}
 						<option value="{{ tb_id }}"{%if tb_id == tb %} selected{% endif %}>{{ tb_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="phase">Select a Phase</label>
+					<br>
+					<select id="phase" onchange="refresh()">
+						<option value="all">All</option>{% for phase_id, phase_name in phases.items %}
+						<option value="{{ phase_id }}"{%if phase_id == phase %} selected{% endif %}>{{ phase_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="territory">Select a Territory</label>
+					<br>
+					<select id="territory" onchange="refresh()">
+						<option value="all">All</option>{% for territory_id, territory_name in territories.items %}
+						<option value="{{ territory_id }}"{% if territory_id == territory %} selected{% endif %}>{{ territory_name }}</option>{% endfor %}
 					</select>
 				</div>
 {% endblock %}

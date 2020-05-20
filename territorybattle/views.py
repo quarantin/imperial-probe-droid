@@ -73,40 +73,41 @@ class TerritoryBattleHistoryView(ListView):
 		kwargs['guild'] = player.guild
 		context['guild'] = player.guild
 
+		tb_type = None
+
 		if 'tb' in request.GET:
 			tb = int(request.GET['tb'])
+			tb_type = TerritoryBattle.objects.get(id=tb).tb_type
 			kwargs['tb'] = tb
 			context['tb'] = tb
 
 		tbs = TerritoryBattle.objects.all()
 		if 'tb' not in context:
 			tb = tbs and tbs[0].id or None
+			tb_type = tbs[0].tb_type
 			kwargs['tb'] = tb
 			context['tb'] = tb
 
 		if 'territory' in request.GET:
-			territory = request.GET['territory']
-			tokens = territory.split('-')
-			kwargs['phase'] = tokens[0]
-			kwargs['territory'] = tokens[1]
+			territory = int(request.GET['territory'])
+			kwargs['territory'] = territory
 			context['territory'] = territory
+
+		if 'phase' in request.GET:
+			phase = int(request.GET['phase'])
+			kwargs['phase'] = phase
+			context['phase'] = phase
 
 		if 'activity' in request.GET:
 			activity = int(request.GET['activity'])
 			kwargs['event_type'] = activity
-			kwargs['activity'] = activity
+			#kwargs['activity'] = activity
 			context['activity'] = activity
 
 		if 'player' in request.GET:
 			player = request.GET['player']
-			kwargs['player'] = player
+			kwargs['player_id'] = player
 			context['player'] = player
-
-		if 'target' in request.GET:
-			target = request.GET['target']
-			kwargs['squad__player_id'] = target
-			kwargs['target'] = target
-			context['target'] = target
 
 		self.object_list = self.get_queryset(*args, **kwargs)
 
@@ -120,7 +121,9 @@ class TerritoryBattleHistoryView(ListView):
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:
-			context['territory'] = request.GET['territory']
+			context['territory'] = int(request.GET['territory'])
+		if 'phase' in request.GET:
+			context['phase'] = int(request.GET['phase'])
 
 		players = OrderedDict()
 		players_data = list(TerritoryBattleHistory.objects.values('player_id', 'player_name').distinct())
@@ -140,10 +143,10 @@ class TerritoryBattleHistoryView(ListView):
 
 		context['activities'] = { x: y for x, y in TerritoryBattleHistory.EVENT_TYPE_CHOICES }
 
-		#context['territories'] = TerritoryBattleHistory.get_territory_list()
+		context['phases'] = TerritoryBattleHistory.get_phase_list(tb_type)
+
+		context['territories'] = TerritoryBattleHistory.get_territory_list(tb_type)
 
 		context['players'] = players
-
-		context['targets'] = players
 
 		return self.render_to_response(context)

@@ -75,6 +75,52 @@ class TerritoryBattleHistory(models.Model):
 		ACTIVITY_COMBAT_FULL,
 	]
 
+	TERRITORIES = {
+
+		'TB_EVENT_GEONOSIS_REPUBLIC': {
+			1: {
+				1: 'Top 1',
+				2: 'Middle 1',
+				3: 'Bottom 1',
+			},
+			2: {
+				1: 'Top 1',
+				2: 'Middle 1',
+				3: 'Bottom 1',
+			},
+			3: {
+				1: 'Top 1',
+				2: 'Middle 1',
+				3: 'Bottom 1',
+			},
+			4: {
+				1: 'Top 1',
+				2: 'Middle 1',
+				3: 'Bottom 1',
+			},
+		},
+		'TB_EVENT_GEONOSIS_SEPARATIST': {
+			1: {
+				1: 'Top 1',
+				2: 'Bottom 1',
+			},
+			2: {
+				1: 'Top 2',
+				2: 'Bottom 2',
+			},
+			3: {
+				1: 'Top 3',
+				2: 'Middle 3',
+				3: 'Bottom 3',
+			},
+			4: {
+				1: 'Top 4',
+				2: 'Middle 4',
+				3: 'Bottom 4',
+			},
+		},
+	}
+
 	@staticmethod
 	def get_activity_by_num(num_activity):
 		for num, activity in TerritoryBattleHistory.EVENT_TYPE_CHOICES:
@@ -97,12 +143,26 @@ class TerritoryBattleHistory(models.Model):
 
 	@property
 	def get_territory(self):
-		return None
+		tb_type = self.tb.tb_type
+		return TerritoryBattleHistory.TERRITORIES[tb_type][self.phase][self.territory]
 
 	@staticmethod
-	def get_territory_list():
+	def get_phase_list(tb_type):
+
+		phase_list = {}
+		for phase in list(TerritoryBattleHistory.TERRITORIES[tb_type]):
+			phase_list[phase] = phase
+
+		return phase_list
+
+	@staticmethod
+	def get_territory_list(tb_type):
 
 		territory_list = {}
+		for phase, territories in TerritoryBattleHistory.TERRITORIES[tb_type].items():
+			for territory, name in territories.items():
+				territory_list[territory] = name
+
 		return territory_list
 
 	@staticmethod
