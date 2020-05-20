@@ -95,11 +95,6 @@ class TerritoryBattleHistoryView(ListView):
 			kwargs['activity'] = activity
 			context['activity'] = activity
 
-		if 'timezone' in request.GET:
-			timezone = request.GET['timezone']
-			kwargs['timezone'] = timezone
-			context['timezone'] = timezone
-
 		if 'player' in request.GET:
 			player = request.GET['player']
 			kwargs['player'] = player
@@ -112,6 +107,12 @@ class TerritoryBattleHistoryView(ListView):
 			context['target'] = target
 
 		self.object_list = self.get_queryset(*args, **kwargs)
+
+		# Has to be called after get_queryset because timezone is not a valid field
+		if 'timezone' in request.GET:
+			timezone = request.GET['timezone']
+			kwargs['timezone'] = timezone
+			context['timezone'] = timezone
 
 		context.update(self.get_context_data(*args, **kwargs))
 
