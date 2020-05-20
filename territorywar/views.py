@@ -86,11 +86,11 @@ class TerritoryWarHistoryView(ListView):
 
 	def get_context_data(self, *args, **kwargs):
 
+		timezone = kwargs.pop('timezone', 'UTC')
+
 		context = super().get_context_data(*args, **kwargs)
 
 		queryset = self.get_queryset(**kwargs)
-
-		timezone = kwargs.pop('timezone', 'UTC')
 
 		context['events'] = queryset
 		for event in context['events']:
