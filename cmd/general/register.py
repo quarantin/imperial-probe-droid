@@ -103,17 +103,17 @@ async def register_users(request, discord_ids, ally_codes):
 		ally_code_full_str = '%s is **`%s`**.' % (author_str, ally_code_str)
 		if db_player.ally_code and db_player.ally_code != ally_code:
 			ally_code_full_str = '%s has changed from **`%s`** to **`%s`**.' % (author_str, db_player.get_ally_code(), ally_code_str)
-		db_player.ally_code = ally_code
-		db_player.game_nick = jplayer['name']
-		db_player.timezone  = 'Europe/London'
-		db_player.player_id = jplayer['id']
+		db_player.ally_code   = ally_code
+		db_player.timezone    = 'Europe/London'
+		db_player.player_id   = jplayer['id']
+		db_player.player_name = jplayer['name']
 		await fill_user_info(config, db_player)
 
 		db_player.save()
 
-		registered_str = 'Player **%s** already registered!' % db_player.game_nick
+		registered_str = 'Player **%s** already registered!' % db_player.player_name
 		if created:
-			registered_str = 'Registration successful for **%s**!' % db_player.game_nick
+			registered_str = 'Registration successful for **%s**!' % db_player.player_name
 
 		lines.append(registered_str)
 		lines.append(ally_code_full_str)

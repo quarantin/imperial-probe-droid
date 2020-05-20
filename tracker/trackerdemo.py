@@ -70,7 +70,7 @@ class Demo:
 		msg['rank.new']  = new_rank
 		msg['old.rank']  = old_rank
 		msg['rank.old']  = old_rank
-		msg['user']      = msg['new.nick'] = msg['old.nick'] = player.game_nick
+		msg['user']      = msg['new.nick'] = msg['old.nick'] = player.player_name
 		msg['rarity']    = new_rarity
 		msg['rarity.new']= new_rarity
 		msg['rarity.old']= old_rarity

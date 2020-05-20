@@ -106,7 +106,7 @@ async def cmd_recos(request):
 
 		player_data = players[player.ally_code]
 		guild_banner = get_banner_emoji(player_data['guildBannerLogo'])
-		discord_id = player.discord_id and '<@%s>' % player.discord_id or player.game_nick
+		discord_id = player.discord_id and '<@%s>' % player.discord_id or player.player_name
 
 		lines  = []
 		for ref_unit in selected_units:
