@@ -43,7 +43,7 @@ class TerritoryBattleHistoryView(ListView):
 
 		context = super().get_context_data(*args, **kwargs)
 
-		queryset = self.get_queryset(**kwargs)
+		queryset = self.get_queryset(*args, **kwargs)
 
 		timezone = kwargs.pop('timezone', 'UTC')
 
