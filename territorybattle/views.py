@@ -4,13 +4,13 @@ from django.template.loader import get_template
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 
 from collections import OrderedDict
 from client import SwgohClient
 
-#from django.contrib.auth.models import User
-from swgoh.models import User
+from swgoh.models import Player
 from .models import TerritoryBattle, TerritoryBattleHistory
 
 import pytz
@@ -25,6 +25,18 @@ class TerritoryBattleHistoryView(ListView):
 	template_name = 'territorybattle/territorybattlehistory_list.html'
 	queryset = TerritoryBattleHistory.objects.all()
 
+	def get_player(self, request):
+
+		user = request.user
+		if not user.is_authenticated:
+			user = User.objects.get(id=3)
+
+		try:
+			return Player.objects.get(user=user)
+
+		except Player.DoesNotExist:
+			return None
+
 	def get_queryset(self, *args, **kwargs):
 		return self.queryset.filter(**kwargs)
 
@@ -35,17 +47,13 @@ class TerritoryBattleHistoryView(ListView):
 
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
 
-	@method_decorator(login_required)
-	def dispatch(self, *args, **kwargs):
-		return super().dispatch(*args, **kwargs)
-
 	def get_context_data(self, *args, **kwargs):
+
+		timezone = kwargs.pop('timezone', 'UTC')
 
 		context = super().get_context_data(*args, **kwargs)
 
 		queryset = self.get_queryset(*args, **kwargs)
-
-		timezone = kwargs.pop('timezone', 'UTC')
 
 		context['events'] = queryset
 		for event in context['events']:
@@ -55,15 +63,13 @@ class TerritoryBattleHistoryView(ListView):
 
 		return context
 
-	@csrf_exempt
 	def get(self, request, *args, **kwargs):
-
-		guild_id = request.user.guild_id
 
 		context = {}
 
-		kwargs['guild_id'] = guild_id
-		context['guild_id'] = guild_id
+		player = self.get_player(request)
+		kwargs['guild'] = player.guild
+		context['guild'] = player.guild
 
 		if 'tb' in request.GET:
 			tb = int(request.GET['tb'])
