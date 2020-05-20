@@ -14,11 +14,12 @@ class TerritoryBattle(models.Model):
 		('TB_EVENT_GEONOSIS_SEPARATIST', 'Genonosis - Separatist (Dark Side)'),
 	]
 
-	tb_id = models.CharField(max_length=64)
+	event_id = models.CharField(max_length=64)
 	tb_type = models.CharField(max_length=16, choices=TB_TYPE_CHOICES)
+	timestamp = models.DateTimeField()
 
 	def __str__(self):
-		return self.tb_type + ':O' + self.tb_id
+		return str(self.event_id)
 
 	def get_name(self):
 
@@ -29,19 +30,21 @@ class TerritoryBattle(models.Model):
 		return 'Unknown'
 
 	def get_date(self, dateformat='%Y-%m-%d'):
-		return pytz.utc.convert(datetime.fromtimestamp(int(self.tb_id))).strftime(dateformat)
+		ts = int(self.event_id.split(':')[1][1:-3])
+		dt = datetime.fromtimestamp(ts)
+		return pytz.utc.convert(dt).strftime(dateformat)
 
 	@staticmethod
 	def parse(event_id):
-
-		tokens = event_id.split(':')
-
-		tb_id = tokens[1][1:]
-		tb_type = tokens[0]
-
-		event, created = TerritoryBattle.objects.get_or_create(tb_type=tb_type, tb_id=tb_id)
+		tb_type = event_id.split(':')[0]
+		ts = int(event_id.split(':')[1][1:-3])
+		timestamp = datetime.fromtimestamp(ts)
+		event, created = TerritoryBattle.objects.get_or_create(event_id=event_id, tb_type=tb_type, timestamp=timestamp)
 
 		return event
+
+	class Meta:
+		ordering = ('-timestamp',)
 
 class TerritoryBattleHistory(models.Model):
 

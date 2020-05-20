@@ -16,8 +16,10 @@ from .models import TerritoryBattle, TerritoryBattleHistory
 import pytz
 from datetime import datetime
 
-def ts2date(ts, dateformat='%Y/%m/%d'):
-	return datetime.fromtimestamp(int(int(ts) / 1000)).strftime(dateformat)
+def ts2date(tb, dateformat='%Y/%m/%d'):
+	print(tb)
+	ts = int(str(tb).split(':')[1][1:]) / 1000
+	return datetime.fromtimestamp(int(ts)).strftime(dateformat)
 
 class TerritoryBattleHistoryView(ListView):
 
@@ -132,7 +134,7 @@ class TerritoryBattleHistoryView(ListView):
 			timezones.remove('UTC')
 		timezones.insert(0, 'UTC')
 
-		context['tbs'] = { x.id: '%s - %s' % (ts2date(x.tb_id), x.get_name()) for x in tbs }
+		context['tbs'] = { x.id: '%s - %s' % (ts2date(x.event_id), x.get_name()) for x in tbs }
 
 		context['timezones'] = { x: x for x in timezones }
 
