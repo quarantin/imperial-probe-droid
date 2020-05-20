@@ -46,6 +46,9 @@ class Guild(models.Model):
 	guild_id = models.CharField(max_length=22)
 	guild_name = models.CharField(max_length=64)
 
+	def __str__(self):
+		return '%s (%s)' % (self.guild_name, self.guild_id)
+
 class Player(models.Model):
 
 	LANGS = (
