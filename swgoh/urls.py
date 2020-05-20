@@ -23,7 +23,6 @@ from . import views
 urlpatterns = [
 	path('', views.index),
 	path('admin/', admin.site.urls),
-	path('accounts/', include('django_registration.backends.activation.urls')),
 	path('accounts/', include('django.contrib.auth.urls')),
 	path('dashboard/', views.dashboard),
 	path('profile/', views.UserDetailView.as_view()),
