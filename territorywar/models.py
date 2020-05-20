@@ -12,6 +12,7 @@ import protos.PlayerRpc_pb2 as PlayerRpc
 class TerritoryWar(models.Model):
 
 	event_id = models.CharField(max_length=64)
+	timestamp = models.DateTimeField()
 
 	def __str__(self):
 		return str(self.event_id)
@@ -26,11 +27,13 @@ class TerritoryWar(models.Model):
 
 	@staticmethod
 	def parse(event_id):
-		event, created = TerritoryWar.objects.get_or_create(event_id=event_id)
+		ts = int(event_id.split(':')[1][1:-3])
+		timestamp = datetime.fromtimestamp(ts)
+		event, created = TerritoryWar.objects.get_or_create(event_id=event_id, timestamp=timestamp)
 		return event
 
 	class Meta:
-		ordering = ('event_id',)
+		ordering = ('-timestamp',)
 
 class  TerritoryWarUnit(models.Model):
 	
