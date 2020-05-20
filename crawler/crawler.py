@@ -48,7 +48,7 @@ class Crawler(asyncio.Future):
 
 		new_profile = None
 		try:
-			new_profile = await self.client.player(player_id=player_id, session=self.session, no_cache=True)
+			new_profile = await self.client.player(player_id=player_id, no_cache=True)
 
 		except libswgoh.LibSwgohException as err:
 			if err.response.code == swgoh_pb2.ResponseCode.AUTHFAILED:
@@ -92,11 +92,9 @@ class Crawler(asyncio.Future):
 				await self.update_player(premium, guild, member['playerId'])
 				continue
 
-			except AuthError:
-				self.session = await libswgoh.get_auth_google(creds_id=self.creds_id)
-
 			except CrawlerError:
-				pass
+				print(err)
+				print(traceback.format_exc())
 
 			except Exception as err:
 				print(err)
@@ -109,9 +107,6 @@ class Crawler(asyncio.Future):
 	async def run(self):
 
 		print("Starting crawler thread.")
-
-		crawler.session = await libswgoh.get_auth_google(creds_id=self.creds_id)
-
 		print('Crawler bot ready!')
 
 		while True:
@@ -122,7 +117,7 @@ class Crawler(asyncio.Future):
 
 			selectors = [ guild.selector for guild in premium_guilds ]
 
-			guilds = await self.client.guilds(player_ids=selectors, session=self.session)
+			guilds = await self.client.guilds(player_ids=selectors)
 
 			for premium in premium_guilds:
 
