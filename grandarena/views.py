@@ -6,8 +6,6 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 
 from collections import OrderedDict
 from client import SwgohClient
@@ -30,10 +28,6 @@ class GrandArenaHistoryView(ListView):
 		local_dt = utc_date.astimezone(local_tz)
 
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
-
-	@method_decorator(login_required)
-	def dispatch(self, *args, **kwargs):
-		return super().dispatch(*args, **kwargs)
 
 	def get_context_data(self, **kwargs):
 
