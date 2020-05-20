@@ -1,6 +1,6 @@
 from django.db import models
 from django.db import transaction
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from timezone_field import TimeZoneField
 
 import os, json, pytz, requests
@@ -69,6 +69,12 @@ class Player(models.Model):
 
 	LANGUAGES = ( (code, name) for code, short_code, flag, name in LANGS )
 
+	PREMIUM_TYPE_CHOICES = (
+		(0, 'None'),
+		(1, 'Single Player'),
+		(2, 'Guild'),
+	)
+
 	def get_language_info(lang):
 		llang = lang.lower()
 		for code, short_code, flag, name in Player.LANGS:
@@ -77,14 +83,18 @@ class Player(models.Model):
 
 		return None
 
+	user                 = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+	creds_id             = models.CharField(max_length=32, null=True)
+	guild                = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
+	ally_code            = models.IntegerField(blank=True, null=True)
+	player_id            = models.CharField(max_length=22, default='',  blank=True, null=True)
+	player_name          = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_id           = models.IntegerField(unique=True, blank=True, null=True)
 	discord_name         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_nick         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_display_name = models.CharField(max_length=128, default='', blank=True, null=True)
-	game_nick            = models.CharField(max_length=128, default='', blank=True, null=True)
-	player_id            = models.CharField(max_length=22, default='',  blank=True, null=True)
-	ally_code            = models.IntegerField(blank=True, null=True)
 	language             = models.CharField(max_length=6, default='eng_us', choices=LANGUAGES)
+	premium_type         = models.IntegerField(choices=PREMIUM_TYPE_CHOICES, default=0)
 	timezone             = TimeZoneField(blank=True, null=True)
 	banned               = models.BooleanField(default=False, null=True)
 
@@ -101,10 +111,10 @@ class Player(models.Model):
 		match_name = Q(discord_name=nick)
 		match_nick = Q(discord_nick=nick)
 		match_display_name = Q(discord_display_name=nick)
-		match_game_nick = Q(game_nick=nick)
+		match_player_name = Q(player_name=nick)
 
 		try:
-			return Player.objects.get(match_name|match_nick|match_display_name|match_game_nick)
+			return Player.objects.get(match_name|match_nick|match_display_name|match_player_name)
 
 		except Player.DoesNotExist:
 			return None
@@ -138,6 +148,15 @@ class Player(models.Model):
 			return str(self.discord_id)
 
 		return str(self.id)
+
+class PlayerConfig(models.Model):
+
+	CONFIG_NOTIFY_RAID_TICKETS = 'notify-raid-tickets'
+
+	player = models.ForeignKey(Player, on_delete=models.CASCADE)
+	channel_id = models.IntegerField()
+	key = models.CharField(max_length=32)
+	value = models.CharField(max_length=32)
 
 class Gear(models.Model):
 
@@ -975,26 +994,3 @@ class PremiumGuildConfig(models.Model):
 			types[key] = typ.__name__
 
 		return types
-
-class User(AbstractUser):
-
-	PREMIUM_TYPE_CHOICES = (
-		(0, 'None'),
-		(1, 'Single Player'),
-		(2, 'Guild'),
-	)
-
-	player = models.ForeignKey(Player, on_delete=models.CASCADE, null=True)
-	guild = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
-	discord_id = models.IntegerField(null=True)
-	creds_id = models.CharField(max_length=32, null=True)
-	premium_type = models.IntegerField(choices=PREMIUM_TYPE_CHOICES, default=0)
-
-class UserConfig(models.Model):
-
-	CONFIG_NOTIFY_RAID_TICKETS = 'notify-raid-tickets'
-
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	channel_id = models.IntegerField()
-	key = models.CharField(max_length=32)
-	value = models.CharField(max_length=32)
