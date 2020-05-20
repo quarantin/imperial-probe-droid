@@ -167,6 +167,10 @@ def basicstrip(string):
 
 	return string.lower()
 
+ignore_translate_errors = {
+	'NA': True,
+}
+
 def translate(string_id, language='eng_us'):
 
 	langs = [ language ]
@@ -182,7 +186,9 @@ def translate(string_id, language='eng_us'):
 		except Translation.DoesNotExist:
 			pass
 
-	print('WARN: Missing translation for string ID: %s (%s)' % (string_id, language))
+	if string_id not in ignore_translate_errors:
+		print('WARN: Missing translation for string ID: %s (%s)' % (string_id, language))
+
 	return string_id
 
 def translate_multi(string_ids, language='eng_us'):
