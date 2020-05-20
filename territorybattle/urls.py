@@ -18,11 +18,10 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-from django.contrib.auth.decorators import login_required
 
 from . import views
 from .models import TerritoryBattleHistory
 
 urlpatterns = [
-	path('', login_required(views.TerritoryBattleHistoryView.as_view())),
+	path('', views.TerritoryBattleHistoryView.as_view()),
 ]
