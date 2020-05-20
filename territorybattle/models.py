@@ -38,7 +38,7 @@ class TerritoryBattle(models.Model):
 	def parse(event_id):
 		tb_type = event_id.split(':')[0]
 		ts = int(event_id.split(':')[1][1:-3])
-		timestamp = datetime.fromtimestamp(ts)
+		timestamp = pytz.utc.localize(datetime.fromtimestamp(ts))
 		event, created = TerritoryBattle.objects.get_or_create(event_id=event_id, tb_type=tb_type, timestamp=timestamp)
 
 		return event
