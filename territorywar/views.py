@@ -3,14 +3,12 @@ from django.http import HttpResponse, Http404
 from django.template.loader import get_template
 from django.views.generic import DetailView, ListView
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from django.contrib.auth.models import User
 
 from collections import OrderedDict
 from client import SwgohClient
 
-#from django.contrib.auth.models import User
-from swgoh.models import User
+from swgoh.models import Player
 from .models import TerritoryWar, TerritoryWarHistory, TerritoryWarSquad, TerritoryWarUnit
 
 import json
@@ -40,10 +38,6 @@ class TerritoryWarSquadView(DetailView):
 
 		raise Http404('No such squad')
 
-	@method_decorator(login_required)
-	def dispatch(self, *args, **kwargs):
-		return super().dispatch(*args, **kwargs)
-
 	def get_context_data(self, **kwargs):
 
 		context = super().get_context_data(**kwargs)
@@ -68,6 +62,18 @@ class TerritoryWarHistoryView(ListView):
 	template_name = 'territorywar/territorywarhistory_list.html'
 	queryset = TerritoryWarHistory.objects.all()
 
+	def get_player(self, request):
+
+		user = request.user
+		if not user.is_authenticated:
+			user = User.objects.get(id=3)
+
+		try:
+			return Player.objects.get(user=user)
+
+		except Player.DoesNotExist:
+			return None
+
 	def get_queryset(self, *args, **kwargs):
 		return self.queryset.filter(**kwargs)
 
@@ -77,10 +83,6 @@ class TerritoryWarHistoryView(ListView):
 		local_dt = utc_date.astimezone(local_tz)
 
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
-
-	@method_decorator(login_required)
-	def dispatch(self, *args, **kwargs):
-		return super().dispatch(*args, **kwargs)
 
 	def get_context_data(self, *args, **kwargs):
 
@@ -110,12 +112,11 @@ class TerritoryWarHistoryView(ListView):
 	@csrf_exempt
 	def get(self, request, *args, **kwargs):
 
-		guild_id = request.user.guild_id
-
 		context = {}
 
-		kwargs['guild_id'] = guild_id
-		context['guild_id'] = guild_id
+		player = self.get_player(request)
+		kwargs['guild_id'] = player.guild.id
+		context['guild_id'] = player.guild.id
 
 		if 'tw' in request.GET:
 			tw = int(request.GET['tw'])
