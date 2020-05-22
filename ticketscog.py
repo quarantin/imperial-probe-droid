@@ -4,6 +4,7 @@ import pytz
 import json
 import traceback
 from datetime import datetime
+from discord import Embed
 from discord.ext import commands, tasks
 
 from opts import *
@@ -87,15 +88,19 @@ class TicketsCog(commands.Cog):
 
 		activities = []
 
+		total_guild_tokens = 0
+		total_raid_tickets = 0
+		guild = await self.bot.client.guild(creds_id=creds_id, full=True)
+
 		guild_activity = {
+			'name': guild['name'],
+			'banner': guild['bannerLogo'],
+			'colors': guild['bannerColor'],
 			'total': {},
 			'guild-tokens': {},
 			'raid-tickets': {},
 		}
 
-		total_guild_tokens = 0
-		total_raid_tickets = 0
-		guild = await self.bot.client.guild(creds_id=creds_id, full=True)
 		for member, profile in zip(guild['roster'], guild['members']):
 
 			player_id = profile['id']
@@ -151,14 +156,14 @@ class TicketsCog(commands.Cog):
 		for alert in alerts:
 
 			notif_time = datetime.strptime(alert.value, '%H:%M')
-			premium_user = alert.premium_user
+			creds_id = alert.player.creds_id
 
 			hour_ok = now.hour == notif_time.hour
 			minute_ok = now.minute == notif_time.minute
 			if hour_ok and minute_ok:
 
 				lines = []
-				guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=alert.notify, store=alert.store)
+				guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
 				raid_tickets = guild_activity['raid-tickets']
 
 				for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
@@ -178,14 +183,14 @@ class TicketsCog(commands.Cog):
 		for alert in alerts:
 
 			notif_time = datetime.strptime(alert.value, '%H:%M')
-			premium_user = alert.premium_user
+			creds_id = alert.player.creds_id
 
 			hour_ok = now.hour == notif_time.hour
 			minute_ok = now.minute == notif_time.minute
 			if hour_ok and minute_ok:
 
 				lines = []
-				guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=True)
+				guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
 				guild_tokens = guild_activity['guild-tokens']
 
 				for name, tokens in sorted(guild_tokens.items(), key=lambda x: x[1], reverse=True):
@@ -195,8 +200,8 @@ class TicketsCog(commands.Cog):
 				channel = self.bot.get_channel(alert.channel_id)
 				await channel.send('\n'.join(lines))
 
-	@commands.command(aliases=['rtc'])
-	async def raid_tickets_check(self, ctx, *, args: str = ''):
+	@commands.command(aliases=['ticket', 'tickets'])
+	async def rtc(self, ctx, *, args: str = ''):
 
 		MAX_TICKETS = 600
 
@@ -228,6 +233,9 @@ class TicketsCog(commands.Cog):
 
 		lines = []
 		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify, store=store)
+		guild_name = guild_activity['name']
+		guild_banner = guild_activity['banner']
+		guild_colors = guild_activity['colors']
 		raid_tickets = guild_activity['raid-tickets']
 		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
 			if tickets < min_tickets :
@@ -240,7 +248,12 @@ class TicketsCog(commands.Cog):
 			sep = self.config['separator']
 			lines = [ sep ] + lines + [ sep ]
 
-		await ctx.send('\n'.join(lines))
+		description = '\n'.join(lines)
+		icon_url = 'https://swgoh.gg/static/img/assets/tex.%s.png' % guild_banner
+
+		embed = Embed(title='Raid Ticket Check', description=description)
+		embed.set_author(name=guild_name, icon_url=icon_url)
+		await ctx.send(embed=embed)
 
 	@commands.command(aliases=['gtc'])
 	async def guild_tokens_check(self, ctx, min_tokens: int = 10000, *, command=''):
