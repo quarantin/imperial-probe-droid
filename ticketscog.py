@@ -169,7 +169,7 @@ class TicketsCog(commands.Cog):
 				for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
 					if tickets < min_tickets:
 						pad = self.get_lpad_tickets(tickets)
-						lines.append('`| %s%d/%d |` __**%s**__' % (pad, tickets, min_tickets, name))
+						lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
 
 				channel = self.bot.get_channel(alert.channel_id)
 				await channel.send('\n'.join(lines))
@@ -195,7 +195,7 @@ class TicketsCog(commands.Cog):
 
 				for name, tokens in sorted(guild_tokens.items(), key=lambda x: x[1], reverse=True):
 					if tickets != self.max_raid_tickets:
-						lines.append('`| %s%d/%d |` __**%s**__' % (pad, tickets, min_tickets, name))
+						lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
 
 				channel = self.bot.get_channel(alert.channel_id)
 				await channel.send('\n'.join(lines))
@@ -240,7 +240,7 @@ class TicketsCog(commands.Cog):
 		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
 			if tickets < min_tickets :
 				pad = self.get_lpad_tickets(tickets)
-				lines.append('`| %s%d/%d |` __**%s**__' % (pad, tickets, min_tickets, name))
+				lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
 
 		if not lines:
 			lines.append('Everyone got their raid tickets done (%d/%d)! Congratulations! 🥳' % (min_tickets, self.max_raid_tickets))
@@ -273,7 +273,7 @@ class TicketsCog(commands.Cog):
 		for name, tokens in sorted(guild_tokens.items(), key=lambda x: x[1], reverse=True):
 			if tokens < min_tokens:
 				pad = self.get_lpad_tokens(tokens)
-				lines.append('`| %s%d/%d |` __**%s**__' % (pad, tokens, min_tokens, name))
+				lines.append('`| %s%d/%d |` **%s**' % (pad, tokens, min_tokens, name))
 
 		if not lines:
 			lines.append('Everyone got their guild tokens done (%d/%d)! Contratulations! 🥳' % (min_tokens, self.max_guild_tokens))
