@@ -11,7 +11,6 @@ from cmd.general.clock import *
 from cmd.general.cogs import *
 from cmd.general.config import *
 from cmd.general.help import *
-from cmd.general.ignore import *
 from cmd.general.invite import *
 from cmd.general.language import *
 from cmd.general.lookup import *
@@ -159,13 +158,6 @@ COMMANDS = [
 		'aliases': [ 'h', 'help' ],
 		'function': cmd_help,
 		'help': help_help,
-		'need_api': False,
-	},
-	{
-		'command': 'ignore',
-		'aliases': [ 'ignore' ],
-		'function': cmd_ignore,
-		'help': help_ignore,
 		'need_api': False,
 	},
 	{
