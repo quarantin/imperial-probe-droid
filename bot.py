@@ -37,6 +37,37 @@ class Bot(commands.Bot):
 
 		return bot_prefix
 
+	def get_perms(self):
+
+		perms = discord.Permissions()
+
+		perms.manage_webhooks = True
+		perms.manage_messages = True
+		perms.read_messages = True
+		perms.read_message_history = True
+		perms.send_messages = True
+		perms.embed_links = True
+		perms.attach_files = True
+		perms.external_emojis = True
+		perms.add_reactions = True
+
+		return perms.value
+
+	def get_invite_url(self, user=None):
+
+		from urllib.parse import urlencode
+
+		client_id = user is None and self.user.id or user.id
+
+		return 'https://discordapp.com/api/oauth2/authorize?' + urlencode({
+			'client_id': client_id,
+			'perms': self.get_perms(),
+			'scope': 'bot',
+		})
+
+	def get_invite_link(self, user=None, invite_msg='Click here to invite this bot to your server'):
+		return '[%s](%s)' % (invite_msg, self.get_invite_url(user=user))
+
 	async def sendmsg(self, channel, message=None, embed=None):
 
 		error = None

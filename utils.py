@@ -8,7 +8,6 @@ import requests
 import subprocess
 import traceback
 from fuzzywuzzy import fuzz
-from urllib.parse import urlencode
 from requests.exceptions import HTTPError
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
@@ -88,34 +87,6 @@ def dump_json(filename, data, indent=None):
 
 def fix_swgohgg_url(url):
 	return url.replace('http://swgoh.gg', '').replace('https://swgoh.gg', '').replace('//swgoh.gg', '')
-
-def get_perms():
-
-	import discord
-
-	perms = discord.Permissions()
-
-	perms.manage_webhooks = True
-	perms.read_messages = True
-	perms.send_messages = True
-	perms.embed_links = True
-	perms.attach_files = True
-	perms.read_message_history = True
-	perms.external_emojis = True
-	perms.add_reactions = True
-
-	return perms.value
-
-def get_invite_url(config):
-
-	return 'https://discordapp.com/api/oauth2/authorize?' + urlencode({
-		'client_id': config['bot'].user.id,
-		'perms': get_perms(),
-		'scope': 'bot',
-	})
-
-def get_invite_link(config, invite_msg='Click here to invite this bot to your server'):
-	return '[%s](%s)' % (invite_msg, get_invite_url(config))
 
 def local_time(date=None, timezone='Europe/Paris'):
 	if date is None:
@@ -321,16 +292,6 @@ def get_dict_by_index(dict_list, index_key):
 			d[index] = []
 
 		d[index].append(a_dict)
-
-	return d
-
-def get_units_dict(units, base_id_key):
-
-	d = {}
-
-	for unit in units:
-		base_id = str(unit[base_id_key])
-		d[base_id] = unit
 
 	return d
 

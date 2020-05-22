@@ -1,5 +1,4 @@
 from errors import *
-from utils import get_invite_link
 
 help_help = {
 	'title': 'Imperial Probe Droid Help - Prefix: %prefix',
@@ -45,7 +44,7 @@ help_help = {
 #NOT WORKING **`stats`**: Show statistics about equipped mods."""
 }
 
-def substitute_tokens(config, text):
+def substitute_tokens(bot, text):
 
 	tokens = [
 		'authors',
@@ -59,12 +58,12 @@ def substitute_tokens(config, text):
 
 	for token in tokens:
 
-		value = token in config and config[token] or ''
+		value = token in bot.config and bot.config[token] or ''
 		if token == 'source':
 			value = '[Github](%s)' % value
 
 		elif token == 'invite':
-			value = get_invite_link(config, invite_msg='HERE')
+			value = bot.get_invite_link(invite_msg='HERE')
 
 		if type(value) is list:
 			value = ', '.join(value)
@@ -75,6 +74,7 @@ def substitute_tokens(config, text):
 
 def cmd_help(request):
 
+	bot = request.bot
 	args = request.args
 	config = request.config
 
@@ -88,7 +88,7 @@ def cmd_help(request):
 			return error_no_such_command(command)
 
 	return [{
-		'title':       substitute_tokens(config, msg['title']),
-		'description': substitute_tokens(config, msg['description']),
+		'title':       substitute_tokens(bot, msg['title']),
+		'description': substitute_tokens(bot, msg['description']),
 		'no-sep': True,
 	}]
