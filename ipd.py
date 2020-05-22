@@ -126,9 +126,6 @@ class UserRequest:
 				args = shlex.split(content)
 				command = args[0]
 
-			if command.lower() in config['ignored']:
-				self.is_ipd_message = False
-
 			args = args[1:]
 
 			args = [ x for x in args if x ]
