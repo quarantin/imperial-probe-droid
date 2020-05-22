@@ -16,7 +16,7 @@ from django.db import transaction
 
 from swgoh.models import *
 
-DEBUG = False
+DEBUG = True
 
 urls = {
 	'cache/characters.json': 'https://swgoh.gg/api/characters/',

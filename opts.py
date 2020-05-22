@@ -173,8 +173,8 @@ def parse_opts_mentions(request):
 			if author.id not in discord_ids:
 				discord_ids.append(author.id)
 
-		else:
-			p = Player.get_player_by_nick(arg)
+		elif arg.startswith('@'):
+			p = Player.get_player_by_nick(arg[1:])
 			if p:
 				args.remove(arg)
 				if p.discord_id not in discord_ids:
