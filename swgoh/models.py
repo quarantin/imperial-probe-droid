@@ -7,7 +7,6 @@ import os, json, pytz, requests
 from datetime import datetime
 
 from .formats import *
-from .utils import download, expired
 
 CACHE = {}
 
