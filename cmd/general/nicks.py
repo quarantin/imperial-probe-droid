@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 
 help_nicks = {
 	'title': 'Nicks Help',
@@ -31,11 +30,12 @@ Delete first nick (**ep**) using its ID:
 %prefixN del 1```"""
 }
 
-def cmd_nicks(request):
+def cmd_nicks(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	lines = []
 	prefix = config['prefix']
@@ -53,14 +53,14 @@ def cmd_nicks(request):
 		}]
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.error_permission_denied()
 
 	action = args.pop(0)
 
 	if action == 'del':
 
 		if len(args) < 1:
-			return error_missing_parameters(config, 'nicks')
+			return bot.errors.error_missing_parameters(ctx, 'nicks')
 
 		target_nick = args.pop(0)
 		if target_nick.isdigit():
@@ -89,15 +89,15 @@ def cmd_nicks(request):
 	elif action == 'add':
 
 		if len(args) < 2:
-			return error_missing_parameter(config, 'nicks')
+			return bot.errors.error_missing_parameter(ctx, 'nicks')
 
 		target_nick = args.pop(0)
-		selected_units = parse_opts_unit_names(request)
+		selected_units = parse_opts_unit_names(ctx)
 		if args:
-			return error_unknown_parameters(args)
+			return bot.errors.error_unknown_parameters(args)
 
 		if not selected_units:
-			return error_no_unit_selected()
+			return bot.errors.error_no_unit_selected(ctx)
 
 		if len(selected_units) > 1:
 			return [{

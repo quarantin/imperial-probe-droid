@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import translate
 
 import DJANGO
@@ -29,9 +28,9 @@ Show top most popular relic tiers for characters you have:
 
 MAX_RELIC = 7
 
-def parse_opts_relic_tier(request):
+def parse_opts_relic_tier(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -45,9 +44,9 @@ def parse_opts_relic_tier(request):
 
 	return MAX_RELIC
 
-def parse_opts_include_locked(request):
+def parse_opts_include_locked(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -58,34 +57,37 @@ def parse_opts_include_locked(request):
 
 	return False
 
-async def cmd_relic(request):
+async def cmd_relic(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
 	per_user_limit = 25
-	relic_tier = parse_opts_relic_tier(request)
+	relic_tier = parse_opts_relic_tier(ctx)
 	relic_field = 'relic%d_percentage' % relic_tier
 	relic_filter = '-%s' % relic_field
-	include_locked = parse_opts_include_locked(request)
+	include_locked = parse_opts_include_locked(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
 
 	if error:
 		return error
 
-	if not selected_players:
-		return error_no_ally_code_specified(config, author)
-
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.error_unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.error_no_ally_code_specified(ctx)
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.error_ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	msgs = []

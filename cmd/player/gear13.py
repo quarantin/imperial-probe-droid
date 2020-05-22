@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import translate
 
 from swgohgg import get_full_avatar_url
@@ -35,9 +34,9 @@ Show top 25 most popular gear 13 for characters you don't have:
 %prefixg13 locked```"""
 }
 
-def parse_opts_limit(request):
+def parse_opts_limit(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		try:
@@ -50,9 +49,9 @@ def parse_opts_limit(request):
 
 	return 25
 
-def parse_opts_include_locked(request):
+def parse_opts_include_locked(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -63,31 +62,35 @@ def parse_opts_include_locked(request):
 
 	return False
 
-async def cmd_gear13(request):
+async def cmd_gear13(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	limit_per_user = parse_opts_limit(request)
-	include_locked = parse_opts_include_locked(request)
+	limit_per_user = parse_opts_limit(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	include_locked = parse_opts_include_locked(ctx)
+
+	selected_players, error = parse_opts_players(ctx)
 
 	if error:
 		return error
 
-	if not selected_players:
-		return error_no_ally_code_specified(config, author)
-
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.error_unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.error_no_ally_code_specified(ctx)
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.error_ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	msgs = []

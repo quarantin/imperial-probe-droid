@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import translate
 
 help_locked = {
@@ -49,10 +48,10 @@ opts_locked = {
 	'ships': 'ships',
 }
 
-def parse_opts_locked(request):
+def parse_opts_locked(ctx):
 
 	opts = []
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -70,26 +69,32 @@ def parse_opts_locked(request):
 
 	return opts
 	
-async def cmd_locked(request):
+async def cmd_locked(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
 
-	opts = parse_opts_locked(request)
-
-	if args:
-		return error_unknown_parameters(args)
+	selected_opts = parse_opts_locked(ctx)
 
 	if error:
 		return error
 
-	ally_codes = [ player.ally_code for player in players ]
+	if not selected_players:
+		return bot.errors.error_no_ally_code_specified(ctx)
+
+	if args:
+		return bot.errors.error_unknown_parameters(args)
+
+	ally_codes = [ player.ally_code for player in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.error_ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	units = BaseUnit.objects.filter(combat_type=1).values()
@@ -103,7 +108,7 @@ async def cmd_locked(request):
 
 		ally_units = { x['defId']: x for x in player['roster'] }
 
-		if opts in [ 'chars', 'all' ]:
+		if selected_opts in [ 'chars', 'all' ]:
 
 			locked_chars = []
 			for base_id, char in char_list.items():
@@ -118,7 +123,7 @@ async def cmd_locked(request):
 			lines += sorted(locked_chars)
 			lines.append('')
 
-		if opts in [ 'ships', 'all' ]:
+		if selected_opts in [ 'ships', 'all' ]:
 
 			locked_ships = []
 			for base_id, ship in ship_list.items():

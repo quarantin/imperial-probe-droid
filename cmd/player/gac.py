@@ -2,7 +2,6 @@ import json
 from datetime import datetime
 
 from opts import *
-from errors import *
 from utils import lpad
 
 help_gac = {
@@ -73,21 +72,31 @@ def parse_season(data):
 
 	return '%s %s %s' % (zones[0:2], typ, variant)
 
-async def cmd_gac(request):
+async def cmd_gac(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	lang = parse_opts_lang(request)
+	lang = parse_opts_lang(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
+
 	if error:
 		return error
+
+	if not selected_players:
+		return bot.errors.error_not_ally_code_specified(ctx)
+
+	if args:
+		return bot.errors.error_unknown_parameters(args)
 
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.error_ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	result = {}

@@ -12,7 +12,6 @@ from discord.ext import commands
 
 import libswgoh
 from opts import *
-from errors import *
 from embed import new_embeds
 from utils import translate, translate_multi
 
@@ -26,6 +25,7 @@ class TWCog(commands.Cog):
 		if bot:
 			self.client = bot.client
 			self.config = bot.config
+			self.errors = bot.errors
 			self.logger = bot.logger
 			self.redis = bot.redis
 
@@ -70,7 +70,7 @@ class TWCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return error_not_premium()
+			return self.errors.error_not_premium()
 
 		wrong_order = {}
 

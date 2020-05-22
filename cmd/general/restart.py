@@ -1,5 +1,3 @@
-from errors import *
-
 help_restart = {
 	'title': 'Restart Help',
 	'description': """Restart this bot.
@@ -19,13 +17,14 @@ Restart the bot:
 %prefixR```""",
 }
 
-def cmd_restart(request):
+def cmd_restart(ctx):
 
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	author = ctx.author
+	config = ctx.config
 
 	if 'admins' in config and author.id in config['admins']:
 		config['bot'].exit()
 		return []
 
-	return error_permission_denied()
+	return bot.errors.error_permission_denied()

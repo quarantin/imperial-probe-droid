@@ -100,7 +100,7 @@ class UserRequest:
 		self.from_user = from_user
 		self.server = hasattr(message, 'guild') and message.guild or None
 		self.channel = hasattr(message, 'channel') and message.channel or None
-		self.bot_prefix = self.bot.get_bot_prefix(self.server, self.channel)
+		self.bot_prefix = self.bot.get_bot_prefix(self)
 		self.prefix_list = self.__get_prefix_list()
 		self.message = message
 		self.content = hasattr(message, 'content') and message.content or str(message)
@@ -418,6 +418,9 @@ async def __main__():
 		bot.config = config
 		bot.logger = ipd_logger
 		bot.redis = config.redis
+
+		from boterrors import BotErrors
+		bot.errors = BotErrors(bot)
 
 		import client
 		bot.client = client.SwgohClient(bot)

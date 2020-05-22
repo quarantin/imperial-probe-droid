@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 from opts import *
-from errors import *
 from swgohgg import get_full_avatar_url
 from utils import translate, get_ability_name
 
@@ -34,9 +33,9 @@ Show top 25 most popular zetas for characters you don't have:
 %prefixz locked```"""
 }
 
-def parse_opts_limit(request):
+def parse_opts_limit(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		try:
@@ -49,9 +48,9 @@ def parse_opts_limit(request):
 
 	return 25
 
-def parse_opts_include_locked(request):
+def parse_opts_include_locked(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -62,31 +61,38 @@ def parse_opts_include_locked(request):
 
 	return False
 
-async def cmd_zetas(request):
+async def cmd_zetas(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
+	bot = ctx.bot
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	limit_per_user = parse_opts_limit(request)
-	include_locked = parse_opts_include_locked(request)
+	limit_per_user = parse_opts_limit(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	include_locked = parse_opts_include_locked(ctx)
+
+	selected_players, error = parse_opts_players(ctx)
 
 	if error:
 		return error
 
 	if not selected_players:
-		return error_no_ally_code_specified(config, author)
+		return bot.errors.error_no_ally_code_specified(ctx)
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.error_unknown_parameters(args)
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		msgs = []
+		for ally_code in ally_codes:
+			msgs.extend(bot.errors.error_ally_code_not_found(ally_code))
+		return msgs
+
 	players = { x['allyCode']: x for x in players }
 
 	msgs = []

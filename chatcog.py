@@ -6,7 +6,6 @@ from datetime import datetime
 from discord.ext import commands, tasks
 
 from opts import *
-from errors import *
 
 import DJANGO
 from swgoh.models import Player, PlayerConfig
@@ -15,6 +14,7 @@ class ChatCog(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.errors = bot.errors
 		self.client = bot.client
 		self.config = bot.config
 		self.logger = bot.logger
@@ -34,7 +34,7 @@ class ChatCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return error_not_premium()
+			return self.errors.error_not_premium()
 
 		room = await self.client.set_chat_topic(creds_id=premium_user.creds_id, player_id=premium_user.player.player_id, channel_topic=channel_topic)
 		message = room and 'OK' or 'KO'

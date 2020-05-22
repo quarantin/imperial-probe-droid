@@ -1,7 +1,4 @@
-# -*- coding=utf-8 -*-
-
 from opts import *
-from errors import *
 
 import DJANGO
 from swgoh.models import NewsChannel, NewsEntry
@@ -28,13 +25,13 @@ Populate current channel with all passed news:
 %prefixnews history```"""
 }
 
-async def handle_news_enable(request):
+async def handle_news_enable(ctx):
 
-	bot = request.bot
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if not bot.is_ipd_admin(author):
 		return [{
@@ -93,12 +90,12 @@ async def handle_news_enable(request):
 		'description': desc,
 	}]
 
-def handle_news_disable(request):
+def handle_news_disable(ctx):
 
-	bot = request.bot
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if not bot.is_ipd_admin(author):
 		return [{
@@ -112,7 +109,7 @@ def handle_news_disable(request):
 		channel.delete()
 
 	except NewsChannel.DoesNotExist:
-		return error_not_a_news_channel(config)
+		return bot.errors.error_not_a_news_channel(ctx)
 
 
 	return [{
@@ -120,30 +117,30 @@ def handle_news_disable(request):
 		'description': 'News are now disabled on this channel.'
 	}]
 
-async def handle_news_history(request):
+async def handle_news_history(ctx):
 
-	bot = request.bot
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',
-			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
+			'description': 'Only a member of the role **%s** can perform this operation.' % bot.config['role'],
 		}]
 
 	try:
 		channel = NewsChannel.objects.get(channel_id=channel.id)
 
 	except NewsChannel.DoesNotExist:
-		return error_not_a_news_channel(config)
+		return error_not_a_news_channel(ctx)
 
 	channel.last_news = None
 	channel.save()
 
-	await config['bot'].update_news_channel(config, channel)
+	await bot.update_news_channel(config, channel)
 
 	return []
 
@@ -153,9 +150,9 @@ subcommands = {
 	'history': handle_news_history,
 }
 
-def parse_opts_subcommands(request):
+def parse_opts_subcommands(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		larg = arg.lower()
@@ -165,19 +162,20 @@ def parse_opts_subcommands(request):
 
 	return None
 
-async def cmd_news(request):
+async def cmd_news(ctx):
 
-	command = request.command
-	config = request.config
+	bot = ctx.bot
+	config = ctx.config
+	command = ctx.command
 
-	subcommand = parse_opts_subcommands(request)
+	subcommand = parse_opts_subcommands(ctx)
 	if not subcommand:
-		return error_missing_parameter(config, command)
+		return bot.errors.error_missing_parameter(ctx, command)
 
 	if subcommand in subcommands:
 		if inspect.iscoroutinefunction(subcommands[subcommand]):
-			return await subcommands[subcommand](request)
+			return await subcommands[subcommand](ctx)
 		else:
-			return subcommands[subcommand](request)
+			return subcommands[subcommand](ctx)
 
-	return error_generic('Unsupported Action', subcommand)
+	return bot.errors.error_generic('Unsupported Action', subcommand)

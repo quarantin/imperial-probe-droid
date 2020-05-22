@@ -8,7 +8,6 @@ from discord import Embed
 from discord.ext import commands, tasks
 
 from opts import *
-from errors import *
 
 import DJANGO
 from django.db import transaction
@@ -22,6 +21,7 @@ class TicketsCog(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.config = bot.config
+		self.errors = bot.errors
 		self.logger = bot.logger
 		self.redis = bot.redis
 		self.raid_tickets_notifier.start()
@@ -236,7 +236,7 @@ class TicketsCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return error_not_premium()
+			return self.errors.error_not_premium()
 
 		lines = []
 		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify, store=store)
@@ -270,7 +270,7 @@ class TicketsCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return error_not_premium()
+			return self.errors.error_not_premium()
 
 		notify = command.lower() in [ 'alert', 'mention', 'notify', 'notification' ]
 

@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import translate
 
 help_list = {
@@ -18,19 +17,21 @@ List Darth Malak and both Revan:
 %prefixlist malak revan```"""
 }
 
-def cmd_list(request):
+def cmd_list(ctx):
 
-	args = request.args
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	selected_units = parse_opts_unit_names(request)
-	if not selected_units:
-		return error_no_unit_selected()
+	selected_units = parse_opts_unit_names(ctx)
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.error_unknown_parameters(args)
+
+	if not selected_units:
+		return bot.errors.error_no_unit_selected(ctx)
 
 	msgs = []
 	translations = []

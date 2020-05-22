@@ -1,5 +1,3 @@
-from errors import *
-
 from tbcog import TBCog
 from twcog import TWCog
 from modscog import ModsCog
@@ -71,7 +69,7 @@ def cmd_unload(request):
 	config = request.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.error_permission_denied()
 
 	cogs = parse_opts_cogs(args)
 	for cog in cogs:
@@ -92,12 +90,12 @@ def cmd_load(request):
 	config = request.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.error_permission_denied()
 
 	cogs = parse_opts_cogs(args)
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.error_unknown_parameters(args)
 
 	if not cogs:
 		cogs = list(loadable_cogs.values())

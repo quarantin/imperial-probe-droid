@@ -1,8 +1,7 @@
+from opts import parse_opts_players, parse_opts_language
+
 import DJANGO
 from swgoh.models import Player
-
-from errors import *
-from opts import parse_opts_players, parse_opts_language
 
 help_language = {
 	'title': 'Language Help',
@@ -21,10 +20,10 @@ Configure your default language to French:
 %prefixlanguage fr```""",
 }
 
-def get_available_languages(request):
+def get_available_languages(ctx):
 
-	author = request.author
-	config = request.config
+	author = ctx.author
+	config = ctx.config
 
 	langs = [ ' - **`%s`**: %s' % (lang_code, lang_name) for language, lang_code, lang_flag, lang_name in Player.LANGS ]
 	langs.insert(0, 'Here is the list of supported languages:')
@@ -43,22 +42,25 @@ def get_available_languages(request):
 		'description': '%s' % '\n'.join(langs),
 	}]
 
-def cmd_language(request):
+def cmd_language(ctx):
 
-	args = request.args
+	bot = ctx.bot
+	args = ctx.args
 
-	players, error = parse_opts_players(request, max_allies=1)
+	players, error = parse_opts_players(ctx, max_allies=1)
 
-	language = parse_opts_language(request)
+	language = parse_opts_language(ctx)
+	if not language:
+		return get_available_languages(ctx)
+
+	if error:
+		return error
 
 	if args:
-		return error_unknown_parameters(args)
-
-	if not language:
-		return get_available_languages(request)
+		return bot.errors.error_unknown_parameters(args)
 
 	if not players:
-		return error
+		return bot.errors.no_ally_code_specified(ctx)
 
 	player = players[0]
 	player.language = language[0]

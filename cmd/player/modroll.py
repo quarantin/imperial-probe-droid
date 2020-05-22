@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import translate
 from constants import MODSLOTS, MODSETS, UNIT_STATS, EMOJIS
 
@@ -26,31 +25,33 @@ MOD_STATS = {
 	41: 'offense',
 }
 
-async def cmd_modroll(request):
+async def cmd_modroll(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	msgs = []
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	selected_players, error = parse_opts_players(request)
-
-	if args:
-		return error_unknown_parameters(args)
+	selected_players, error = parse_opts_players(ctx)
 
 	if error:
 		return error
 
+	if args:
+		return bot.errors.error_unknown_parameters(args)
+
 	if not selected_players:
-		return error_no_ally_code_specified(config, author)
+		return bot.errors.error_no_ally_code_specified(ctx)
 
 	ally_codes = [ p.ally_code for p in selected_players ]
-
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.error_ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	result = {}

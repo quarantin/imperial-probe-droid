@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from opts import *
-from errors import *
 from utils import format_char_stats, format_char_details
 
 from swgohgg import get_swgohgg_profile_url
@@ -76,10 +75,10 @@ opts_arena = {
 	'fleet': 'ships',
 }
 
-def parse_opts_arena(request):
+def parse_opts_arena(ctx):
 
 	selected_opts = 'chars'
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -91,28 +90,34 @@ def parse_opts_arena(request):
 
 	return selected_opts
 
-async def cmd_arena(request):
+async def cmd_arena(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	selected_opts = parse_opts_arena(request)
+	selected_opts = parse_opts_arena(ctx)
 	if not selected_opts:
 		selected_opts.append('chars')
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
 
-	selected_format = parse_opts_format(request, selected_opts)
-
-	if args:
-		return error_unknown_parameters(args)
+	selected_format = parse_opts_format(ctx, selected_opts)
 
 	if error:
 		return error
 
+	if args:
+		return bot.errors.error_unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.error_no_ally_code_specified(ctx)
+
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes, stats=True)
+	if not players:
+		return bot.errors.error_ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	msgs = []

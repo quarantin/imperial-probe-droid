@@ -20,20 +20,23 @@ class Bot(commands.Bot):
 		with open('images/imperial-probe-droid.jpg', 'rb') as image:
 			return bytearray(image.read())
 
-	def get_bot_prefix(self, server, channel):
+	def get_bot_prefix(self, ctx=None):
 
-		server_id = None
-		if hasattr(server, 'id'):
-			server_id = server.id
-		elif hasattr(channel, 'id'):
-			server_id = channel.id
+		bot_prefix = '!'
 
-		try:
-			guild = DiscordServer.objects.get(server_id=server_id)
-			bot_prefix = guild.bot_prefix
+		if ctx:
+			if hasattr(ctx, 'channel'):
+				channel = ctx.channel
+				server_id = channel.id
+				if hasattr(channel, 'guild'):
+					server_id = channel.guild.id
 
-		except DiscordServer.DoesNotExist:
-			bot_prefix = self.config['prefix']
+				try:
+					guild = DiscordServer.objects.get(server_id=server_id)
+					bot_prefix = guild.bot_prefix
+
+				except DiscordServer.DoesNotExist:
+					bot_prefix = self.config['prefix']
 
 		return bot_prefix
 
