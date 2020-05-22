@@ -166,9 +166,12 @@ class PlayerConfig(models.Model):
 class PlayerActivity(models.Model):
 
 	player = models.ForeignKey(Player, on_delete=models.CASCADE)
+	timestamp = models.DateTimeField()
 	raid_tickets = models.IntegerField()
 	guild_tokens = models.IntegerField()
-	date = models.DateField(auto_now_add=True)
+
+	class Meta:
+		unique_together = [ 'player', 'timestamp' ]
 
 class Gear(models.Model):
 
