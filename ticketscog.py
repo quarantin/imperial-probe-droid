@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pytz
 import json
 import traceback
 from datetime import datetime
@@ -69,15 +70,18 @@ class TicketsCog(commands.Cog):
 		except Player.DoesNotExist:
 			return None
 
-	def store_player_activity(self, player_id, raid_tickets, guild_tokens):
+	def store_player_activity(self, player_id, timestamp, raid_tickets, guild_tokens):
 
 		try:
 			player = Player.objects.get(player_id=player_id)
-			activity = PlayerActivity(player=player, raid_tickets=raid_tickets, guild_tokens=guild_tokens)
-			return activity
 
 		except Player.DoesNotExist:
+			print('Missing player ID from database: %s' % player_id)
 			return None
+
+		defaults = { 'raid_tickets': raid_tickets, 'guild_tokens': guild_tokens }
+
+		return PlayerActivity.objects.update_or_create(player=player, timestamp=timestamp, defaults=defaults)
 
 	async def get_guild_activity(self, creds_id=None, notify=False, store=False):
 
@@ -91,7 +95,7 @@ class TicketsCog(commands.Cog):
 
 		total_guild_tokens = 0
 		total_raid_tickets = 0
-		guild = await self.bot.client.guild(creds_id=creds_id, full=True, debug=True)
+		guild = await self.bot.client.guild(creds_id=creds_id, full=True)
 		for member, profile in zip(guild['roster'], guild['members']):
 
 			player_id = profile['id']
@@ -113,7 +117,8 @@ class TicketsCog(commands.Cog):
 			guild_activity['raid-tickets'][discord_id] = raid_tickets
 
 			if store is True:
-				activity = self.store_player_activity(player_id, raid_tickets, guild_tokens)
+				activity_reset = pytz.utc.localize(datetime.fromtimestamp(int(guild['activityReset'])))
+				activity, created = self.store_player_activity(player_id, activity_reset, raid_tickets, guild_tokens)
 				if activity is None:
 					print('ERROR: Could not store player activity for %s (%s, %s)' % (player_id, raid_tickets, guild_tokens))
 				else:
@@ -191,7 +196,28 @@ class TicketsCog(commands.Cog):
 				await channel.send('\n'.join(lines))
 
 	@commands.command(aliases=['rtc'])
-	async def raid_tickets_check(self, ctx, min_tickets: int = 600, *, command: str = ''):
+	async def raid_tickets_check(self, ctx, *, args: str = ''):
+
+		MAX_TICKETS = 600
+
+		notify = False
+		store = False
+		min_tickets = MAX_TICKETS
+
+		args = [ x.lower() for x in args.split(' ') ]
+		for arg in args:
+
+			if arg in [ 'alert', 'alerts', 'mention', 'mentions', 'notify', 'notification', 'notifications' ]:
+				notify = True
+
+			elif arg in [ 'save', 'store' ]:
+				store = True
+
+			else:
+				try:
+					min_tickets = int(arg)
+				except:
+					pass
 
 		if min_tickets > self.max_raid_tickets:
 			min_tickets = self.max_raid_tickets
@@ -200,10 +226,8 @@ class TicketsCog(commands.Cog):
 		if not premium_user:
 			return error_not_premium()
 
-		notify = command.lower() in [ 'alert', 'alerts', 'mention', 'mentions', 'notify', 'notification', 'notifications' ]
-
 		lines = []
-		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify)
+		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify, store=store)
 		raid_tickets = guild_activity['raid-tickets']
 		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
 			if tickets < min_tickets :
