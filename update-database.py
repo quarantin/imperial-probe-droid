@@ -4,7 +4,6 @@ import os
 import sys
 import json
 import traceback
-from config import load_config
 from recos import fetch_all_recos
 from utils import http_get, load_json, dump_json, fix_swgohgg_url
 from bs4 import BeautifulSoup
@@ -87,13 +86,16 @@ class CacheUpdater:
 		except:
 			return None
 
-	async def get_online_version(self):
-		try:
-			version, error = await http_get(version_url)
-			return version
+	async def get_remote_version(self):
 
+		try:
+			response, error = await http_get(self.version_url)
+			if error is False:
+				return response.json()
 		except:
-			return None
+			print(traceback.format_exc())
+
+		return None
 
 	def update_version(self, version):
 		dump_json(self.version_filename, version)
@@ -240,9 +242,9 @@ class DatabaseUpdater:
 						continue
 
 					string_id, translation = line.split('|')
-					if string_id in WANTED_KEYS:
-						if WANTED_KEYS[string_id] is not False:
-							string_id = WANTED_KEYS[string_id]
+					if string_id in self.WANTED_KEYS:
+						if self.WANTED_KEYS[string_id] is not False:
+							string_id = self.WANTED_KEYS[string_id]
 
 						obj, created = Translation.objects.update_or_create(string_id=string_id, context=context, language=language, )
 						if obj.translation != translation:
@@ -471,7 +473,7 @@ class DatabaseUpdater:
 				total_count = int(cols[2].text)
 				percentage  = float(cols[3].text.replace('%', ''))
 
-				print("Processing %s..." % unit_name)
+				#print("Processing %s..." % unit_name)
 				try:
 					unit = BaseUnit.objects.get(name=unit_name)
 
@@ -587,7 +589,7 @@ class DatabaseUpdater:
 
 		o.language = 'eng_us'
 		o.context = version['game']
-		o.translation = version['languge']
+		o.translation = version['language']
 
 		o.save()
 
@@ -615,48 +617,65 @@ class DatabaseUpdater:
 
 		self.update_version(version)
 
-		print('OK')
+class Updater:
+
+	def __init__(self, config):
+		self.cache = CacheUpdater(config)
+		self.database = DatabaseUpdater(config)
+
+	async def update(self, forced=False):
+
+		remote_version = await self.cache.get_remote_version()
+		if not remote_version:
+			msg = 'FATAL: Failed to retrieve remote version!'
+			print(msg)
+			print(traceback.format_exc())
+			raise Exception(msg)
+
+		local_version = self.cache.get_version()
+		database_version = self.database.get_version()
+
+		up_to_date = False
+		if remote_version == database_version and local_version and not forced:
+			print('Nothing to update!\n')
+			up_to_date = True
+
+		elif forced:
+			print('Forced update!\n')
+
+		else:
+			print('New version found, updating!\n')
+
+		print('Remote cache version: %s' % remote_version)
+		print('Local cache version:  %s' % local_version)
+		print('Database version:     %s' % database_version)
+
+		if up_to_date:
+			sys.exit(1)
+
+		if remote_version != local_version:
+			print('Updating cache with new game assets...')
+			await self.cache.update(remote_version)
+			print('OK')
+		else:
+			print('Not updating cache (up-to-date)')
+
+		if remote_version != database_version:
+			print('Updating database with new game assets...')
+			await self.database.update(local_version)
+			print('OK')
+		else:
+			print('Not updating database (up-to-date)')
 
 async def __main__():
 
+	forced = '-f' in sys.argv or '--force' in sys.argv
+
+	from config import load_config
 	config = load_config()
-	db = DatabaseUpdater(config)
-	cache = CacheUpdater(config)
 
-	forced_update = '-f' in sys.argv or '--force' in sys.argv
-
-	online_version = await cache.get_online_version()
-	if not online_version:
-		msg = 'FATAL: Failed to retrieve online version!'
-		print(msg)
-		raise Exception(msg)
-
-	db_version = db.get_version()
-	cache_version = cache.get_version()
-
-	if online_version == db_version and cache_version and not forced_update:
-		print('Up-to-date: %s' % online_version)
-		sys.exit()
-
-	if forced_update:
-		print('Forced update!')
-
-	else:
-		print('New version found, updating!')
-
-	print('New cache version:    %s' % online_version)
-	print('Old cache version:    %s' % cache_version)
-	print('Old database version: %s' % db_version)
-
-	if online_version != cache_version:
-		print('Downloading game assets...')
-		await cache.update(online_version)
-		print('OK')
-
-	if online_version != db_version:
-		print('Updating database with new game assets...')
-		await db.update(cache_version)
-		print('OK')
+	updater = Updater(config)
+	await updater.update(forced=forced)
 
 if __name__ == '__main__':
 	import asyncio
