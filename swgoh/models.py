@@ -160,6 +160,15 @@ class PlayerConfig(models.Model):
 	channel_id = models.IntegerField()
 	key = models.CharField(max_length=32)
 	value = models.CharField(max_length=32)
+	notify = models.BooleanField(default=False)
+	store = models.BooleanField(default=False)
+
+class PlayerActivity(models.Model):
+
+	player = models.ForeignKey(Player, on_delete=models.CASCADE)
+	raid_tickets = models.IntegerField()
+	guild_tokens = models.IntegerField()
+	date = models.DateField(auto_now_add=True)
 
 class Gear(models.Model):
 
