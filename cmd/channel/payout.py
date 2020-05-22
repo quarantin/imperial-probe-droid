@@ -2,7 +2,6 @@
 
 from opts import *
 from errors import *
-from utils import check_permission
 from swgohgg import get_swgohgg_profile_url
 
 import DJANGO
@@ -149,11 +148,13 @@ def parse_opts_payout_time(tz, args):
 
 def handle_payout_create(request):
 
+	bot = request.bot
 	args = request.args
+	author = request.author
 	channel = request.channel
 	config = request.config
 
-	if not check_permission(request):
+	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',
@@ -246,11 +247,13 @@ async def handle_payout_add(request):
 
 def handle_payout_del(request):
 
+	bot = request.bot
 	args = request.args
+	author = request.author
 	channel = request.channel
 	config = request.config
 
-	if not check_permission(request):
+	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',
@@ -593,10 +596,12 @@ def handle_payout_tag(request):
 
 def handle_payout_destroy(request):
 
+	bot = request.bot
+	author = request.author
 	channel = request.channel
 	config = request.config
 
-	if not check_permission(request):
+	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',

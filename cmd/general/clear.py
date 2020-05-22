@@ -1,5 +1,4 @@
 from errors import *
-from utils import check_permission
 
 from discord.errors import HTTPException, NotFound
 
@@ -37,9 +36,9 @@ def parse_opts_limit(args):
 
 async def cmd_clear(request):
 
+	bot = request.bot
 	args = request.args
 	author = request.author
-	bot = request.bot
 	channel = request.channel
 	config = request.config
 
@@ -61,7 +60,7 @@ async def cmd_clear(request):
 	perms = channel.permissions_for(author)
 	if not perms.manage_messages:
 
-		if not check_permission(request):
+		if not bot.is_ipd_admin(author):
 			return [{
 				'title': 'Permission Denied',
 				'color': 'red',

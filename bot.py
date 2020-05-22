@@ -143,3 +143,17 @@ class Bot(commands.Bot):
 
 		self.logger_unreg.info('Unregistered allycode: %s (%s)' % (ally_code, server.name))
 		return None, str(self.user.default_avatar_url)
+
+	def is_ipd_admin(self, author):
+
+		if 'role' in self.config:
+			ipd_role = self.config['role'].lower()
+			for role in author.roles:
+				if role.name.lower() == ipd_role:
+					return True
+
+		if 'admins' in self.config:
+			if author.id in self.config['admins']:
+				return True
+
+		return False

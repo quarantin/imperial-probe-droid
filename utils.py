@@ -480,26 +480,6 @@ def is_supported_timezone(tzinfo, timezones):
 def get_fuzz_ratio(str1, str2):
 	return fuzz.ratio(str1, str2)
 
-def check_permission(request):
-
-	author = request.author
-	channel = request.channel
-	config = request.config
-
-	from discord import ChannelType
-	if channel is not None and channel.type is ChannelType.private:
-		return True
-
-	ipd_role = config['role'].lower()
-	for role in author.roles:
-		if role.name.lower() == ipd_role:
-			return True
-
-	if 'admins' in config and author.id in config['admins']:
-		return True
-
-	return False
-
 def count_recos_per_source(source, recos):
 
 	count = 0

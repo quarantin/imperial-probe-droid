@@ -2,7 +2,6 @@
 
 from opts import *
 from errors import *
-from utils import check_permission
 
 import DJANGO
 from swgoh.models import NewsChannel, NewsEntry
@@ -31,11 +30,13 @@ Populate current channel with all passed news:
 
 async def handle_news_enable(request):
 
+	bot = request.bot
 	args = request.args
+	author = request.author
 	channel = request.channel
 	config = request.config
 
-	if not check_permission(request):
+	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',
@@ -94,10 +95,12 @@ async def handle_news_enable(request):
 
 def handle_news_disable(request):
 
+	bot = request.bot
+	author = request.author
 	channel = request.channel
 	config = request.config
 
-	if not check_permission(request):
+	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',
@@ -119,10 +122,12 @@ def handle_news_disable(request):
 
 async def handle_news_history(request):
 
+	bot = request.bot
+	author = request.author
 	channel = request.channel
 	config = request.config
 
-	if not check_permission(request):
+	if not bot.is_ipd_admin(author):
 		return [{
 			'title': 'Permission Denied',
 			'color': 'red',
