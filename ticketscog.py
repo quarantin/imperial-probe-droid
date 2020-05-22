@@ -9,7 +9,8 @@ from opts import *
 from errors import *
 
 import DJANGO
-from swgoh.models import Player, User, PlayerConfig
+from django.db import transaction
+from swgoh.models import Player, PlayerConfig, PlayerActivity
 
 class TicketsCog(commands.Cog):
 
@@ -68,7 +69,19 @@ class TicketsCog(commands.Cog):
 		except Player.DoesNotExist:
 			return None
 
-	async def get_guild_activity(self, creds_id=None, notify=False):
+	def store_player_activity(self, player_id, raid_tickets, guild_tokens):
+
+		try:
+			player = Player.objects.get(player_id=player_id)
+			activity = PlayerActivity(player=player, raid_tickets=raid_tickets, guild_tokens=guild_tokens)
+			return activity
+
+		except Player.DoesNotExist:
+			return None
+
+	async def get_guild_activity(self, creds_id=None, notify=False, store=False):
+
+		activities = []
 
 		guild_activity = {
 			'total': {},
@@ -99,8 +112,20 @@ class TicketsCog(commands.Cog):
 			guild_activity['guild-tokens'][discord_id] = guild_tokens
 			guild_activity['raid-tickets'][discord_id] = raid_tickets
 
+			if store is True:
+				activity = self.store_player_activity(player_id, raid_tickets, guild_tokens)
+				if activity is None:
+					print('ERROR: Could not store player activity for %s (%s, %s)' % (player_id, raid_tickets, guild_tokens))
+				else:
+					activities.append(activity)
+
 		guild_activity['total']['guild-tokens'] = total_guild_tokens
 		guild_activity['total']['raid-tickets'] = total_raid_tickets
+
+		if store is True and activities:
+			with transaction.atomic():
+				for activity in activities:
+					activity.save()
 
 		return guild_activity
 
@@ -128,7 +153,7 @@ class TicketsCog(commands.Cog):
 			if hour_ok and minute_ok:
 
 				lines = []
-				guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=True)
+				guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=alert.notify, store=alert.store)
 				raid_tickets = guild_activity['raid-tickets']
 
 				for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
