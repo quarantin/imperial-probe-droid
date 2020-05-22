@@ -78,6 +78,17 @@ def is_numeric(string):
 	except ValueError:
 		return False
 
+def load_json(filename):
+	with open(filename, 'r') as fin:
+		return json.loads(fin.read())
+
+def dump_json(filename, data, indent=None):
+	with open(filename, 'w') as fout:
+		fout.write(json.dumps(data, indent=indent))
+
+def fix_swgohgg_url(url):
+	return url.replace('http://swgoh.gg', '').replace('https://swgoh.gg', '').replace('//swgoh.gg', '')
+
 def get_perms():
 
 	import discord
