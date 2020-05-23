@@ -87,18 +87,18 @@ async def cmd_recos(ctx):
 		return error
 
 	if not selected_players:
-		return bot.errors.error_no_ally_code_specified(ctx)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	if not selected_units:
-		return bot.errors.error_no_unit_selected()
+		return bot.errors.no_unit_selected()
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	ally_codes = [ player.ally_code for player in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
 	if not players:
-			return bot.errors.error_ally_codes_not_found(ally_codes)
+			return bot.errors.ally_codes_not_found(ally_codes)
 
 	players = { x['allyCode']: x for x in players }
 

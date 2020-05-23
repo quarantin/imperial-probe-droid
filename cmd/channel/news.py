@@ -109,7 +109,7 @@ def handle_news_disable(ctx):
 		channel.delete()
 
 	except NewsChannel.DoesNotExist:
-		return bot.errors.error_not_a_news_channel(ctx)
+		return bot.errors.not_a_news_channel(ctx)
 
 
 	return [{
@@ -170,7 +170,7 @@ async def cmd_news(ctx):
 
 	subcommand = parse_opts_subcommands(ctx)
 	if not subcommand:
-		return bot.errors.error_missing_parameter(ctx, command)
+		return bot.errors.missing_parameter(ctx, command)
 
 	if subcommand in subcommands:
 		if inspect.iscoroutinefunction(subcommands[subcommand]):
@@ -178,4 +178,4 @@ async def cmd_news(ctx):
 		else:
 			return subcommands[subcommand](ctx)
 
-	return bot.errors.error_generic('Unsupported Action', subcommand)
+	return bot.errors.generic('Unsupported Action', subcommand)

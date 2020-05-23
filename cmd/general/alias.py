@@ -51,14 +51,14 @@ def cmd_alias(ctx):
 		}]
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return bot.errors.error_permission_denied()
+		return bot.errors.permission_denied()
 
 	action = args[0]
 
 	if action == 'del':
 
 		if len(args) < 2:
-			return bot.errors.error_missing_parameter(ctx, 'alias')
+			return bot.errors.missing_parameter(ctx, 'alias')
 
 		alias_name = args[1]
 		if alias_name.isdigit():

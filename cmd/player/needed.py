@@ -208,16 +208,16 @@ async def cmd_needed(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_players:
-		return bot.errors.error_no_ally_code_specified(ctx)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	msgs = []
 	ally_codes = [ player.ally_code for player in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
 	if not players:
-		return bot.errors.error_ally_code_not_found(ally_codes)
+		return bot.errors.ally_code_not_found(ally_codes)
 
 	players = { x['allyCode']: x for x in players }
 

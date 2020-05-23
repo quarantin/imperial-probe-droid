@@ -27,4 +27,4 @@ def cmd_restart(ctx):
 		config['bot'].exit()
 		return []
 
-	return bot.errors.error_permission_denied()
+	return bot.errors.permission_denied()

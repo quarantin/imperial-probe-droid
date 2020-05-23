@@ -41,7 +41,7 @@ def cmd_clock(ctx):
 	timezones = parse_opts_timezones(ctx)
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if timezones:
 		all_timezones = timezones

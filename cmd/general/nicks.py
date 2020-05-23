@@ -53,14 +53,14 @@ def cmd_nicks(ctx):
 		}]
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return bot.errors.error_permission_denied()
+		return bot.errors.permission_denied()
 
 	action = args.pop(0)
 
 	if action == 'del':
 
 		if len(args) < 1:
-			return bot.errors.error_missing_parameters(ctx, 'nicks')
+			return bot.errors.missing_parameters(ctx, 'nicks')
 
 		target_nick = args.pop(0)
 		if target_nick.isdigit():
@@ -89,15 +89,15 @@ def cmd_nicks(ctx):
 	elif action == 'add':
 
 		if len(args) < 2:
-			return bot.errors.error_missing_parameter(ctx, 'nicks')
+			return bot.errors.missing_parameter(ctx, 'nicks')
 
 		target_nick = args.pop(0)
 		selected_units = parse_opts_unit_names(ctx)
 		if args:
-			return bot.errors.error_unknown_parameters(args)
+			return bot.errors.unknown_parameters(args)
 
 		if not selected_units:
-			return bot.errors.error_no_unit_selected(ctx)
+			return bot.errors.no_unit_selected(ctx)
 
 		if len(selected_units) > 1:
 			return [{

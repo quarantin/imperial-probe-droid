@@ -236,7 +236,7 @@ class TicketsCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return self.errors.error_not_premium()
+			return self.errors.not_premium()
 
 		lines = []
 		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify, store=store)
@@ -270,7 +270,7 @@ class TicketsCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return self.errors.error_not_premium()
+			return self.errors.not_premium()
 
 		notify = command.lower() in [ 'alert', 'mention', 'notify', 'notification' ]
 

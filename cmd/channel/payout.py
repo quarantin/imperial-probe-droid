@@ -194,13 +194,13 @@ async def handle_payout_add(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	ally_codes = [ x.ally_code for x in players ]
 	invalid_ally_codes = []
@@ -262,13 +262,13 @@ def handle_payout_del(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	ally_codes = [ x.ally_code for x in players ]
 
@@ -291,7 +291,7 @@ async def handle_payout_rank(ctx):
 	config = ctx.config
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -304,7 +304,7 @@ async def handle_payout_rank(ctx):
 
 	shard = get_shard(ctx)
 	if not shard:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	payout_times = get_payout_times(shard)
 
@@ -359,7 +359,7 @@ async def handle_payout_stats(ctx):
 	from_user = ctx.from_user
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -372,7 +372,7 @@ async def handle_payout_stats(ctx):
 
 	shard = get_shard(ctx)
 	if not shard:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	shard_channel = config['bot'].get_channel(shard.channel_id)
 	payout_times = get_payout_times(shard)
@@ -477,13 +477,13 @@ def handle_payout_export(ctx):
 	config = ctx.config
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	members = ShardMember.objects.filter(shard=shard)
 	ally_codes = [ str(member.ally_code) for member in members ]
@@ -510,7 +510,7 @@ def handle_payout_time(ctx):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -532,7 +532,7 @@ def handle_payout_time(ctx):
 		}]
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	ally_codes = [ x.ally_code for x in players ]
 	ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(payout_time=payout_time.strftime('%H:%M'))
@@ -558,7 +558,7 @@ def handle_payout_tag(ctx):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -580,7 +580,7 @@ def handle_payout_tag(ctx):
 		}]
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	ally_codes = [ x.ally_code for x in players ]
 	ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(affiliation=affiliation_id)
@@ -612,7 +612,7 @@ def handle_payout_destroy(ctx):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return bot.errors.error_no_shard_found(ctx)
+		return bot.errors.no_shard_found(ctx)
 
 	shard.delete()
 
@@ -681,4 +681,4 @@ async def cmd_payout(ctx):
 		else:
 			return subcommands[subcommand](ctx)
 
-	return bot.errors.error_generic('Unsupported Action', subcommand)
+	return bot.errors.generic('Unsupported Action', subcommand)

@@ -35,11 +35,11 @@ async def cmd_timezone(ctx):
 		return error
 
 	if not selected_players:
-		return bot.errors.error_no_ally_code_specified(ctx)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	timezones = parse_opts_timezones(ctx)
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	player = selected_players[0]
 

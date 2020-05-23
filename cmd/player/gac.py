@@ -86,16 +86,16 @@ async def cmd_gac(ctx):
 		return error
 
 	if not selected_players:
-		return bot.errors.error_not_ally_code_specified(ctx)
+		return bot.errors.not_ally_code_specified(ctx)
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
 	if not players:
-		return bot.errors.error_ally_codes_not_found(ally_codes)
+		return bot.errors.ally_codes_not_found(ally_codes)
 
 	players = { x['allyCode']: x for x in players }
 

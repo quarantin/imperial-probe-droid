@@ -42,7 +42,7 @@ def cmd_me(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	lines = []
 	for player in selected_players:
@@ -83,7 +83,7 @@ async def register_users(ctx, discord_ids, ally_codes):
 	config = ctx.config
 
 	if len(discord_ids) != len(ally_codes):
-		return bot.errors.error_register_mismatch(ctx, discord_ids, ally_codes)
+		return bot.errors.register_mismatch(ctx, discord_ids, ally_codes)
 
 	lang = parse_opts_lang(ctx)
 	language = Player.get_language_info(lang)
@@ -159,10 +159,10 @@ async def cmd_register(ctx):
 			pass
 
 	if not ally_codes:
-		return bot.errors.error_no_ally_code_specified(ctx)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if len(ally_codes) == len(discord_ids) + 1 and author.id not in discord_ids:
 		discord_ids.append(author.id)

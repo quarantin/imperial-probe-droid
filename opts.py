@@ -209,7 +209,7 @@ def parse_opts_players(ctx, min_allies=1, max_allies=-1, expected_allies=1, excl
 			unregistered.append(discord_id)
 
 	if unregistered:
-		return None, bot.errors.error_ally_codes_not_registered(ctx, unregistered)
+		return None, bot.errors.ally_codes_not_registered(ctx, unregistered)
 
 	if exclude_author is False:
 
@@ -230,13 +230,13 @@ def parse_opts_players(ctx, min_allies=1, max_allies=-1, expected_allies=1, excl
 		return [], None
 
 	if not ally_codes:
-		return None, bot.errors.error_no_ally_code_specified(ctx)
+		return None, bot.errors.no_ally_code_specified(ctx)
 
 	if len(ally_codes) < min_allies:
-		return None, bot.errors.error_not_enough_ally_codes_specified(ally_codes, min_allies)
+		return None, bot.errors.not_enough_ally_codes_specified(ally_codes, min_allies)
 
 	if len(ally_codes) > max_allies and max_allies != -1:
-		return None, bot.errors.error_too_many_ally_codes_specified(ally_codes, max_allies)
+		return None, bot.errors.too_many_ally_codes_specified(ally_codes, max_allies)
 
 	for ally_code in ally_codes:
 

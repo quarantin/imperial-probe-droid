@@ -37,7 +37,7 @@ def do_ban(ctx, banned):
 	config = ctx.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return bot.errors.error_permission_denied()
+		return bot.errors.permission_denied()
 
 	selected_players, error = parse_opts_players(ctx, exclude_author=True)
 
@@ -45,10 +45,10 @@ def do_ban(ctx, banned):
 		return error
 
 	if not selected_players:
-		return bot.errors.error_no_ally_code_specified_ban(ctx)
+		return bot.errors.no_ally_code_specified_ban(ctx)
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	banned_players = []
 	for player in selected_players:

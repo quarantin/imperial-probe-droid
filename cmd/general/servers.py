@@ -16,7 +16,7 @@ def cmd_servers(ctx):
 	config = ctx.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return bot.errors.error_permission_denied()
+		return bot.errors.permission_denied()
 
 	servers = []
 	for server in config['bot'].guilds:

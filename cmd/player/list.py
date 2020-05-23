@@ -28,10 +28,10 @@ def cmd_list(ctx):
 	selected_units = parse_opts_unit_names(ctx)
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_units:
-		return bot.errors.error_no_unit_selected(ctx)
+		return bot.errors.no_unit_selected(ctx)
 
 	msgs = []
 	translations = []

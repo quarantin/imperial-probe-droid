@@ -29,4 +29,4 @@ def cmd_update(ctx):
 		bot.exit()
 		return []
 
-	return bot.errors.error_permission_denied()
+	return bot.errors.permission_denied()

@@ -34,7 +34,7 @@ class ChatCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return self.errors.error_not_premium()
+			return self.errors.not_premium()
 
 		room = await self.client.set_chat_topic(creds_id=premium_user.creds_id, player_id=premium_user.player.player_id, channel_topic=channel_topic)
 		message = room and 'OK' or 'KO'

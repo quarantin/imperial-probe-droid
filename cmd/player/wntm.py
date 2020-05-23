@@ -67,10 +67,10 @@ def cmd_wntm(ctx):
 	selected_filters = parse_opts_mod_filters(ctx)
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_filters:
-		return bot.errors.error_no_mod_filter_selected(ctx)
+		return bot.errors.no_mod_filter_selected(ctx)
 
 	spacer = EMOJIS['']
 	emoji_ea = EMOJIS['capitalgames']

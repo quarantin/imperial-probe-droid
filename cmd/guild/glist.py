@@ -69,13 +69,13 @@ async def cmd_guild_list(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_players:
-		return bot.errors.error_no_ally_code_specified(ctx)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	if not selected_units:
-		return bot.errors.error_no_unit_selected(ctx)
+		return bot.errors.no_unit_selected(ctx)
 
 	fields = []
 

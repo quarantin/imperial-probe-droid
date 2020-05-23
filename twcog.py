@@ -70,7 +70,7 @@ class TWCog(commands.Cog):
 
 		premium_user = parse_opts_premium_user(ctx.author)
 		if not premium_user:
-			return self.errors.error_not_premium()
+			return self.errors.not_premium()
 
 		wrong_order = {}
 

@@ -83,7 +83,7 @@ def cmd_help(request):
 		if command in config['help']:
 			msg = config['help'][command]
 		else:
-			return bot.errors.error_no_such_command(command)
+			return bot.errors.no_such_command(command)
 
 	return [{
 		'title':       substitute_tokens(bot, msg['title']),

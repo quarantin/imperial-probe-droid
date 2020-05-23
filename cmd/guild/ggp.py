@@ -86,16 +86,16 @@ async def cmd_guild_gp(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_players:
-		return bot.errors.error_no_ally_code_specified(ctx)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
 	if not guilds:
-		return bot.errors.error_ally_codes_not_found(ally_codes)
+		return bot.errors.ally_codes_not_found(ally_codes)
 
 	result = {}
 	for selector, guild in guilds.items():

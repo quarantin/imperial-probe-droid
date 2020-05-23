@@ -57,7 +57,7 @@ def cmd_language(ctx):
 		return error
 
 	if args:
-		return bot.errors.error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not players:
 		return bot.errors.no_ally_code_specified(ctx)
