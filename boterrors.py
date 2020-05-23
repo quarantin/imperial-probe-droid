@@ -95,7 +95,7 @@ class BotErrors:
 		}]
 
 	def ally_codes_not_found(self, ally_codes):
-		return [ self.error_ally_code_not_found(ally_code)[0] for ally_code in ally_codes ]
+		return [ self.ally_code_not_found(ally_code)[0] for ally_code in ally_codes ]
 
 	def no_mod_filter_selected(self, ctx):
 		return [{
