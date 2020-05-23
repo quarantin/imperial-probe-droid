@@ -348,7 +348,7 @@ class ImperialProbeDroid(bot.Bot):
 		message = request.message
 
 		if Player.is_banned(author):
-			msgs = error_user_banned(config, author)
+			msgs = self.errors.user_banned(request)
 			for msg in msgs:
 				await send_embed(self, channel, msg)
 
