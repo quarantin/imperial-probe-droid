@@ -150,29 +150,36 @@ class TicketsCog(commands.Cog):
 	@tasks.loop(minutes=1)
 	async def raid_tickets_notifier(self, min_tickets: int = 600):
 
-		now = datetime.now()
+		try:
+			now = datetime.now()
 
-		alerts = self.get_raid_tickets_config()
-		for alert in alerts:
+			alerts = self.get_raid_tickets_config()
+			for alert in alerts:
 
-			notif_time = datetime.strptime(alert.value, '%H:%M')
-			creds_id = alert.player.creds_id
+				notif_time = datetime.strptime(alert.value, '%H:%M')
+				creds_id = alert.player.creds_id
 
-			hour_ok = now.hour == notif_time.hour
-			minute_ok = now.minute == notif_time.minute
-			if hour_ok and minute_ok:
+				hour_ok = now.hour == notif_time.hour
+				minute_ok = now.minute == notif_time.minute
+				if hour_ok and minute_ok:
 
-				lines = []
-				guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
-				raid_tickets = guild_activity['raid-tickets']
+					lines = []
+					guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
+					raid_tickets = guild_activity['raid-tickets']
 
-				for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
-					if tickets < min_tickets:
-						pad = self.get_lpad_tickets(tickets)
-						lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
+					for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
+						if tickets < min_tickets:
+							pad = self.get_lpad_tickets(tickets)
+							lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
 
-				channel = self.bot.get_channel(alert.channel_id)
-				await channel.send('\n'.join(lines))
+					channel = self.bot.get_channel(alert.channel_id)
+					await channel.send('\n'.join(lines))
+
+		except Exception as err:
+			print(err)
+			print(traceback.format_exc())
+			self.logger.error(err)
+			self.logger.error(traceback.format_exc())
 
 	@tasks.loop(minutes=1)
 	async def guild_tokens_notifier(self, min_tokens: int = 10000):
