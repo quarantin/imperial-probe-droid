@@ -135,7 +135,7 @@ async def handle_news_history(ctx):
 		channel = NewsChannel.objects.get(channel_id=channel.id)
 
 	except NewsChannel.DoesNotExist:
-		return error_not_a_news_channel(ctx)
+		return bot.errors.not_a_news_channel(ctx)
 
 	channel.last_news = None
 	channel.save()
