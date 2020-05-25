@@ -1,5 +1,3 @@
-from errors import *
-
 from discord.errors import HTTPException, NotFound
 
 help_clear = {
@@ -70,7 +68,7 @@ async def cmd_clear(request):
 	limit = parse_opts_limit(args)
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	messages = []
 	async for message in channel.history(limit=limit):

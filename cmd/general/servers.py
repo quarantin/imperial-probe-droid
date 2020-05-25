@@ -1,5 +1,3 @@
-from errors import *
-
 help_servers = {
 	'title': 'Servers Help',
 	'description': """List all discord servers where this bot is connected.
@@ -11,14 +9,14 @@ help_servers = {
 Only administrators of this bot can use this command.```"""
 }
 
-def cmd_servers(request):
+def cmd_servers(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	author = ctx.author
+	config = ctx.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.permission_denied()
 
 	servers = []
 	for server in config['bot'].guilds:

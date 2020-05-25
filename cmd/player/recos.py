@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import basicstrip, get_banner_emoji, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
 from constants import EMOJIS
 
@@ -67,37 +66,39 @@ def get_short_stat(stat_id, language):
 	raise Exception('Invalid short stat request for %s %s (%s)' % (stat_id, language, stat_name))
 
 
-async def cmd_recos(request):
+async def cmd_recos(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
 	emoji_gg = EMOJIS['swgoh.gg']
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	selected_players, error = parse_opts_players(request)
-	selected_units = parse_opts_unit_names(request)
+	selected_players, error = parse_opts_players(ctx)
+
+	selected_units = parse_opts_unit_names(ctx)
 
 	if error:
 		return error
 
 	if not selected_players:
-		return error_no_ally_code_specified(config, author)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	if not selected_units:
-		return error_no_unit_selected()
+		return bot.errors.no_unit_selected()
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	ally_codes = [ player.ally_code for player in selected_players ]
-
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+			return bot.errors.ally_codes_not_found(ally_codes)
 
 	players = { x['allyCode']: x for x in players }
 

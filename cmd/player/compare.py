@@ -2,7 +2,6 @@ import json
 from collections import OrderedDict
 
 from opts import *
-from errors import *
 from constants import EMOJIS, MAX_SKILL_TIER
 from utils import get_stars_as_emojis, roundup, get_ability_name
 
@@ -152,24 +151,29 @@ def unit_to_dict(config, player, roster, base_id, lang):
 
 	return res
 
-async def cmd_player_compare(request):
+async def cmd_player_compare(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	lang = parse_opts_lang(request)
+	lang = parse_opts_lang(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
+
+	selected_units = parse_opts_unit_names(ctx)
+
 	if error:
 		return error
 
-	selected_units = parse_opts_unit_names(request)
-	if not selected_units:
-		return error_no_unit_selected()
-
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
+
+	if not selected_units:
+		return bot.errors.no_unit_selected(ctx)
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes, units=selected_units, stats=True)

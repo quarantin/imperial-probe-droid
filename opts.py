@@ -1,7 +1,6 @@
 import re
 import logging
 
-from errors import *
 from utils import basicstrip, get_available_timezones, is_supported_timezone
 
 import DJANGO
@@ -68,10 +67,10 @@ MODPRIMARIES_OPTS = {
 	'tenacity':          'Tenacity',
 }
 
-def parse_opts_format(request, opts):
+def parse_opts_format(ctx, opts):
 
-	config = request.config
-	args = request.args
+	config = ctx.config
+	args = ctx.args
 	args_cpy = list(args)
 
 	for arg in args_cpy:
@@ -121,10 +120,10 @@ def parse_opts_ally_code_excluded(arg):
 	m = re.search(regex, arg)
 	return m and int(m.group(1).replace('-', '')) or False
 
-def parse_opts_ally_codes(request):
+def parse_opts_ally_codes(ctx):
 
 	ally_codes = []
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -136,10 +135,10 @@ def parse_opts_ally_codes(request):
 
 	return ally_codes
 
-def parse_opts_ally_codes_excluded(request):
+def parse_opts_ally_codes_excluded(ctx):
 
 	excluded = []
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -151,12 +150,12 @@ def parse_opts_ally_codes_excluded(request):
 
 	return excluded
 
-def parse_opts_mentions(request):
+def parse_opts_mentions(ctx):
 
 	discord_ids = []
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
-	author = request.author
+	author = ctx.author
 	for arg in args_cpy:
 
 		discord_id = None
@@ -182,15 +181,16 @@ def parse_opts_mentions(request):
 
 	return discord_ids
 
-def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, exclude_author=False, language='eng_us'):
+def parse_opts_players(ctx, min_allies=1, max_allies=-1, expected_allies=1, exclude_author=False, language='eng_us'):
 
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
-	discord_ids = parse_opts_mentions(request)
-	ally_codes = parse_opts_ally_codes(request)
+	discord_ids = parse_opts_mentions(ctx)
+	ally_codes = parse_opts_ally_codes(ctx)
 
 	players = []
 	unregistered = []
@@ -209,7 +209,7 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 			unregistered.append(discord_id)
 
 	if unregistered:
-		return None, error_ally_codes_not_registered(config, unregistered)
+		return None, bot.errors.ally_codes_not_registered(ctx, unregistered)
 
 	if exclude_author is False:
 
@@ -230,13 +230,13 @@ def parse_opts_players(request, min_allies=1, max_allies=-1, expected_allies=1, 
 		return [], None
 
 	if not ally_codes:
-		return None, error_no_ally_code_specified(config, author)
+		return None, bot.errors.no_ally_code_specified(ctx)
 
 	if len(ally_codes) < min_allies:
-		return None, error_not_enough_ally_codes_specified(ally_codes, min_allies)
+		return None, bot.errors.not_enough_ally_codes_specified(ally_codes, min_allies)
 
 	if len(ally_codes) > max_allies and max_allies != -1:
-		return None, error_too_many_ally_codes_specified(ally_codes, max_allies)
+		return None, bot.errors.too_many_ally_codes_specified(ally_codes, max_allies)
 
 	for ally_code in ally_codes:
 
@@ -323,10 +323,10 @@ def parse_opts_unit_names_broad(config, args, units):
 
 	return None
 
-def parse_opts_unit_names(request):
+def parse_opts_unit_names(ctx):
 
-	args = request.args
-	config = request.config
+	args = ctx.args
+	config = ctx.config
 
 	if not args:
 		return []
@@ -356,11 +356,11 @@ def parse_opts_unit_names(request):
 
 	return selected_units
 
-def parse_opts_unit_names_v1(request):
+def parse_opts_unit_names_v1(ctx):
 
 	selected_units = []
-	args = request.args
-	config = request.config
+	args = ctx.args
+	config = ctx.config
 	new_args = list(args)
 
 	for arg in new_args:
@@ -396,7 +396,7 @@ def parse_opts_unit_names_v1(request):
 
 	return selected_units
 
-def parse_opts_char_filters(request):
+def parse_opts_char_filters(ctx):
 
 	selected_char_filters = {
 		'gp':     1,
@@ -415,7 +415,7 @@ def parse_opts_char_filters(request):
 		'stars':  r'^([0-9]+)(\*|s|star|stars)$',
 	}
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		for key, regex in rules.items():
@@ -471,10 +471,10 @@ def parse_opts_modprimaries(args):
 
 	return selected_primaries
 
-def parse_opts_mod_filters(request):
+def parse_opts_mod_filters(ctx):
 
 	selected_filters = []
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		toks = arg.split('/')
@@ -490,9 +490,9 @@ def parse_opts_mod_filters(request):
 
 	return selected_filters
 
-def parse_opts_lang(request):
+def parse_opts_lang(ctx):
 
-	author = request.author
+	author = ctx.author
 
 	try:
 		p = Player.objects.get(discord_id=author.id)
@@ -503,9 +503,9 @@ def parse_opts_lang(request):
 
 	return 'eng_us'
 
-def parse_opts_language(request):
+def parse_opts_language(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -517,9 +517,9 @@ def parse_opts_language(request):
 
 	return None
 
-def parse_opts_timezones(request):
+def parse_opts_timezones(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 
 	timezones = []

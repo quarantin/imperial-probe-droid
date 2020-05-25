@@ -1,7 +1,6 @@
 import traceback
 
 from opts import *
-from errors import *
 from utils import roundup, get_banner_emoji, get_field_legend, extract_modstats, extract_modstats_from_roster
 from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
 
@@ -189,29 +188,37 @@ def get_field_primary_stats(config, profile, selected_slots, selected_primaries)
 
 	return '\n'.join(lines)
 
-async def cmd_needed(request):
+async def cmd_needed(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
+
 	selected_slots = parse_opts_modslots(args)
+
 	selected_primaries = parse_opts_modprimaries(args)
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']
 	emoji_gg = EMOJIS['swgoh.gg']
 
-	if args:
-		return error_unknown_parameters(args)
-
 	if error:
 		return error
+
+	if args:
+		return bot.errors.unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
 
 	msgs = []
 	ally_codes = [ player.ally_code for player in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.ally_code_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	for player in selected_players:

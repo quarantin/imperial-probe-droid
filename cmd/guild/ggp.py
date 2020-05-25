@@ -1,7 +1,6 @@
 import json
 
 from opts import *
-from errors import *
 
 from utils import get_star, translate
 
@@ -72,31 +71,31 @@ def compute_gp(player):
 	player['gpChar'] = char_gp
 	player['gpShip'] = ship_gp
 
-async def cmd_guild_gp(request):
+async def cmd_guild_gp(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	selected_char_filters = parse_opts_char_filters(request)
-
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
 
 	if error:
 		return error
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_players:
-		return error_no_ally_code_specified(config, author)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
+	if not guilds:
+		return bot.errors.ally_codes_not_found(ally_codes)
 
 	result = {}
 	for selector, guild in guilds.items():

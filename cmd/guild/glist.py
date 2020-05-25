@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 
 from utils import get_star, translate
 
@@ -51,32 +50,32 @@ def unit_is_matching(unit, char_filters):
 
 	return True
 
-async def cmd_guild_list(request):
+async def cmd_guild_list(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	selected_char_filters = parse_opts_char_filters(request)
+	selected_char_filters = parse_opts_char_filters(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
 
-	selected_units = parse_opts_unit_names(request)
+	selected_units = parse_opts_unit_names(ctx)
 
 	if error:
 		return error
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_players:
-		return error_no_ally_code_specified(config, author)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	if not selected_units:
-		return error_no_unit_selected()
+		return bot.errors.no_unit_selected(ctx)
 
 	fields = []
 

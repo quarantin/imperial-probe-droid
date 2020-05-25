@@ -1,5 +1,3 @@
-from errors import *
-
 help_update = {
 	'title': 'Update Help',
 	'description': """Update the source code and restart this bot.
@@ -19,15 +17,16 @@ Update the bot:
 %prefixu```"""
 }
 
-def cmd_update(request):
+def cmd_update(ctx):
 
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	author = ctx.author
+	config = ctx.config
 
 	if 'admins' in config and author.id in config['admins']:
 		from utils import update_source_code
 		update_source_code()
-		config['bot'].exit()
+		bot.exit()
 		return []
 
-	return error_permission_denied()
+	return bot.errors.permission_denied()

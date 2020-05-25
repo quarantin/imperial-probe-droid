@@ -7,7 +7,6 @@ from discord.ext import commands
 from utils import is_numeric
 from constants import EMOJIS
 from embed import new_embeds, send_embed
-from errors import error_invalid_config_key, error_invalid_config_value, error_no_ally_code_specified
 
 import DJANGO
 from swgoh.models import Player, PremiumGuild, PremiumGuildConfig
@@ -21,6 +20,7 @@ class TrackerCog(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.errors = bot.errors
 		self.config = bot.config
 		self.logger = bot.logger
 		self.redis = bot.redis
@@ -257,8 +257,9 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		ally_code = self.get_allycode_by_discord_id(ctx.author.id)
 		if not ally_code:
-			errors = error_no_ally_code_specified(self.config, ctx.author)
-			await ctx.send(errors[0]['description'])
+			embeds = self.errors.no_ally_code_specified(ctx)
+			for embed in embeds:
+				await ctx.send(embed=embed)
 			return
 
 		lines = []
@@ -304,7 +305,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		keys = self.get_matching_keys(ctx, guild, pref_key, config=True)
 		if not keys:
-			message = error_invalid_config_key('config', self.bot.command_prefix, pref_key)
+			message = self.errors.invalid_config_key('config', ctx, pref_key)
 			await ctx.send(message)
 			return
 
@@ -367,7 +368,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		keys = self.get_matching_keys(ctx, guild, pref_key, channels=True)
 		if not keys:
-			message = error_invalid_config_key('channels', self.bot.command_prefix, pref_key)
+			message = self.errors.invalid_config_key('channels', ctx, pref_key)
 			await ctx.send(message)
 			return
 
@@ -419,7 +420,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		keys = self.get_matching_keys(ctx, guild, pref_key, formats=True)
 		if not keys:
-			message = error_invalid_config_key('formats', self.bot.command_prefix, pref_key)
+			message = self.errors.invalid_config_key('formats', ctx, pref_key)
 			await ctx.send(message)
 			return
 
@@ -465,7 +466,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 
 		keys = self.get_matching_keys(ctx, guild, pref_key, mentions=True)
 		if not keys:
-			message = error_invalid_config_key('mentions', self.bot.command_prefix, pref_key)
+			message = self.errors.invalid_config_key('mentions', ctx, pref_key)
 			await ctx.send(message)
 			return
 
@@ -474,7 +475,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 		if value is None:
 			value = self.bot.parse_opts_mention(pref_value)
 			if value is None:
-				message = error_invalid_config_value('mentions', self.bot.command_prefix, pref_value)
+				message = self.errors.invalid_config_value('mentions', ctx, pref_value)
 				await ctx.send(message)
 				return
 

@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 
 import DJANGO
 from swgoh.models import Player
@@ -30,24 +29,26 @@ Unban a player by allycode:
 %prefixunban 123456789```""",
 }
 
-def do_ban(request, banned):
+def do_ban(ctx, banned):
 
-	args = request.args
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.permission_denied()
 
-	selected_players, error = parse_opts_players(request, exclude_author=True)
+	selected_players, error = parse_opts_players(ctx, exclude_author=True)
+
 	if error:
 		return error
 
 	if not selected_players:
-		return error_no_ally_code_specified_ban(config)
+		return bot.errors.no_ally_code_specified_ban(ctx)
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	banned_players = []
 	for player in selected_players:
@@ -72,8 +73,8 @@ def do_ban(request, banned):
 		'description': 'The following player%s %s been **%s**:\n%s' % (plural, plural_have, strbanned, '\n'.join(banned_players)),
 	}]
 
-def cmd_ban(request):
-	return do_ban(request, True)
+def cmd_ban(ctx):
+	return do_ban(ctx, True)
 
-def cmd_unban(request):
-	return do_ban(request, False)
+def cmd_unban(ctx):
+	return do_ban(ctx, False)

@@ -1,7 +1,6 @@
 import DJANGO
 from swgoh.models import Player
 
-from errors import *
 from utils import get_fuzz_ratio
 from opts import parse_opts_players
 
@@ -61,11 +60,15 @@ async def cmd_gregister(request):
 	auto = parse_opts_auto(request)
 
 	selected_players, error = parse_opts_players(request)
+
 	if error:
 		return error
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
 
 	auto_ids = []
 	auto_allycodes = []

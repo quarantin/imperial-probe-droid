@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from utils import translate
 from swgohgg import get_swgohgg_player_unit_url
 from constants import MODSETS_NEEDED
@@ -54,10 +53,10 @@ default_actions = [
 	#'tier',
 ]
 
-def parse_opts_actions(request):
+def parse_opts_actions(ctx):
 
 	actions = []
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -97,9 +96,9 @@ def parse_opts_actions(request):
 
 	return actions
 
-def parse_opts_min_gear_level(request):
+def parse_opts_min_gear_level(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 
@@ -183,39 +182,40 @@ def get_mod_stats(roster, min_gear_level):
 
 	return modcount, unitcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier
 
-async def cmd_modcheck(request):
+async def cmd_modcheck(ctx):
 
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	msgs = []
 	units_with_missing_mods = []
 	units_with_incomplete_modsets = []
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	actions = parse_opts_actions(request)
-	if not actions:
-		actions = default_actions
+	actions = parse_opts_actions(ctx) or default_actions
 
-	min_gear_level = parse_opts_min_gear_level(request)
+	min_gear_level = parse_opts_min_gear_level(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
 
 	if error:
 		return error
 
-	if not selected_players:
-		return error_no_ally_code_specified(config, author)
-
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
 
 	ally_codes = [ p.ally_code for p in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	for player in selected_players:

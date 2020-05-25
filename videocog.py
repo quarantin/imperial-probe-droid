@@ -6,7 +6,6 @@ from datetime import datetime
 from discord.ext import commands, tasks
 
 from opts import *
-from errors import *
 
 import DJANGO
 from swgoh.models import Player, PlayerConfig

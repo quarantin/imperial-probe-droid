@@ -1,5 +1,3 @@
-from errors import *
-
 help_alias = {
 	'title': 'Alias Help',
 	'description': """Manages command aliases.
@@ -30,11 +28,12 @@ Delete first alias by its ID (**`mm`**):
 %prefixA del 1```"""
 }
 
-def cmd_alias(request):
+def cmd_alias(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	lines = []
 	prefix = config['prefix']
@@ -52,15 +51,14 @@ def cmd_alias(request):
 		}]
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.permission_denied()
 
 	action = args[0]
 
 	if action == 'del':
 
-
 		if len(args) < 2:
-			return error_missing_parameter(config, 'alias')
+			return bot.errors.missing_parameter(ctx, 'alias')
 
 		alias_name = args[1]
 		if alias_name.isdigit():

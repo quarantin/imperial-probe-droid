@@ -92,7 +92,7 @@ class UserRequest:
 	command = None
 	args = None
 
-	def __init__(self, config, message, from_user=True):
+	def __init__(self, config, message, from_user=True, bot_prefix=None):
 		self.bot = config['bot']
 		self.logger = config['bot'].logger
 		self.config = config
@@ -100,7 +100,7 @@ class UserRequest:
 		self.from_user = from_user
 		self.server = hasattr(message, 'guild') and message.guild or None
 		self.channel = hasattr(message, 'channel') and message.channel or None
-		self.bot_prefix = self.bot.get_bot_prefix(self.server, self.channel)
+		self.bot_prefix = bot_prefix and bot_prefix or self.bot.get_bot_prefix(self)
 		self.prefix_list = self.__get_prefix_list()
 		self.message = message
 		self.content = hasattr(message, 'content') and message.content or str(message)
@@ -292,14 +292,14 @@ class ImperialProbeDroid(bot.Bot):
 			for shard in shards:
 				hour_ok = now.hour % shard.hour_interval == 0
 				minute_ok = now.minute > 0 and now.minute % shard.minute_interval == 0
-				if hour_ok and minute_ok:
+				if hour_ok and minute_ok or True:
 					members = list(ShardMember.objects.filter(shard=shard))
 					if members:
 						channel = self.get_channel(shard.channel_id)
 						server = hasattr(channel, 'guild') and channel.guild or None
-						bot_prefix = self.get_bot_prefix(server, channel)
+						bot_prefix = self.get_bot_prefix(channel=channel)
 						message = MessageStub(self.user, server, channel, '%spayout' % bot_prefix)
-						request = UserRequest(config, message, from_user=False)
+						request = UserRequest(config, message, from_user=False, bot_prefix=bot_prefix)
 						await self.on_message_handler(request)
 
 	async def on_ready(self):
@@ -348,7 +348,7 @@ class ImperialProbeDroid(bot.Bot):
 		message = request.message
 
 		if Player.is_banned(author):
-			msgs = error_user_banned(config, author)
+			msgs = self.errors.user_banned(request)
 			for msg in msgs:
 				await send_embed(self, channel, msg)
 
@@ -418,6 +418,9 @@ async def __main__():
 		bot.config = config
 		bot.logger = ipd_logger
 		bot.redis = config.redis
+
+		from boterrors import BotErrors
+		bot.errors = BotErrors(bot)
 
 		import client
 		bot.client = client.SwgohClient(bot)

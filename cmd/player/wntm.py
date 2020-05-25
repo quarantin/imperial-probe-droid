@@ -1,10 +1,8 @@
 from opts import *
-from errors import *
 from utils import get_field_legend
 from constants import EMOJIS, MODSLOTS
 
 import DJANGO
-
 from swgoh.models import ModRecommendation
 
 help_wntm = {
@@ -60,18 +58,19 @@ Or the shorter form:
 %prefixw de/ar/sp```"""
 }
 
-def cmd_wntm(request):
+def cmd_wntm(ctx):
 
-	args = request.args
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	selected_filters = parse_opts_mod_filters(request)
+	selected_filters = parse_opts_mod_filters(ctx)
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if not selected_filters:
-		return error_no_mod_filter_selected(config)
+		return bot.errors.no_mod_filter_selected(ctx)
 
 	spacer = EMOJIS['']
 	emoji_ea = EMOJIS['capitalgames']

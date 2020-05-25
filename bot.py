@@ -20,20 +20,34 @@ class Bot(commands.Bot):
 		with open('images/imperial-probe-droid.jpg', 'rb') as image:
 			return bytearray(image.read())
 
-	def get_bot_prefix(self, server, channel):
+	def get_bot_prefix(self, ctx=None, channel=None, server=None):
+
+		bot_prefix = '!'
 
 		server_id = None
-		if hasattr(server, 'id'):
-			server_id = server.id
-		elif hasattr(channel, 'id'):
+
+		if ctx:
+			if hasattr(ctx, 'channel'):
+				channel = ctx.channel
+				server_id = channel.id
+				if hasattr(channel, 'guild'):
+					server_id = channel.guild.id
+
+		elif channel:
 			server_id = channel.id
+			if hasattr(channel, 'guild'):
+				server_id = channel.guild.id
 
-		try:
-			guild = DiscordServer.objects.get(server_id=server_id)
-			bot_prefix = guild.bot_prefix
+		elif server:
+			server_id = server.id
 
-		except DiscordServer.DoesNotExist:
-			bot_prefix = self.config['prefix']
+		if server_id:
+			try:
+				guild = DiscordServer.objects.get(server_id=server_id)
+				bot_prefix = guild.bot_prefix
+
+			except DiscordServer.DoesNotExist:
+				bot_prefix = self.config['prefix']
 
 		return bot_prefix
 
@@ -67,6 +81,9 @@ class Bot(commands.Bot):
 
 	def get_invite_link(self, user=None, invite_msg='Click here to invite this bot to your server'):
 		return '[%s](%s)' % (invite_msg, self.get_invite_url(user=user))
+
+	def get_percentage(self, amount, total):
+		return '%.2f%%' % (amount / total * 100)
 
 	async def sendmsg(self, channel, message=None, embed=None):
 

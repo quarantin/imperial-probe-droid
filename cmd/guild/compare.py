@@ -1,7 +1,6 @@
 from collections import OrderedDict
 
 from opts import *
-from errors import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate, get_ability_name
 
@@ -142,30 +141,37 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 
 	return res
 
-async def cmd_guild_compare(request):
+async def cmd_guild_compare(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
-	excluded_ally_codes = parse_opts_ally_codes_excluded(request)
+	excluded_ally_codes = parse_opts_ally_codes_excluded(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
+
+	selected_units = parse_opts_unit_names(ctx)
+
 	if error:
 		return error
 
-	selected_units = parse_opts_unit_names(request)
-	if not selected_units:
-		return error_no_unit_selected()
-
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
+
+	if not selected_units:
+		return bot.errors.no_unit_selected(ctx)
 
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
+	if not guilds:
+		return bot.errors.ally_codes_not_found(ally_codes)
 
 	result = {}
 	for ally_code in ally_codes:

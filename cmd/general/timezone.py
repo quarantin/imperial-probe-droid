@@ -1,8 +1,7 @@
+from opts import *
+
 import DJANGO
 from swgoh.models import Player
-
-from opts import *
-from errors import *
 
 help_timezone = {
 	'title': 'Timezone Help',
@@ -24,20 +23,25 @@ Set your timezone to New York:
 %prefixtimezone America/New_York```""",
 }
 
-async def cmd_timezone(request):
+async def cmd_timezone(ctx):
 
-	args = request.args
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	players, error = parse_opts_players(request, max_allies=1)
-	if not players:
+	selected_players, error = parse_opts_players(ctx, max_allies=1)
+
+	if error:
 		return error
 
-	timezones = parse_opts_timezones(request)
-	if args:
-		return error_unknown_parameters(args)
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
 
-	player = players[0]
+	timezones = parse_opts_timezones(ctx)
+	if args:
+		return bot.errors.unknown_parameters(args)
+
+	player = selected_players[0]
 
 	if not timezones:
 		timezones_url = '%s/media/timezones.txt' % config.get_server_url()

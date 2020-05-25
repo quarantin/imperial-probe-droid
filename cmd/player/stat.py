@@ -1,7 +1,6 @@
 import json
 
 from opts import *
-from errors import *
 from constants import EMOJIS, MAX_GEAR_LEVEL, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from collections import OrderedDict
 from utils import get_stars_as_emojis
@@ -155,24 +154,31 @@ def player_to_embedfield(config, player, roster, lang):
 def get_player_division(division):
 	return 12 - (division / 10)
 
-async def cmd_player_stat(request):
+async def cmd_player_stat(ctx):
 
-	args = request.args
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
-	lang = parse_opts_lang(request)
+	lang = parse_opts_lang(ctx)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = parse_opts_players(ctx)
+
 	if error:
 		return error
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
+
+	if not selected_players:
+		return bot.errors.no_ally_code_specified(ctx)
 
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes, stats=True)
+	if not players:
+		return bot.errors.ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	for player in selected_players:

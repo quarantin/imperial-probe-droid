@@ -1,5 +1,3 @@
-from errors import *
-
 help_config = {
 	'title': 'Config Help',
 	'description': """Configure various settings of the bot per discord server.

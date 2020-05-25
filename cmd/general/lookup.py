@@ -1,5 +1,3 @@
-from errors import *
-
 help_lookup = {
 	'title': 'Lookup Help',
 	'description': """Lookup a discord user accross all servers this bot is connected to.
@@ -11,14 +9,15 @@ help_lookup = {
 Only administrators of this bot can use this command.```"""
 }
 
-def cmd_lookup(request):
+def cmd_lookup(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	if 'admins' not in config or author.id not in config['admins']:
-		return error_permission_denied()
+		return bot.errors.permission_denied()
 
 	for server in config['bot'].guilds:
 		for member in server.members:

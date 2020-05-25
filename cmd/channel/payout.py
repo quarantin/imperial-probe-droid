@@ -1,7 +1,4 @@
-# -*- coding=utf-8 -*-
-
 from opts import *
-from errors import *
 from swgohgg import get_swgohgg_profile_url
 
 import DJANGO
@@ -80,11 +77,11 @@ def get_payout_times(shard):
 
 	return res
 
-def get_shard(request):
+def get_shard(ctx):
 
-	author = request.author
-	channel = request.channel
-	config = request.config
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if channel is None:
 		return None
@@ -146,13 +143,13 @@ def parse_opts_payout_time(tz, args):
 
 	return None
 
-def handle_payout_create(request):
+def handle_payout_create(ctx):
 
-	bot = request.bot
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if not bot.is_ipd_admin(author):
 		return [{
@@ -185,25 +182,25 @@ def handle_payout_create(request):
 		'description': 'This channel is now dedicated to your shard for **%s**.\nNow you may add some members of your shard. Please type `%shelp payout` to learn how to add members to your shard.' % (shard_type_str, config['prefix']),
 	}]
 
-async def handle_payout_add(request):
+async def handle_payout_add(ctx):
 
-	args = request.args
-	channel = request.channel
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	channel = ctx.channel
+	config = ctx.config
 
-	players, error = parse_opts_players(request)
+	players, error = parse_opts_players(ctx)
 	if error:
 		return error
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	ally_codes = [ x.ally_code for x in players ]
 	invalid_ally_codes = []
@@ -245,13 +242,13 @@ async def handle_payout_add(request):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **added**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-def handle_payout_del(request):
+def handle_payout_del(ctx):
 
-	bot = request.bot
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if not bot.is_ipd_admin(author):
 		return [{
@@ -260,18 +257,18 @@ def handle_payout_del(request):
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
 
-	players, error = parse_opts_players(request)
+	players, error = parse_opts_players(ctx)
 	if error:
 		return error
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	ally_codes = [ x.ally_code for x in players ]
 
@@ -286,15 +283,15 @@ def handle_payout_del(request):
 		'description': 'This shard has been updated.\nThe following ally code%s ha%s been **removed**:\n%s' % (plural, plural_have, ally_code_str),
 	}]
 
-async def handle_payout_rank(request):
+async def handle_payout_rank(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -305,9 +302,9 @@ async def handle_payout_rank(request):
 		tzname = 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
 
-	shard = get_shard(request)
+	shard = get_shard(ctx)
 	if not shard:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	payout_times = get_payout_times(shard)
 
@@ -352,17 +349,17 @@ async def handle_payout_rank(request):
 		'description': 'Shard payout time for **%s** arena:\n%s\n`|Rank PO_At Ally_Code Name`\n%s\n%s' % (shard.type, config['separator'], config['separator'], lines_str),
 	}]
 
-async def handle_payout_stats(request):
+async def handle_payout_stats(ctx):
 
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
-	bot = request.bot
-	from_user = request.from_user
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
+	from_user = ctx.from_user
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -373,9 +370,9 @@ async def handle_payout_stats(request):
 		tzname = 'Europe/London'
 		tzinfo = pytz.timezone(tzname)
 
-	shard = get_shard(request)
+	shard = get_shard(ctx)
 	if not shard:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	shard_channel = config['bot'].get_channel(shard.channel_id)
 	payout_times = get_payout_times(shard)
@@ -472,20 +469,21 @@ async def handle_payout_stats(request):
 
 	return []
 
-def handle_payout_export(request):
+def handle_payout_export(ctx):
 
-	args = request.args
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	channel = ctx.channel
+	config = ctx.config
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	members = ShardMember.objects.filter(shard=shard)
 	ally_codes = [ str(member.ally_code) for member in members ]
@@ -500,18 +498,19 @@ def handle_payout_export(request):
 		'description': '`%s`' % ' '.join(ally_codes)
 	}]
 
-def handle_payout_time(request):
+def handle_payout_time(ctx):
 
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -521,7 +520,7 @@ def handle_payout_time(request):
 		player = None
 		tzname = 'Europe/London'
 
-	players, error = parse_opts_players(request)
+	players, error = parse_opts_players(ctx)
 	if error:
 		return error
 
@@ -533,7 +532,7 @@ def handle_payout_time(request):
 		}]
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	ally_codes = [ x.ally_code for x in players ]
 	ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(payout_time=payout_time.strftime('%H:%M'))
@@ -547,18 +546,19 @@ def handle_payout_time(request):
 		'description': 'Payout time has been updated to **%s** for the following ally code%s:\n%s' % (payout_time.astimezone(tzname).strftime('%H:%M'), plural, ally_code_str),
 	}]
 
-def handle_payout_tag(request):
+def handle_payout_tag(ctx):
 
-	args = request.args
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	try:
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	try:
 		player = Player.objects.get(discord_id=author.id)
@@ -568,7 +568,7 @@ def handle_payout_tag(request):
 		player = None
 		tzname = 'Europe/London'
 
-	players, error = parse_opts_players(request)
+	players, error = parse_opts_players(ctx)
 	if error:
 		return error
 
@@ -580,7 +580,7 @@ def handle_payout_tag(request):
 		}]
 
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	ally_codes = [ x.ally_code for x in players ]
 	ShardMember.objects.filter(shard=shard, ally_code__in=ally_codes).update(affiliation=affiliation_id)
@@ -594,12 +594,12 @@ def handle_payout_tag(request):
 		'description': 'Affiliation has been changed to **`%s`** for the following ally code%s:\n%s' % (affiliation_name, plural, ally_code_str),
 	}]
 
-def handle_payout_destroy(request):
+def handle_payout_destroy(ctx):
 
-	bot = request.bot
-	author = request.author
-	channel = request.channel
-	config = request.config
+	bot = ctx.bot
+	author = ctx.author
+	channel = ctx.channel
+	config = ctx.config
 
 	if not bot.is_ipd_admin(author):
 		return [{
@@ -612,7 +612,7 @@ def handle_payout_destroy(request):
 		shard = Shard.objects.get(channel_id=channel.id)
 
 	except Shard.DoesNotExist:
-		return error_no_shard_found(config)
+		return bot.errors.no_shard_found(ctx)
 
 	shard.delete()
 
@@ -655,9 +655,9 @@ subcommands = {
 	'destroy': handle_payout_destroy,
 }
 
-def parse_opts_subcommands(request):
+def parse_opts_subcommands(ctx):
 
-	args = request.args
+	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		larg = arg.lower()
@@ -667,16 +667,18 @@ def parse_opts_subcommands(request):
 
 	return None
 
-async def cmd_payout(request):
+async def cmd_payout(ctx):
 
-	subcommand = parse_opts_subcommands(request)
+	bot = ctx.bot
+
+	subcommand = parse_opts_subcommands(ctx)
 	if not subcommand:
 		subcommand = 'stats'
 
 	if subcommand in subcommands:
 		if inspect.iscoroutinefunction(subcommands[subcommand]):
-			return await subcommands[subcommand](request)
+			return await subcommands[subcommand](ctx)
 		else:
-			return subcommands[subcommand](request)
+			return subcommands[subcommand](ctx)
 
-	return error_generic('Unsupported Action', subcommand)
+	return bot.errors.generic('Unsupported Action', subcommand)

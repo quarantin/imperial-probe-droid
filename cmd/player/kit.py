@@ -1,5 +1,4 @@
 from opts import *
-from errors import *
 from constants import EMOJIS
 from swgohgg import get_full_avatar_url
 from utils import translate, get_ability_name
@@ -142,14 +141,14 @@ def get_emoji(skill, tier):
 
 	return EMOJIS[emoji]
 
-async def cmd_kit(request):
+async def cmd_kit(ctx):
 
-	args = request.args
-	author = request.author
-	config = request.config
-	bot = request.bot
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
-	language = parse_opts_lang(request)
+	language = parse_opts_lang(ctx)
 
 	selected_skill_types = parse_opts_skill_types(args)
 	if not selected_skill_types:
@@ -157,24 +156,27 @@ async def cmd_kit(request):
 
 	selected_tier = parse_opts_tier(args)
 
-	selected_players, error = parse_opts_players(request, min_allies=1, max_allies=1)
+	selected_players, error = parse_opts_players(ctx, min_allies=1, max_allies=1)
 
-	selected_units = parse_opts_unit_names(request)
+	selected_units = parse_opts_unit_names(ctx)
 
 	if error:
 		return error
 
+	if args:
+		return bot.errors.unknown_parameters(args)
+
 	if not selected_players:
-		return error_no_ally_code_specified(config, author)
+		return bot.errors.no_ally_code_specified(ctx)
 
 	if not selected_units:
-		return error_no_unit_selected()
-
-	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.no_unit_selected(ctx)
 
 	ally_codes = [ x.ally_code for x in selected_players ]
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.ally_codes_not_found(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	msgs = []

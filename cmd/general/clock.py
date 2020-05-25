@@ -2,7 +2,6 @@ import pytz
 from datetime import datetime
 
 from opts import *
-from errors import *
 
 help_clock = {
 	'title': 'Clock Help',
@@ -33,14 +32,16 @@ TIMEZONES = [
 	'Australia/Sydney',
 ]
 
-def cmd_clock(request):
+def cmd_clock(ctx):
 
-	args = request.args
+	bot = ctx.bot
+	args = ctx.args
 	all_timezones = list(TIMEZONES)
 
-	timezones = parse_opts_timezones(request)
+	timezones = parse_opts_timezones(ctx)
+
 	if args:
-		return error_unknown_parameters(args)
+		return bot.errors.unknown_parameters(args)
 
 	if timezones:
 		all_timezones = timezones
