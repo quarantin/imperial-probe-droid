@@ -60,7 +60,7 @@ class TicketsCog(commands.Cog):
 
 		except Player.DoesNotExist:
 			print('Missing player ID from database: %s' % player_id)
-			return None
+			return None, None
 
 		defaults = { 'raid_tickets': raid_tickets, 'guild_tokens': guild_tokens }
 
