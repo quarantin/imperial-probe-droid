@@ -155,7 +155,6 @@ class TerritoryWarHistoryView(ListView):
 		if 'preloaded' in request.GET:
 			preloaded = (request.GET['preloaded'].lower() == 'yes') and 1 or 0
 			kwargs['squad__is_preloaded'] = preloaded
-			kwargs['preloaded'] = preloaded
 			context['preloaded'] = preloaded
 
 		self.object_list = self.get_queryset(*args, **kwargs)
