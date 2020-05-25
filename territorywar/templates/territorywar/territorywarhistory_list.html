@@ -17,7 +17,6 @@
 						<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 							<thead>
 							<tr>
-								<th>Event ID</th>
 								<th>Timestamp</th>
 								<th>Activity</th>
 								<th>Territory</th>
@@ -30,7 +29,6 @@
 							</thead>
 							<tfoot>
 							<tr>
-								<th>Event ID</th>
 								<th>Timestamp</th>
 								<th>Activity</th>
 								<th>Territory</th>
@@ -43,7 +41,6 @@
 							</tfoot>
 							<tbody>{% for event in events %}
 								<tr>
-								<td>{{ event.id }}</td>
 								<td>{{ event.timestamp }}</td>
 								<td>{{ event.event_type }}</td>
 								<td>{{ event.get_territory }}</td>
