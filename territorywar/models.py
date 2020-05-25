@@ -28,7 +28,7 @@ class TerritoryWar(models.Model):
 	@staticmethod
 	def parse(event_id):
 		ts = int(event_id.split(':')[1][1:-3])
-		timestamp = pytz.utc.localize(datetime.fromtimestamp(ts))
+		timestamp = datetime.fromtimestamp(ts, tz=pytz.utc)
 		event, created = TerritoryWar.objects.get_or_create(event_id=event_id, timestamp=timestamp)
 		return event
 
