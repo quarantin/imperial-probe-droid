@@ -210,6 +210,10 @@ if __name__ == '__main__':
 		tracker.logger = tracker_logger
 		tracker.logger_unreg = unreged_logger
 		tracker.redis = config.redis
+
+		from boterrors import BotErrors
+		tracker.errors = BotErrors(tracker)
+
 		tracker.run(config['tokens']['tracker'])
 
 	except:
