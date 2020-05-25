@@ -16,7 +16,7 @@ from swgoh.models import Player, PlayerConfig, PlayerActivity
 class TicketsCog(commands.Cog):
 
 	max_raid_tickets = 600
-	max_guild_tokens = 10000
+	max_total_raid_tickets = 600 * 50
 
 	def __init__(self, bot):
 		self.bot = bot
@@ -41,26 +41,8 @@ class TicketsCog(commands.Cog):
 
 		return ' ' * spaces
 
-	def get_lpad_tokens(self, tokens):
-
-		spaces = 0
-
-		if tokens < 10:
-			spaces = 3
-
-		elif tokens < 100:
-			spaces = 2
-
-		elif tokens < 1000:
-			spaces = 1
-
-		return ' ' * spaces
-
 	def get_raid_tickets_config(self):
 		return PlayerConfig.objects.filter(key=PlayerConfig.CONFIG_NOTIFY_RAID_TICKETS)
-
-	def get_guild_tokens_config(self):
-		return PlayerConfig.objects.filter(key=PlayerConfig.CONFIG_NOTIFY_GUILD_TOKENS)
 
 	def get_discord_id(self, player_id):
 
@@ -147,8 +129,55 @@ class TicketsCog(commands.Cog):
 
 		raise error
 
+	async def do_rtc(self, alert):
+
+		creds_id = alert.player.creds_id
+
+		guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
+
+		guild_name = guild_activity['name']
+		guild_banner = guild_activity['banner']
+		guild_colors = guild_activity['colors']
+		raid_tickets = guild_activity['raid-tickets']
+
+		miss = 0
+		total = 0
+		lines = []
+		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
+			total += tickets
+			if tickets < alert.min_tickets:
+				miss += 1
+				pad = self.get_lpad_tickets(tickets)
+				lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, alert.min_tickets, name))
+
+		if not lines:
+			lines.append('Everyone got their raid tickets done (%d/%d)! Congratulations! 🥳' % (alert.min_tickets, self.max_raid_tickets))
+		else:
+			#sep = self.config['separator']
+			#lines = [ sep ] + lines + [ sep ]
+
+			lines.insert(0, '__**Raid Tickets Earned**__')
+			lines.insert(1, '`%d/%d` **%s**\n' % (total, self.max_total_raid_tickets, self.bot.get_percentage(total, self.max_total_raid_tickets)))
+
+			amount = self.max_total_raid_tickets - total
+			lines.insert(2, '__**Raid Tickets Missing**__')
+			lines.insert(3, '`%d/%d` **%s**\n' % (amount, self.max_total_raid_tickets, self.bot.get_percentage(amount, self.max_total_raid_tickets)))
+
+			plural = miss > 1 and 's' or ''
+			lines.insert(4, '__**Missing Raid Tickets (%d player%s)**__' % (miss, plural))
+
+		description = '\n'.join(lines)
+		icon_url = 'https://swgoh.gg/static/img/assets/tex.%s.png' % guild_banner
+
+		embed = Embed(title='', description=description)
+		embed.set_author(name=guild_name, icon_url=icon_url)
+		embed.set_thumbnail(url=icon_url)
+
+		channel = self.bot.get_channel(alert.channel_id)
+		await channel.send(embed=embed)
+
 	@tasks.loop(minutes=1)
-	async def raid_tickets_notifier(self, min_tickets: int = 600):
+	async def raid_tickets_notifier(self):
 
 		try:
 			now = datetime.now()
@@ -156,56 +185,23 @@ class TicketsCog(commands.Cog):
 			alerts = self.get_raid_tickets_config()
 			for alert in alerts:
 
-				notif_time = datetime.strptime(alert.value, '%H:%M')
-				creds_id = alert.player.creds_id
+				time = datetime.strptime(alert.value, '%H:%M')
 
-				hour_ok = now.hour == notif_time.hour
-				minute_ok = now.minute == notif_time.minute
-				if hour_ok and minute_ok:
+				hour_ok = now.hour == time.hour
+				if not hour_ok:
+					continue
 
-					lines = []
-					guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
-					raid_tickets = guild_activity['raid-tickets']
+				minute_ok = now.minute == time.minute
+				if not minute_ok:
+					continue
 
-					for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
-						if tickets < min_tickets:
-							pad = self.get_lpad_tickets(tickets)
-							lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
-
-					channel = self.bot.get_channel(alert.channel_id)
-					await channel.send('\n'.join(lines))
+				await self.do_rtc(alert)
 
 		except Exception as err:
 			print(err)
 			print(traceback.format_exc())
 			self.logger.error(err)
 			self.logger.error(traceback.format_exc())
-
-	@tasks.loop(minutes=1)
-	async def guild_tokens_notifier(self, min_tokens: int = 10000):
-
-		now = datetime.now()
-
-		alerts = self.get_guild_tokens_config()
-		for alert in alerts:
-
-			notif_time = datetime.strptime(alert.value, '%H:%M')
-			creds_id = alert.player.creds_id
-
-			hour_ok = now.hour == notif_time.hour
-			minute_ok = now.minute == notif_time.minute
-			if hour_ok and minute_ok:
-
-				lines = []
-				guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
-				guild_tokens = guild_activity['guild-tokens']
-
-				for name, tokens in sorted(guild_tokens.items(), key=lambda x: x[1], reverse=True):
-					if tickets != self.max_raid_tickets:
-						lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
-
-				channel = self.bot.get_channel(alert.channel_id)
-				await channel.send('\n'.join(lines))
 
 	@commands.command(aliases=['ticket', 'tickets'])
 	async def rtc(self, ctx, *, args: str = ''):
@@ -234,58 +230,11 @@ class TicketsCog(commands.Cog):
 		if min_tickets > self.max_raid_tickets:
 			min_tickets = self.max_raid_tickets
 
-		premium_user = parse_opts_premium_user(ctx.author)
-		if not premium_user:
+		player = parse_opts_premium_user(ctx.author)
+		if not player:
+			print('No premium user found')
 			return self.errors.not_premium()
 
-		lines = []
-		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify, store=store)
-		guild_name = guild_activity['name']
-		guild_banner = guild_activity['banner']
-		guild_colors = guild_activity['colors']
-		raid_tickets = guild_activity['raid-tickets']
-		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
-			if tickets < min_tickets :
-				pad = self.get_lpad_tickets(tickets)
-				lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, min_tickets, name))
+		alert = PlayerConfig(player=player, channel_id=ctx.channel.id, notify=notify, store=store, min_tickets=min_tickets)
 
-		if not lines:
-			lines.append('Everyone got their raid tickets done (%d/%d)! Congratulations! 🥳' % (min_tickets, self.max_raid_tickets))
-		else:
-			sep = self.config['separator']
-			lines = [ sep ] + lines + [ sep ]
-
-		description = '\n'.join(lines)
-		icon_url = 'https://swgoh.gg/static/img/assets/tex.%s.png' % guild_banner
-
-		embed = Embed(title='Raid Ticket Check', description=description)
-		embed.set_author(name=guild_name, icon_url=icon_url)
-		await ctx.send(embed=embed)
-
-	@commands.command(aliases=['gtc'])
-	async def guild_tokens_check(self, ctx, min_tokens: int = 10000, *, command=''):
-
-		if min_tokens > self.max_guild_tokens:
-			min_tokens = self.max_guild_tokens
-
-		premium_user = parse_opts_premium_user(ctx.author)
-		if not premium_user:
-			return self.errors.not_premium()
-
-		notify = command.lower() in [ 'alert', 'mention', 'notify', 'notification' ]
-
-		lines = []
-		guild_activity = await self.get_guild_activity(creds_id=premium_user.creds_id, notify=notify)
-		guild_tokens = guild_activity['guild-tokens']
-		for name, tokens in sorted(guild_tokens.items(), key=lambda x: x[1], reverse=True):
-			if tokens < min_tokens:
-				pad = self.get_lpad_tokens(tokens)
-				lines.append('`| %s%d/%d |` **%s**' % (pad, tokens, min_tokens, name))
-
-		if not lines:
-			lines.append('Everyone got their guild tokens done (%d/%d)! Contratulations! 🥳' % (min_tokens, self.max_guild_tokens))
-		else:
-			sep = self.config['separator']
-			lines = [ sep ] + lines + [ sep ]
-
-		await ctx.send('\n'.join(lines))
+		return await self.do_rtc(alert)
