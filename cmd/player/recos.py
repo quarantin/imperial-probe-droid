@@ -90,7 +90,7 @@ async def cmd_recos(ctx):
 		return bot.errors.no_ally_code_specified(ctx)
 
 	if not selected_units:
-		return bot.errors.no_unit_selected()
+		return bot.errors.no_unit_selected(ctx)
 
 	if args:
 		return bot.errors.unknown_parameters(args)
