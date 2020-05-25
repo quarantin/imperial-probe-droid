@@ -1,10 +1,14 @@
 __pycache__
+static
 0*.py
 *.png
 *.svg
 *.pyc
+client.py
 libswgoh.py
 libprotobuf.py
+credentials.py
+jsonfixer.py
 logs
 protobuf
 protos
