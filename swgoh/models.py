@@ -161,6 +161,7 @@ class PlayerConfig(models.Model):
 	value = models.CharField(max_length=32)
 	notify = models.BooleanField(default=False)
 	store = models.BooleanField(default=False)
+	min_tickets = models.IntegerField(default=600)
 
 class PlayerActivity(models.Model):
 
