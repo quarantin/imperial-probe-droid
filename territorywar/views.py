@@ -144,13 +144,12 @@ class TerritoryWarHistoryView(ListView):
 
 		if 'player' in request.GET:
 			player = request.GET['player']
-			kwargs['player'] = player
+			kwargs['player_id'] = player
 			context['player'] = player
 
 		if 'target' in request.GET:
 			target = request.GET['target']
 			kwargs['squad__player_id'] = target
-			kwargs['target'] = target
 			context['target'] = target
 
 		if 'preloaded' in request.GET:
