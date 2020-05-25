@@ -297,7 +297,7 @@ class ImperialProbeDroid(bot.Bot):
 					if members:
 						channel = self.get_channel(shard.channel_id)
 						server = hasattr(channel, 'guild') and channel.guild or None
-						bot_prefix = self.get_bot_prefix(server, channel)
+						bot_prefix = self.get_bot_prefix(channel=channel, server=server)
 						message = MessageStub(self.user, server, channel, '%spayout' % bot_prefix)
 						request = UserRequest(config, message, from_user=False)
 						await self.on_message_handler(request)
