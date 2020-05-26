@@ -139,7 +139,7 @@ class TerritoryWarHistoryView(ListView):
 		if 'activity' in request.GET:
 			activity = int(request.GET['activity'])
 			kwargs['event_type'] = activity
-			kwargs['activity'] = activity
+			#kwargs['activity'] = activity
 			context['activity'] = activity
 
 		if 'player' in request.GET:
