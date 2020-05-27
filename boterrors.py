@@ -11,6 +11,13 @@ class BotErrors:
 			'description': description,
 		}]
 
+	def unknown_error(self, title=None, message=None):
+		return [{
+			'title': title or 'Error: Unknown',
+			'color': 'red',
+			'description': message or 'An unknown error occured. Please report this to the developer.',
+		}]
+
 	def not_premium(self):
 		return [{
 			'title': 'Error: Not a Premium User',
@@ -101,7 +108,7 @@ class BotErrors:
 		return [{
 			'title': 'Error: No Filter Selected',
 			'color': 'red',
-			'description': 'You have to provide a mod filter.\nPlease type `%shelp wntm` for more information on mod filters.' % self.get_bot_prefix(ctx),
+			'description': 'You have to provide a mod filter.\nPlease type `%shelp wntm` for more information on mod filters.' % self.bot.get_bot_prefix(ctx),
 		}]
 
 	def register_mismatch(self, ctx, discord_ids, ally_codes):
@@ -136,6 +143,20 @@ class BotErrors:
 			'title': 'Permission Denied',
 			'color': 'red',
 			'description': 'Only a member of the role **%s** can perform this operation.' % self.bot.config['role'],
+		}]
+
+	def manage_webhooks_forbidden(self):
+		return [{
+			'title': 'Bot Missing Permission',
+			'color': 'red',
+			'description': 'I don\'t have permission to manage WebHooks in this channel. I need the following permission to proceed:\n- **Manage Webhooks**',
+		}]
+
+	def create_webhook_failed(self):
+		return [{
+			'title': 'WebHook Creation Failed',
+			'color': 'red',
+			'description': 'Creation of the webhook failed due to a network error. Please try again.',
 		}]
 
 	def no_shard_found(self, ctx):
