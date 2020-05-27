@@ -92,7 +92,7 @@ class Crawler(asyncio.Future):
 				await self.update_player(premium, guild, member['playerId'])
 				continue
 
-			except CrawlerError:
+			except CrawlerError as err:
 				print(err)
 				print(traceback.format_exc())
 
