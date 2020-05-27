@@ -1,4 +1,3 @@
-from opts import *
 from utils import translate
 from swgohgg import get_swgohgg_player_unit_url
 from constants import MODSETS_NEEDED
@@ -41,74 +40,6 @@ Count, missing, incomplete, level and 5pips.
 MAX_MOD_LEVEL = 15
 MAX_MODS_PER_UNIT = 6
 MIN_LEVEL_FOR_MODS = 50
-
-default_actions = [
-	'count',
-	'missing',
-	#'nomods',
-	'incomplete',
-	'level',
-	'5pips',
-	#'6pips',
-	#'tier',
-]
-
-def parse_opts_actions(ctx):
-
-	actions = []
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-
-		if larg in [ 'c', 'count' ]:
-			args.remove(arg)
-			actions.append('count')
-
-		elif larg in [ 'n', 'nm', 'nomods' ]:
-			args.remove(arg)
-			actions.append('missing')
-
-		elif larg in [ 'm', 'miss', 'missing' ]:
-			args.remove(arg)
-			actions.append('missing')
-
-		elif larg in [ 'i', 'inc', 'incomplete' ]:
-			args.remove(arg)
-			actions.append('incomplete')
-
-		elif larg in [ 'l', 'lvl', 'level' ]:
-			args.remove(arg)
-			actions.append('level')
-
-		elif larg in [ '5', '5p', '5pip', '5pips', '5-pips' ]:
-			args.remove(arg)
-			actions.append('5pips')
-
-		elif larg in [ '6', '6p', '6pip', '6pips', '6-pips' ]:
-			args.remove(arg)
-			actions.append('6pips')
-
-		elif larg in [ 't', 'tier', 'tiers', 'color' ]:
-			args.remove(arg)
-			actions.append('tier')
-
-	return actions
-
-def parse_opts_min_gear_level(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-		match = re.search(r'^(gear|g)([0-9]{1,2})$', larg)
-		if match:
-			args.remove(arg)
-			return int(match.group(2))
-
-	return DEFAULT_MIN_GEAR_LEVEL
 
 def get_mod_stats(roster, min_gear_level):
 
@@ -194,13 +125,13 @@ async def cmd_modcheck(ctx):
 	units_with_missing_mods = []
 	units_with_incomplete_modsets = []
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	actions = parse_opts_actions(ctx) or default_actions
+	modcheck = bot.options.parse_modcheck(args)
 
-	min_gear_level = parse_opts_min_gear_level(ctx)
+	min_gear_level = bot.options.parse_min_gear_level(args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error
@@ -228,7 +159,7 @@ async def cmd_modcheck(ctx):
 		modcount, unitcount, units_with_no_mods, units_with_missing_mods, units_with_incomplete_modsets, units_with_incomplete_modlevels, units_with_mods_less_5_pips, units_with_mods_less_6_pips, units_with_mods_weak_tier = get_mod_stats(jroster, min_gear_level)
 
 
-		if 'count' in actions:
+		if 'count' in modcheck:
 			unitplural = unitcount > 1 and 's' or ''
 			lines.append('**%d** unit%s match.' % (unitcount, unitplural))
 			lines.append('**%d** equipped mods.' % modcount)
@@ -236,7 +167,7 @@ async def cmd_modcheck(ctx):
 		lines.append('Minimum gear level: **%d**' % min_gear_level)
 		lines.append(config['separator'])
 
-		if 'nomods' in actions:
+		if 'nomods' in modcheck:
 
 			sublines = []
 			for unit in units_with_no_mods:
@@ -250,7 +181,7 @@ async def cmd_modcheck(ctx):
 			lines.extend(sorted(sublines))
 			lines.append(config['separator'])
 
-		if 'missing' in actions:
+		if 'missing' in modcheck:
 
 			sublines = []
 			for unit in units_with_missing_mods:
@@ -264,7 +195,7 @@ async def cmd_modcheck(ctx):
 			lines.extend(sorted(sublines))
 			lines.append(config['separator'])
 
-		if 'incomplete' in actions:
+		if 'incomplete' in modcheck:
 
 			sublines = []
 			for unit in units_with_incomplete_modsets:
@@ -278,7 +209,7 @@ async def cmd_modcheck(ctx):
 			lines.extend(sorted(sublines))
 			lines.append(config['separator'])
 
-		if 'level' in actions:
+		if 'level' in modcheck:
 
 			sublines = []
 			for unit in units_with_incomplete_modlevels:
@@ -293,7 +224,7 @@ async def cmd_modcheck(ctx):
 			lines.extend(sorted(sublines))
 			lines.append(config['separator'])
 
-		if '5pips' in actions:
+		if '5pips' in modcheck:
 
 			sublines = []
 			for unit in units_with_mods_less_5_pips:
@@ -308,7 +239,7 @@ async def cmd_modcheck(ctx):
 			lines.extend(sorted(sublines))
 			lines.append(config['separator'])
 
-		if '6pips' in actions:
+		if '6pips' in modcheck:
 
 			sublines = []
 			for unit in units_with_mods_less_6_pips:
@@ -323,7 +254,7 @@ async def cmd_modcheck(ctx):
 			lines.extend(sorted(sublines))
 			lines.append(config['separator'])
 
-		if 'tier' in actions:
+		if 'tier' in modcheck:
 
 			sublines = []
 			for unit in units_with_mods_weak_tier:

@@ -7,8 +7,6 @@ from datetime import datetime
 from discord import Embed
 from discord.ext import commands, tasks
 
-from opts import *
-
 import DJANGO
 from django.db import transaction
 from swgoh.models import Player, PlayerConfig, PlayerActivity
@@ -230,7 +228,7 @@ class TicketsCog(commands.Cog):
 		if min_tickets > self.max_raid_tickets:
 			min_tickets = self.max_raid_tickets
 
-		player = parse_opts_premium_user(ctx.author)
+		player = self.options.parse_premium_user(ctx.author)
 		if not player:
 			print('No premium user found')
 			return self.errors.not_premium()

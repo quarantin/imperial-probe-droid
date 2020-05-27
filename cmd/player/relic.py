@@ -1,8 +1,7 @@
-from opts import *
 from utils import translate
 
 import DJANGO
-from swgoh.models import RelicStat
+from swgoh.models import BaseUnit, RelicStat
 
 from collections import OrderedDict
 
@@ -26,37 +25,6 @@ Show top most popular relic tiers for characters you have:
 %prefixrr```"""
 }
 
-MAX_RELIC = 7
-
-def parse_opts_relic_tier(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		try:
-			relic = int(arg)
-			args.remove(arg)
-			return relic
-
-		except:
-			continue
-
-	return MAX_RELIC
-
-def parse_opts_include_locked(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-		if larg == 'locked' or larg == 'l':
-			args.remove(arg)
-			return True
-
-	return False
-
 async def cmd_relic(ctx):
 
 	bot = ctx.bot
@@ -64,15 +32,17 @@ async def cmd_relic(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
-
 	per_user_limit = 25
-	relic_tier = parse_opts_relic_tier(ctx)
+
+	language = bot.options.parse_lang(ctx, args)
+
+	relic_tier = bot.options.parse_relic_tier(args)
 	relic_field = 'relic%d_percentage' % relic_tier
 	relic_filter = '-%s' % relic_field
-	include_locked = parse_opts_include_locked(ctx)
 
-	selected_players, error = parse_opts_players(ctx)
+	include_locked = bot.options.parse_include_locked(args)
+
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error

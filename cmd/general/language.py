@@ -1,5 +1,3 @@
-from opts import parse_opts_players, parse_opts_language
-
 import DJANGO
 from swgoh.models import Player
 
@@ -47,9 +45,9 @@ def cmd_language(ctx):
 	bot = ctx.bot
 	args = ctx.args
 
-	players, error = parse_opts_players(ctx, max_allies=1)
+	language = bot.options.parse_language(args)
 
-	language = parse_opts_language(ctx)
+	players, error = bot.options.parse_players(ctx, args, max_allies=1)
 	if not language:
 		return get_available_languages(ctx)
 

@@ -1,11 +1,7 @@
-#!/usr/bin/env python3
-
 import json
 import traceback
 from datetime import datetime
 from discord.ext import commands, tasks
-
-from opts import *
 
 import DJANGO
 from swgoh.models import Player, PlayerConfig

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import io
 import os
 import json
@@ -11,7 +9,6 @@ import discord
 from discord.ext import commands
 
 import libswgoh
-from opts import *
 from embed import new_embeds
 from utils import translate, translate_multi
 
@@ -68,7 +65,7 @@ class TWCog(commands.Cog):
 	@commands.group()
 	async def wso(self, ctx, command=''):
 
-		premium_user = parse_opts_premium_user(ctx.author)
+		premium_user = self.options.parse_premium_user(ctx.author)
 		if not premium_user:
 			return self.errors.not_premium()
 

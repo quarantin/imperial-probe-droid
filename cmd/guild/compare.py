@@ -1,11 +1,10 @@
 from collections import OrderedDict
 
-from opts import *
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate, get_ability_name
 
 import DJANGO
-from swgoh.models import BaseUnitSkill
+from swgoh.models import BaseUnit, BaseUnitSkill
 
 help_guild_compare = {
 	'title': 'Guild Compare Help',
@@ -147,13 +146,13 @@ async def cmd_guild_compare(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	excluded_ally_codes = parse_opts_ally_codes_excluded(ctx)
+	excluded_ally_codes = bot.options.parse_ally_codes_excluded(args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_units = parse_opts_unit_names(ctx)
+	selected_units = bot.options.parse_unit_names(args)
 
 	if error:
 		return error

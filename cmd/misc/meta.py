@@ -1,5 +1,3 @@
-from opts import *
-
 from swgohgg import get_top_rank1_squad_leaders, get_top_rank1_arena_squads, get_top_rank1_fleet_commanders, get_top_rank1_fleet_squads, get_top_rank1_reinforcements, META_UNITS_URL, META_SHIPS_URL
 
 help_meta = {
@@ -40,55 +38,14 @@ Show top 3 fleet reinforcements:
 %prefixmeta r 3```"""
 }
 
-opts_meta = {
-	'a':             'arena',
-	'arena':         'arena',
-	'f':             'fleet',
-	'fleet':         'fleet',
-	'l':             'leader',
-	'leader':        'leader',
-	'c':             'commander',
-	'commander':     'commander',
-	'C':             'compact',
-	'compact':       'compact',
-	'r':             'reinforcement',
-	'reinforcement': 'reinforcement',
+async def cmd_meta(ctx):
 
-}
-
-def parse_opts_meta(request):
-
-	top_n = 5
-	selected_opts = []
-	args = request.args
-	args_cpy = list(args)
-
-	for arg in args_cpy:
-
-		if arg in opts_meta:
-			args.remove(arg)
-			opt = opts_meta[arg]
-			selected_opts.append(opt)
-
-		elif arg.isdigit():
-			args.remove(arg)
-			arg = int(arg)
-			if arg < 1:
-				arg = 1
-			if arg > 50:
-				arg = 50
-
-			top_n = int(arg)
-
-	return selected_opts, top_n
-			
-async def cmd_meta(request):
-
-	args = request.args
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	config = ctx.config
 
 	msgs = []
-	selected_opts, top_n = parse_opts_meta(request)
+	selected_opts, top_n = bot.options.parse_meta(args)
 
 	if args:
 		plural = len(args) > 1 and 's' or ''

@@ -2,7 +2,6 @@ import DJANGO
 from swgoh.models import Player
 
 from utils import get_fuzz_ratio
-from opts import parse_opts_players
 
 from cmd.general.register import register_users
 
@@ -18,17 +17,6 @@ help_gregister = {
 %prefixgreg
 %prefixgr```"""
 }
-
-def parse_opts_auto(request):
-
-	args = request.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-		if arg.lower() == 'auto':
-			args.remove(arg)
-			return True
-
-	return False
 
 def lowerstrip(string):
 
@@ -47,19 +35,19 @@ def lowerstrip(string):
 
 	return string
 
-async def cmd_gregister(request):
+async def cmd_gregister(ctx):
 
-	bot = request.bot
-	args = request.args
-	author = request.author
-	config = request.config
+	bot = ctx.bot
+	args = ctx.args
+	author = ctx.author
+	config = ctx.config
 
 	min_length = 4
 	min_fuzz_ratio = 90
 
-	auto = parse_opts_auto(request)
+	auto = bot.options.parse_auto(args)
 
-	selected_players, error = parse_opts_players(request)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error
@@ -94,7 +82,7 @@ async def cmd_gregister(request):
 			else:
 				nick = None
 				member = None
-				for m in request.server.members:
+				for m in ctx.channel.guild.members:
 
 					member = m
 
@@ -139,7 +127,7 @@ async def cmd_gregister(request):
 
 	msgs = []
 	if auto:
-		msgs = await register_users(request, auto_ids, auto_allycodes)
+		msgs = await register_users(ctx, auto_ids, auto_allycodes)
 
 	return msgs + [{
 		'title': 'Who is Registered',

@@ -1,8 +1,6 @@
 import pytz
 from datetime import datetime
 
-from opts import *
-
 help_clock = {
 	'title': 'Clock Help',
 	'description': """Shows current time in different timezones.
@@ -38,7 +36,7 @@ def cmd_clock(ctx):
 	args = ctx.args
 	all_timezones = list(TIMEZONES)
 
-	timezones = parse_opts_timezones(ctx)
+	timezones = bot.options.parse_timezones(args)
 
 	if args:
 		return bot.errors.unknown_parameters(args)

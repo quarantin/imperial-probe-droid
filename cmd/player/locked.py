@@ -1,5 +1,7 @@
-from opts import *
 from utils import translate
+
+import DJANGO
+from swgoh.models import BaseUnit
 
 help_locked = {
 	'title': 'Locked Help',
@@ -40,34 +42,6 @@ Show locked characters and ships for two different ally codes:
 ```
 %prefixl 123456789 234567891```"""
 }
-
-opts_locked = {
-	'c':     'chars',
-	'chars': 'chars',
-	's':     'ships',
-	'ships': 'ships',
-}
-
-def parse_opts_locked(ctx):
-
-	opts = []
-	args = ctx.args
-	args_cpy = list(args)
-
-	for arg in args_cpy:
-
-		if arg in opts_locked:
-			args.remove(arg)
-			opt = opts_locked[arg]
-			if opt not in opts:
-				opts.append(opt)
-
-	if not opts or len(opts) >= 2:
-		opts = 'all'
-	else:
-		opts = opts.pop(0)
-
-	return opts
 	
 async def cmd_locked(ctx):
 
@@ -75,11 +49,11 @@ async def cmd_locked(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_opts = parse_opts_locked(ctx)
+	selected_opts = bot.options.parse_locked(args)
 
 	if error:
 		return error

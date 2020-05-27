@@ -1,4 +1,3 @@
-from opts import *
 from utils import basicstrip, get_banner_emoji, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
 from constants import EMOJIS
 
@@ -73,15 +72,11 @@ async def cmd_recos(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	emoji_cg = EMOJIS['capitalgames']
-	emoji_cr = EMOJIS['crouchingrancor']
-	emoji_gg = EMOJIS['swgoh.gg']
+	language = bot.options.parse_lang(ctx, args)
 
-	language = parse_opts_lang(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
-
-	selected_units = parse_opts_unit_names(ctx)
+	selected_units = bot.options.parse_unit_names(args)
 
 	if error:
 		return error
@@ -101,6 +96,10 @@ async def cmd_recos(ctx):
 			return bot.errors.ally_codes_not_found(ally_codes)
 
 	players = { x['allyCode']: x for x in players }
+
+	emoji_cg = EMOJIS['capitalgames']
+	emoji_cr = EMOJIS['crouchingrancor']
+	emoji_gg = EMOJIS['swgoh.gg']
 
 	msgs = []
 	for player in selected_players:

@@ -5,8 +5,6 @@ import traceback
 from datetime import datetime
 from discord.ext import commands, tasks
 
-from opts import *
-
 import DJANGO
 from swgoh.models import Player, PlayerConfig
 
@@ -32,7 +30,7 @@ class ChatCog(commands.Cog):
 	@commands.command(aliases=['sct'])
 	async def set_chat_topic(self, ctx, *, channel_topic: str = ''):
 
-		premium_user = parse_opts_premium_user(ctx.author)
+		premium_user = self.options.parse_premium_user(ctx.author)
 		if not premium_user:
 			return self.errors.not_premium()
 

@@ -1,7 +1,6 @@
 import json
 from datetime import datetime
 
-from opts import *
 from utils import lpad
 
 help_gac = {
@@ -78,9 +77,9 @@ async def cmd_gac(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	lang = parse_opts_lang(ctx)
+	lang = bot.options.parse_lang(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error

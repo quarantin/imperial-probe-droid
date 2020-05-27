@@ -1,5 +1,3 @@
-from opts import *
-
 import DJANGO
 from swgoh.models import Player
 
@@ -39,7 +37,7 @@ def do_ban(ctx, banned):
 	if 'admins' not in config or author.id not in config['admins']:
 		return bot.errors.permission_denied()
 
-	selected_players, error = parse_opts_players(ctx, exclude_author=True)
+	selected_players, error = bot.options.parse_players(ctx, args, exclude_author=True)
 
 	if error:
 		return error

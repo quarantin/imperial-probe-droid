@@ -422,6 +422,9 @@ async def __main__():
 		from boterrors import BotErrors
 		bot.errors = BotErrors(bot)
 
+		from botoptions import BotOptions
+		bot.options = BotOptions(bot)
+
 		import client
 		bot.client = client.SwgohClient(bot)
 

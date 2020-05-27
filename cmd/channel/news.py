@@ -1,10 +1,8 @@
-from opts import *
-
 import DJANGO
 from swgoh.models import NewsChannel, NewsEntry
 
 import inspect
-from discord import ChannelType, Forbidden, HTTPException
+from discord import Forbidden, HTTPException
 
 WEBHOOK = 'SWGOH News Feed'
 

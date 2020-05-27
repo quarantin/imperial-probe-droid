@@ -1,7 +1,5 @@
 import json
 
-from opts import *
-
 from utils import get_star, translate
 
 import DJANGO
@@ -78,9 +76,9 @@ async def cmd_guild_gp(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error

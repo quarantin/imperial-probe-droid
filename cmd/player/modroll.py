@@ -1,4 +1,3 @@
-from opts import *
 from utils import translate
 from constants import MODSLOTS, MODSETS, UNIT_STATS, EMOJIS
 
@@ -34,9 +33,9 @@ async def cmd_modroll(ctx):
 
 	msgs = []
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error

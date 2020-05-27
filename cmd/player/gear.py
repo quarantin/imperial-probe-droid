@@ -1,4 +1,3 @@
-from opts import *
 from utils import translate
 
 import json
@@ -57,11 +56,11 @@ async def cmd_gear(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_units = parse_opts_unit_names(ctx)
+	selected_units = bot.options.parse_unit_names(args)
 
 	if error:
 		return error

@@ -1,6 +1,5 @@
 import traceback
 
-from opts import *
 from utils import roundup, get_banner_emoji, get_field_legend, extract_modstats, extract_modstats_from_roster
 from constants import EMOJIS, MODSETS, MODSLOTS, MODSPRIMARIES
 
@@ -194,11 +193,11 @@ async def cmd_needed(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_slots = parse_opts_modslots(args)
+	selected_slots = bot.options.parse_modslots(args)
 
-	selected_primaries = parse_opts_modprimaries(args)
+	selected_primaries = bot.options.parse_modprimaries(args)
 
 	emoji_cg = EMOJIS['capitalgames']
 	emoji_cr = EMOJIS['crouchingrancor']

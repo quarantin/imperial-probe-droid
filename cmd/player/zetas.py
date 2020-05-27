@@ -1,11 +1,10 @@
 from collections import OrderedDict
 
-from opts import *
 from swgohgg import get_full_avatar_url
 from utils import translate, get_ability_name
 
 import DJANGO
-from swgoh.models import ZetaStat
+from swgoh.models import BaseUnit, ZetaStat
 
 help_zetas = {
 	'title': 'Zetas Help',
@@ -33,34 +32,6 @@ Show top 25 most popular zetas for characters you don't have:
 %prefixz locked```"""
 }
 
-def parse_opts_limit(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-		try:
-			limit = int(arg)
-			args.remove(arg)
-			return limit
-
-		except:
-			pass
-
-	return 25
-
-def parse_opts_include_locked(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-		if larg == 'locked' or larg == 'l':
-			args.remove(arg)
-			return True
-
-	return False
-
 async def cmd_zetas(ctx):
 
 	args = ctx.args
@@ -68,13 +39,13 @@ async def cmd_zetas(ctx):
 	config = ctx.config
 	bot = ctx.bot
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	limit_per_user = parse_opts_limit(ctx)
+	limit_per_user = bot.options.parse_limit(args)
 
-	include_locked = parse_opts_include_locked(ctx)
+	include_locked = bot.options.parse_include_locked(args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error

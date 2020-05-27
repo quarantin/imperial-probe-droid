@@ -1,5 +1,3 @@
-from opts import *
-
 from utils import get_star, translate
 
 import DJANGO
@@ -57,13 +55,13 @@ async def cmd_guild_list(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_char_filters = parse_opts_char_filters(ctx)
+	selected_char_filters = bot.options.parse_char_filters(args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_units = parse_opts_unit_names(ctx)
+	selected_units = bot.options.parse_unit_names(args)
 
 	if error:
 		return error

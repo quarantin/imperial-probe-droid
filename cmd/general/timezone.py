@@ -1,5 +1,3 @@
-from opts import *
-
 import DJANGO
 from swgoh.models import Player
 
@@ -29,7 +27,7 @@ async def cmd_timezone(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	selected_players, error = parse_opts_players(ctx, max_allies=1)
+	selected_players, error = bot.options.parse_players(ctx, args, max_allies=1)
 
 	if error:
 		return error
@@ -37,7 +35,7 @@ async def cmd_timezone(ctx):
 	if not selected_players:
 		return bot.errors.no_ally_code_specified(ctx)
 
-	timezones = parse_opts_timezones(ctx)
+	timezones = bot.options.parse_timezones(args)
 	if args:
 		return bot.errors.unknown_parameters(args)
 

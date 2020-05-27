@@ -1,5 +1,3 @@
-from opts import parse_opts_ally_codes, parse_opts_mentions, parse_opts_lang, parse_opts_players
-
 import DJANGO
 from swgoh.models import Player
 
@@ -37,7 +35,7 @@ def cmd_me(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 	if error:
 		return error
 
@@ -79,13 +77,14 @@ async def fill_user_info(config, player):
 async def register_users(ctx, discord_ids, ally_codes):
 
 	bot = ctx.bot
+	args = ctx.args
 	author = ctx.author
 	config = ctx.config
 
 	if len(discord_ids) != len(ally_codes):
 		return bot.errors.register_mismatch(ctx, discord_ids, ally_codes)
 
-	lang = parse_opts_lang(ctx)
+	lang = bot.options.parse_lang(ctx, args)
 	language = Player.get_language_info(lang)
 
 	players = await bot.client.players(ally_codes=ally_codes)
@@ -143,11 +142,11 @@ async def cmd_register(ctx):
 	author = ctx.author
 	config =  ctx.config
 
-	lang = parse_opts_lang(ctx)
+	lang = bot.options.parse_lang(ctx, args)
 	language = Player.get_language_info(lang)
 
-	discord_ids = parse_opts_mentions(ctx)
-	ally_codes = parse_opts_ally_codes(ctx)
+	discord_ids = bot.options.parse_mentions(ctx, args)
+	ally_codes = bot.options.parse_ally_codes(args)
 
 	if not ally_codes and len(discord_ids) < 2:
 		try:

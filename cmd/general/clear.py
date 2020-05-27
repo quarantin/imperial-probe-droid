@@ -17,21 +17,6 @@ To clear the last hundred messages:
 %prefixclear 100```"""
 }
 
-def parse_opts_limit(args):
-
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		try:
-			limit = int(arg)
-			args.remove(arg)
-			return limit
-
-		except:
-			pass
-
-	return 10
-
 async def cmd_clear(request):
 
 	bot = request.bot
@@ -65,7 +50,7 @@ async def cmd_clear(request):
 				'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 			}]
 
-	limit = parse_opts_limit(args)
+	limit = bot.options.parse_limit(args, default=10)
 
 	if args:
 		return bot.errors.unknown_parameters(args)

@@ -1,5 +1,3 @@
-from opts import *
-
 help_nicks = {
 	'title': 'Nicks Help',
 	'description': """Handles the list of nicknames (list/add/delete) for units and ships.
@@ -92,7 +90,7 @@ def cmd_nicks(ctx):
 			return bot.errors.missing_parameter(ctx, 'nicks')
 
 		target_nick = args.pop(0)
-		selected_units = parse_opts_unit_names(ctx)
+		selected_units = bot.options.parse_unit_names(args)
 		if args:
 			return bot.errors.unknown_parameters(args)
 

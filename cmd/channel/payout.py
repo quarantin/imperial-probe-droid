@@ -1,4 +1,3 @@
-from opts import *
 from swgohgg import get_swgohgg_profile_url
 
 import DJANGO
@@ -115,34 +114,6 @@ def get_shard(ctx):
 
 	return None
 
-def parse_opts_shard_type(args):
-
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-		if larg in shard_types:
-			args.remove(arg)
-			return shard_types[larg]
-
-	return None
-
-def parse_opts_payout_time(tz, args):
-
-	import re
-
-	args_cpy = list(args)
-
-	for arg in args_cpy:
-		result = re.match('^[0-9]{1,2}[:h][0-9]{1,2}$', arg)
-		if result:
-			args.remove(arg)
-			now = datetime.now(tz)
-			tokens = result[0].replace('h', ':').split(':')
-			return now.replace(hour=int(tokens[0]), minute=int(tokens[1]), second=0, microsecond=0).astimezone(pytz.utc)
-
-	return None
-
 def handle_payout_create(ctx):
 
 	bot = ctx.bot
@@ -189,7 +160,7 @@ async def handle_payout_add(ctx):
 	channel = ctx.channel
 	config = ctx.config
 
-	players, error = parse_opts_players(ctx)
+	players, error = bot.options.parse_players(ctx, args)
 	if error:
 		return error
 
@@ -257,7 +228,7 @@ def handle_payout_del(ctx):
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
 
-	players, error = parse_opts_players(ctx)
+	players, error = bot.options.parse_players(ctx, args)
 	if error:
 		return error
 
@@ -520,11 +491,11 @@ def handle_payout_time(ctx):
 		player = None
 		tzname = 'Europe/London'
 
-	players, error = parse_opts_players(ctx)
+	players, error = bot.options.parse_players(ctx, args)
 	if error:
 		return error
 
-	payout_time = parse_opts_payout_time(tzname, args)
+	payout_time = bot.options.parse_payout_time(tzname, args)
 	if not payout_time:
 		return [{
 			'title': 'Missing payout time',
@@ -568,7 +539,7 @@ def handle_payout_tag(ctx):
 		player = None
 		tzname = 'Europe/London'
 
-	players, error = parse_opts_players(ctx)
+	players, error = bot.options.parse_players(ctx, args)
 	if error:
 		return error
 
@@ -655,9 +626,8 @@ subcommands = {
 	'destroy': handle_payout_destroy,
 }
 
-def parse_opts_subcommands(ctx):
+def parse_opts_payout_subcommands(args, default='stats'):
 
-	args = ctx.args
 	args_cpy = list(args)
 	for arg in args_cpy:
 		larg = arg.lower()
@@ -665,13 +635,14 @@ def parse_opts_subcommands(ctx):
 			args.remove(arg)
 			return larg
 
-	return None
+	return default
 
 async def cmd_payout(ctx):
 
 	bot = ctx.bot
+	args = ctx.args
 
-	subcommand = parse_opts_subcommands(ctx)
+	subcommand = parse_opts_payout_subcommands(args)
 	if not subcommand:
 		subcommand = 'stats'
 

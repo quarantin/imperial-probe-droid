@@ -1,4 +1,3 @@
-from opts import *
 from utils import translate
 
 help_list = {
@@ -23,9 +22,9 @@ def cmd_list(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_units = parse_opts_unit_names(ctx)
+	selected_units = bot.options.parse_unit_names(args)
 
 	if args:
 		return bot.errors.unknown_parameters(args)

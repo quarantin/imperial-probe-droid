@@ -1,9 +1,8 @@
-from opts import *
 from utils import get_field_legend
 from constants import EMOJIS, MODSLOTS
 
 import DJANGO
-from swgoh.models import ModRecommendation
+from swgoh.models import BaseUnit, ModRecommendation
 
 help_wntm = {
 	'title': 'Who Need This Mod Help',
@@ -64,7 +63,7 @@ def cmd_wntm(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	selected_filters = parse_opts_mod_filters(ctx)
+	selected_filters = bot.options.parse_mod_filters(args)
 
 	if args:
 		return bot.errors.unknown_parameters(args)

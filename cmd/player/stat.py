@@ -1,6 +1,5 @@
 import json
 
-from opts import *
 from constants import EMOJIS, MAX_GEAR_LEVEL, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from collections import OrderedDict
 from utils import get_stars_as_emojis
@@ -160,9 +159,9 @@ async def cmd_player_stat(ctx):
 	args = ctx.args
 	config = ctx.config
 
-	lang = parse_opts_lang(ctx)
+	lang = bot.options.parse_lang(ctx, args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error

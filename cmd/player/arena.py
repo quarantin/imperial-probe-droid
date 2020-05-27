@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-from opts import *
 from utils import format_char_stats, format_char_details
 
 from swgohgg import get_swgohgg_profile_url
@@ -64,45 +63,17 @@ Showing only your arena squad using a custom format:
 %prefixa chars custom "SPEED: %speed UNIT: %name%leader"```"""
 }
 
-opts_arena = {
-	'c':     'chars',
-	'char':  'chars',
-	'chars': 'chars',
-	's':     'ships',
-	'ship':  'ships',
-	'ships': 'ships',
-	'f':     'ships',
-	'fleet': 'ships',
-}
-
-def parse_opts_arena(ctx):
-
-	selected_opts = 'chars'
-	args = ctx.args
-	args_cpy = list(args)
-
-	for arg in args_cpy:
-
-		if arg in opts_arena:
-			args.remove(arg)
-			opt = opts_arena[arg]
-			return opt
-
-	return selected_opts
-
 async def cmd_arena(ctx):
 
 	bot = ctx.bot
 	args = ctx.args
 	config = ctx.config
 
-	selected_opts = parse_opts_arena(ctx)
-	if not selected_opts:
-		selected_opts.append('chars')
+	selected_opts = bot.options.parse_arena(args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
-	selected_format = parse_opts_format(ctx, selected_opts)
+	selected_format = bot.options.parse_format(args)
 
 	if error:
 		return error

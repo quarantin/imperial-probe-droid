@@ -1,4 +1,5 @@
-from opts import *
+import re
+
 from constants import EMOJIS
 from swgohgg import get_full_avatar_url
 from utils import translate, get_ability_name
@@ -36,74 +37,6 @@ Show General Skywalker second special ability:
 ```
 %prefixkit gas special 2```"""
 }
-
-default_types = {
-	'basicability': -1,
-	'contractability': -1,
-	'hardwareability': -1,
-	'leaderability': -1,
-	'specialability': -1,
-	'uniqueability': -1,
-}
-
-skill_types = {
-	'b':        'basicability',
-	'basic':    'basicability',
-	'c':        'contractability',
-	'contract': 'contractability',
-	'h':        'hardwareability',
-	'hw':       'hardwareability',
-	'hardware': 'hardwareability',
-	'l':        'leaderability',
-	'leader':   'leaderability',
-	's':        'specialability',
-	'special':  'specialability',
-	'u':        'uniqueability',
-	'unique':   'uniqueability',
-}
-
-def parse_opts_tier(args):
-
-	tier = None
-	args_cpy = list(args)
-	for arg in args_cpy:
-		if arg.lower() == 'max':
-			args.remove(arg)
-			return 'max'
-
-		try:
-			tier = int(arg)
-			args.remove(arg)
-			break
-		except:
-			pass
-
-	return tier
-
-def parse_opts_skill_types(args):
-
-	types = {}
-
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-		if larg in skill_types:
-			skill_type = skill_types[larg]
-			args.remove(arg)
-			if skill_type not in types:
-				types[skill_type] = -1
-		else:
-			for a_skill_type in skill_types:
-				pattern = r'^%s(\d+)$' % a_skill_type
-				match = re.search(pattern, larg)
-				if match:
-					args.remove(arg)
-					skill_type = skill_types[a_skill_type]
-					types[skill_type] = int(match.group(1))
-					break
-
-	return types
 
 def fix_desc(desc):
 
@@ -148,17 +81,15 @@ async def cmd_kit(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	selected_skill_types = parse_opts_skill_types(args)
-	if not selected_skill_types:
-		selected_skill_types = default_types
+	selected_skill_types = bot.options.parse_skill_types(args)
 
-	selected_tier = parse_opts_tier(args)
+	selected_tier = bot.options.parse_tier(args)
 
-	selected_players, error = parse_opts_players(ctx, min_allies=1, max_allies=1)
+	selected_players, error = bot.options.parse_players(ctx, args, min_allies=1, max_allies=1)
 
-	selected_units = parse_opts_unit_names(ctx)
+	selected_units = bot.options.parse_unit_names(args)
 
 	if error:
 		return error

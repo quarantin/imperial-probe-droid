@@ -1,10 +1,9 @@
-from opts import *
 from utils import translate
 
 from swgohgg import get_full_avatar_url
 
 import DJANGO
-from swgoh.models import Gear13Stat
+from swgoh.models import BaseUnit, Gear13Stat
 
 from collections import OrderedDict
 
@@ -34,34 +33,6 @@ Show top 25 most popular gear 13 for characters you don't have:
 %prefixg13 locked```"""
 }
 
-def parse_opts_limit(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-		try:
-			limit = int(arg)
-			args.remove(arg)
-			return limit
-
-		except:
-			pass
-
-	return 25
-
-def parse_opts_include_locked(ctx):
-
-	args = ctx.args
-	args_cpy = list(args)
-	for arg in args_cpy:
-
-		larg = arg.lower()
-		if larg == 'locked' or larg == 'l':
-			args.remove(arg)
-			return True
-
-	return False
-
 async def cmd_gear13(ctx):
 
 	bot = ctx.bot
@@ -69,13 +40,13 @@ async def cmd_gear13(ctx):
 	author = ctx.author
 	config = ctx.config
 
-	language = parse_opts_lang(ctx)
+	language = bot.options.parse_lang(ctx, args)
 
-	limit_per_user = parse_opts_limit(ctx)
+	limit_per_user = bot.options.parse_limit(args)
 
-	include_locked = parse_opts_include_locked(ctx)
+	include_locked = bot.options.parse_include_locked(args)
 
-	selected_players, error = parse_opts_players(ctx)
+	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:
 		return error
