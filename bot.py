@@ -5,12 +5,21 @@ import traceback
 import discord
 from discord.ext import commands
 
+from embed import *
+
 import DJANGO
 from swgoh.models import DiscordServer, Player
 
 class Bot(commands.Bot):
 
 	max_retries = 3
+
+	SUCCESS         =  0
+	ERROR_NOT_FOUND = -1
+	ERROR_FORBIDDEN = -2
+	ERROR_HTTP      = -3
+	ERROR_INVALID   = -4
+	ERROR_UNKNOWN   = -100
 
 	def exit(self):
 		self.loop.stop()
@@ -101,6 +110,97 @@ class Bot(commands.Bot):
 				error = err
 
 		return False, error
+
+	async def send_embed(self, ctx, embed_dicts):
+
+		for embed_dict in embed_dicts:
+			embeds = new_embeds(embed_dict)
+			for embed in embeds:
+				await self.sendmsg(ctx, message=None, embed=embed)
+
+	async def fetch_channel_by_id(self, channel_id):
+
+		try:
+			channel = self.get_channel(channel_id)
+
+		except discord.NotFound:
+			print('Channel %s not found' % channel_id)
+			self.logger.error('Channel %s not found' % channel_id)
+			return None, Bot.ERROR_NOT_FOUND
+
+		except discord.Forbidden:
+			print('I don\'t have permission to fetch channel %s' % channel_id)
+			self.logger.error('I don\'t have permission to fetch channel %s' % channel_id)
+			return None, Bot.ERROR_FORBIDDEN
+
+		except discord.HTTPException:
+			print('HTTP error occured while retrieving channel %s' % channel_id)
+			self.logger.error('HTTP error occured while retrieving channel %s' % channel_id)
+			return None, Bot.ERROR_HTTP
+
+		except discord.InvalidData:
+			print('We received invalid data from discord for channel %s' % channel_id)
+			self.logger.error('We received invalid data from discord for channel %s' % channel_id)
+			return None, Bot.ERROR_INVALID
+
+		except Exception as err:
+			print('UNKNOWN ERROR')
+			print(err)
+			print(traceback.format_exc())
+
+		return channel, Bot.SUCCESS
+
+	async def fetch_webhook_by_id(self, webhook_id):
+
+		try:
+			webhook = await self.fetch_webhook(webhook_id)
+			return webhook, Bot.SUCCESS
+
+		except discord.NotFound:
+			print('Webhook %s not found' % webhook_id)
+			self.logger.error('Webhook %s not found' % webhook_id)
+			return None, Bot.ERROR_NOT_FOUND
+
+		except discord.Forbidden:
+			print('I don\'t have permission to fetch webhook %s' % webhook_id)
+			self.logger.error('I don\'t have permission to fetch webhook %s' % webhook_id)
+			return None, Bot.ERROR_FORBIDDEN
+
+		except discord.HTTPException:
+			print('HTTP error occured while retrieving webhook %s' % webhook_id)
+			self.logger.error('HTTP error occured while retrieving webhook %s' % webhook_id)
+			return None, Bot.ERROR_HTTP
+
+		except Exception as err:
+			print('UNKNOWN ERROR fetch_webhook_by_id')
+			print(err)
+			print(traceback.format_exc())
+			return None, Bot.ERROR_UNKNOWN
+
+	async def get_or_create_webhook(self, channel, name, avatar=None):
+
+		if avatar is None:
+			avatar = self.get_avatar()
+
+		webhook = None
+		webhooks = await channel.webhooks()
+		for a_webhook in webhooks:
+			if a_webhook.name.lower() == name.lower():
+				webhook = a_webhook
+				break
+		else:
+			try:
+				webhook = await channel.create_webhook(name=name, avatar=avatar)
+
+			except discord.Forbidden:
+				await self.bot.send_embed(ctx, self.errors.manage_webhooks_forbidden())
+				return None, Bot.ERROR_FORBIDDEN
+
+			except discord.HTTPException:
+				await self.bot.send_embed(ctx, self.errors.create_webhook_failed())
+				return None, Bot.ERROR_HTTP
+
+		return webhook, Bot.SUCCESS
 
 	async def get_webhook(self, name, channel):
 
