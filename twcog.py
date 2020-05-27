@@ -8,6 +8,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
+import cog
 import libswgoh
 from embed import new_embeds
 from utils import translate, translate_multi
@@ -15,16 +16,7 @@ from utils import translate, translate_multi
 import DJANGO
 from swgoh.models import Player
 
-class TWCog(commands.Cog):
-
-	def __init__(self, bot):
-		self.bot = bot
-		if bot:
-			self.client = bot.client
-			self.config = bot.config
-			self.errors = bot.errors
-			self.logger = bot.logger
-			self.redis = bot.redis
+class TWCog(cog.Cog):
 
 	def get_squad_orders(self):
 		fin = open('squad-orders.json', 'r')

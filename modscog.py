@@ -10,19 +10,14 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
+import cog
 import libswgoh
 from utils import translate
 
 import DJANGO
 from swgoh.models import Player
 
-class ModsCog(commands.Cog):
-
-	def __init__(self, bot):
-		self.bot = bot
-		#self.config = bot.config
-		#self.logger = bot.logger
-		#self.redis = bot.redis
+class ModsCog(cog.Cog):
 
 	def get_csv_header(self):
 

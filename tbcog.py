@@ -10,6 +10,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
+import cog
 import libswgoh
 from embed import new_embeds
 from utils import translate, translate_multi
@@ -18,15 +19,7 @@ import DJANGO
 from swgoh.models import Player
 from territorybattle.models import TerritoryBattleHistory
 
-class TBCog(commands.Cog):
-
-	def __init__(self, bot=None):
-		self.bot = bot
-		if bot:
-			self.client = bot.client
-		#self.config = bot.config
-		#self.logger = bot.logger
-		#self.redis = bot.redis
+class TBCog(cog.Cog):
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):

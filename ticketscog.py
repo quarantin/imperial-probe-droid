@@ -4,24 +4,23 @@ import pytz
 import json
 import traceback
 from datetime import datetime
+
 from discord import Embed
 from discord.ext import commands, tasks
+
+import cog
 
 import DJANGO
 from django.db import transaction
 from swgoh.models import Player, PlayerConfig, PlayerActivity
 
-class TicketsCog(commands.Cog):
+class TicketsCog(cog.Cog):
 
 	max_raid_tickets = 600
 	max_total_raid_tickets = 600 * 50
 
 	def __init__(self, bot):
-		self.bot = bot
-		self.config = bot.config
-		self.errors = bot.errors
-		self.logger = bot.logger
-		self.redis = bot.redis
+		super().__init__(bot)
 		self.raid_tickets_notifier.start()
 
 	def cog_unload(self):

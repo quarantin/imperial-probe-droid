@@ -5,18 +5,12 @@ import traceback
 from datetime import datetime
 from discord.ext import commands, tasks
 
+import cog
+
 import DJANGO
 from swgoh.models import Player, PlayerConfig
 
-class ChatCog(commands.Cog):
-
-	def __init__(self, bot):
-		self.bot = bot
-		self.errors = bot.errors
-		self.client = bot.client
-		self.config = bot.config
-		self.logger = bot.logger
-		self.redis = bot.redis
+class ChatCog(cog.Cog):
 
 	@commands.Cog.listener()
 	async def on_command_error(self, ctx, error):

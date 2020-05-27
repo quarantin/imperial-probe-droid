@@ -1,21 +1,21 @@
 import json
 import traceback
 from datetime import datetime
+
 from discord.ext import commands, tasks
+
+import cog
 
 import DJANGO
 from swgoh.models import Player, PlayerConfig
 
-class VideoCog(commands.Cog):
+class VideoCog(cog.Cog):
 
 	max_raid_tickets = 600
 	max_guild_tokens = 10000
 
 	def __init__(self, bot):
-		self.bot = bot
-		self.config = bot.config
-		self.logger = bot.logger
-		self.redis = bot.redis
+		super().__init__(bot)
 		self.videos_updater.start()
 
 	def cog_unload(self):
