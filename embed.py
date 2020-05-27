@@ -85,7 +85,7 @@ def split_message(message, preformated):
 
 	return msgs
 
-def new_embeds(msg, timestamp=None, add_sep=True, footer=True):
+def new_embeds(msg, timestamp=None, add_sep=False, footer=False):
 
 	from config import load_config
 	config = load_config()
