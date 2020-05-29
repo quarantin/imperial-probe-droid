@@ -24,6 +24,7 @@
 	<!-- Custom styles -->
 	<link href="{% static "/style.css" %}" rel="stylesheet">
 
+	<script src="{% static "vendor/jquery/jquery.min.js" %}"></script>
 	<title>{% block title %}{% endblock %}</title>
 	{% block headers %}{% endblock %}
 </head>
@@ -64,7 +65,7 @@
 
 	<!-- Page level custom scripts -->
 	<script src="{% static "js/demo/datatables-demo.js" %}"></script>
-
+{% block scripts %}{% endblock %}
 </body>
 
 </html>
