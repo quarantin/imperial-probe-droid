@@ -98,9 +98,6 @@ async def guild_tickets_global_json(request):
 			player_ids.append(player_id)
 
 	players = Player.objects.filter(player_id__in=player_ids).values()
-	for p in players:
-		print(p)
-
 	db = { x['id']: x for x in players }
 
 	pids = [ x.id for x in Player.objects.filter(player_id__in=player_ids) ]
