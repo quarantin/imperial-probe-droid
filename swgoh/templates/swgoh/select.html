@@ -4,7 +4,7 @@
 				select = document.getElementById(select_id);
 				if (select) {
 					select_value = select.options[select.selectedIndex].value;
-					if (select_value != '--' && select_value != 'all')
+					if (select_value != '--' && select_value != 'all' && select_value != 'default')
 						result[select_id] = select_value;
 				}
 			}
