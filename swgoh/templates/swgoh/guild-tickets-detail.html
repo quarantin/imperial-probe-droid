@@ -13,8 +13,14 @@
 {% block topbar %}{% include "swgoh/topbar.html" %}{% endblock%}
 
 {% block content %}
+			<div id="content">
+				<div class="container-fluid">
+
 {% include "swgoh/guild-tickets-detail-select.html" %}
 {% include "swgoh/guild-tickets-detail-card.html" %}
 {% endblock %}
+
+				</div>
+			</div>
 
 {% block footer %}{% include "swgoh/footer.html" %}{% endblock %}
