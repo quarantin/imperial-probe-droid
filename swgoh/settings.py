@@ -36,7 +36,6 @@ if 'server' in IPD_CONFIG:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'env' in IPD_CONFIG and IPD_CONFIG['env'] == 'dev'
-DEBUG = True
 if DEBUG is True:
 	ALLOWED_HOSTS.append('127.0.0.1')
 
