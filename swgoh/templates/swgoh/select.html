@@ -36,7 +36,7 @@
 					<label for="player">Select a Player</label>
 					<br>
 					<select id="player" onchange="refresh()">
-						<option value="all">All</option>{% for player_id, player_name in players.items %}
+						<option value="{% block player_default_value %}all{% endblock %}">{% block player_default_label %}All{% endblock %}</option>{% for player_id, player_name in players.items %}
 						<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
 					</select>
 				</div>
