@@ -1,0 +1,21 @@
+{% extends "swgoh/select.html" %}
+{% block refresh %}
+		<script>
+			function refresh() {
+
+				query = {};
+
+				get_selected_value('timezone',  query);
+				get_selected_value('player',    query);
+
+				tokens = []
+				for (key in query) {
+					tokens.push(key + '=' + query[key]);
+				}
+
+				redirect_params = tokens.join('&');
+				base_url = get_base_url();
+				window.location = base_url + '?' + redirect_params;
+			}
+		</script>
+{% endblock %}

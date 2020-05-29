@@ -6,14 +6,15 @@
 	<script src="{% static "vendor/chart.js/Chart.min.js" %}"></script>
 {% endblock %}
 
-{% block title %}Raid Tickets (Global){% endblock%}
+{% block title %}Raid Tickets (Detail){% endblock%}
 
 {% block sidebar %}{% include "swgoh/guild_sidebar.html" %}{% endblock %}
 
 {% block topbar %}{% include "swgoh/topbar.html" %}{% endblock%}
 
 {% block content %}
-{% include "swgoh/guild-tickets-global-card.html" %}
+{% include "swgoh/guild-tickets-detail-select.html" %}
+{% include "swgoh/guild-tickets-detail-card.html" %}
 {% endblock %}
 
 {% block footer %}{% include "swgoh/footer.html" %}{% endblock %}

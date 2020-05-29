@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
-
+import pytz
 import math
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, HttpResponse, HttpResponseServerError, Http404, JsonResponse
 from asgiref.sync import async_to_sync
 
@@ -79,9 +79,6 @@ def get_player(request):
 	except Player.DoesNotExist:
 		return None
 
-def guild_tickets(request):
-	return render(request, 'swgoh/guild_tickets.html', {})
-
 @async_to_sync
 async def guild_tickets_global_json(request):
 
@@ -115,7 +112,86 @@ async def guild_tickets_global_json(request):
 			result[timestamp] = 0
 		result[timestamp] += player['raid_tickets']
 
-	return JsonResponse(result, safe=False)
+	return JsonResponse(result)
+
+def guild_tickets_global(request):
+	return render(request, 'swgoh/guild-tickets-global.html', {})
+
+@async_to_sync
+async def guild_tickets_detail_json(request):
+
+	client = SwgohClient()
+	player = get_player(request)
+	guild = await client.guild(guild_id=player.guild.guild_id)
+	if not guild:
+		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
+
+	player_ids = []
+	for member in guild['roster']:
+		player_ids.append(member['playerId'])
+	players = Player.objects.filter(player_id__in=player_ids)
+
+	player_list = {}
+	for player in players:
+		player_list[player.player_id] = player.player_name
+
+	player_id = request.GET.get('player')
+	if not player_id:
+		return JsonResponse({})
+
+	player = get_object_or_404(Player, player_id=player_id)
+
+	for member in guild['roster']:
+		if member['playerId'] == player_id:
+			break
+	else:
+		raise PermissionDenied()
+
+	result = {}
+	activity = PlayerActivity.objects.filter(player_id=player.id).values('raid_tickets', 'timestamp')
+	for entry in activity:
+		timestamp = entry['timestamp'].strftime('%Y-%m-%d')
+		result[timestamp] = entry['raid_tickets']
+
+	return JsonResponse(result)
+
+@async_to_sync
+async def guild_tickets_detail(request):
+
+	client = SwgohClient()
+	player = get_player(request)
+	guild = await client.guild(guild_id=player.guild.guild_id)
+	if not guild:
+		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
+
+	player_ids = []
+	for member in guild['roster']:
+		player_ids.append(member['playerId'])
+	players = Player.objects.filter(player_id__in=player_ids)
+
+	player_list = {}
+	for player in players:
+		player_list[player.player_id] = player.player_name
+
+	timezones = pytz.common_timezones
+	if 'UTC' in timezones:
+		timezones.remove('UTC')
+	timezones.insert(0, 'UTC')
+
+	context = {
+		'players': player_list,
+		'timezones': { x: x for x in timezones }
+	}
+
+	timezone = request.GET.get('timezone')
+	if timezone:
+		context['timezone'] = timezone
+
+	player_id = request.GET.get('player')
+	if player_id:
+		context['player'] = player_id
+
+	return render(request, 'swgoh/guild-tickets-detail.html', context)
 
 def file_content(path):
 	fin = open(path, 'rb')
