@@ -1,0 +1,43 @@
+<script>
+
+function draw_charts(canvas_id, dataset) {
+
+	var labels = []
+	var data = []
+
+	for (var label in dataset) {
+		var value = dataset[label];
+		labels.push(label);
+		data.push(value);
+	}
+
+	var ctx = document.getElementById(canvas_id).getContext('2d');
+	var myChart = new Chart(ctx, {
+		type: 'bar',
+		data: {
+			labels: labels,
+			datasets: [{
+				label: '# of Votes',
+				data: data,
+				backgroundColor: 'rgba(54, 162, 235, 0.2)',
+				borderColor: 'rgba(54, 162, 235, 1)',
+				borderWidth: 1
+			}]
+		},
+		options: {
+			scales: {
+				yAxes: [{
+					ticks: {
+						beginAtZero: true
+					}
+				}]
+			}
+		}
+	});
+}
+
+$.getJSON('/guild/tickets/json/', '', function(data) {
+	draw_charts('myAreaChart', data);
+});
+
+</script>

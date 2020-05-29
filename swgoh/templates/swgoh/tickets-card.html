@@ -1,0 +1,9 @@
+{% extends "swgoh/card.html" %}
+{% load i18n %}
+{% block cardtitle %}Raid Tickets{% endblock %}
+{% block cardbody %}
+					<div class="chart-area">
+						<canvas id="myAreaChart"></canvas>
+					</div>
+{% include "swgoh/chartjs.html" %}
+{% endblock %}

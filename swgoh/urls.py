@@ -27,6 +27,8 @@ urlpatterns = [
 	path('dashboard/', views.dashboard),
 	path('profile/', views.UserDetailView.as_view()),
 	path('settings/', views.PlayerUpdateView.as_view()),
+	path('guild/tickets/json/', views.guild_tickets_global_json),
+	path('guild/tickets/', views.guild_tickets),
 	path('guild/', views.guild),
 	path('ga/', include('grandarena.urls')),
 	path('grand-arena/', include('grandarena.urls')),

@@ -1,0 +1,19 @@
+{% extends "swgoh/base.html" %}
+{% load static %}
+
+{% block headers %}
+	<!-- Chart.js -->
+	<script src="{% static "vendor/chart.js/Chart.min.js" %}"></script>
+{% endblock %}
+
+{% block title %}Raid Tickets{% endblock%}
+
+{% block sidebar %}{% include "swgoh/guild_sidebar.html" %}{% endblock %}
+
+{% block topbar %}{% include "swgoh/topbar.html" %}{% endblock%}
+
+{% block content %}
+{% include "swgoh/tickets-card.html" %}
+{% endblock %}
+
+{% block footer %}{% include "swgoh/footer.html" %}{% endblock %}

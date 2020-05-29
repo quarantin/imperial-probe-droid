@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
-from django.http import FileResponse, HttpResponse, Http404
+from django.http import FileResponse, HttpResponse, HttpResponseServerError, Http404, JsonResponse
+from asgiref.sync import async_to_sync
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -13,8 +14,8 @@ from cairosvg import svg2png
 
 import io, os, requests
 
-#from django.contrib.auth.models import User
-from .models import Gear, BaseUnit, BaseUnitSkill, Player, User
+from client import SwgohClient
+from .models import Gear, BaseUnit, BaseUnitSkill, Player, PlayerActivity, User
 
 def index(request):
 
@@ -65,6 +66,59 @@ class PlayerUpdateView(UpdateView):
 def guild(request):
 	ctx = {}
 	return render(request, 'swgoh/guild.html', ctx)
+
+def get_player(request):
+
+	user = request.user
+	if not user.is_authenticated:
+		user = User.objects.get(id=2)
+
+	try:
+		return Player.objects.get(user=user)
+
+	except Player.DoesNotExist:
+		return None
+
+def guild_tickets(request):
+	return render(request, 'swgoh/guild_tickets.html', {})
+
+@async_to_sync
+async def guild_tickets_global_json(request):
+
+	client = SwgohClient()
+	player = get_player(request)
+	guild = await client.guild(guild_id=player.guild.guild_id)
+	if not guild:
+		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
+
+	player_ids = []
+	for member in guild['roster']:
+		player_id = member['playerId']
+		if player_id not in player_ids:
+			player_ids.append(player_id)
+
+	players = Player.objects.filter(player_id__in=player_ids).values()
+	for p in players:
+		print(p)
+
+	db = { x['id']: x for x in players }
+
+	pids = [ x.id for x in Player.objects.filter(player_id__in=player_ids) ]
+	players = list(PlayerActivity.objects.filter(player_id__in=pids).values('player_id', 'raid_tickets', 'timestamp'))
+	for player in players:
+		pid = player.pop('player_id')
+		player['id'] = db[pid]['player_id']
+		player['name'] = db[pid]['player_name']
+
+	result = {}
+	for player in players:
+
+		timestamp = player['timestamp'].strftime('%Y-%m-%d')
+		if timestamp not in result:
+			result[timestamp] = 0
+		result[timestamp] += player['raid_tickets']
+
+	return JsonResponse(result, safe=False)
 
 def file_content(path):
 	fin = open(path, 'rb')
