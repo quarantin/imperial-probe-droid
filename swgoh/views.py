@@ -80,7 +80,7 @@ def get_player(request):
 		return None
 
 @async_to_sync
-async def guild_tickets_global_json(request):
+async def guild_tickets_global_daily_json(request):
 
 	client = SwgohClient()
 	player = get_player(request)
@@ -104,18 +104,71 @@ async def guild_tickets_global_json(request):
 		player['id'] = db[pid]['player_id']
 		player['name'] = db[pid]['player_name']
 
-	result = {}
+	store = {}
 	for player in players:
 
 		timestamp = player['timestamp'].strftime('%Y-%m-%d')
-		if timestamp not in result:
-			result[timestamp] = 0
-		result[timestamp] += player['raid_tickets']
+		if timestamp not in store:
+			store[timestamp] = 0
+		store[timestamp] += player['raid_tickets']
 
-	return JsonResponse(result)
+	result = []
+	for timestamp, tickets in store.items():
+		result.append({
+			'label': timestamp,
+			'value': tickets,
+		})
 
-def guild_tickets_global(request):
-	return render(request, 'swgoh/guild-tickets-global.html', {})
+	return JsonResponse(result, safe=False)
+
+def guild_tickets_global_daily(request):
+	return render(request, 'swgoh/guild-tickets-global-daily.html', {})
+
+@async_to_sync
+async def guild_tickets_global_per_user_json(request):
+
+	client = SwgohClient()
+	player = get_player(request)
+	guild = await client.guild(guild_id=player.guild.guild_id)
+	if not guild:
+		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
+
+	player_ids = []
+	for member in guild['roster']:
+		player_id = member['playerId']
+		if player_id not in player_ids:
+			player_ids.append(player_id)
+
+	players = Player.objects.filter(player_id__in=player_ids).values()
+	db = { x['id']: x for x in players }
+
+	pids = [ x.id for x in Player.objects.filter(player_id__in=player_ids) ]
+	players = list(PlayerActivity.objects.filter(player_id__in=pids).values('player_id', 'raid_tickets', 'timestamp'))
+	for player in players:
+		pid = player.pop('player_id')
+		player['id'] = db[pid]['player_id']
+		player['name'] = db[pid]['player_name']
+
+	store = {}
+	for player in players:
+
+		player_name = player['name']
+		if player_name not in store:
+			store[player_name] = 0
+		store[player_name] += player['raid_tickets']
+
+	result = []
+	for player, tickets in sorted(store.items(), key=lambda x: x[1]):
+		print("DEBUG: %s -> %s" % (player, tickets))
+		result.append({
+			'label': player,
+			'value': tickets,
+		});
+
+	return JsonResponse(result, safe=False)
+
+def guild_tickets_global_per_user(request):
+	return render(request, 'swgoh/guild-tickets-global-per-user.html', {})
 
 @async_to_sync
 async def guild_tickets_detail_json(request):
@@ -147,13 +200,16 @@ async def guild_tickets_detail_json(request):
 	else:
 		raise PermissionDenied()
 
-	result = {}
+	result = []
 	activity = PlayerActivity.objects.filter(player_id=player.id).values('raid_tickets', 'timestamp')
 	for entry in activity:
 		timestamp = entry['timestamp'].strftime('%Y-%m-%d')
-		result[timestamp] = entry['raid_tickets']
+		result.append({
+			'label': timestamp,
+			'value': entry['raid_tickets'],
+		})
 
-	return JsonResponse(result)
+	return JsonResponse(result, safe=False)
 
 @async_to_sync
 async def guild_tickets_detail(request):

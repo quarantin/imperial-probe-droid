@@ -5,10 +5,10 @@ function draw_charts(canvas_id, dataset) {
 	var labels = []
 	var data = []
 
-	for (var label in dataset) {
-		var value = dataset[label];
-		labels.push(label);
-		data.push(value);
+	for (var index in dataset) {
+		entry = dataset[index];
+		labels.push(entry.label);
+		data.push(entry.value);
 	}
 
 	var ctx = document.getElementById(canvas_id).getContext('2d');

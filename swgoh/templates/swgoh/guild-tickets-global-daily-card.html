@@ -1,15 +1,13 @@
 {% extends "swgoh/card.html" %}
 {% load i18n %}
-{% block cardtitle %}Raid Tickets (Detail){% endblock %}
+{% block cardtitle %}Raid Tickets (Global Daily){% endblock %}
 {% block cardbody %}
 					<div class="chart-area" style="height: 100%;">
 						<canvas id="myAreaChart"></canvas>
 					</div>
 {% include "swgoh/chartjs.html" %}
 					<script>
-						var urlParams = new URLSearchParams(window.location.search);
-						var player_id = urlParams.get('player');
-						$.getJSON('/guild/tickets/detail/json/?player=' + player_id, '', function(data) {
+						$.getJSON('/guild/tickets/global-daily/json/', '', function(data) {
 							draw_charts('myAreaChart', data);
 						});
 					</script>
