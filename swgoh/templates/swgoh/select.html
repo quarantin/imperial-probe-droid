@@ -33,14 +33,6 @@
 				</div>
 {% block event %}{% endblock %}
 				<div>
-					<label for="activity">Select some Activity</label>
-					<br>
-					<select id="activity" onchange="refresh()">
-						<option value="all">All</option>{% for activity_id, activity_name in activities.items %}
-						<option value="{{ activity_id }}"{% if activity_id == activity %} selected{% endif %}>{{ activity_name }}</option>{% endfor %}
-					</select>
-				</div>
-				<div>
 					<label for="player">Select a Player</label>
 					<br>
 					<select id="player" onchange="refresh()">
