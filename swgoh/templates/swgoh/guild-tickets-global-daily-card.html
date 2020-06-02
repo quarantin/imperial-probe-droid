@@ -8,7 +8,7 @@
 {% include "swgoh/chartjs.html" %}
 					<script>
 						$.getJSON('/guild/tickets/global-daily/json/', '', function(data) {
-							draw_charts('myAreaChart', data);
+							draw_charts('myAreaChart', 'Number of Raid Tickets', data);
 						});
 					</script>
 {% endblock %}
