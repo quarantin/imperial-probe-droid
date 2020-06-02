@@ -368,8 +368,8 @@ class TerritoryBattleContributionsJson(ListView):
 
 		context = self.get_context_data(*args, **kwargs)
 
-		events = TerritoryBattleHistory.get_json_events(context['events'].values())
-		return JsonResponse(events, safe=False)
+		events = TerritoryBattleHistory.get_json_events(context['events'])
+		return JsonResponse({ 'events': events })
 
 class TerritoryBattleHistoryView(ListView):
 
