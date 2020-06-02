@@ -1,20 +1,15 @@
-{% extends "swgoh/base.html" %}
-{% load static %}
-
-{% block headers %}
-	<!-- Chart.js -->
-	<script src="{% static "vendor/chart.js/Chart.min.js" %}"></script>
-{% endblock %}
-
-{% block title %}Contributions{% endblock%}
-
+{% extends "territorybattle/base.html" %}
+{% block title %}TB Contributions{% endblock%}
 {% block sidebar %}{% include "territorybattle/sidebar.html" %}{% endblock %}
-
 {% block topbar %}{% include "swgoh/topbar.html" %}{% endblock%}
-
 {% block content %}
 			<div id="content">
 				<div class="container-fluid">
+
+					<!-- Page Heading -->
+					<h1 class="h3 mb-2 text-gray-800">Territory Battle Contributions</h1>
+
+{% include "territorybattle/guild-contributions-select.html" %}
 
 {% include "territorybattle/guild-contributions-card.html" %}
 

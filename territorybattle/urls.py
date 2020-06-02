@@ -25,5 +25,5 @@ from .models import TerritoryBattleHistory
 urlpatterns = [
 	path('history/', views.TerritoryBattleHistoryView.as_view()),
 	path('contributions/json/', views.TerritoryBattleContributionsJson.as_view()),
-	path('contributions/', views.tb_contributions),
+	path('contributions/', views.TerritoryBattleContributions.as_view()),
 ]

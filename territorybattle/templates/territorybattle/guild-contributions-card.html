@@ -6,7 +6,7 @@
 						<canvas id="myAreaChart"></canvas>
 					</div>
 					<script>
-						$.getJSON('/territory-battle/contributions/json/', '', function(data) {
+						$.getJSON('/territory-battle/contributions/json/' + window.location.search, '', function(data) {
 							draw_charts('myAreaChart', 'Score', data);
 						});
 					</script>
