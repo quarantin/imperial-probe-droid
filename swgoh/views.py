@@ -2,6 +2,7 @@ import pytz
 import math
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
+import django.views.generic as generic_views
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.core.exceptions import PermissionDenied
@@ -642,3 +643,30 @@ def get_avatar(request, base_id):
 def avatar(request, base_id):
 	filename, image = get_avatar(request, base_id)
 	return FileResponse(open(filename, 'rb'))
+
+class ListView(generic_views.ListView):
+
+	def get_player(self, request):
+
+		user = request.user
+		if not user.is_authenticated:
+			user = User.objects.get(id=2)
+
+		try:
+			return Player.objects.get(user=user)
+
+		except Player.DoesNotExist:
+			return None
+
+	def get_queryset(self, *args, **kwargs):
+		return self.queryset.filter(**kwargs)
+
+	def convert_date(self, utc_date, timezone):
+
+		local_tz = pytz.timezone(timezone)
+		local_dt = utc_date.astimezone(local_tz)
+
+		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
+
+	def dispatch(self, request, *args, **kwargs):
+		return super().dispatch(request, *args, **kwargs)
