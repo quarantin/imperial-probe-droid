@@ -1,0 +1,60 @@
+{% extends "swgoh/select.html" %}
+{% block refresh %}
+		<script>
+			function refresh() {
+
+				query = {};
+
+				get_selected_value('timezone',  query);
+				get_selected_value('tb',        query);
+				get_selected_value('activity',  query);
+				get_selected_value('phase',     query);
+				get_selected_value('territory', query);
+				get_selected_value('player',    query);
+
+				tokens = []
+				for (key in query) {
+					tokens.push(key + '=' + query[key]);
+				}
+
+				redirect_params = tokens.join('&');
+				base_url = get_base_url();
+				window.location = base_url + '?' + redirect_params;
+			}
+		</script>
+{% endblock %}
+
+{% block event %}
+				<div>
+					<label for="tb">Select a Territory Battle Instance</label>
+					<br>
+					<select id="tb" onchange="refresh()">{% if not tbs %}
+						<option value="all">--</option>{% endif %}{% for tb_id, tb_name in tbs.items %}
+						<option value="{{ tb_id }}"{%if tb_id == tb %} selected{% endif %}>{{ tb_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="phase">Select a Phase</label>
+					<br>
+					<select id="phase" onchange="refresh()">
+						<option value="all">All</option>{% for phase_id, phase_name in phases.items %}
+						<option value="{{ phase_id }}"{%if phase_id == phase %} selected{% endif %}>{{ phase_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="territory">Select a Territory</label>
+					<br>
+					<select id="territory" onchange="refresh()">
+						<option value="all">All</option>{% for territory_id, territory_name in territories.items %}
+						<option value="{{ territory_id }}"{% if territory_id == territory %} selected{% endif %}>{{ territory_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="activity">Select some Activity</label>
+					<br>
+					<select id="activity" onchange="refresh()">
+						<option value="all">All</option>{% for activity_id, activity_name in activities.items %}
+						<option value="{{ activity_id }}"{% if activity_id == activity %} selected{% endif %}>{{ activity_name }}</option>{% endfor %}
+					</select>
+				</div>
+{% endblock %}
