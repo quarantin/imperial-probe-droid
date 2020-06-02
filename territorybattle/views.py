@@ -13,6 +13,7 @@ from client import SwgohClient
 from swgoh.models import Player
 from .models import TerritoryBattle, TerritoryBattleHistory
 
+import csv
 import pytz
 from datetime import datetime
 
@@ -286,6 +287,101 @@ class TerritoryBattleContributions(ListView):
 		context['events'] = TerritoryBattleHistory.get_json_events(context['events'], reverse=True)
 
 		return self.render_to_response(context)
+
+class TerritoryBattleContributionsCsv(ListView):
+
+	model = TerritoryBattleHistory
+	queryset = TerritoryBattleHistory.objects.all()
+
+	def get_player(self, request):
+
+		user = request.user
+		if not user.is_authenticated:
+			user = User.objects.get(id=2)
+
+		try:
+			return Player.objects.get(user=user)
+
+		except Player.DoesNotExist:
+			return None
+
+	def get_queryset(self, *args, **kwargs):
+		return self.queryset.filter(**kwargs)
+
+	def convert_date(self, utc_date, timezone):
+
+		local_tz = pytz.timezone(timezone)
+		local_dt = utc_date.astimezone(local_tz)
+
+		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
+
+	def dispatch(self, request, *args, **kwargs):
+		return super(TerritoryBattleContributionsCsv, self).dispatch(request, *args, **kwargs)
+
+	def get_context_data(self, *args, **kwargs):
+
+		timezone = kwargs.pop('timezone', 'UTC')
+
+		context = super().get_context_data(*args, **kwargs)
+
+		#queryset = self.get_queryset(args, kwargs)
+
+		context['events'] = self.object_list
+		for event in context['events']:
+			event.tb = TerritoryBattle.objects.get(id=event.tb_id)
+			event.event_type = TerritoryBattleHistory.get_activity_by_num(event.event_type)
+			event.timestamp = self.convert_date(event.timestamp, timezone)
+
+		return context
+
+	def get(self, request, *args, **kwargs):
+
+		player = self.get_player(request)
+		print(player)
+		kwargs['guild'] = player.guild
+
+		tb_type = None
+
+		if 'tb' in request.GET:
+			tb = int(request.GET['tb'])
+			tb_type = TerritoryBattle.objects.get(id=tb).tb_type
+			kwargs['tb'] = tb
+
+		tbs = TerritoryBattle.objects.all()
+		if 'tb' not in kwargs:
+			tb = tbs and tbs[0].id or None
+			tb_type = tbs[0].tb_type
+			kwargs['tb'] = tb
+
+		if 'territory' in request.GET:
+			territory = int(request.GET['territory'])
+			kwargs['territory'] = territory
+
+		if 'phase' in request.GET:
+			phase = int(request.GET['phase'])
+			kwargs['phase'] = phase
+
+		if 'activity' in request.GET:
+			activity = int(request.GET['activity'])
+			kwargs['event_type'] = activity
+
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		context = self.get_context_data(*args, **kwargs)
+
+		events = TerritoryBattleHistory.get_json_events(context['events'])
+
+		response = HttpResponse(content_type='text/csv')
+		response['Content-Disposition'] = 'attachment; filename="events.csv"'
+
+		i = 1
+		writer = csv.writer(response)
+		writer.writerow([ '#', 'Player', 'Score'])
+		for event in events:
+			writer.writerow([ i, event['label'], event['value'] ])
+			i += 1
+
+		return response
 
 class TerritoryBattleContributionsJson(ListView):
 
