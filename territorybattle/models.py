@@ -106,7 +106,8 @@ class TerritoryBattleHistory(models.Model):
 			},
 			2: {
 				1: 'Top 2',
-				2: 'Bottom 2',
+				2: 'Middle 2',
+				3: 'Bottom 2',
 			},
 			3: {
 				1: 'Top 3',
