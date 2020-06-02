@@ -1,6 +1,16 @@
 {% extends "swgoh/card.html" %}
 {% load i18n %}
-{% block cardtitle %}TB Contributions Export{% endblock %}
+{% block cardtitle %}TB Contributions{% endblock %}
+{% block cardoptions %}
+					<div class="dropdown no-arrow">
+						<a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+						</a>
+						<div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+							<a class="dropdown-item" href="#">Export to CSV</a>
+						</div>
+					</div>
+{% endblock %}
 {% block cardbody %}
 					<div class="table-responsive">
 					<table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">

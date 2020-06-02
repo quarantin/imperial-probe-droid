@@ -283,7 +283,7 @@ class TerritoryBattleContributionsTable(ListView):
 
 		context['players'] = players
 
-		context['events'] = TerritoryBattleHistory.get_json_events(context['events'])
+		context['events'] = TerritoryBattleHistory.get_json_events(context['events'], reverse=True)
 
 		return self.render_to_response(context)
 

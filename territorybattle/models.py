@@ -179,7 +179,7 @@ class TerritoryBattleHistory(models.Model):
 		return phase, territory
 
 	@staticmethod
-	def get_json_events(events):
+	def get_json_events(events, reverse=False):
 
 		accu = {}
 		for event in events:
@@ -192,7 +192,7 @@ class TerritoryBattleHistory(models.Model):
 				accu[player_name] += score
 
 		result = []
-		for label, value in sorted(accu.items(), key=lambda x: x[1], reverse=True):
+		for label, value in sorted(accu.items(), key=lambda x: x[1], reverse=reverse):
 			result.append({
 				'label': label,
 				'value': value,

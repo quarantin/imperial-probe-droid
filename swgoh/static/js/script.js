@@ -3,8 +3,9 @@ function draw_charts(canvas_id, label, dataset) {
 	var labels = []
 	var data = []
 
-	for (var index in dataset) {
-		entry = dataset[index];
+	var events = dataset.events
+	for (var index in events) {
+		entry = events[index];
 		labels.push(entry.label);
 		data.push(entry.value);
 	}
@@ -32,33 +33,6 @@ function draw_charts(canvas_id, label, dataset) {
 			}
 		}
 	});
-}
-
-function draw_table(container_id, dataset) {
-
-	var tbody = $('#' + container_id).find('tbody')
-
-	tbody.empty();
-
-	for (var i = 0; i < dataset.length; i++) {
-
-		var entry = dataset[i];
-
-		var td0 = document.createElement('td');
-		td0.innerHTML = i + 1;
-
-		var td1 = document.createElement('td');
-		td1.innerHTML = entry.label;
-
-		var td2 = document.createElement('td');
-		td2.innerHTML = entry.value;
-
-		var tr = document.createElement('tr');
-		tr.appendChild(td0);
-		tr.appendChild(td1);
-		tr.appendChild(td2);
-		tbody.append(tr);
-	}
 }
 
 $(document).ready(function() {
