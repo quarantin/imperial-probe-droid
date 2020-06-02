@@ -36,11 +36,11 @@
 
 			<!-- Nav Item - Guild -->
 			<li class="nav-item {% block guild_active %}{% endblock %}">
-				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#guildCollapse" aria-expanded="true" aria-controls="guildCollapse">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Guild</span>
 				</a>
-				<div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+				<div id="guildCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<h6 class="collapse-header">Guild</h6>
 						<a class="collapse-item" href="/guild/">Guild</a>
@@ -68,10 +68,18 @@
 
 			<!-- Nav Item - Territory Battles-->
 			<li class="nav-item {% block tb_active %}{% endblock %}">
-				<a class="nav-link" href="/territory-battle/">
+				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#territoryBattleCollapse" aria-expanded="true" aria-controls="territoryBattleCollapse">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Battles</span>
 				</a>
+				<div id="territoryBattleCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+					<div class="bg-white py-2 collapse-inner rounded">
+						<h6 class="collapse-header">Territory Battle</h6>
+						<a class="collapse-item" href="/territory-battle/history/">TB History</a>
+						<a class="collapse-item" href="/territory-battle/contributions/">TB Contributions</a>
+					</div>
+				</div>
+
 			</li>
 
 			<!-- Divider -->

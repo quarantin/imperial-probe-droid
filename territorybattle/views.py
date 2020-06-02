@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
@@ -20,6 +20,110 @@ def ts2date(tb, dateformat='%Y/%m/%d'):
 	print(tb)
 	ts = int(str(tb).split(':')[1][1:]) / 1000
 	return datetime.fromtimestamp(int(ts)).strftime(dateformat)
+
+def tb_contributions(request):
+	ctx = {}
+	return render(request, 'territorybattle/guild-contributions.html', ctx)
+
+class TerritoryBattleContributionsJson(ListView):
+
+	model = TerritoryBattleHistory
+	queryset = TerritoryBattleHistory.objects.all()
+
+	def get_player(self, request):
+
+		user = request.user
+		if not user.is_authenticated:
+			user = User.objects.get(id=2)
+
+		try:
+			return Player.objects.get(user=user)
+
+		except Player.DoesNotExist:
+			return None
+
+	def get_queryset(self, *args, **kwargs):
+		return self.queryset.filter(**kwargs)
+
+	def convert_date(self, utc_date, timezone):
+
+		local_tz = pytz.timezone(timezone)
+		local_dt = utc_date.astimezone(local_tz)
+
+		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
+
+	def dispatch(self, request, *args, **kwargs):
+		return super(TerritoryBattleContributionsJson, self).dispatch(request, *args, **kwargs)
+
+	def get_context_data(self, *args, **kwargs):
+
+		timezone = kwargs.pop('timezone', 'UTC')
+
+		context = super().get_context_data(*args, **kwargs)
+
+		queryset = self.get_queryset(*args, **kwargs)
+
+		context['events'] = queryset
+		for event in context['events']:
+			event.tb = TerritoryBattle.objects.get(id=event.tb_id)
+			event.event_type = TerritoryBattleHistory.get_activity_by_num(event.event_type)
+			event.timestamp = self.convert_date(event.timestamp, timezone)
+
+		return context
+
+	def get(self, request, *args, **kwargs):
+
+		player = self.get_player(request)
+		kwargs['guild'] = player.guild
+
+		tb_type = None
+
+		if 'tb' in request.GET:
+			tb = int(request.GET['tb'])
+			tb_type = TerritoryBattle.objects.get(id=tb).tb_type
+			kwargs['tb'] = tb
+
+		tbs = TerritoryBattle.objects.all()
+		if 'tb' not in kwargs:
+			tb = tbs and tbs[0].id or None
+			tb_type = tbs[0].tb_type
+			kwargs['tb'] = tb
+
+		if 'territory' in request.GET:
+			territory = int(request.GET['territory'])
+			kwargs['territory'] = territory
+
+		if 'phase' in request.GET:
+			phase = int(request.GET['phase'])
+			kwargs['phase'] = phase
+
+		if 'activity' in request.GET:
+			activity = int(request.GET['activity'])
+			kwargs['event_type'] = activity
+
+		if 'player' in request.GET:
+			player = request.GET['player']
+			kwargs['player_id'] = player
+
+		accu = {}
+		events = list(self.get_queryset(args, kwargs).values())
+		for event in events:
+			score = event['score']
+			event_type = event['event_type']
+			player_name = event['player_name']
+			if player_name not in accu:
+				accu[player_name] = 0
+			if score and score >= 0:
+				accu[player_name] += score
+
+		result = []
+		for label, value in sorted(accu.items(), key=lambda x: x[1]):
+			result.append({
+				'label': label,
+				'value': value,
+			})
+
+		return JsonResponse(result, safe=False)
 
 class TerritoryBattleHistoryView(ListView):
 

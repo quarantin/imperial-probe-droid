@@ -1,0 +1,13 @@
+{% extends "swgoh/card.html" %}
+{% load i18n %}
+{% block cardtitle %}TB Contributions{% endblock %}
+{% block cardbody %}
+					<div class="chart-area" style="height: 100%;">
+						<canvas id="myAreaChart"></canvas>
+					</div>
+					<script>
+						$.getJSON('/territory-battle/contributions/json/', '', function(data) {
+							draw_charts('myAreaChart', 'Score', data);
+						});
+					</script>
+{% endblock %}
