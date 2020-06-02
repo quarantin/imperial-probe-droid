@@ -1,0 +1,17 @@
+{% extends "territorybattle/base.html" %}
+{% block title %}TB Contributions Chart{% endblock%}
+{% block content %}
+			<div id="content">
+				<div class="container-fluid">
+
+					<!-- Page Heading -->
+					<h1 class="h3 mb-2 text-gray-800">Territory Battle Contributions</h1>
+
+{% include "territorybattle/guild-contributions-select.html" %}
+
+{% include "territorybattle/guild-contributions-table-card.html" %}
+				</div>
+			</div>
+{% endblock %}
+
+{% block footer %}{% include "swgoh/footer.html" %}{% endblock %}

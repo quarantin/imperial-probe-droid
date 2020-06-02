@@ -179,6 +179,28 @@ class TerritoryBattleHistory(models.Model):
 		return phase, territory
 
 	@staticmethod
+	def get_json_events(events):
+
+		accu = {}
+		for event in events:
+			score = event.score
+			event_type = event.event_type
+			player_name = event.player_name
+			if player_name not in accu:
+				accu[player_name] = 0
+			if score and score >= 0:
+				accu[player_name] += score
+
+		result = []
+		for label, value in sorted(accu.items(), key=lambda x: x[1], reverse=True):
+			result.append({
+				'label': label,
+				'value': value,
+			})
+
+		return result
+
+	@staticmethod
 	def parse(guild, event):
 
 		created = True
