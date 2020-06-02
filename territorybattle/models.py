@@ -200,6 +200,8 @@ class TerritoryBattleHistory(models.Model):
 
 		o.timestamp = event['timestamp']
 
+		o.guild = guild
+
 		o.player_id = event['playerId']
 
 		o.player_name = event['playerName']
