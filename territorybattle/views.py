@@ -155,7 +155,7 @@ class TerritoryBattleContributionsChart(ListView):
 
 		return self.render_to_response(context)
 
-class TerritoryBattleContributionsTable(ListView):
+class TerritoryBattleContributions(ListView):
 
 	model = TerritoryBattleHistory
 	template_name = 'territorybattle/guild-contributions-table.html'

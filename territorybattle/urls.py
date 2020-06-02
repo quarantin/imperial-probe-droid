@@ -26,5 +26,5 @@ urlpatterns = [
 	path('history/', views.TerritoryBattleHistoryView.as_view()),
 	path('contributions/json/', views.TerritoryBattleContributionsJson.as_view()),
 	path('contributions/chart/', views.TerritoryBattleContributionsChart.as_view()),
-	path('contributions/export/', views.TerritoryBattleContributionsTable.as_view()),
+	path('contributions/', views.TerritoryBattleContributions.as_view()),
 ]
