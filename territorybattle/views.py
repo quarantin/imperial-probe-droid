@@ -139,6 +139,25 @@ class TerritoryBattleHistoryView(TerritoryBattleListView):
 		context = self.get_context_data(request, *args, **kwargs)
 		return self.render_to_response(context)
 
+class TerritoryBattleHistoryViewCsv(TerritoryBattleListView):
+
+	model = TerritoryBattleHistory
+	queryset = TerritoryBattleHistory.objects.all()
+
+	def get(self, request, *args, **kwargs):
+
+		context = self.get_context_data(request, *args, **kwargs)
+		events = context['events']
+
+		rows = []
+		rows.append([ 'Timestamp', 'Activity', 'Phase', 'Territory', 'Player', 'Score' ])
+
+		for event in events:
+			activity = TerritoryBattleHistory.get_activity_by_num(event.event_type)
+			rows.append([ event.timestamp, activity, event.phase, event.territory, event.player_name, event.score ])
+
+		return CsvResponse(rows=rows)
+
 class TerritoryBattleContributions(TerritoryBattleListView):
 
 	model = TerritoryBattleHistory

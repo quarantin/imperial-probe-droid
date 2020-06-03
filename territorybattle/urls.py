@@ -24,6 +24,7 @@ from .models import TerritoryBattleHistory
 
 urlpatterns = [
 	path('history/', views.TerritoryBattleHistoryView.as_view()),
+	path('history/csv/', views.TerritoryBattleHistoryViewCsv.as_view()),
 	path('contributions/chart/', views.TerritoryBattleContributionsChart.as_view()),
 	path('contributions/csv/',   views.TerritoryBattleContributionsCsv.as_view()),
 	path('contributions/json/',  views.TerritoryBattleContributionsJson.as_view()),
