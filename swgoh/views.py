@@ -114,14 +114,14 @@ async def guild_tickets_global_daily_json(request):
 			store[timestamp] = 0
 		store[timestamp] += player['raid_tickets']
 
-	result = []
+	events = []
 	for timestamp, tickets in store.items():
-		result.append({
+		events.append({
 			'label': timestamp,
 			'value': tickets,
 		})
 
-	return JsonResponse(result, safe=False)
+	return JsonResponse({ 'events': events })
 
 def guild_tickets_global_daily(request):
 	return render(request, 'swgoh/guild-tickets-global-daily.html', {})
@@ -159,15 +159,14 @@ async def guild_tickets_global_per_user_json(request):
 			store[player_name] = 0
 		store[player_name] += player['raid_tickets']
 
-	result = []
+	events = []
 	for player, tickets in sorted(store.items(), key=lambda x: x[1]):
-		print("DEBUG: %s -> %s" % (player, tickets))
-		result.append({
+		events.append({
 			'label': player,
 			'value': tickets,
 		});
 
-	return JsonResponse(result, safe=False)
+	return JsonResponse({ 'events': events })
 
 def guild_tickets_global_per_user(request):
 	return render(request, 'swgoh/guild-tickets-global-per-user.html', {})
@@ -202,16 +201,16 @@ async def guild_tickets_detail_json(request):
 	else:
 		raise PermissionDenied()
 
-	result = []
+	events = []
 	activity = PlayerActivity.objects.filter(player_id=player.id).values('raid_tickets', 'timestamp')
 	for entry in activity:
 		timestamp = entry['timestamp'].strftime('%Y-%m-%d')
-		result.append({
+		events.append({
 			'label': timestamp,
 			'value': entry['raid_tickets'],
 		})
 
-	return JsonResponse(result, safe=False)
+	return JsonResponse({ 'events': events })
 
 @async_to_sync
 async def guild_tickets_detail(request):
