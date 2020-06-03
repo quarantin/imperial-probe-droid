@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 
 from swgoh.models import Guild
 
@@ -251,3 +251,65 @@ class TerritoryBattleHistory(models.Model):
 
 	class Meta:
 		ordering = ('timestamp',)
+
+class TerritoryBattleStat(models.Model):
+
+	categories = (
+		("summary",                "Territory Points Contributed"),
+		("unit_donated",           "Platoon Mission Units Assigned"),
+		("strike_encounter",       "Combat Mission Waves Completed"),
+		("disobey",                "Rogue Actions"),
+		("score_round_1",          "Phase 1 - Territory Points"),
+		("power_round_1",          "Phase 1 - GP Deployed"),
+		("strike_attempt_round_1", "Phase 1 - Combat Missions"),
+		("covert_attempt_round_1", "Phase 1 - Special Missions"),
+		("score_round_2",          "Phase 2 - Territory Points"),
+		("power_round_2",          "Phase 2 - GP Deployed"),
+		("strike_attempt_round_2", "Phase 2 - Combat Missions"),
+		("covert_attempt_round_2", "Phase 2 - Special Missions"),
+		("score_round_3",          "Phase 3 - Territory Points"),
+		("power_round_3",          "Phase 3 - GP Deployed"),
+		("strike_attempt_round_3", "Phase 3 - Combat Missions"),
+		("covert_attempt_round_3", "Phase 3 - Special Missions"),
+		("score_round_4",          "Phase 4 - Territory Points"),
+		("power_round_4",          "Phase 4 - GP Deployed"),
+		("strike_attempt_round_4", "Phase 4 - Combat Missions"),
+		("covert_attempt_round_4", "Phase 4 - Special Missions"),
+	)
+
+	tb = models.ForeignKey(TerritoryBattle, on_delete=models.CASCADE)
+	guild = models.ForeignKey(Guild, on_delete=models.CASCADE)
+	category = models.CharField(max_length=32, choices=categories)
+	player_id = models.CharField(max_length=22)
+	player_name = models.CharField(max_length=64)
+	player_score = models.IntegerField()
+
+	@staticmethod
+	def parse(guild, stats):
+
+		with transaction.atomic():
+
+			tb = TerritoryBattle.parse(stats['tb'])
+
+			for stat in stats['stats']:
+
+				for category, values in stat.items():
+
+					for value in values:
+
+						player_id = value['playerId']
+
+						try:
+							o = TerritoryBattleStat.objects.get(tb=tb, guild=guild, category=category, player_id=player_id)
+
+						except TerritoryBattleStat.DoesNotExist:
+
+							o = TerritoryBattleStat(tb=tb, guild=guild, category=category, player_id=player_id)
+
+						o.player_name = value['playerName']
+						o.player_score = value['playerScore']
+
+						o.save()
+
+	class Meta:
+		ordering = [ '-player_score', 'player_name' ]

@@ -29,4 +29,6 @@ urlpatterns = [
 	path('contributions/csv/',   views.TerritoryBattleContributionsCsv.as_view()),
 	path('contributions/json/',  views.TerritoryBattleContributionsJson.as_view()),
 	path('contributions/',       views.TerritoryBattleContributions.as_view()),
+	path('stats/',               views.TerritoryBattleStatListView.as_view()),
+	path('stats/csv/',           views.TerritoryBattleStatListViewCsv.as_view()),
 ]

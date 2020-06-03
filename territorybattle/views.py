@@ -11,7 +11,7 @@ from client import SwgohClient
 
 import swgoh.views as swgoh_views
 from swgoh.models import Player
-from .models import TerritoryBattle, TerritoryBattleHistory
+from .models import TerritoryBattle, TerritoryBattleHistory, TerritoryBattleStat
 
 import csv
 import pytz
@@ -212,3 +212,100 @@ class TerritoryBattleContributionsJson(TerritoryBattleListView):
 		context = self.get_context_data(request, *args, **kwargs)
 		events = TerritoryBattleHistory.get_json_events(context['events'])
 		return JsonResponse({ 'events': events })
+
+class TerritoryBattleStatListView(TerritoryBattleListView):
+
+	model = TerritoryBattleStat
+	template_name = 'territorybattle/territorybattlestat_list.html'
+	queryset = TerritoryBattleStat.objects.all()
+
+	def get_context_data(self, request, *args, **kwargs):
+
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		context = {}
+
+		player = self.get_player(request)
+		kwargs['guild'] = player.guild
+		context['guild'] = player.guild
+
+		tb_type = None
+
+		if 'tb' in request.GET:
+			tb = int(request.GET['tb'])
+			tb_type = TerritoryBattle.objects.get(id=tb).tb_type
+			kwargs['tb'] = tb
+			context['tb'] = tb
+
+		tbs = TerritoryBattle.objects.all()
+		if 'tb' not in context:
+			tb = tbs and tbs[0].id or None
+			tb_type = tbs[0].tb_type
+			kwargs['tb'] = tb
+			context['tb'] = tb
+
+		if 'category' in request.GET:
+			category = request.GET['category']
+			kwargs['category'] = category
+			context['category'] = category
+
+		if 'player' in request.GET:
+			player = request.GET['player']
+			kwargs['player_id'] = player
+			context['player'] = player
+
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		context['stats'] = self.object_list
+
+		players = OrderedDict()
+		players_data = list(TerritoryBattleStat.objects.filter(guild=player.guild).values('player_id', 'player_name').distinct())
+		for player in sorted(players_data, key=lambda x: x['player_name']):
+			id = player['player_id']
+			name = player['player_name']
+			players[id] = name
+
+		timezones = pytz.common_timezones
+		if 'UTC' in timezones:
+			timezones.remove('UTC')
+		timezones.insert(0, 'UTC')
+
+		context['tbs'] = { x.id: '%s - %s' % (self.ts2date(x.event_id), x.get_name()) for x in tbs }
+
+		context['timezones'] = { x: x for x in timezones }
+
+		context['activities'] = { x: y for x, y in TerritoryBattleHistory.EVENT_TYPE_CHOICES }
+
+		context['phases'] = TerritoryBattleHistory.get_phase_list(tb_type)
+
+		context['territories'] = TerritoryBattleHistory.get_territory_list(tb_type)
+
+		context['categories'] = { x: y for x, y in TerritoryBattleStat.categories }
+
+		context['players'] = players
+
+		return context
+
+
+	def get(self, request, *args, **kwargs):
+
+		context = self.get_context_data(request, *args, **kwargs)
+
+		return self.render_to_response(context)
+
+class TerritoryBattleStatListViewCsv(TerritoryBattleListView):
+
+	model = TerritoryBattleStat
+	queryset = TerritoryBattleStat.objects.all()
+
+	def get(self, request, *args, **kwargs):
+
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		rows = []
+		rows.append([ 'Category', 'Player', 'Score'])
+
+		for o in self.object_list:
+			rows.append([ o.category, o.player_name, o.player_score ])
+
+		return CsvResponse(rows=rows)
