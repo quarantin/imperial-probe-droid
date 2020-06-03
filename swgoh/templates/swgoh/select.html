@@ -24,13 +24,6 @@
 				<h6 class="m-0 font-weight-bold text-primary">Filters</h6>
 			</div>
 			<div class="card-body">
-				<div>
-					<label for="timezone">Select your Timezone</label>
-					<br>
-					<select id="timezone" onchange="refresh()">{% for tz_id, tz_name in timezones.items %}
-						<option value="{{ tz_id }}"{% if tz_id == timezone %} selected{% endif %}>{{ tz_name }}</option>{% endfor %}
-					</select>
-				</div>
 {% block event %}{% endblock %}
 			</div>
 		</div>

@@ -26,6 +26,13 @@
 
 {% block event %}
 				<div>
+					<label for="timezone">Select your Timezone</label>
+					<br>
+					<select id="timezone" onchange="refresh()">{% for tz_id, tz_name in timezones.items %}
+						<option value="{{ tz_id }}"{% if tz_id == timezone %} selected{% endif %}>{{ tz_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
 					<label for="tb">Select a Territory Battle Instance</label>
 					<br>
 					<select id="tb" onchange="refresh()">{% if not tbs %}
