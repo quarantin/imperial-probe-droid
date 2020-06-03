@@ -153,8 +153,7 @@ class TerritoryBattleHistoryViewCsv(TerritoryBattleListView):
 		rows.append([ 'Timestamp', 'Activity', 'Phase', 'Territory', 'Player', 'Score' ])
 
 		for event in events:
-			activity = TerritoryBattleHistory.get_activity_by_num(event.event_type)
-			rows.append([ event.timestamp, activity, event.phase, event.territory, event.player_name, event.score ])
+			rows.append([ event.timestamp, event.event_type, event.phase, event.territory, event.player_name, event.score ])
 
 		return CsvResponse(rows=rows)
 
