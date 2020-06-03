@@ -9,7 +9,7 @@
 						var urlParams = new URLSearchParams(window.location.search);
 						var player_id = urlParams.get('player');
 						$.getJSON('/guild/tickets/detail/json/?player=' + player_id, '', function(data) {
-							draw_charts('myAreaChart', 'Number of Raid Tickets' data);
+							draw_charts('myAreaChart', 'Number of Raid Tickets', data);
 						});
 					</script>
 {% endblock %}
