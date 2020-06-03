@@ -190,7 +190,7 @@ class TerritoryBattleHistory(models.Model):
 		for event in events:
 			score = event.score
 			event_type = event.event_type
-			if event_type == TerritoryBattleHistory.ACTIVITY_RECON[1]:
+			if event_type in [ TerritoryBattleHistory.ACTIVITY_RECON[1], TerritoryBattleHistory.ACTIVITY_RECON_FULL[1] ]:
 				continue
 
 			player_name = event.player_name
