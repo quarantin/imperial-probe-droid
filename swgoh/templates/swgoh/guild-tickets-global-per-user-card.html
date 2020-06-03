@@ -5,7 +5,6 @@
 					<div class="chart-area" style="height: 100%;">
 						<canvas id="myAreaChart"></canvas>
 					</div>
-{% include "swgoh/chartjs.html" %}
 					<script>
 						$.getJSON('/guild/tickets/global-per-user/json/', '', function(data) {
 							draw_charts('myAreaChart', 'Number of Raid Tickets', data);
