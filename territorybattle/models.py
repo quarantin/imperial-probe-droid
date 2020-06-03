@@ -190,6 +190,9 @@ class TerritoryBattleHistory(models.Model):
 		for event in events:
 			score = event.score
 			event_type = event.event_type
+			if event_type == TerritoryBattleHistory.ACTIVITY_RECON[1]:
+				continue
+
 			player_name = event.player_name
 			if player_name not in accu:
 				accu[player_name] = 0
