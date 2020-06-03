@@ -75,6 +75,8 @@ class TerritoryBattleHistory(models.Model):
 		ACTIVITY_STAR,
 		ACTIVITY_COMBAT,
 		ACTIVITY_COMBAT_FULL,
+		ACTIVITY_RECON,
+		ACTIVITY_RECON_FULL,
 	]
 
 	TERRITORIES = {
@@ -126,6 +128,7 @@ class TerritoryBattleHistory(models.Model):
 
 	@staticmethod
 	def get_activity_by_num(num_activity):
+		num_activity = int(num_activity)
 		for num, activity in TerritoryBattleHistory.EVENT_TYPE_CHOICES:
 			if num == num_activity:
 				return activity
