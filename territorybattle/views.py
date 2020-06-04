@@ -244,15 +244,14 @@ class TerritoryBattleStatListView(TerritoryBattleListView):
 			kwargs['tb'] = tb
 			context['tb'] = tb
 
-		if 'category' in request.GET:
-			category = request.GET['category']
-			kwargs['category'] = category
-			context['category'] = category
-
 		if 'player' in request.GET:
 			player = request.GET['player']
 			kwargs['player_id'] = player
 			context['player'] = player
+
+		category = request.GET.get('category', 'summary')
+		kwargs['category'] = category
+		context['category'] = category
 
 		self.object_list = self.get_queryset(*args, **kwargs)
 
