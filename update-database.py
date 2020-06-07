@@ -188,6 +188,8 @@ class DatabaseUpdater:
 
 	def parse_translations_name(self, collection, key, context, language):
 
+		print('Parsing names translations (%s)...' % language)
+
 		filename = 'cache/%s_%s.json' % (collection, language)
 		with open(filename, 'r') as fin:
 			jsondata = json.loads(fin.read())
@@ -200,6 +202,8 @@ class DatabaseUpdater:
 						obj.save()
 
 	def parse_translations_desc(self, collection, key, context, language):
+
+		print('Parsing descriptions translations (%s)...' % language)
 
 		filename = 'cache/%s_%s.json' % (collection, language)
 		with open(filename, 'r') as fin:
@@ -252,7 +256,56 @@ class DatabaseUpdater:
 							obj.save()
 							print('Updated %s translation for %s' % (lang_name, string_id))
 
+	def parse_units(self):
+
+		print('Parsing units...')
+
+		names = load_json('cache/unitsList_eng_us.json')
+		unit_names = { x['baseId']: x['nameKey'] for x in names }
+
+		ship_crews = BaseUnit.get_ship_crews()
+
+		self.units = {}
+		with transaction.atomic():
+
+			for filename in [ 'unitsList.json' ]:
+				units = load_json('cache/%s' % filename)
+				for unit in units:
+
+					base_id = unit['baseId']
+
+					if base_id in self.UNITS_TO_IGNORE:
+						continue
+
+					if base_id in self.units:
+						raise Exception('Duplicate base ID for character: %s' % base_id)
+
+					char = {}
+
+					char['base_id'] = base_id
+					char['name'] = base_id in unit_names and unit_names[base_id] or base_id
+					char['alignment'] = unit['forceAlignment']
+					char['is_ship'] = (unit['combatType'] == BaseUnit.COMBAT_TYPES[1][0])
+
+					try:
+						base_unit = BaseUnit.objects.get(base_id=base_id)
+						BaseUnit.objects.filter(pk=base_unit.pk).update(**char)
+
+					except BaseUnit.DoesNotExist:
+						base_unit = BaseUnit(**char)
+						base_unit.save()
+
+					self.units[base_unit.base_id] = base_unit
+
+					categories = unit.pop('categoryIdList')
+					for category in categories:
+						faction = BaseUnitFaction.is_supported_faction(category)
+						if faction:
+							obj, created = BaseUnitFaction.objects.update_or_create(unit=base_unit, faction=faction)
+
 	def parse_gear(self):
+
+		print('Parsing gears...')
 
 		with transaction.atomic():
 			gears = load_json('cache/gear.json')
@@ -277,71 +330,52 @@ class DatabaseUpdater:
 
 				equip.save()
 
-	def parse_units(self):
+	def parse_gear_levels(self):
+
+		print('Parsing gear levels...')
 
 		with transaction.atomic():
-			for filename in [ 'characters.json', 'ships.json' ]:
-				units = load_json('cache/%s' % filename)
-				for unit in units:
 
-					char = dict(unit)
+			filename = 'cache/characters.json'
+			characters = load_json(filename)
+			for character in characters:
 
-					gear_levels     = []
-					categories      = char.pop('categories')
-					ability_classes = char.pop('ability_classes')
+				base_id = character['base_id']
+				base_unit = self.units[base_id]
 
-					if 'pk' in char:
-						char.pop('pk')
+				if base_id in self.UNITS_TO_IGNORE:
+					continue
 
-					if 'ship' in char:
-						ship = char.pop('ship')
+				if 'gear_levels' not in character:
+					raise Exception('Missing gear level for character %s' % character['name'])
 
-					if 'gear_levels' in char:
-						gear_levels = char.pop('gear_levels')
+				gear_levels = character['gear_levels']
+				for gear_level in gear_levels:
 
-					if 'url' in char:
-						char['url'] = fix_swgohgg_url(char['url'])
+					slot = 1
+					tier = gear_level['tier']
 
-					if 'image' in char:
-						char['image'] = fix_swgohgg_url(char['image'])
+					for gear_id in gear_level['gear']:
 
-					try:
-						base_unit = BaseUnit.objects.get(base_id=unit['base_id'])
-						BaseUnit.objects.filter(pk=base_unit.pk).update(**char)
+						gear = Gear.objects.get(base_id=gear_id)
 
-					except BaseUnit.DoesNotExist:
-						base_unit = BaseUnit(**char)
-						base_unit.save()
+						try:
+							created = False
+							obj = BaseUnitGear.objects.get(unit=base_unit, tier=tier, slot=slot)
 
-					for category in categories:
-						faction = BaseUnitFaction.is_supported_faction(category)
-						if faction:
-							obj, created = BaseUnitFaction.objects.update_or_create(unit=base_unit, faction=faction)
+						except BaseUnitGear.DoesNotExist:
+							created = True
+							obj = BaseUnitGear(unit=base_unit, tier=tier, slot=slot)
 
-					for gear_level in gear_levels:
+						if created or obj.gear != gear:
+							obj.gear = gear
+							obj.save()
 
-						slot = 1
-						tier = gear_level['tier']
-
-						for gear_id in gear_level['gear']:
-
-							gear = Gear.objects.get(base_id=gear_id)
-
-							try:
-								created = False
-								obj = BaseUnitGear.objects.get(unit=base_unit, tier=tier, slot=slot)
-
-							except BaseUnitGear.DoesNotExist:
-								created = True
-								obj = BaseUnitGear(unit=base_unit, tier=tier, slot=slot)
-
-							if created or obj.gear != gear:
-								obj.gear = gear
-								obj.save()
-
-							slot += 1
+						slot += 1
 
 	def parse_skills(self):
+
+		print('Parsing skills...')
 
 		filename = 'cache/skillList.json'
 		skill_list = load_json(filename)
@@ -400,6 +434,8 @@ class DatabaseUpdater:
 
 	async def parse_zeta_report(self):
 
+		print('Parsing zeta report')
+
 		url = 'https://swgoh.gg/stats/ability-report/?page=%d'
 		try:
 			response, error = await http_get(url % 1)
@@ -428,7 +464,7 @@ class DatabaseUpdater:
 					try:
 						unit = BaseUnit.objects.get(base_id=base_id)
 					except BaseUnit.DoesNotExist:
-						print("Could not find unit with base ID: %s" % base_id)
+						print('Could not find unit with base ID: %s' % base_id)
 						continue
 
 					try:
@@ -449,7 +485,7 @@ class DatabaseUpdater:
 				page += 1
 				response, error = await http_get(url % page)
 				if not response or error:
-					print("ERROR: %s" % error)
+					print('ERROR: %s' % error)
 					return
 
 				soup = BeautifulSoup(response.content, 'html.parser')
@@ -458,6 +494,8 @@ class DatabaseUpdater:
 			print(traceback.format_exc())
 
 	async def parse_gear13_report(self):
+
+		print('Parsing gear level 13 report...')
 
 		url = 'https://swgoh.gg/characters/data/g13/'
 		try:
@@ -473,7 +511,6 @@ class DatabaseUpdater:
 				total_count = int(cols[2].text)
 				percentage  = float(cols[3].text.replace('%', ''))
 
-				#print("Processing %s..." % unit_name)
 				try:
 					unit = BaseUnit.objects.get(name=unit_name)
 
@@ -496,6 +533,8 @@ class DatabaseUpdater:
 			print(traceback.format_exc())
 
 	async def parse_relic_report(self):
+
+		print('Parsing relic report...')
 
 		url = 'https://swgoh.gg/characters/data/relics/'
 		try:
@@ -538,6 +577,8 @@ class DatabaseUpdater:
 
 	def parse_rss_feeds(self):
 
+		print('Parsing RSS feeds...')
+
 		if 'feeds' not in self.config:
 			print('No RSS feed defined in config.json')
 			return
@@ -553,6 +594,8 @@ class DatabaseUpdater:
 				feed.save()
 
 	async def save_all_recos(self):
+
+		print('Parsing mod recommendations...')
 
 		with transaction.atomic():
 			recos = await fetch_all_recos()
@@ -596,8 +639,9 @@ class DatabaseUpdater:
 	async def update(self, version):
 
 		self.parse_rss_feeds()
-		self.parse_gear()
 		self.parse_units()
+		self.parse_gear()
+		self.parse_gear_levels()
 		self.parse_skills()
 		await self.parse_zeta_report()
 		await self.parse_gear13_report()
