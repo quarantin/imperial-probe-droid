@@ -71,10 +71,10 @@ async def cmd_locked(ctx):
 
 	players = { x['allyCode']: x for x in players }
 
-	units = BaseUnit.objects.filter(combat_type=1).values()
-	ships = BaseUnit.objects.filter(combat_type=2).values()
-	char_list = { x['base_id']: x for x in units }
-	ship_list = { x['base_id']: x for x in ships }
+	units = BaseUnit.get_all_units()
+	ships = BaseUnit.get_all_ships()
+	char_list = { x.base_id: x for x in units }
+	ship_list = { x.base_id: x for x in ships }
 
 	msgs = []
 	lines = []
