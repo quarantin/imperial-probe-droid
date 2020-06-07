@@ -2,7 +2,7 @@ from discord.ext import commands
 
 import cog
 from utils import basicstrip, get_banner_emoji, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
-from swgohgg import get_full_avatar_url
+from swgohgg import get_full_avatar_url, get_swgohgg_unit_url
 from constants import EMOJIS
 
 import DJANGO
@@ -157,7 +157,7 @@ Show recommended mods for **Darth Revan**:
 				spacer = EMOJIS[''] * 4
 
 				header = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-				unit_link = '**[%s](%s)**' % (unit_name, ref_unit.get_url())
+				unit_link = '**[%s](%s)**' % (unit_name, get_swgohgg_unit_url(ref_unit.base_id))
 
 				for line in [ header, self.config['separator'], unit_link ]:
 					lines.insert(0, line)

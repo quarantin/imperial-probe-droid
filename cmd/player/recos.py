@@ -1,7 +1,7 @@
 from utils import basicstrip, get_banner_emoji, get_mod_sets_emojis, get_mod_primaries, get_field_legend, translate
 from constants import EMOJIS
 
-from swgohgg import get_full_avatar_url
+from swgohgg import get_full_avatar_url, get_swgohgg_player_unit_url
 
 import DJANGO
 
@@ -181,7 +181,7 @@ async def cmd_recos(ctx):
 			spacer = EMOJIS[''] * 4
 
 			header = '%s%s%s%s%s' % (spacer, EMOJIS['arrow'], EMOJIS['triangle'], EMOJIS['circle'], EMOJIS['cross'])
-			unit_link = '**[%s](%s)**' % (unit_name, ref_unit.get_url())
+			unit_link = '**[%s](%s)**' % (unit_name, get_swgohgg_player_unit_url(ally_code, base_id))
 
 			for line in [ header, config['separator'], unit_link ]:
 				lines.insert(0, line)

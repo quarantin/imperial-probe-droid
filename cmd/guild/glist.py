@@ -1,4 +1,5 @@
 from utils import get_star, translate
+from swgohgg import get_swgohgg_unit_url
 
 import DJANGO
 from swgoh.models import BaseUnitSkill
@@ -121,7 +122,7 @@ async def cmd_guild_list(ctx):
 					'relic':   BaseUnitSkill.get_relic(unit),
 					'base_id': ref_unit.base_id,
 					'name':    unit_name,
-					'url':     ref_unit.get_url(),
+					'url':     get_swgohgg_unit_url(ref_unit.base_id),
 				}
 
 	meta = {}

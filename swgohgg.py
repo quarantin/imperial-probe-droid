@@ -37,6 +37,12 @@ async def get_swgohgg_profile_url(ally_code, no_check=False):
 def get_simple_unit_name(base_id):
 	return translate(base_id, 'eng_us').lower().replace(' ', '-').replace('"', '').replace('(', '').replace(')', '').replace('î', 'i').replace('Î', 'i').replace("'", '')
 
+def get_swgohgg_unit_url(base_id):
+
+	simple_name = get_simple_unit_name(base_id)
+	url = 'https://swgoh.gg/characters/%s' % simple_name
+	return url
+
 def get_swgohgg_player_unit_url(ally_code, base_id):
 
 	simple_name = get_simple_unit_name(base_id)

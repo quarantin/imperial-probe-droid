@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from constants import EMOJIS, MAX_GEAR, MAX_LEVEL, MAX_RARITY, MAX_RELIC, MAX_SKILL_TIER
 from utils import dotify, get_banner_emoji, get_stars_as_emojis, roundup, translate, get_ability_name
+from swgohgg import get_swgohgg_unit_url
 
 import DJANGO
 from swgoh.models import BaseUnit, BaseUnitSkill
@@ -206,7 +207,7 @@ async def cmd_guild_compare(ctx):
 				fields[key].append(val)
 
 		lines = []
-		lines.append('**[%s](%s)**' % (unit_name, unit.get_url()))
+		lines.append('**[%s](%s)**' % (unit_name, get_swgohgg_unit_url(unit.base_id)))
 		lines.append(config['separator'])
 		first_time = True
 		zeta_started = False

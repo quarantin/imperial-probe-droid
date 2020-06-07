@@ -1,7 +1,7 @@
 from utils import translate
 
 import json
-from swgohgg import get_full_avatar_url
+from swgohgg import get_full_avatar_url, get_swgohgg_unit_url
 
 import DJANGO
 from swgoh.models import BaseUnitGear
@@ -31,7 +31,7 @@ def get_gear_levels(base_id):
 		unit_name = gear_level.unit.name
 		if unit_name not in result:
 			result[unit_name] = {
-				'url': gear_level.unit.get_url(),
+				'url': get_swgohgg_unit_url(gear_level.unit.base_id),
 				'tiers': {},
 			}
 
@@ -95,8 +95,7 @@ async def cmd_gear(ctx):
 			gear_levels = get_gear_levels(unit.base_id)
 			for name, data in gear_levels.items():
 				unit_name = translate(unit.base_id, language)
-				lines.append('**%s Needed Gear**' % jplayer['name'])
-				lines.append('**[%s](%s)**' % (unit_name, unit.get_url()))
+				lines.append('**[%s](%s)**' % (unit_name, get_swgohgg_unit_url(unit.base_id)))
 				min_gear_level = player_unit and player_unit['gear'] or 1
 				for tier in reversed(range(min_gear_level, 13)):
 					sublines = []
