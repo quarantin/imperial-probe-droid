@@ -80,7 +80,7 @@ def get_unit_stats(config, roster, lang):
 
 	return stats
 
-def unit_to_dict(config, guild, roster, base_id, lang):
+def unit_to_dict(config, guild, roster, base_id, ships, lang):
 
 	res = OrderedDict()
 
@@ -99,7 +99,7 @@ def unit_to_dict(config, guild, roster, base_id, lang):
 		res['**Lvl85**']  = str(stats['levels'][85])
 		res[seven_stars]  = str(7 in stats['stars'] and stats['stars'][7] or 0)
 
-		if not BaseUnit.is_ship(base_id):
+		if base_id not in ships:
 			for gear in reversed(range(MAX_GEAR - 2, MAX_GEAR + 1)):
 
 				count = 0
@@ -167,6 +167,8 @@ async def cmd_guild_compare(ctx):
 	if not selected_units:
 		return bot.errors.no_unit_selected(ctx)
 
+	ships = { x.base_id: True for x in BaseUnit.get_all_ships() }
+
 	fields = []
 	ally_codes = [ x.ally_code for x in selected_players ]
 	guilds = await bot.client.guilds(ally_codes=ally_codes, stats=True)
@@ -198,7 +200,7 @@ async def cmd_guild_compare(ctx):
 
 					roster_for_unit[base_id].append(player_unit)
 
-			units.append(unit_to_dict(config, guild, roster_for_unit, unit.base_id, language))
+			units.append(unit_to_dict(config, guild, roster_for_unit, unit.base_id, ships, language))
 
 		for someunit in units:
 			for key, val in someunit.items():
