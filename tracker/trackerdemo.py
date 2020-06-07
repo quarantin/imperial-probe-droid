@@ -29,7 +29,7 @@ class Demo:
 		drop = key.endswith('.down.format') and -1 or 1
 
 		player = random.choice(Player.objects.filter(discord_id=author.id))
-		unit = BaseUnit.objects.filter(combat_type=1).order_by('?').first()
+		unit = BaseUnit.get_all_units().order_by('?').first()
 		equip = Gear.objects.order_by('?').first()
 
 		gear_level = random.randint(2, MAX_GEAR_LEVEL)
