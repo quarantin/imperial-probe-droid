@@ -47,8 +47,7 @@ class SwgohHelp:
 		config['swgoh.help']['access_token'] = data['access_token']
 		config['swgoh.help']['access_token_expire'] = datetime.now() + timedelta(seconds=data['expires_in'])
 
-		if 'debug' in config and config['debug'] is True:
-			print('Logged in successfully', file=sys.stderr)
+		print('Logged in successfully', file=sys.stderr)
 
 		return config['swgoh.help']['access_token']
 
@@ -60,12 +59,12 @@ class SwgohHelp:
 			'authorization': 'Bearer %s' % access_token,
 		}
 
-	async def call_api(self, project, url):
+	async def call_api(self, project, url, debug=False):
 
 		url = self.url + url
 		headers = await self.get_headers()
 
-		if 'debug' in self.config and self.config['debug'] is True:
+		if debug is True:
 			print("CALL API: %s %s" % (url, project), file=sys.stderr)
 
 		data, error = await http_post(url, headers=headers, json=project)
