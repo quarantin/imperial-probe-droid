@@ -252,25 +252,6 @@ def format_char_stats(stats, fmt):
 
 	return fmt
 
-def get_ships_crew():
-
-	fin = open('cache/characters.json', 'r')
-	data = json.loads(fin.read())
-	fin.close()
-
-	ships = {}
-
-	for unit in data:
-		base_id = unit['base_id']
-		ship = unit['ship']
-		if ship:
-			if ship not in ships:
-				ships[ship] = []
-
-			ships[ship].append(base_id)
-
-	return ships
-
 def update_source_code():
 	script = 'scripts/update.sh'
 	if os.path.exists(script):
