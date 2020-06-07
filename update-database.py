@@ -706,7 +706,7 @@ class Updater:
 
 		if remote_version != database_version:
 			print('Updating database with new game assets...')
-			await self.database.update(local_version)
+			await self.database.update(remote_version)
 			print('OK')
 		else:
 			print('Not updating database (up-to-date)')
