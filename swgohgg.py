@@ -51,7 +51,7 @@ def get_swgohgg_player_unit_url(ally_code, base_id):
 
 def get_full_avatar_url(config, ref_unit, unit):
 
-	alignment = BaseUnit.get_alignment(ref_unit.base_id)
+	alignment = ref_unit.get_alignment_display()
 
 	level, gear, rarity, zetas, relic = 0, 0, 0, 0, 0
 
