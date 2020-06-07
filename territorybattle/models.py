@@ -88,25 +88,25 @@ class TerritoryBattleHistory(models.Model):
 				3: 'Bottom 1',
 			},
 			2: {
-				1: 'Top 1',
-				2: 'Middle 1',
-				3: 'Bottom 1',
+				1: 'Top 2',
+				2: 'Middle 2',
+				3: 'Bottom 2',
 			},
 			3: {
-				1: 'Top 1',
-				2: 'Middle 1',
-				3: 'Bottom 1',
+				1: 'Top 3',
+				2: 'Middle 3',
+				3: 'Bottom 3',
 			},
 			4: {
-				1: 'Top 1',
-				2: 'Middle 1',
-				3: 'Bottom 1',
+				1: 'Top 4',
+				2: 'Middle 4',
+				3: 'Bottom 4',
 			},
 		},
 		'TB_EVENT_GEONOSIS_SEPARATIST': {
 			1: {
 				1: 'Top 1',
-				2: 'Bottom 1',
+				3: 'Bottom 1',
 			},
 			2: {
 				1: 'Top 2',
