@@ -23,7 +23,7 @@ from commands import *
 from constants import EMOJI_HOURGLASS, EMOJI_THUMBSUP
 
 import DJANGO
-from swgoh.models import DiscordServer, NewsChannel, NewsEntry, NewsFeed, Player, Shard, ShardMember
+from swgoh.models import BaseUnit, DiscordServer, NewsChannel, NewsEntry, NewsFeed, Player, Shard, ShardMember
 
 PROBE_DIALOG = [
 	'bIp',
@@ -418,6 +418,9 @@ async def __main__():
 		bot.config = config
 		bot.logger = ipd_logger
 		bot.redis = config.redis
+
+		from crinolo import CrinoloStats
+		bot.stats = CrinoloStats(BaseUnit.get_ship_crews())
 
 		from boterrors import BotErrors
 		bot.errors = BotErrors(bot)

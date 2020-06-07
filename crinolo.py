@@ -2,76 +2,80 @@ import sys
 import json
 import traceback
 
-from utils import http_post, get_ships_crew
+from utils import http_post
 
-CRINOLO_URLS = [
-	'http://localhost:8081/api',
-	'https://swgoh-stat-calc.glitch.me/api',
-]
+class CrinoloStats:
 
-def add_pilots(players, units):
+	CRINOLO_URLS = [
+		'http://localhost:8081/api',
+		'https://swgoh-stat-calc.glitch.me/api',
+	]
 
-	pilots = []
+	def __init__(self, crews):
+		self.crews = crews
 
-	if not units:
+	def add_pilots(self, players, units):
+
+		pilots = []
+
+		if not units:
+			return pilots
+
+		# Add pilots of requested ships if missing
+		base_ids = [ unit.base_id for unit in units ]
+		for ship_id in list(base_ids):
+			if ship_id in self.crews:
+				for pilot in self.crews[ship_id]:
+					if pilot not in base_ids:
+						base_ids.append(pilot)
+						pilots.append(pilot)
+
+		# Remove units not requested
+		for player in players:
+			new_roster = []
+			for unit in list(player['roster']):
+				if unit['defId'] not in base_ids:
+					player['roster'].remove(unit)
+
 		return pilots
 
-	# Add pilots of requested ships if missing
-	crews = get_ships_crew()
-	base_ids = [ unit.base_id for unit in units ]
-	for ship_id in list(base_ids):
-		if ship_id in crews:
-			for pilot in crews[ship_id]:
-				if pilot not in base_ids:
-					base_ids.append(pilot)
-					pilots.append(pilot)
+	def remove_pilots(self, players, pilots):
 
-	# Remove units not requested
-	for player in players:
-		new_roster = []
-		for unit in list(player['roster']):
-			if unit['defId'] not in base_ids:
-				player['roster'].remove(unit)
+		# Remove added pilots
+		for player in players:
+			ally_code = player['allyCode']
+			for unit in list(player['roster']):
+				base_id = unit['defId']
+				if base_id in pilots:
+					player['roster'].remove(unit)
 
-	return pilots
+	async def fetch(self, players, units=[]):
 
-def remove_pilots(players, pilots):
+		pilots = self.add_pilots(players, units)
 
-	# Remove added pilots
-	for player in players:
-		ally_code = player['allyCode']
-		for unit in list(player['roster']):
-			base_id = unit['defId']
-			if base_id in pilots:
-				player['roster'].remove(unit)
+		for crinolo_url in self.CRINOLO_URLS:
 
-async def api_crinolo(players, units=[]):
+			url = '%s?flags=gameStyle,calcGP' % crinolo_url
 
-	pilots = add_pilots(players, units)
+			try:
+				players, error = await http_post(url, json=players)
 
-	for crinolo_url in CRINOLO_URLS:
+			except Exception as err:
+				print(err)
+				print(traceback.format_exc())
+				print('ERROR: While posting to URL: %s' % url, file=sys.stderr)
+				continue
 
-		url = '%s?flags=gameStyle,calcGP' % crinolo_url
+			if error:
+				raise Exception('http_post(%s) failed: %s' % (url, error))
 
-		try:
-			players, error = await http_post(url, json=players)
+			if 'error' in players:
+				error = SwgohHelpException()
+				error.title = 'Error from Crinolo API'
+				error.data = players;
+				raise error
 
-		except Exception as err:
-			print(err)
-			print(traceback.format_exc())
-			print('ERROR: While posting to URL: %s' % url, file=sys.stderr)
-			continue
+			self.remove_pilots(players, pilots)
+			return players
 
-		if error:
-			raise Exception('http_post(%s) failed: %s' % (url, error))
-
-		if 'error' in players:
-			error = SwgohHelpException()
-			error.title = 'Error from Crinolo API'
-			error.data = players;
-			raise error
-
-		remove_pilots(players, pilots)
-		return players
-
-	return None
+		return None

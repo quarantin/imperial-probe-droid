@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from constants import MINUTE
 
 import DJANGO
-from swgoh.models import PremiumGuild
+from swgoh.models import BaseUnit, PremiumGuild
 
 from crawlerdiffer import CrawlerDiffer
 
@@ -156,6 +156,9 @@ if __name__ == '__main__':
 		crawler.config = config
 		crawler.redis = config.redis
 		crawler.logger = logger
+
+		from crinolo import CrinoloStats
+		crawler.stats = CrinoloStats(BaseUnit.get_ship_crews())
 
 		from client import SwgohClient
 		crawler.client = SwgohClient(crawler)
