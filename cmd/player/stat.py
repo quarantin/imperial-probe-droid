@@ -66,7 +66,7 @@ def get_player_stats(config, roster, lang):
 	for base_id, unit in roster.items():
 
 		gp     = 'gp' in unit and unit['gp'] or 0
-		typ    = BaseUnit.is_ship(base_id) and 'ship' or 'char'
+		typ    = unit['isShip'] and 'ship' or 'char'
 		level  = unit['level']
 		gear   = unit['gear']
 		stars  = unit['rarity']

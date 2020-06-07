@@ -56,7 +56,7 @@ def get_mod_stats(roster, min_gear_level):
 	import json
 	for base_id, unit in roster.items():
 
-		if unit['combatType'] != 1 or unit['level'] < MIN_LEVEL_FOR_MODS or unit['gear'] < min_gear_level:
+		if unit['isShip'] or unit['level'] < MIN_LEVEL_FOR_MODS or unit['gear'] < min_gear_level:
 			continue
 
 		unit['weak-tier'] = []

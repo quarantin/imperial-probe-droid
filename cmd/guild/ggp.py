@@ -59,7 +59,7 @@ def compute_gp(player):
 
 		total_gp += gp
 
-		if BaseUnit.is_ship(unit['defId']):
+		if unit['isShip']:
 			ship_gp += gp
 
 		else:

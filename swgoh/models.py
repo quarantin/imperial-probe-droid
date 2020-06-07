@@ -10,16 +10,6 @@ from .formats import *
 
 CACHE = {}
 
-ALIGNMENTS = (
-	('ls', 'Light Side'),
-	('ds', 'Dark Side'),
-)
-
-COMBAT_TYPES = (
-	(1, 'Character'),
-	(2, 'Ship'),
-)
-
 MODSETS = (
 	(1, 'Health'),
 	(2, 'Offense'),
@@ -225,26 +215,28 @@ class Gear(models.Model):
 
 class BaseUnit(models.Model):
 
+	ALIGNMENTS = (
+		(1, 'neutral'),
+		(2, 'light'),
+		(3,  'dark'),
+	)
+
+	COMBAT_TYPES = (
+		(1, 'Unit'),
+		(2, 'Ship'),
+	)
+
 	SHIP_SLOTS = (
 		('', None),
-		(0, '0'),
-		(1, '1'),
-		(2, '2'),
+		(0, '1'),
+		(1, '2'),
+		(2, '3'),
 	)
 
 	base_id = models.CharField(max_length=128)
 	name = models.CharField(max_length=128)
-	alignment = models.CharField(max_length=32, choices=ALIGNMENTS)
-	role = models.CharField(max_length=32, choices=ROLES)
-	power = models.IntegerField()
-	combat_type = models.IntegerField(choices=COMBAT_TYPES)
-	description = models.CharField(max_length=255)
-	url = models.CharField(max_length=255)
-	image = models.CharField(max_length=255)
-	activate_shard_count = models.IntegerField()
-	ship = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True)
-	ship_slot = models.CharField(max_length=8, choices=SHIP_SLOTS, null=True)
-	capital_ship = models.BooleanField(default=False)
+	alignment = models.IntegerField(choices=ALIGNMENTS)
+	is_ship = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.name
@@ -274,38 +266,45 @@ class BaseUnit(models.Model):
 
 	@staticmethod
 	def get_alignment(base_id):
-
-		unit = BaseUnit.objects.get(base_id=base_id)
-		align = unit.alignment
-		if align in [ 'ls', 'Light Side' ]:
-			return 'light'
-
-		if align in [ 'ds', 'Dark Side' ]:
-			return 'dark'
-
-		return 'neutral'
-
-	@staticmethod
-	def get_combat_type(base_id):
-		return BaseUnit.is_ship(base_id) and 2 or 1
-
-	@staticmethod
-	def is_ship(base_id):
 		try:
-			ship = BaseUnit.objects.get(base_id=base_id)
-			return ship.combat_type == 2
-		except:
-			return False
+			unit = BaseUnit.objects.get(base_id=base_id)
+			return unit.alignment
+
+		except BaseUnit.DoesNotExist:
+			return BaseUnit.ALIGNMENTS[0][1]
 
 	@staticmethod
-	def get_ship_crew(base_id, ships_crew):
-		return base_id in ships_crew and ships_crew[base_id] or []
+	def get_ship_crews():
 
+		fin = open('cache/unitsList.json', 'r')
+		units = json.loads(fin.read())
+		fin.close()
+
+		crews = {}
+
+		for unit in units:
+
+			if 'crewList' not in unit:
+				continue
+
+			crew = []
+			for member in unit['crewList']:
+				unit_id = member['unitId']
+				unit_slot = member['slot']
+				crew.append((unit_id, unit_slot))
+
+			ship_id = unit['baseId']
+			crews[ship_id] = crew
+
+		return crews
+
+	@staticmethod
 	def get_all_units():
-		return list(BaseUnit.objects.filter(combat_type=1).order_by('name'))
+		return BaseUnit.objects.filter(is_ship=False).order_by('name')
 
+	@staticmethod
 	def get_all_ships():
-		return list(BaseUnit.objects.filter(combat_type=2).order_by('name'))
+		return BaseUnit.objects.filter(is_ship=True).order_by('name')
 
 	def get_all_units_by_id():
 		result = {}
@@ -315,10 +314,7 @@ class BaseUnit(models.Model):
 		return result
 
 	def get_image(self):
-		return 'https://swgoh.gg%s' % self.image
-
-	def get_url(self):
-		return 'https://swgoh.gg%s' % self.url
+		return 'https://swgoh.gg/game-asset/u/%s/' % self.base_id
 
 class BaseUnitFaction(models.Model):
 

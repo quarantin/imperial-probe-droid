@@ -68,7 +68,7 @@ def get_guild_stats(guild, players):
 
 				stats['gp'] += unit['gp']
 
-				if BaseUnit.is_ship(base_id):
+				if unit['isShip']:
 					stats['gpShip'] += unit['gp']
 
 				else:
@@ -81,7 +81,7 @@ def get_guild_stats(guild, players):
 			is_max_level  = (unit['level'] == MAX_LEVEL)
 			is_max_rarity = (unit['rarity'] == MAX_RARITY)
 
-			if not BaseUnit.is_ship(unit['defId']):
+			if not unit['isShip']:
 				stats['s7-units'] += (is_max_rarity and 1 or 0)
 				stats['l85-units'] += (is_max_level and 1 or 0)
 				if unit['gear'] == 13:

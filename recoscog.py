@@ -92,7 +92,7 @@ Show recommended mods for **Darth Revan**:
 				base_id   = ref_unit.base_id
 				unit_name = translate(base_id, language)
 
-				if ref_unit.combat_type != 1:
+				if ref_unit.is_ship:
 					continue
 
 				roster = { x['defId']: x for x in player_data['roster'] }

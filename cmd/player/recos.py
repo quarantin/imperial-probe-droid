@@ -104,7 +104,8 @@ async def cmd_recos(ctx):
 	msgs = []
 	for player in selected_players:
 
-		player_data = players[player.ally_code]
+		ally_code = player.ally_code
+		player_data = players[ally_code]
 		guild_banner = get_banner_emoji(player_data['guildBannerLogo'])
 		discord_id = player.discord_id and '<@%s>' % player.discord_id or player.player_name
 
@@ -116,7 +117,7 @@ async def cmd_recos(ctx):
 			base_id   = ref_unit.base_id
 			unit_name = translate(base_id, language)
 
-			if ref_unit.combat_type != 1:
+			if ref_unit.is_ship:
 				continue
 
 			roster = { x['defId']: x for x in player_data['roster'] }
