@@ -28,6 +28,7 @@ from cmd.player.gac import *
 from cmd.player.gear import *
 from cmd.player.gear13 import *
 from cmd.player.kit import *
+from cmd.player.lastseen import *
 from cmd.player.list import *
 from cmd.player.locked import *
 from cmd.player.modcheck import *
@@ -179,6 +180,13 @@ COMMANDS = [
 		'aliases': [ 'lang', 'language' ],
 		'function': cmd_language,
 		'help': help_language,
+		'need_api': False,
+	},
+	{
+		'command': 'lastseen',
+		'aliases': [ 'last', 'seen', 'lastseen' ],
+		'function': cmd_lastseen,
+		'help': help_lastseen,
 		'need_api': False,
 	},
 	{
