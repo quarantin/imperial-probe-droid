@@ -23,7 +23,7 @@ from . import views
 from .models import TerritoryWarHistory, TerritoryWarSquad
 
 urlpatterns = [
-	path('', views.TerritoryWarHistoryView.as_view()),
+	path('history/', views.TerritoryWarHistoryView.as_view()),
 	path('squad/<str:event_id>', views.TerritoryWarSquadView.as_view()),
 	path('stats/', views.TerritoryWarStatListView.as_view()),
 ]
