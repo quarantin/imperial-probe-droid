@@ -268,7 +268,7 @@ class BaseUnit(models.Model):
 	def get_alignment(base_id):
 		try:
 			unit = BaseUnit.objects.get(base_id=base_id)
-			return unit.alignment
+			return unit.get_alignment_display()
 
 		except BaseUnit.DoesNotExist:
 			return BaseUnit.ALIGNMENTS[0][1]
