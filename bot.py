@@ -272,6 +272,24 @@ class Bot(commands.Bot):
 		except:
 			print('Missing permission to remove reaction: %s' % message)
 
+	async def dm_user(self, discord_id, message):
+
+		user = self.get_user(discord_id)
+		if not user:
+			print('Could not find user with discord ID: %s' % discord_id)
+			return
+
+		try:
+			await user.send(message)
+
+		except:
+			print('Could not send DM to user with discord ID: %s' % discord_id)
+
+	async def dm_users(self, discord_ids, messages):
+
+		for discord_id, message in zip(discord_ids, messages):
+			await self.dm_user(discord_id, message)
+
 	def get_user_info(self, server, ally_code):
 
 		try:
