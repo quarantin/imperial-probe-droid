@@ -37,10 +37,10 @@
 								<th>Banners</th>
 							</tr>
 							</tfoot>
-							<tbody>{% for stat in stats %}
+							<tbody>{% for event in events %}
 								<tr>
-								<td>{{ stat.player_name }}</td>
-								<td>{{ stat.player_banners }}</td>
+								<td>{{ event.player_name }}</td>
+								<td>{{ event.player_banners }}</td>
 							</tr>
 							{% endfor %}
 							</tbody>
