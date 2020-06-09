@@ -24,13 +24,6 @@ def tw2date(tw, dateformat='%Y/%m/%d'):
 
 class TerritoryWarListView(swgoh_views.ListView):
 
-	def convert_date(self, utc_date, timezone):
-
-		local_tz = pytz.timezone(timezone)
-		local_dt = utc_date.astimezone(local_tz)
-
-		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
-
 	def get_context_data(self, request, *args, **kwargs):
 
 		self.object_list = self.get_queryset(*args, **kwargs)
@@ -95,9 +88,11 @@ class TerritoryWarListView(swgoh_views.ListView):
 		kwargs['category'] = category
 		context['category'] = category
 
-		context['stats'] = self.object_list
-		for stat in context['stats']:
-			stat.tw = TerritoryWar.objects.get(id=stat.tw_id)
+		context['events'] = self.object_list
+		for event in context['events']:
+			event.tw = TerritoryWar.objects.get(id=event.tw_id)
+			event.event_type = TerritoryWarHistory.get_activity_by_num(event.event_type)
+			event.timestamp = self.convert_date(event.timestamp, timezone)
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:
@@ -177,31 +172,8 @@ class TerritoryWarHistoryView(TerritoryWarListView):
 	template_name = 'territorywar/territorywarhistory_list.html'
 	queryset = TerritoryWarHistory.objects.all()
 
-	def get_player(self, request):
-
-		user = request.user
-		if not user.is_authenticated:
-			user = User.objects.get(id=2)
-
-		try:
-			return Player.objects.get(user=user)
-
-		except Player.DoesNotExist:
-			return None
-
-	def get_queryset(self, *args, **kwargs):
-		return self.queryset.filter(**kwargs)
-
 class TerritoryWarStatListView(TerritoryWarListView):
 
 	model = TerritoryWarStat
 	template_name = 'territorywar/territorywarstat_list.html'
 	queryset = TerritoryWarStat.objects.all()
-
-	def get_context_data(self, request, *args, **kwargs):
-
-		#self.object_list = self.get_queryset(*args, **kwargs)
-
-		context = super().get_context_data(request, *args, **kwargs)
-
-		return context
