@@ -139,10 +139,7 @@ class TicketsCog(cog.Cog):
 		lines = []
 		messages = []
 		discord_ids = []
-		for player_id, data in sorted(raid_tickets.items(), key=lambda x: x[1][1], reverse=True):
-
-			player_name = data[0]
-			tickets = data[1]
+		for player_id, (player_name, tickets) in sorted(raid_tickets.items(), key=lambda x: x[1][1], reverse=True):
 
 			total += tickets
 
