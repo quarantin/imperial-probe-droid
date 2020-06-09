@@ -11,24 +11,11 @@ from client import SwgohClient
 
 import swgoh.views as swgoh_views
 from swgoh.models import Player
+from swgoh.views import CsvResponse
 from .models import TerritoryBattle, TerritoryBattleHistory, TerritoryBattleStat
 
-import csv
 import pytz
 from datetime import datetime
-
-class CsvResponse(HttpResponse):
-
-	def __init__(self, filename='events.csv', rows=[], *args, **kwargs):
-
-		super().__init__(*args, **kwargs)
-
-		self['Content-Type'] = 'text/csv'
-		self['Content-Disposition'] = 'attachment; filename="%s"' % filename
-
-		writer = csv.writer(self)
-		for row in rows:
-			writer.writerow(row)
 
 class TerritoryBattleListView(swgoh_views.ListView):
 

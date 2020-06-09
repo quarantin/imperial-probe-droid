@@ -13,7 +13,10 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from cairosvg import svg2png
 
-import io, os, requests
+import io
+import os
+import csv
+import requests
 
 from client import SwgohClient
 from .models import Gear, BaseUnit, BaseUnitSkill, Player, PlayerActivity, User
@@ -643,6 +646,19 @@ def avatar(request, base_id):
 	filename, image = get_avatar(request, base_id)
 	return FileResponse(open(filename, 'rb'))
 
+class CsvResponse(HttpResponse):
+
+	def __init__(self, filename='events.csv', rows=[], *args, **kwargs):
+
+		super().__init__(*args, **kwargs)
+
+		self['Content-Type'] = 'text/csv'
+		self['Content-Disposition'] = 'attachment; filename="%s"' % filename
+
+		writer = csv.writer(self)
+		for row in rows:
+			writer.writerow(row)
+
 class ListView(generic_views.ListView):
 
 	def get_player(self, request):
@@ -669,3 +685,17 @@ class ListView(generic_views.ListView):
 
 	def dispatch(self, request, *args, **kwargs):
 		return super().dispatch(request, *args, **kwargs)
+
+class ListViewCsv(generic_views.ListView):
+
+	def get(self, request, *args, **kwargs):
+
+		self.object_list = self.get_queryset(*args, **kwargs)
+
+		rows = []
+		rows.append(self.get_headers())
+
+		for o in self.object_list:
+			rows.append(self.get_object_as_row(o))
+
+		return CsvResponse(rows=rows)
