@@ -41,14 +41,14 @@ class TicketsCog(cog.Cog):
 	def get_raid_tickets_config(self):
 		return PlayerConfig.objects.filter(key=PlayerConfig.CONFIG_NOTIFY_RAID_TICKETS)
 
-	def get_discord_id(self, player_id):
+	def get_discord_mention(self, player_id):
 
 		try:
 			player = Player.objects.get(player_id=player_id)
-			return '<@!%s>' % player.discord_id
+			return player.discord_id, '<@!%s>' % player.discord_id
 
 		except Player.DoesNotExist:
-			return None
+			return None, None
 
 	def store_player_activity(self, player_id, timestamp, raid_tickets, guild_tokens):
 
@@ -63,7 +63,7 @@ class TicketsCog(cog.Cog):
 
 		return PlayerActivity.objects.update_or_create(player=player, timestamp=timestamp, defaults=defaults)
 
-	async def get_guild_activity(self, creds_id=None, notify=False, store=False):
+	async def get_guild_activity(self, creds_id=None, store=False):
 
 		activities = []
 
@@ -83,10 +83,7 @@ class TicketsCog(cog.Cog):
 		for member, profile in zip(guild['roster'], guild['members']):
 
 			player_id = profile['id']
-			discord_id = profile['name']
-
-			if notify is True:
-				discord_id = self.get_discord_id(player_id) or profile['name']
+			player_name = profile['name']
 
 			stat_gt = member['activities'][1] # Guild Tokens stats
 			stat_rt = member['activities'][2] # Raid Tickets stats
@@ -97,14 +94,14 @@ class TicketsCog(cog.Cog):
 			total_guild_tokens += guild_tokens
 			total_raid_tickets += raid_tickets
 
-			guild_activity['guild-tokens'][discord_id] = guild_tokens
-			guild_activity['raid-tickets'][discord_id] = raid_tickets
+			guild_activity['guild-tokens'][player_id] = (player_name, guild_tokens)
+			guild_activity['raid-tickets'][player_id] = (player_name, raid_tickets)
 
 			if store is True:
 				activity_reset = pytz.utc.localize(datetime.fromtimestamp(int(guild['activityReset'])))
 				activity, created = self.store_player_activity(player_id, activity_reset, raid_tickets, guild_tokens)
 				if activity is None:
-					print('ERROR: Could not store player activity for %s (%s, %s)' % (player_id, raid_tickets, guild_tokens))
+					print('ERROR: Could not store player activity for %s - %s (%s, %s)' % (player_id, player_name, raid_tickets, guild_tokens))
 				else:
 					activities.append(activity)
 
@@ -130,7 +127,7 @@ class TicketsCog(cog.Cog):
 
 		creds_id = alert.player.creds_id
 
-		guild_activity = await self.get_guild_activity(creds_id=creds_id, notify=alert.notify, store=alert.store)
+		guild_activity = await self.get_guild_activity(creds_id=creds_id, store=alert.store)
 
 		guild_name = guild_activity['name']
 		guild_banner = guild_activity['banner']
@@ -140,12 +137,28 @@ class TicketsCog(cog.Cog):
 		miss = 0
 		total = 0
 		lines = []
-		for name, tickets in sorted(raid_tickets.items(), key=lambda x: x[1], reverse=True):
+		messages = []
+		discord_ids = []
+		for player_id, data in sorted(raid_tickets.items(), key=lambda x: x[1][1], reverse=True):
+
+			player_name = data[0]
+			tickets = data[1]
+
 			total += tickets
+
 			if tickets < alert.min_tickets:
 				miss += 1
+
+				discord_id, discord_mention = self.get_discord_mention(player_id)
+				if discord_id:
+					messages.append('Please get your raid tickets done: `%d/%d`' % (tickets, self.max_raid_tickets))
+					discord_ids.append(discord_id)
+					player_name = discord_mention
+				else:
+					print('Could not find discord ID for player: %s (%s)' % (player_name, guild_name))
+
 				pad = self.get_lpad_tickets(tickets)
-				lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, alert.min_tickets, name))
+				lines.append('`| %s%d/%d |` **%s**' % (pad, tickets, alert.min_tickets, player_name))
 
 		if not lines:
 			lines.append('Everyone got their raid tickets done (%d/%d)! Congratulations! 🥳' % (alert.min_tickets, self.max_raid_tickets))
@@ -172,6 +185,9 @@ class TicketsCog(cog.Cog):
 
 		channel = self.bot.get_channel(alert.channel_id)
 		await channel.send(embed=embed)
+
+		if alert.notify and discord_ids and messages:
+			await self.bot.dm_users(discord_ids, messages)
 
 	@tasks.loop(minutes=1)
 	async def raid_tickets_notifier(self):
