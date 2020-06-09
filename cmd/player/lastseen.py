@@ -42,7 +42,7 @@ async def cmd_lastseen(ctx):
 	lines = []
 	for player_name, timedelta in sorted(last_seen.items(), key=lambda x: x[1]):
 		timedeltastr = str(timedelta).split('.')[0]
-		lines.append('%s was last seen %s ago.' % (player['name'], timedeltastr))
+		lines.append('__**%s**__ was last seen ***%s*** ago.' % (player['name'], timedeltastr))
 
 	return [{
 			'title': 'Last Seen',
