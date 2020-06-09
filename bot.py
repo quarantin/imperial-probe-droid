@@ -261,18 +261,16 @@ class Bot(commands.Bot):
 		try:
 			await message.add_reaction(emoji)
 
-		except Exception as err:
-			print(err)
-			print(traceback.format_exc())
+		except:
+			print('Missing permission to add reaction: %s' % message)
 
 	async def remove_reaction(self, message, emoji):
 
 		try:
 			await message.remove_reaction(emoji, self.user)
 
-		except Exception as err:
-			print(err)
-			print(traceback.format_exc())
+		except:
+			print('Missing permission to remove reaction: %s' % message)
 
 	def get_user_info(self, server, ally_code):
 
