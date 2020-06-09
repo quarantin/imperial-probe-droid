@@ -1,13 +1,11 @@
-import json
-import pytz
-import traceback
-from datetime import datetime
-
-from django.db import models
+from django.db import models, transaction
 
 from swgoh.models import BaseUnit, Guild
 
 import protos.PlayerRpc_pb2 as PlayerRpc
+
+import pytz
+from datetime import datetime
 
 class TerritoryWar(models.Model):
 
@@ -336,3 +334,47 @@ class TerritoryWarHistory(models.Model):
 
 	class Meta:
 		ordering = ('timestamp',)
+
+class TerritoryWarStat(models.Model):
+
+	categories = (
+		('stars', 'Banners'),
+	)
+
+	tw = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
+	guild = models.ForeignKey(Guild, on_delete=models.CASCADE)
+	category = models.CharField(max_length=32, choices=categories)
+	player_id = models.CharField(max_length=22)
+	player_name = models.CharField(max_length=64)
+	player_banners = models.IntegerField()
+
+	@staticmethod
+	def parse(guild, stats):
+
+		with transaction.atomic():
+
+			tw = TerritoryWar.parse(stats['tw'])
+
+			if 'deployedInfo' not in stats:
+				raise Exception('deployedInfo is missing!')
+
+			category = stats['deployedInfo']['title']
+
+			for stat in stats['deployedInfo']['banners']:
+
+				player_id = stat['playerId']
+
+				try:
+					o = TerritoryWarStat.objects.get(tw=tw, guild=guild, category=category, player_id=player_id)
+
+				except TerritoryWarStat.DoesNotExist:
+
+					o = TerritoryWarStat(tw=tw, guild=guild, category=category, player_id=player_id)
+
+				o.player_name = stat['playerName']
+				o.player_banners = stat['playerBanners']
+
+				o.save()
+
+	class Meta:
+		ordering = [ '-player_banners', 'player_name' ]

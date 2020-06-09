@@ -1,0 +1,40 @@
+{% extends "swgoh/select.html" %}
+{% block refresh %}
+		<script>
+			function refresh() {
+
+				query = {};
+
+				get_selected_value('tw',       query);
+				get_selected_value('category', query);
+
+				tokens = []
+				for (key in query) {
+					tokens.push(key + '=' + query[key]);
+				}
+
+				redirect_params = tokens.join('&');
+				base_url = get_base_url();
+				window.location = base_url + '?' + redirect_params;
+			}
+		</script>
+{% endblock %}
+
+{% block event %}
+				<div>
+					<label for="tw">Select a Territory War Instance</label>
+					<br>
+					<select id="tw" onchange="refresh()">{% if not tws %}
+						<option value="all">--</option>{% endif %}{% for tw_id, tw_name in tws.items %}
+						<option value="{{ tw_id }}"{% if tw_id == tw %} selected{% endif %}>{{ tw_name }}</option>{% endfor %}
+					</select>
+				</div>
+				<div>
+					<label for="category">Select a Category </label>
+					<br>
+					<select id="category" onchange="refresh()">{% for cat_id, cat_name in categories.items %}
+						<option value="{{ cat_id }}"{% if cat_id == category %} selected{% endif %}>{{ cat_name }}</option>{% endfor %}
+					</select>
+
+				</div>
+{% endblock %}

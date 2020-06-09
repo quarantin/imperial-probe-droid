@@ -9,7 +9,8 @@ from collections import OrderedDict
 from client import SwgohClient
 
 from swgoh.models import Player
-from .models import TerritoryWar, TerritoryWarHistory, TerritoryWarSquad, TerritoryWarUnit
+import swgoh.views as swgoh_views
+from .models import TerritoryWar, TerritoryWarHistory, TerritoryWarSquad, TerritoryWarUnit, TerritoryWarStat
 
 import json
 import pytz
@@ -21,61 +22,7 @@ def tw2date(tw, dateformat='%Y/%m/%d'):
 	ts = int(str(tw).split(':')[1][1:]) / 1000
 	return datetime.fromtimestamp(int(ts)).strftime(dateformat)
 
-class TerritoryWarSquadView(DetailView):
-
-	model = TerritoryWarSquad
-	template_name = 'territorywar/territorywarsquad_detail.html'
-
-	def get_object(self, *args, **kwargs):
-
-		if 'event_id' in kwargs:
-
-			try:
-				return TerritoryWarSquad.objects.get(event_id=kwargs['event_id'])
-
-			except:
-				pass
-
-		raise Http404('No such squad')
-
-	def get_context_data(self, **kwargs):
-
-		context = super().get_context_data(**kwargs)
-
-		context['units'] = list(TerritoryWarUnit.objects.filter(squad=self.object))
-		for unit in context['units']:
-			unit.name = translate(unit.base_unit.base_id, language='eng_us')
-
-		return context
-
-	def get(self, request, *args, **kwargs):
-
-		self.object = self.get_object(*args, **kwargs)
-
-		context = self.get_context_data(**kwargs)
-
-		return self.render_to_response(context)
-
-class TerritoryWarHistoryView(ListView):
-
-	model = TerritoryWarHistory
-	template_name = 'territorywar/territorywarhistory_list.html'
-	queryset = TerritoryWarHistory.objects.all()
-
-	def get_player(self, request):
-
-		user = request.user
-		if not user.is_authenticated:
-			user = User.objects.get(id=2)
-
-		try:
-			return Player.objects.get(user=user)
-
-		except Player.DoesNotExist:
-			return None
-
-	def get_queryset(self, *args, **kwargs):
-		return self.queryset.filter(**kwargs)
+class TerritoryWarListView(swgoh_views.ListView):
 
 	def convert_date(self, utc_date, timezone):
 
@@ -84,39 +31,17 @@ class TerritoryWarHistoryView(ListView):
 
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
 
-	def get_context_data(self, *args, **kwargs):
+	def get_context_data(self, request, *args, **kwargs):
 
-		timezone = kwargs.pop('timezone', 'UTC')
+		self.object_list = self.get_queryset(*args, **kwargs)
 
 		context = super().get_context_data(*args, **kwargs)
 
-		queryset = self.get_queryset(**kwargs)
-
-		context['events'] = queryset
-		for event in context['events']:
-			event.tw = TerritoryWar.objects.get(id=event.tw_id)
-			event.event_type = TerritoryWarHistory.get_activity_by_num(event.event_type)
-			event.timestamp = self.convert_date(event.timestamp, timezone)
-			try:
-				target = TerritoryWarSquad.objects.get(event_id=event.id)
-				event.target_id = target.player_id
-				event.target_name = target.player_name
-				event.squad = target
-				event.units = target.get_units_names(language='eng_us')
-				event.preloaded = target.is_preloaded
-			except TerritoryWarSquad.DoesNotExist:
-				pass
-
-		return context
-
-	@csrf_exempt
-	def get(self, request, *args, **kwargs):
-
-		context = {}
-
 		player = self.get_player(request)
-		kwargs['guild_id'] = player.guild.id
-		context['guild_id'] = player.guild.id
+		kwargs['guild'] = player.guild
+		context['guild'] = player.guild
+
+		timezone = kwargs.pop('timezone', 'UTC')
 
 		if 'tw' in request.GET:
 			tw = int(request.GET['tw'])
@@ -160,12 +85,19 @@ class TerritoryWarHistoryView(ListView):
 		self.object_list = self.get_queryset(*args, **kwargs)
 
 		# Has to be called after get_queryset becaue timezone is not a valid field
+		timezone = 'UTC'
 		if 'timezone' in request.GET:
 			timezone = request.GET['timezone']
 			kwargs['timezone'] = timezone
 			context['timezone'] = timezone
 
-		context.update(self.get_context_data(*args, **kwargs))
+		category = request.GET.get('category', 'stars')
+		kwargs['category'] = category
+		context['category'] = category
+
+		context['stats'] = self.object_list
+		for stat in context['stats']:
+			stat.tw = TerritoryWar.objects.get(id=stat.tw_id)
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:
@@ -191,8 +123,85 @@ class TerritoryWarHistoryView(ListView):
 
 		context['territories'] = TerritoryWarHistory.get_territory_list()
 
+		context['categories'] = { x: y for x, y in TerritoryWarStat.categories }
+
 		context['players'] = players
 
 		context['targets'] = players
 
+		return context
+
+	@csrf_exempt
+	def get(self, request, *args, **kwargs):
+		context = self.get_context_data(request, *args, **kwargs)
 		return self.render_to_response(context)
+
+class TerritoryWarSquadView(DetailView):
+
+	model = TerritoryWarSquad
+	template_name = 'territorywar/territorywarsquad_detail.html'
+
+	def get_object(self, *args, **kwargs):
+
+		if 'event_id' in kwargs:
+
+			try:
+				return TerritoryWarSquad.objects.get(event_id=kwargs['event_id'])
+
+			except:
+				pass
+
+		raise Http404('No such squad')
+
+	def get_context_data(self, **kwargs):
+
+		context = super().get_context_data(**kwargs)
+
+		context['units'] = list(TerritoryWarUnit.objects.filter(squad=self.object))
+		for unit in context['units']:
+			unit.name = translate(unit.base_unit.base_id, language='eng_us')
+
+		return context
+
+	def get(self, request, *args, **kwargs):
+
+		self.object = self.get_object(*args, **kwargs)
+
+		context = self.get_context_data(**kwargs)
+
+		return self.render_to_response(context)
+
+class TerritoryWarHistoryView(TerritoryWarListView):
+
+	model = TerritoryWarHistory
+	template_name = 'territorywar/territorywarhistory_list.html'
+	queryset = TerritoryWarHistory.objects.all()
+
+	def get_player(self, request):
+
+		user = request.user
+		if not user.is_authenticated:
+			user = User.objects.get(id=2)
+
+		try:
+			return Player.objects.get(user=user)
+
+		except Player.DoesNotExist:
+			return None
+
+	def get_queryset(self, *args, **kwargs):
+		return self.queryset.filter(**kwargs)
+
+class TerritoryWarStatListView(TerritoryWarListView):
+
+	model = TerritoryWarStat
+	template_name = 'territorywar/territorywarstat_list.html'
+	queryset = TerritoryWarStat.objects.all()
+
+	def get_context_data(self, request, *args, **kwargs):
+
+		#self.object_list = self.get_queryset(*args, **kwargs)
+
+		context = super().get_context_data(request, *args, **kwargs)
+
+		return context
