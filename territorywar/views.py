@@ -10,6 +10,7 @@ from client import SwgohClient
 
 from swgoh.models import Player
 import swgoh.views as swgoh_views
+from swgoh.views import CsvResponse
 from .models import TerritoryWar, TerritoryWarHistory, TerritoryWarSquad, TerritoryWarUnit, TerritoryWarStat
 
 import json
@@ -168,14 +169,36 @@ class TerritoryWarSquadView(DetailView):
 
 		return self.render_to_response(context)
 
-class TerritoryWarHistoryView(TerritoryWarListView):
+class TerritoryWarHistoryListView(TerritoryWarListView):
 
 	model = TerritoryWarHistory
 	template_name = 'territorywar/territorywarhistory_list.html'
 	queryset = TerritoryWarHistory.objects.all()
+
+class TerritoryWarHistoryListViewCsv(swgoh_views.ListViewCsv):
+
+	model = TerritoryWarHistory
+	queryset = TerritoryWarHistory.objects.all()
+
+	def get_headers(self):
+		return [ 'Timestamp', 'Activity', 'Phase', 'Territory', 'Player', 'Score' ]
+
+	def get_object_as_row(self, o):
+		return [ o.timestamp, o.event_type, o.phase, o.territory, o.player_name, o.score ]
 
 class TerritoryWarStatListView(TerritoryWarListView):
 
 	model = TerritoryWarStat
 	template_name = 'territorywar/territorywarstat_list.html'
 	queryset = TerritoryWarStat.objects.all()
+
+class TerritoryWarStatListViewCsv(swgoh_views.ListViewCsv):
+
+	model = TerritoryWarStat
+	queryset = TerritoryWarStat.objects.all()
+
+	def get_headers(self):
+		return [ 'Category', 'Player', 'Banners']
+
+	def get_object_as_row(self, o):
+		return [ o.category, o.player_name, o.player_banners ]
