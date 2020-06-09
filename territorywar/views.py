@@ -91,9 +91,10 @@ class TerritoryWarListView(swgoh_views.ListView):
 		context['events'] = self.object_list
 		for event in context['events']:
 			event.tw = TerritoryWar.objects.get(id=event.tw_id)
-			event.timestamp = self.convert_date(event.timestamp, timezone)
 			if hasattr(event, 'event_type'):
 				event.event_type = TerritoryWarHistory.get_activity_by_num(event.event_type)
+			if hasattr(event, 'timestamp'):
+				event.timestamp = self.convert_date(event.timestamp, timezone)
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:
