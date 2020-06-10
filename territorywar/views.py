@@ -78,7 +78,7 @@ class TerritoryWarListView(swgoh_views.ListView):
 
 		self.object_list = self.get_queryset(*args, **kwargs)
 
-		# Has to be called after get_queryset becaue timezone is not a valid field
+		# Has to be called after get_queryset because timezone is not a valid field
 		timezone = 'UTC'
 		if 'timezone' in request.GET:
 			timezone = request.GET['timezone']
@@ -96,6 +96,15 @@ class TerritoryWarListView(swgoh_views.ListView):
 				event.event_type = TerritoryWarHistory.get_activity_by_num(event.event_type)
 			if hasattr(event, 'timestamp'):
 				event.timestamp = self.convert_date(event.timestamp, timezone)
+			if hasattr(event, 'squad') and event.squad:
+				event.target_id = event.squad.player_id
+				event.target_name = event.squad.player_name
+				event.preloaded = event.squad.is_preloaded
+				event.units = []
+				units = TerritoryWarUnit.objects.filter(squad=event.squad)
+				for unit in units:
+					unit_name = translate(unit.base_unit.base_id, language='eng_us')
+					event.units.append(unit_name)
 
 		# We have to do this after context.update() because it will override territory
 		if 'territory' in request.GET:
