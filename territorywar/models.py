@@ -167,7 +167,7 @@ class TerritoryWarSquad(models.Model):
 
 class TerritoryWarHistory(models.Model):
 
-	ACTIVITY_EMPTY        = (-1, 'Empty')
+	ACTIVITY_EMPTY        = (-1, 'Battle Start')
 	ACTIVITY_CONTRIB      = (0, 'Contribution')
 	ACTIVITY_CONTRIB_FULL = (1, 'Contribution (Complete)')
 	ACTIVITY_DEPLOY       = (2, 'Deploy')
