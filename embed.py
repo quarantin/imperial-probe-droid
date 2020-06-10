@@ -12,6 +12,10 @@ COLORS = {
 	'yellow':     0xb58900,
 }
 
+
+FOOTER = """Please consider signing the petition to have CG unban Ahnaldt101 Kracken account!
+https://www.change.org/p/capital-games-capital-games-unban-ahnaldt101-kracken-account"""
+
 def color(name):
 	color_code = name in COLORS and COLORS[name] or COLORS['red']
 	return discord.Colour(color_code)
@@ -159,6 +163,7 @@ def new_embeds(msg, timestamp=None, add_sep=False, footer=False):
 				embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
 
 		if msg == last_msg:
+			embed.set_footer(text=FOOTER)
 			if footer:
 				embed.timestamp = timestamp
 			if 'image' in msg and 'url' in msg['image']:
@@ -166,8 +171,8 @@ def new_embeds(msg, timestamp=None, add_sep=False, footer=False):
 		else:
 			embed.set_footer(text='')
 
-		if not footer:
-			embed.set_footer(text='')
+		#if not footer:
+		#	embed.set_footer(text='')
 
 		embeds.append(embed)
 
