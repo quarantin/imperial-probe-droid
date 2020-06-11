@@ -45,7 +45,7 @@ class TicketsCog(cog.Cog):
 
 		try:
 			player = Player.objects.get(player_id=player_id)
-			return player.discord_id, '<@!%s>' % player.discord_id
+			return player.discord_id, '<@%s>' % player.discord_id
 
 		except Player.DoesNotExist:
 			return None, None
