@@ -197,7 +197,7 @@ async def cmd_recos(ctx):
 				'image': {
 					'url': get_full_avatar_url(config, ref_unit, unit),
 				},
-				'fields': [ get_field_legend(config) ],
+				'fields': [ get_field_legend(config, meta='Meta Report') ],
 			})
 
 		if not lines:
