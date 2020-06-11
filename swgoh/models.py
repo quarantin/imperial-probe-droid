@@ -41,8 +41,6 @@ class Guild(models.Model):
 class Player(models.Model):
 
 	LANGS = (
-		('chs_cn', 'cs', '', 'Chinese (Simplified)'),
-		('cht_cn', 'ct', '', 'Chinese (Traditional)'),
 		('eng_us', 'us', '', 'English'),
 		('fre_fr', 'fr', '', 'French'),
 		('ger_de', 'de', '', 'German'),
