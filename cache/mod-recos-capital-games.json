@@ -3563,6 +3563,26 @@
 	},
 	{
 		"source": "Capital Games",
+		"base_id": "ARCTROOPER501ST",
+		"set1": "Critical Chance",
+		"set2": "Offense",
+		"set3": "",
+		"square": "Offense",
+		"arrow": "Speed",
+		"diamond": "Defense",
+		"triangle": "Critical Damage",
+		"circle": "Protection",
+		"cross": "Offense",
+		"secondary_stats": [
+			"Speed",
+			"Offense %",
+			"Critical Chance %",
+			"Protection %"
+		],
+		"info": "Best"
+	},
+	{
+		"source": "Capital Games",
 		"base_id": "CARADUNE",
 		"set1": "Health",
 		"set2": "Health",
@@ -3578,6 +3598,46 @@
 			"Protection %",
 			"Speed",
 			"Tenacity"
+		],
+		"info": "Best"
+	},
+	{
+		"source": "Capital Games",
+		"base_id": "GREEFKARGA",
+		"set1": "Health",
+		"set2": "Health",
+		"set3": "Health",
+		"square": "Offense",
+		"arrow": "Speed",
+		"diamond": "Defense",
+		"triangle": "Protection",
+		"circle": "Protection",
+		"cross": "Tenacity",
+		"secondary_stats": [
+			"Health %",
+			"Protection %",
+			"Speed",
+			"Tenacity"
+		],
+		"info": "Best"
+	},
+	{
+		"source": "Capital Games",
+		"base_id": "THEMANDALORIAN",
+		"set1": "Speed",
+		"set2": "Health",
+		"set3": "",
+		"square": "Offense",
+		"arrow": "Speed",
+		"diamond": "Defense",
+		"triangle": "Protection",
+		"circle": "Protection",
+		"cross": "Protection",
+		"secondary_stats": [
+			"Speed",
+			"Critical Chance %",
+			"Protection %",
+			"Health %"
 		],
 		"info": "Best"
 	}
