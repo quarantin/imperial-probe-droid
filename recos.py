@@ -185,20 +185,26 @@ async def fetch_crouching_rancor_recos(recos=[]):
 	db['cr-expire'] = datetime.now() + timeout
 	return recos
 
-async def fetch_swgohgg_meta_recos(recos=[], rank=1):
+categories = (
+	('rank_1',          'Arena Top 1'),
+	('rank_10',         'Arena Top 10'),
+	('rank_100',        'Arena Top 100'),
+	('guilds_100_raid', 'Top 100 Guilds (Raid)'),
+	('guilds_100_gp',   'Top 100 Guilds (GP)'),
+	('all',             'All'),
+)
 
-	if rank not in [ 1, 10, 100 ]:
-		rank = 1
+async def fetch_swgohgg_meta_recos(cat_id, cat_name, recos=[]):
 
-	key = 'gg-%d' % rank
-	expire = 'gg-expire-%d'
+	key = 'gg-%s' % cat_id
+	expire = 'gg-expire-%s' % cat_id
 
 	if key in db and expire in db and not expired(db[expire]):
 		return db[key]
 
 	units = BaseUnit.objects.all().values('name', 'base_id')
 	char_list = { x['name']: { 'base_id': x['base_id'] } for x in units }
-	url = 'https://swgoh.gg/mod-meta-report/rank_%d/' % rank
+	url = 'https://swgoh.gg/stats/mod-meta-report/%s/' % cat_id
 	response, error = await http_get(url)
 	if error:
 		raise Exception('http_get(%s) failed: %s' % (url, error))
@@ -235,7 +241,7 @@ async def fetch_swgohgg_meta_recos(recos=[], rank=1):
 				for _ci in prim_ci:
 					for _cr in prim_cr:
 						recos.append({
-							'source': 'swgoh.gg',
+							'source': 'swgoh.gg/%s' % cat_id,
 							'base_id': base_id,
 							'set1': modsets[0],
 							'set2': modsets[1],
@@ -246,7 +252,7 @@ async def fetch_swgohgg_meta_recos(recos=[], rank=1):
 							'triangle': _tr.strip(),
 							'circle': _ci.strip(),
 							'cross': _cr.strip(),
-							'info': 'Meta Report',
+							'info': cat_name,
 						})
 
 	db[key] = recos
@@ -276,18 +282,15 @@ def fetch_capital_games_recos(recos=[]):
 
 async def fetch_all_recos(index='base_id', index2=None):
 
-	recos_cg = fetch_capital_games_recos()
-	recos_cr = await fetch_crouching_rancor_recos()
-	recos_gg = await fetch_swgohgg_meta_recos()
+	recos = []
 
-	#result = get_dict_by_index(recos_cg + recos_cr + recos_gg, index)
+	fetch_capital_games_recos(recos=recos)
+	await fetch_crouching_rancor_recos(recos=recos)
 
-	#if index2 is not None:
-	#	for key in list(result):
-	#		result[key] = get_dict_by_index(result[key], index2)
-	#
-	#return result
-	return recos_cg + recos_cr + recos_gg
+	for cat_id, cat_name in categories:
+		await fetch_swgohgg_meta_recos(cat_id, cat_name, recos=recos)
+
+	return recos
 
 async def __main__():
 	test = await fetch_all_recos(index='name', index2=None)
