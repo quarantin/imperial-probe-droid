@@ -46,6 +46,16 @@ class BotErrors:
 			'description': 'No player selected. Please type `%shelp ban` to get help.' % self.bot.get_bot_prefix(ctx),
 		}]
 
+	def invalid_ally_codes(self, ally_codes):
+		ally_codes = [ str(x) for x in ally_codes ]
+		plural = len(ally_codes) > 1 and 's' or ''
+		be = len(ally_codes) > 1 and 'are' or 'is'
+		return [{
+			'title': 'Error: Invalid Ally Code%s' % plural,
+			'color': 'red',
+			'description': 'The following ally code%s %s invalid:\n%s' % (plural, be, '\n'.join(ally_codes)),
+		}]
+
 	def ally_codes_not_registered(self, ctx, discord_ids):
 		plural = len(discord_ids) > 1 and 's' or ''
 		discord_mentions = [ '<@%s>' % x for x in discord_ids ]
