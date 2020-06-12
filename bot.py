@@ -5,8 +5,6 @@ import traceback
 import discord
 from discord.ext import commands
 
-from embed import *
-
 import DJANGO
 from swgoh.models import DiscordServer, Player
 
@@ -114,7 +112,7 @@ class Bot(commands.Bot):
 	async def send_embed(self, ctx, embed_dicts):
 
 		for embed_dict in embed_dicts:
-			embeds = new_embeds(embed_dict)
+			embeds = self.embed.create(embed_dict)
 			for embed in embeds:
 				await self.sendmsg(ctx, message=None, embed=embed)
 

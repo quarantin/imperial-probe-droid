@@ -12,7 +12,6 @@ from discord.ext import commands
 
 import cog
 import libswgoh
-from embed import new_embeds
 from utils import translate, translate_multi
 
 import DJANGO

@@ -18,7 +18,6 @@ from discord.ext import commands
 import bot
 from config import load_config, load_help, setup_logs
 from utils import *
-from embed import *
 from commands import *
 from constants import EMOJI_HOURGLASS, EMOJI_THUMBSUP
 
@@ -350,7 +349,7 @@ class ImperialProbeDroid(bot.Bot):
 		if Player.is_banned(author):
 			msgs = self.errors.user_banned(request)
 			for msg in msgs:
-				await send_embed(self, channel, msg)
+				await self.embed.send(channel, msg)
 
 			return
 
@@ -374,14 +373,14 @@ class ImperialProbeDroid(bot.Bot):
 						await self.add_reaction(message, EMOJI_THUMBSUP)
 
 					for msg in msgs:
-						await send_embed(self, channel, msg)
+						await self.embed.send(channel, msg)
 
 					break
 
 			else:
 				if 'reply-unknown' in config and config['reply-unknown'] is True:
 
-					await send_embed(self, channel, {
+					await self.embed.send(channel, {
 						'title': 'Error: Unknown Command',
 						'color': 'red',
 						'description': 'No such command: `%s`.\nPlease type `%shelp` to get information about available commands.' % (command, config['prefix']),
@@ -399,7 +398,7 @@ class ImperialProbeDroid(bot.Bot):
 				if not status:
 					self.logger.error('Could not print to channel %s: %s (4)' % (channel, error))
 
-			await send_embed(self, channel, {
+			await self.embed.send(channel, {
 				'title': 'Unexpected Error',
 				'color': 'red',
 				'description': str(err),
@@ -418,6 +417,9 @@ async def __main__():
 		bot.config = config
 		bot.logger = ipd_logger
 		bot.redis = config.redis
+
+		from embed import EmbedManager
+		bot.embed = EmbedManager(bot)
 
 		from crinolo import CrinoloStats
 		bot.stats = CrinoloStats(BaseUnit.get_ship_crews())

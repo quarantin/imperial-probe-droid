@@ -10,13 +10,15 @@ from discord.ext import commands
 
 import cog
 import libswgoh
-from embed import new_embeds
 from utils import translate, translate_multi
 
 import DJANGO
 from swgoh.models import Player
 
 class TWCog(cog.Cog):
+
+	def __init__(self, bot):
+		self.bot = bot
 
 	def get_squad_orders(self):
 		fin = open('squad-orders.json', 'r')
@@ -96,7 +98,7 @@ class TWCog(cog.Cog):
 			'fields': fields,
 		}
 
-		embeds = new_embeds(msg)
+		embeds = self.bot.embed.create(msg)
 		for embed in embeds:
 			await ctx.send(embed=embed)
 

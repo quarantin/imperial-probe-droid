@@ -211,6 +211,9 @@ if __name__ == '__main__':
 		tracker.logger_unreg = unreged_logger
 		tracker.redis = config.redis
 
+		from embed import EmbedManager
+		tracker.embed = EmbedManager(tracker)
+
 		from boterrors import BotErrors
 		tracker.errors = BotErrors(tracker)
 

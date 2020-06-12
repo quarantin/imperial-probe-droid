@@ -176,12 +176,18 @@ class TicketsCog(cog.Cog):
 		description = '\n'.join(lines)
 		icon_url = 'https://swgoh.gg/static/img/assets/tex.%s.png' % guild_banner
 
-		embed = Embed(title='', description=description)
-		embed.set_author(name=guild_name, icon_url=icon_url)
-		embed.set_thumbnail(url=icon_url)
-
 		channel = self.bot.get_channel(alert.channel_id)
-		await channel.send(embed=embed)
+		await self.bot.embed.send(channel, {
+			'title': '',
+			'description': description,
+			'author': {
+				'name': guild_name,
+				'icon_url': icon_url,
+			},
+			'thumbnail': {
+				'url': icon_url,
+			},
+		})
 
 		if alert.notify and discord_ids and messages:
 			await self.bot.dm_users(discord_ids, messages)

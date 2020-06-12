@@ -1,189 +1,198 @@
 import json
 import discord
 
-COLORS = {
-	'blue':       0x268bd2,
-	'cyan':       0x2aa198,
-	'dark-gray':  0x586e75,
-	'green':      0x859900,
-	'light-gray': 0x839496,
-	'orange':     0xcb4b16,
-	'red':        0xdc322f,
-	'yellow':     0xb58900,
-}
+class EmbedManager:
+
+	COLORS = {
+		'blue':       0x268bd2,
+		'cyan':       0x2aa198,
+		'dark-gray':  0x586e75,
+		'green':      0x859900,
+		'light-gray': 0x839496,
+		'orange':     0xcb4b16,
+		'red':        0xdc322f,
+		'yellow':     0xb58900,
+	}
 
 
-FOOTER = """Please consider signing the petition to have CG unban Ahnaldt101 Kracken account!
+	FOOTER = """Please consider signing the petition to have CG unban Ahnaldt101 Kracken account!
 https://www.change.org/p/capital-games-capital-games-unban-ahnaldt101-kracken-account"""
 
-def color(name):
-	color_code = name in COLORS and COLORS[name] or COLORS['red']
-	return discord.Colour(color_code)
+	def __init__(self, bot):
+		self.bot = bot
 
-def is_preformated(message):
-	return message['description'].startswith('```') and message['description'].endswith('```')
+	def color(self, name):
+		color_code = name in self.COLORS and self.COLORS[name] or self.COLORS['red']
+		return discord.Colour(color_code)
 
-def split_message(message, preformated):
+	def is_preformated(self, message):
+		return message['description'].startswith('```') and message['description'].endswith('```')
 
-	title     = message.pop('title', False)
-	author    = message.pop('author', False)
-	fields    = message.pop('fields', False)
-	timestamp = message.pop('timestamp', False)
-	desc      = message.pop('description', False)
+	def split_message(self, message, preformated):
 
-	message['title'] = ''
-	message['description'] = ''
+		title     = message.pop('title', False)
+		author    = message.pop('author', False)
+		fields    = message.pop('fields', False)
+		thumbnail = message.pop('thumbnail', False)
+		timestamp = message.pop('timestamp', False)
+		desc      = message.pop('description', False)
 
-	count, rest = divmod(len(desc), 2048)
-	if count == 0 or rest > 0:
-		count += 1
+		message['title'] = ''
+		message['description'] = ''
 
-	msgs = [ dict(message) for i in range(0, count) ]
+		count, rest = divmod(len(desc), 2048)
+		if count == 0 or rest > 0:
+			count += 1
 
-	index = 0
-	new_desc = ''
-	for line in desc.split('\n'):
+		msgs = [ dict(message) for i in range(0, count) ]
 
-		if index >= count:
-			break
+		index = 0
+		new_desc = ''
+		for line in desc.split('\n'):
 
-		if len(new_desc) + len(line) + 1 > 2048 - 6 and preformated is True:
-			msgs[index]['description'] = '```%s```' % new_desc
-			new_desc = ''
-			index += 1
+			if index >= count:
+				break
 
-		elif len(new_desc) + len(line) + 1 > 2048:
-			msgs[index]['description'] = new_desc
-			new_desc = ''
-			index += 1
+			if len(new_desc) + len(line) + 1 > 2048 - 6 and preformated is True:
+				msgs[index]['description'] = '```%s```' % new_desc
+				new_desc = ''
+				index += 1
 
-		new_desc += line + '\n'
+			elif len(new_desc) + len(line) + 1 > 2048:
+				msgs[index]['description'] = new_desc
+				new_desc = ''
+				index += 1
 
-	else:
-		if preformated is True:
-			msgs[ len(msgs) - 1 ]['description'] = '```%s```' % new_desc
+			new_desc += line + '\n'
+
 		else:
-			msgs[ len(msgs) - 1 ]['description'] = new_desc
-
-	if title:
-		msgs[0]['title'] = title
-
-	if author:
-		msgs[0]['author'] = author
-
-	if fields:
-
-		last_message = msgs[ len(msgs) - 1 ]
-		last_message['fields'] = []
-		total_length = len(json.dumps(last_message))
-		for field in fields:
-			field_length = len(json.dumps(field))
-			if total_length + field_length < 6000:
-				last_message['fields'].append(field)
+			if preformated is True:
+				msgs[ len(msgs) - 1 ]['description'] = '```%s```' % new_desc
 			else:
-				last_message = dict(message)
-				last_message['fields'] = [ field ]
-				msgs.append(last_message)
+				msgs[ len(msgs) - 1 ]['description'] = new_desc
 
+		if title:
+			msgs[0]['title'] = title
+
+		if author:
+			msgs[0]['author'] = author
+
+		if thumbnail:
+			msgs[0]['thumbnail'] = thumbnail
+
+		if fields:
+
+			last_message = msgs[ len(msgs) - 1 ]
+			last_message['fields'] = []
 			total_length = len(json.dumps(last_message))
+			for field in fields:
+				field_length = len(json.dumps(field))
+				if total_length + field_length < 6000:
+					last_message['fields'].append(field)
+				else:
+					last_message = dict(message)
+					last_message['fields'] = [ field ]
+					msgs.append(last_message)
 
-	return msgs
+				total_length = len(json.dumps(last_message))
 
-def new_embeds(msg, timestamp=None, add_sep=False, footer=False):
+		return msgs
 
-	from config import load_config
-	config = load_config()
+	def create(self, msg, timestamp=None, add_sep=False, footer=False):
 
-	if timestamp is None:
-		from utils import local_time
-		timestamp = local_time()
-		if 'timezone' in config and config['timezone']:
-			timestamp = local_time(timezone=config['timezone'])
+		from config import load_config
+		config = load_config()
 
-	if 'color' not in msg:
-		msg['color'] = 'blue'
+		if timestamp is None:
+			from utils import local_time
+			timestamp = local_time()
+			if 'timezone' in config and config['timezone']:
+				timestamp = local_time(timezone=config['timezone'])
 
-	if 'title' not in msg:
-		msg['title'] = ''
+		if 'color' not in msg:
+			msg['color'] = 'blue'
 
-	if 'description' not in msg:
-		msg['description'] = ''
+		if 'title' not in msg:
+			msg['title'] = ''
 
-	preformated = is_preformated(msg)
+		if 'description' not in msg:
+			msg['description'] = ''
 
-	if 'no-sep' in msg and msg['no-sep'] is True:
-		add_sep = False
+		preformated = self.is_preformated(msg)
 
-	if msg['description']:
-		sep = add_sep and '\n%s' % config['separator'] or ''
-		msg['description'] = '%s%s' % (msg['description'], sep)
+		if 'no-sep' in msg and msg['no-sep'] is True:
+			add_sep = False
 
-	if preformated is True:
-		msg['description'] = msg['description'].replace('```', '').replace('`', '')
+		if msg['description']:
+			sep = add_sep and '\n%s' % config['separator'] or ''
+			msg['description'] = '%s%s' % (msg['description'], sep)
 
-	embeds = []
+		if preformated is True:
+			msg['description'] = msg['description'].replace('```', '').replace('`', '')
 
-	msgs = split_message(msg, preformated)
+		embeds = []
 
-	i = 1
-	last_msg = msgs[-1]
-	for msg in msgs:
+		msgs = self.split_message(msg, preformated)
 
-		msg_title = msg['title'] #msg_title = '%s (%d/%d)' % (msg['title'], i, len(msgs))
-		#if len(msgs) == 1:
-		#	msg_title = msg['title']
+		i = 1
+		last_msg = msgs[-1]
+		for msg in msgs:
 
-		embed = discord.Embed(title=msg_title, colour=color(msg['color']), description=msg['description'])
+			msg_title = msg['title'] #msg_title = '%s (%d/%d)' % (msg['title'], i, len(msgs))
+			#if len(msgs) == 1:
+			#	msg_title = msg['title']
 
-		if 'author' in msg:
+			embed = discord.Embed(title=msg_title, colour=self.color(msg['color']), description=msg['description'])
 
-			if 'name' not in msg['author']:
-				msg['author']['name'] = ''
+			if 'author' in msg:
 
-			if 'icon_url' not in msg['author']:
-				msg['author']['icon_url'] = ''
+				if 'name' not in msg['author']:
+					msg['author']['name'] = ''
 
-			embed.set_author(name=msg['author']['name'], icon_url=msg['author']['icon_url'])
+				if 'icon_url' not in msg['author']:
+					msg['author']['icon_url'] = ''
 
-		if 'thumbnail' in msg and 'url' in msg['thumbnail']:
-			embed.set_thumbnail(url=msg['thumbnail']['url'])
+				embed.set_author(name=msg['author']['name'], icon_url=msg['author']['icon_url'])
 
-		if 'fields' in msg:
-			for field in msg['fields']:
+			if 'thumbnail' in msg and 'url' in msg['thumbnail']:
+				embed.set_thumbnail(url=msg['thumbnail']['url'])
 
-				if 'name' not in field:
-					field['name'] = ''
+			if 'fields' in msg:
+				for field in msg['fields']:
 
-				if 'value' not in field:
-					field['value'] = ''
+					if 'name' not in field:
+						field['name'] = ''
 
-				if 'inline' not in field:
-					field['inline'] = False
+					if 'value' not in field:
+						field['value'] = ''
 
-				embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
+					if 'inline' not in field:
+						field['inline'] = False
 
-		if msg == last_msg:
-			embed.set_footer(text=FOOTER)
-			if footer:
-				embed.timestamp = timestamp
-			if 'image' in msg and 'url' in msg['image']:
-				embed.set_image(url=msg['image']['url'])
-		else:
-			embed.set_footer(text='')
+					embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
 
-		#if not footer:
-		#	embed.set_footer(text='')
+			if msg == last_msg:
+				embed.set_footer(text=self.FOOTER)
+				if footer:
+					embed.timestamp = timestamp
+				if 'image' in msg and 'url' in msg['image']:
+					embed.set_image(url=msg['image']['url'])
+			else:
+				embed.set_footer(text='')
 
-		embeds.append(embed)
+			#if not footer:
+			#	embed.set_footer(text='')
 
-		i += 1
+			embeds.append(embed)
 
-	return embeds
+			i += 1
 
-async def send_embed(bot, channel, message):
+		return embeds
 
-	embeds = new_embeds(message)
-	for embed in embeds:
-		status, error = await bot.sendmsg(channel, message='', embed=embed)
-		if not status:
-			bot.logger.error('Could not send to channel %s: %s' % (channel, error))
+	async def send(self, channel, message):
+
+		embeds = self.create(message)
+		for embed in embeds:
+			status, error = await self.bot.sendmsg(channel, message='', embed=embed)
+			if not status:
+				self.bot.logger.error('Could not send to channel %s: %s' % (channel, error))

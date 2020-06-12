@@ -7,8 +7,6 @@ import asyncio
 import discord
 import traceback
 
-from embed import new_embeds
-
 import DJANGO
 from swgoh.models import PremiumGuild
 
@@ -254,7 +252,7 @@ class TrackerThread(asyncio.Future):
 							await webhook.send(content=content, avatar_url=webhook.avatar_url)
 
 						elif type(content) is dict:
-							embeds = new_embeds(content, add_sep=False, footer=False)
+							embeds = self.embed.create(content, add_sep=False, footer=False)
 							for embed in embeds:
 								last_embed = embed
 								content = 'mention' in message and message['mention'].startswith('<@') and message['mention'] or ''

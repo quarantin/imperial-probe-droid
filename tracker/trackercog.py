@@ -6,7 +6,6 @@ from discord.ext import commands
 
 from utils import is_numeric
 from constants import EMOJIS
-from embed import new_embeds, send_embed
 
 import DJANGO
 from swgoh.models import Player, PremiumGuild, PremiumGuildConfig
@@ -560,7 +559,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 				await ctx.send(msg)
 			elif type(msg) is dict:
 				content = 'mention' in msgdict and msgdict['mention'].startswith('<@') and msgdict['mention'] or ''
-				embeds = new_embeds(msg, add_sep=False, footer=False)
+				embeds = self.bot.create(msg, add_sep=False, footer=False)
 				for embed in embeds:
 					try:
 						await ctx.send(content=content, embed=embed)
