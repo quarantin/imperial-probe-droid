@@ -147,6 +147,7 @@ async def cmd_guild_compare(ctx):
 	args = ctx.args
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	excluded_ally_codes = bot.options.parse_ally_codes_excluded(args)

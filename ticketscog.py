@@ -246,7 +246,8 @@ class TicketsCog(cog.Cog):
 		if min_tickets > self.max_raid_tickets:
 			min_tickets = self.max_raid_tickets
 
-		player = self.options.parse_premium_user(ctx.author)
+		ctx.alt = self.options.parse_alt(args)
+		player = self.options.parse_premium_user(ctx)
 		if not player:
 			print('No premium user found')
 			return self.errors.not_premium()

@@ -24,10 +24,10 @@ class TrackerCog(commands.Cog):
 		self.logger = bot.logger
 		self.redis = bot.redis
 
-	def get_allycode_by_discord_id(self, discord_id):
+	def get_allycode_by_discord_id(self, discord_id, alt='main'):
 
 		try:
-			player = Player.objects.get(discord_id=discord_id)
+			player = Player.objects.get(discord_id=discord_id, alt=alt)
 			return player.ally_code
 
 		except Player.DoesNotExist:
@@ -35,10 +35,10 @@ class TrackerCog(commands.Cog):
 
 		return None
 
-	def get_guild(self, author):
+	def get_guild(self, author, alt='main'):
 
 		try:
-			player = Player.objects.get(discord_id=author.id)
+			player = Player.objects.get(discord_id=author.id, alt=alt)
 
 		except Player.DoesNotExist:
 			self.logger.warning('TrackerCog.get_guild(%s): No player found' % author.id)
@@ -487,7 +487,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 				display_value = '<@!%s>' % discord_id
 
 		try:
-			player = Player.objects.get(discord_id=discord_id)
+			player = Player.objects.get(discord_id=discord_id, alt='main')
 
 		except Player.DoesNotExist:
 			message = 'Error: I don\'t know any allycode registered to <@!%s>' % ctx.author.id

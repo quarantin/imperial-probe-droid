@@ -69,6 +69,7 @@ async def cmd_arena(ctx):
 	args = ctx.args
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	selected_opts = bot.options.parse_arena(args)
 
 	selected_players, error = bot.options.parse_players(ctx, args)

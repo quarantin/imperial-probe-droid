@@ -81,6 +81,7 @@ async def cmd_kit(ctx):
 	author = ctx.author
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	selected_skill_types = bot.options.parse_skill_types(args)

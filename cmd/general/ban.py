@@ -37,6 +37,7 @@ def do_ban(ctx, banned):
 	if 'admins' not in config or author.id not in config['admins']:
 		return bot.errors.permission_denied()
 
+	ctx.alt = bot.options.parse_alt(args)
 	selected_players, error = bot.options.parse_players(ctx, args, exclude_author=True)
 
 	if error:

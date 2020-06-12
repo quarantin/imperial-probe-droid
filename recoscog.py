@@ -48,6 +48,7 @@ Show recommended mods for **Darth Revan**:
 		emoji_cr = EMOJIS['crouchingrancor']
 		emoji_gg = EMOJIS['swgoh.gg']
 
+		ctx.alt = self.options.parse_alt(args)
 		language = self.options.parse_lang(ctx, args)
 
 		selected_players, error = self.options.parse_players(ctx, args)

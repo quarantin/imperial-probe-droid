@@ -46,7 +46,7 @@ async def cmd_gregister(ctx):
 	min_fuzz_ratio = 90
 
 	auto = bot.options.parse_auto(args)
-
+	ctx.alt = bot.options.parse_alt(args)
 	selected_players, error = bot.options.parse_players(ctx, args)
 
 	if error:

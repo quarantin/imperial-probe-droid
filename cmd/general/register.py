@@ -35,6 +35,7 @@ def cmd_me(ctx):
 	author = ctx.author
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	selected_players, error = bot.options.parse_players(ctx, args)
 	if error:
 		return error
@@ -76,6 +77,7 @@ async def fill_user_info(config, player):
 
 async def register_users(ctx, discord_ids, ally_codes):
 
+	alt = ctx.alt
 	bot = ctx.bot
 	args = ctx.args
 	author = ctx.author
@@ -88,6 +90,9 @@ async def register_users(ctx, discord_ids, ally_codes):
 	language = Player.get_language_info(lang)
 
 	players = await bot.client.players(ally_codes=ally_codes)
+	if not players:
+		return bot.errors.invalid_ally_codes(ally_codes)
+
 	players = { x['allyCode']: x for x in players }
 
 	lines = []
@@ -95,7 +100,7 @@ async def register_users(ctx, discord_ids, ally_codes):
 
 		jplayer = players[ally_code]
 
-		db_player, created = Player.objects.get_or_create(discord_id=discord_id)
+		db_player, created = Player.objects.get_or_create(discord_id=discord_id, alt=alt)
 
 		author_str = 'Ally code of **<@%s>**' % discord_id
 		ally_code_str = Player.format_ally_code(ally_code)
@@ -142,6 +147,7 @@ async def cmd_register(ctx):
 	author = ctx.author
 	config =  ctx.config
 
+	alt = ctx.alt = bot.options.parse_alt(args)
 	lang = bot.options.parse_lang(ctx, args)
 	language = Player.get_language_info(lang)
 
@@ -150,7 +156,7 @@ async def cmd_register(ctx):
 
 	if not ally_codes and len(discord_ids) < 2:
 		try:
-			p = Player.objects.get(discord_id=author.id)
+			p = Player.objects.get(discord_id=author.id, alt=alt)
 			if p.ally_code not in ally_codes:
 				ally_codes.append(p.ally_code)
 

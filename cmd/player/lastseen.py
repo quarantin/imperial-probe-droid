@@ -20,6 +20,7 @@ async def cmd_lastseen(ctx):
 	args = ctx.args
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	selected_players, error = bot.options.parse_players(ctx, args)
 
 	ally_codes = [ player.ally_code for player in selected_players ]

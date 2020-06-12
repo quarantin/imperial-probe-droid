@@ -78,6 +78,7 @@ def get_payout_times(shard):
 
 def get_shard(ctx):
 
+	alt = ctx.alt
 	author = ctx.author
 	channel = ctx.channel
 	config = ctx.config
@@ -92,7 +93,7 @@ def get_shard(ctx):
 		pass
 
 	try:
-		player = Player.objects.get(discord_id=author.id)
+		player = Player.objects.get(discord_id=author.id, alt=alt)
 		members = ShardMember.objects.filter(ally_code=player.ally_code)
 		shards = []
 		for member in members:
@@ -257,6 +258,7 @@ def handle_payout_del(ctx):
 async def handle_payout_rank(ctx):
 
 	bot = ctx.bot
+	alt = ctx.alt
 	args = ctx.args
 	author = ctx.author
 	config = ctx.config
@@ -265,7 +267,7 @@ async def handle_payout_rank(ctx):
 		return bot.errors.unknown_parameters(args)
 
 	try:
-		player = Player.objects.get(discord_id=author.id)
+		player = Player.objects.get(discord_id=author.id, alt=alt)
 		tzinfo = player.timezone
 
 	except Player.DoesNotExist:
@@ -323,6 +325,7 @@ async def handle_payout_rank(ctx):
 async def handle_payout_stats(ctx):
 
 	bot = ctx.bot
+	alt = ctx.alt
 	args = ctx.args
 	author = ctx.author
 	channel = ctx.channel
@@ -333,7 +336,7 @@ async def handle_payout_stats(ctx):
 		return bot.errors.unknown_parameters(args)
 
 	try:
-		player = Player.objects.get(discord_id=author.id)
+		player = Player.objects.get(discord_id=author.id, alt=alt)
 		tzinfo = player.timezone
 
 	except Player.DoesNotExist:
@@ -471,6 +474,7 @@ def handle_payout_export(ctx):
 def handle_payout_time(ctx):
 
 	bot = ctx.bot
+	alt = ctx.alt
 	args = ctx.args
 	author = ctx.author
 	channel = ctx.channel
@@ -483,7 +487,7 @@ def handle_payout_time(ctx):
 		return bot.errors.no_shard_found(ctx)
 
 	try:
-		player = Player.objects.get(discord_id=author.id)
+		player = Player.objects.get(discord_id=author.id, alt=alt)
 		tzname = player.timezone
 
 	except Player.DoesNotExist:
@@ -519,6 +523,7 @@ def handle_payout_time(ctx):
 def handle_payout_tag(ctx):
 
 	bot = ctx.bot
+	alt = ctx.alt
 	args = ctx.args
 	author = ctx.author
 	channel = ctx.channel
@@ -531,7 +536,7 @@ def handle_payout_tag(ctx):
 		return bot.errors.no_shard_found(ctx)
 
 	try:
-		player = Player.objects.get(discord_id=author.id)
+		player = Player.objects.get(discord_id=author.id, alt=alt)
 		tzname = player.timezone
 
 	except Player.DoesNotExist:
@@ -641,6 +646,7 @@ async def cmd_payout(ctx):
 	bot = ctx.bot
 	args = ctx.args
 
+	ctx.alt = bot.options.parse_alt(args)
 	subcommand = parse_opts_payout_subcommands(args)
 	if not subcommand:
 		subcommand = 'stats'

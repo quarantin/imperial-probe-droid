@@ -40,6 +40,7 @@ async def cmd_gear13(ctx):
 	author = ctx.author
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	limit_per_user = bot.options.parse_limit(args)

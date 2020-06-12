@@ -34,6 +34,7 @@ async def cmd_relic(ctx):
 
 	per_user_limit = 25
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	relic_tier = bot.options.parse_relic_tier(args)

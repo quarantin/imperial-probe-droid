@@ -77,6 +77,7 @@ async def cmd_gac(ctx):
 	args = ctx.args
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	lang = bot.options.parse_lang(ctx, args)
 
 	selected_players, error = bot.options.parse_players(ctx, args)

@@ -20,6 +20,7 @@ Configure your default language to French:
 
 def get_available_languages(ctx):
 
+	alt = ctx.alt
 	author = ctx.author
 	config = ctx.config
 
@@ -27,7 +28,7 @@ def get_available_languages(ctx):
 	langs.insert(0, 'Here is the list of supported languages:')
 
 	try:
-		player = Player.objects.get(discord_id=author.id)
+		player = Player.objects.get(discord_id=author.id, alt=alt)
 		language = Player.get_language_info(player.language)
 		langs.insert(0, 'Your current language is **%s** %s' % (language[3], language[2]))
 		langs.insert(1, config['separator'])
@@ -45,6 +46,7 @@ def cmd_language(ctx):
 	bot = ctx.bot
 	args = ctx.args
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_language(args)
 
 	players, error = bot.options.parse_players(ctx, args, max_allies=1)

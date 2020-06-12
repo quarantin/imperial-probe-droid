@@ -72,6 +72,7 @@ async def cmd_recos(ctx):
 	author = ctx.author
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	selected_players, error = bot.options.parse_players(ctx, args)

@@ -22,6 +22,7 @@ def cmd_list(ctx):
 	args = ctx.args
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	selected_units = bot.options.parse_unit_names(args)

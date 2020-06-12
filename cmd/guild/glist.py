@@ -56,6 +56,7 @@ async def cmd_guild_list(ctx):
 	author = ctx.author
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	selected_char_filters = bot.options.parse_char_filters(args)

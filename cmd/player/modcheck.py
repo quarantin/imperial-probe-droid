@@ -125,6 +125,7 @@ async def cmd_modcheck(ctx):
 	units_with_missing_mods = []
 	units_with_incomplete_modsets = []
 
+	ctx.alt = bot.options.parse_alt(args)
 	language = bot.options.parse_lang(ctx, args)
 
 	modcheck = bot.options.parse_modcheck(args)

@@ -79,7 +79,7 @@ class Player(models.Model):
 	ally_code            = models.IntegerField(blank=True, null=True)
 	player_id            = models.CharField(max_length=22, default='',  blank=True, null=True)
 	player_name          = models.CharField(max_length=128, default='', blank=True, null=True)
-	discord_id           = models.IntegerField(unique=True, blank=True, null=True)
+	discord_id           = models.IntegerField(blank=True, null=True)
 	discord_name         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_nick         = models.CharField(max_length=128, default='', blank=True, null=True)
 	discord_display_name = models.CharField(max_length=128, default='', blank=True, null=True)
@@ -87,6 +87,7 @@ class Player(models.Model):
 	premium_type         = models.IntegerField(choices=PREMIUM_TYPE_CHOICES, default=0)
 	timezone             = TimeZoneField(blank=True, null=True)
 	banned               = models.BooleanField(default=False, null=True)
+	alt                  = models.CharField(max_length=16, default='main')
 
 	def format_ally_code(ally_code):
 		ally_code = str(ally_code)
@@ -116,8 +117,10 @@ class Player(models.Model):
 	def is_banned(author):
 
 		try:
-			player = Player.objects.get(discord_id=author.id)
-			return player.banned
+			players = Player.objects.filter(discord_id=author.id)
+			for player in players:
+				if player.banned:
+					return True
 
 		except Player.DoesNotExist:
 			pass
@@ -138,6 +141,9 @@ class Player(models.Model):
 			return str(self.discord_id)
 
 		return str(self.id)
+
+	class Meta:
+		unique_together = [ 'discord_id', 'alt' ]
 
 class PlayerConfig(models.Model):
 
@@ -872,7 +878,7 @@ class PremiumGuild(models.Model):
 
 		return str(item.value)
 
-	def get_config(self, discord_id=None):
+	def get_config(self, discord_id=None, alt='main'):
 
 		default_mention = False
 		default_channel = self.channel_id
@@ -907,7 +913,7 @@ class PremiumGuild(models.Model):
 
 			if discord_id is not None:
 				try:
-					player = Player.objects.get(discord_id=discord_id)
+					player = Player.objects.get(discord_id=discord_id, alt=alt)
 					mention_key = '%s.%s.mention' % (key, player.ally_code)
 					if mention_key not in config:
 						config[mention_key] = default_mention

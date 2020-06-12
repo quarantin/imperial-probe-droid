@@ -24,7 +24,9 @@ class ChatCog(cog.Cog):
 	@commands.command(aliases=['sct'])
 	async def set_chat_topic(self, ctx, *, channel_topic: str = ''):
 
-		premium_user = self.options.parse_premium_user(ctx.author)
+		# TODO handle alt accounts
+		ctx.alt = self.options.parse_alt([])
+		premium_user = self.options.parse_premium_user(ctx)
 		if not premium_user:
 			return self.errors.not_premium()
 

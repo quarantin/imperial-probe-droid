@@ -27,6 +27,7 @@ async def cmd_timezone(ctx):
 	args = ctx.args
 	config = ctx.config
 
+	ctx.alt = bot.options.parse_alt(args)
 	selected_players, error = bot.options.parse_players(ctx, args, max_allies=1)
 
 	if error:

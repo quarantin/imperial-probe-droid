@@ -59,7 +59,9 @@ class TWCog(cog.Cog):
 	@commands.group()
 	async def wso(self, ctx, command=''):
 
-		premium_user = self.options.parse_premium_user(ctx.author)
+		# TODO: Handle alt accounts
+		ctx.alt = self.options.parse_alt([])
+		premium_user = self.options.parse_premium_user(ctx)
 		if not premium_user:
 			return self.errors.not_premium()
 

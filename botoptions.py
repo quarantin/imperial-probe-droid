@@ -75,10 +75,13 @@ class BotOptions:
 		self.errors = bot.errors
 		self.redis = bot.redis
 
-	def parse_premium_user(self, author):
+	def parse_premium_user(self, ctx):
+
+		alt = ctx.alt
+		author = ctx.author
 
 		try:
-			return Player.objects.get(discord_id=author.id)
+			return Player.objects.get(discord_id=author.id, alt=alt)
 
 		except Player.DoesNotExist:
 			return None
@@ -97,6 +100,21 @@ class BotOptions:
 				pass
 
 		return selected_value
+
+	def parse_alt(self, args):
+
+		args_cpy = list(args)
+		valid_alts = [ 'alt%d' % i for i in range(1, 10) ]
+		valid_alts.insert(0, 'alt')
+
+		for arg in args_cpy:
+
+			larg = arg.lower()
+			if larg in valid_alts:
+				args.remove(arg)
+				return arg
+
+		return 'main'
 
 	def parse_ally_code(self, arg):
 		regex = r'^[0-9]{9}$|^[0-9]{3}-[0-9]{3}-[0-9]{3}$'
@@ -168,6 +186,7 @@ class BotOptions:
 
 	def parse_players(self, ctx, args, min_allies=1, max_allies=-1, expected_allies=1, exclude_author=False, language='eng_us'):
 
+		alt=ctx.alt
 		discord_ids = self.parse_mentions(ctx, args)
 		ally_codes = self.parse_ally_codes(args)
 
@@ -176,7 +195,7 @@ class BotOptions:
 		for discord_id in discord_ids:
 
 			try:
-				p = Player.objects.get(discord_id=discord_id)
+				p = Player.objects.get(discord_id=discord_id, alt=alt)
 
 				if p not in players:
 					players.append(p)
@@ -194,7 +213,7 @@ class BotOptions:
 
 			if (not discord_ids and not ally_codes) or len(ally_codes) < min_allies or len(ally_codes) < expected_allies:
 				try:
-					p = Player.objects.get(discord_id=ctx.author.id)
+					p = Player.objects.get(discord_id=ctx.author.id, alt=alt)
 
 					if p not in players:
 						players.insert(0, p)
@@ -464,11 +483,12 @@ class BotOptions:
 
 	def parse_lang(self, ctx, args):
 
+		alt = ctx.alt
 		author = ctx.author
 		# TODO: try to parse language from args
 
 		try:
-			p = Player.objects.get(discord_id=author.id)
+			p = Player.objects.get(discord_id=author.id, alt=alt)
 			return p.language
 
 		except Player.DoesNotExist:
