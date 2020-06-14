@@ -330,8 +330,8 @@ class TerritoryWarStat(models.Model):
 
 	categories = (
 		('stars',             'Total Banners'),
-		('attack_stars',      'Attack Banners'),
-		('set_defense_stars', 'Defense Banners'),
+		('set_defense_stars', 'Banners from Setting Defense'),
+		('attack_stars',      'Banners from Successful Attacks'),
 		('disobey',           'Rogue Actions')
 	)
 
