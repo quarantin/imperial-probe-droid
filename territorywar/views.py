@@ -76,6 +76,10 @@ class TerritoryWarListView(swgoh_views.ListView):
 			kwargs['squad__is_preloaded'] = preloaded
 			context['preloaded'] = preloaded
 
+		category = request.GET.get('category', 'stars')
+		kwargs['category'] = category
+		context['category'] = category
+
 		self.object_list = self.get_queryset(*args, **kwargs)
 
 		# Has to be called after get_queryset because timezone is not a valid field
@@ -84,10 +88,6 @@ class TerritoryWarListView(swgoh_views.ListView):
 			timezone = request.GET['timezone']
 			kwargs['timezone'] = timezone
 			context['timezone'] = timezone
-
-		category = request.GET.get('category', 'stars')
-		kwargs['category'] = category
-		context['category'] = category
 
 		context['events'] = self.object_list
 		for event in context['events']:
@@ -210,4 +210,4 @@ class TerritoryWarStatListViewCsv(swgoh_views.ListViewCsv):
 		return [ 'Category', 'Player', 'Banners']
 
 	def get_object_as_row(self, o):
-		return [ o.category, o.player_name, o.player_banners ]
+		return [ o.category, o.player_name, o.player_score ]
