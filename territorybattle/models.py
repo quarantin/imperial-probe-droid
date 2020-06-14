@@ -289,7 +289,7 @@ class TerritoryBattleStat(models.Model):
 
 		with transaction.atomic():
 
-			tb = TerritoryBattle.parse(stats['tb'])
+			tb = TerritoryBattle.parse(stats['eventId'])
 
 			for stat in stats['stats']:
 
