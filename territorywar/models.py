@@ -329,7 +329,10 @@ class TerritoryWarHistory(models.Model):
 class TerritoryWarStat(models.Model):
 
 	categories = (
-		('stars', 'Banners'),
+		('stars',             'Total Banners'),
+		('attack_stars',      'Attack Banners'),
+		('set_defense_stars', 'Defense Banners'),
+		('disobey',           'Rogue Actions')
 	)
 
 	tw = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
@@ -337,35 +340,34 @@ class TerritoryWarStat(models.Model):
 	category = models.CharField(max_length=32, choices=categories)
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
-	player_banners = models.IntegerField()
+	player_score = models.IntegerField()
 
 	@staticmethod
 	def parse(guild, stats):
 
 		with transaction.atomic():
 
-			tw = TerritoryWar.parse(stats['tw'])
+			tw = TerritoryWar.parse(stats['eventId'])
 
-			if 'deployedInfo' not in stats:
-				raise Exception('deployedInfo is missing!')
+			for stat in stats['stats']:
 
-			category = stats['deployedInfo']['title']
+				for category, values in stat.items():
 
-			for stat in stats['deployedInfo']['banners']:
+					for value in values:
 
-				player_id = stat['playerId']
+						player_id = value['playerId']
 
-				try:
-					o = TerritoryWarStat.objects.get(tw=tw, guild=guild, category=category, player_id=player_id)
+						try:
+							o = TerritoryWarStat.objects.get(tw=tw, guild=guild, category=category, player_id=player_id)
 
-				except TerritoryWarStat.DoesNotExist:
+						except TerritoryWarStat.DoesNotExist:
 
-					o = TerritoryWarStat(tw=tw, guild=guild, category=category, player_id=player_id)
+							o = TerritoryWarStat(tw=tw, guild=guild, category=category, player_id=player_id)
 
-				o.player_name = stat['playerName']
-				o.player_banners = stat['playerBanners']
+						o.player_name = value['playerName']
+						o.player_score = value['playerScore']
 
-				o.save()
+						o.save()
 
 	class Meta:
-		ordering = [ '-player_banners', 'player_name' ]
+		ordering = [ '-player_score', 'player_name' ]
