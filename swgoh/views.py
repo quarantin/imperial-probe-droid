@@ -127,7 +127,10 @@ async def guild_tickets_global_daily_json(request):
 	return JsonResponse({ 'events': events })
 
 def guild_tickets_global_daily(request):
-	return render(request, 'swgoh/guild-tickets-global-daily.html', {})
+	context = {}
+	context['guild_active'] = True
+	context['guild_tickets_global_daily'] = True
+	return render(request, 'swgoh/guild-tickets-global-daily.html', context)
 
 @async_to_sync
 async def guild_tickets_global_per_user_json(request):
@@ -172,7 +175,10 @@ async def guild_tickets_global_per_user_json(request):
 	return JsonResponse({ 'events': events })
 
 def guild_tickets_global_per_user(request):
-	return render(request, 'swgoh/guild-tickets-global-per-user.html', {})
+	context = {}
+	context['guild_active'] = True
+	context['guild_tickets_global_per_user'] = True
+	return render(request, 'swgoh/guild-tickets-global-per-user.html', context)
 
 @async_to_sync
 async def guild_tickets_detail_json(request):
@@ -240,7 +246,9 @@ async def guild_tickets_detail(request):
 
 	context = {
 		'players': player_list,
-		'timezones': { x: x for x in timezones }
+		'timezones': { x: x for x in timezones },
+		'guild_active': True,
+		'guild_tickets_detail': True,
 	}
 
 	timezone = request.GET.get('timezone')

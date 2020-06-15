@@ -187,6 +187,12 @@ class TerritoryWarHistoryListView(TerritoryWarListView):
 	template_name = 'territorywar/territorywarhistory_list.html'
 	queryset = TerritoryWarHistory.objects.all()
 
+	def get(self, request, *args, **kwargs):
+		context = self.get_context_data(request, *args, **kwargs)
+		context['tw_history_active'] = True
+		return self.render_to_response(context)
+
+
 class TerritoryWarHistoryListViewCsv(swgoh_views.ListViewCsv):
 
 	model = TerritoryWarHistory
@@ -203,6 +209,11 @@ class TerritoryWarStatListView(TerritoryWarListView):
 	model = TerritoryWarStat
 	template_name = 'territorywar/territorywarstat_list.html'
 	queryset = TerritoryWarStat.objects.all()
+
+	def get(self, request, *args, **kwargs):
+		context = self.get_context_data(request, *args, **kwargs)
+		context['tw_stats_active'] = True
+		return self.render_to_response(context)
 
 class TerritoryWarStatListViewCsv(swgoh_views.ListViewCsv):
 

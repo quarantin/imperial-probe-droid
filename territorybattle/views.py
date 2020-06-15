@@ -114,8 +114,6 @@ class TerritoryBattleListView(swgoh_views.ListView):
 
 		context['players'] = players
 
-		context['tb_active'] = True
-
 		return context
 
 class TerritoryBattleHistoryView(TerritoryBattleListView):
@@ -126,6 +124,8 @@ class TerritoryBattleHistoryView(TerritoryBattleListView):
 
 	def get(self, request, *args, **kwargs):
 		context = self.get_context_data(request, *args, **kwargs)
+		context['tb_active'] = True
+		context['tb_history_active'] = True
 		return self.render_to_response(context)
 
 class TerritoryBattleHistoryViewCsv(TerritoryBattleListView):
@@ -276,9 +276,9 @@ class TerritoryBattleStatListView(TerritoryBattleListView):
 
 
 	def get(self, request, *args, **kwargs):
-
 		context = self.get_context_data(request, *args, **kwargs)
-
+		context['tb_active'] = True
+		context['tb_stats_active'] = True
 		return self.render_to_response(context)
 
 class TerritoryBattleStatListViewCsv(TerritoryBattleListView):

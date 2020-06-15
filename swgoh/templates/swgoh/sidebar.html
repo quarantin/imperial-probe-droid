@@ -35,19 +35,19 @@
 			<hr class="sidebar-divider my-0">
 
 			<!-- Nav Item - Guild -->
-			<li class="nav-item {% block guild_active %}{% endblock %}">
+			<li class="nav-item{% if guild_active %} active{% endif %}">
 				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#guildCollapse" aria-expanded="true" aria-controls="guildCollapse">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Guild</span>
 				</a>
-				<div id="guildCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+				<div id="guildCollapse" class="collapse{% if guild_active %} show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<h6 class="collapse-header">Guild</h6>
-						<a class="collapse-item" href="/guild/">Guild</a>
-						<a class="collapse-item" href="/guild/tickets/global-daily/">Raid Tickets (Global Daily)</a>
-						<a class="collapse-item" href="/guild/tickets/global-per-user/">Raid Tickets (Global per User)</a>
-						<a class="collapse-item" href="/guild/tickets/detail/">Raid Tickets (Detail)</a>
-						<a class="collapse-item" href="/guild/tokens/">Guild Tokens</a>
+						<a class="collapse-item{% if guild_guild_active %} active{% endif %}" href="/guild/">Guild</a>
+						<a class="collapse-item{% if guild_tickets_global_daily %} active{% endif %}" href="/guild/tickets/global-daily/">Raid Tickets (Global Daily)</a>
+						<a class="collapse-item{% if guild_tickets_global_per_user %} active{% endif %}" href="/guild/tickets/global-per-user/">Raid Tickets (Global per User)</a>
+						<a class="collapse-item{% if guild_tickets_detail %} active{% endif %}" href="/guild/tickets/detail/">Raid Tickets (Detail)</a>
+						<a class="collapse-item{% if guild_tokens %} active{% endif %}" href="/guild/tokens/">Guild Tokens</a>
 					</div>
 				</div>
 			</li>
@@ -67,7 +67,7 @@
 			<hr class="sidebar-divider my-0">
 
 			<!-- Nav Item - Territory Battles-->
-			<li class="nav-item {% block tb_active %}{% endblock %}">
+			<li class="nav-item{% if tb_active %} active{% endif %}">
 				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#territoryBattleCollapse" aria-expanded="true" aria-controls="territoryBattleCollapse">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Battles</span>
@@ -75,8 +75,8 @@
 				<div id="territoryBattleCollapse" class="collapse{% if tb_active %} show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<h6 class="collapse-header">Territory Battle</h6>
-						<a class="collapse-item" href="/territory-battle/history/">TB History</a>
-						<a class="collapse-item" href="/territory-battle/stats/">TB Stats</a>
+						<a class="collapse-item{% if tb_history_active %} active{% endif %}" href="/territory-battle/history/">TB History</a>
+						<a class="collapse-item{% if tb_stats_active %} active{% endif %}" href="/territory-battle/stats/">TB Stats</a>
 						<!--
 						<a class="collapse-item" href="/territory-battle/contributions/">TB Contribs</a>
 						<a class="collapse-item" href="/territory-battle/contributions/chart/">TB Contribs (Charts)</a>
@@ -89,7 +89,7 @@
 			<hr class="sidebar-divider my-0">
 
 			<!-- Nav Item - Territory Wars -->
-			<li class="nav-item {% block tw_active %}{% endblock %}">
+			<li class="nav-item{% if tw_active %} active{% endif %}">
 				<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#territoryWarCollapse" aria-expanded="true" aria-controls="territoryWarCollapse">
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Wars</span>
@@ -97,8 +97,8 @@
 				<div id="territoryWarCollapse" class="collapse{% if tw_active %} show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<h6 class="collapse-header">Territory War</h6>
-						<a class="collapse-item" href="/territory-war/history/">TW History</a>
-						<a class="collapse-item" href="/territory-war/stats/">TW Stats</a>
+						<a class="collapse-item{% if tw_history_active %} active{% endif %}" href="/territory-war/history/">TW History</a>
+						<a class="collapse-item{% if tw_stats_active %} active{% endif %}" href="/territory-war/stats/">TW Stats</a>
 					</div>
 				</div>
 			</li>
