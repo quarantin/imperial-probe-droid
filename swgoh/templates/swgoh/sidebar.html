@@ -72,13 +72,15 @@
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Battles</span>
 				</a>
-				<div id="territoryBattleCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+				<div id="territoryBattleCollapse" class="collapse{% if tb_active %} show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<h6 class="collapse-header">Territory Battle</h6>
-						<a class="collapse-item" href="/territory-battle/stats/">TB Stats</a>
 						<a class="collapse-item" href="/territory-battle/history/">TB History</a>
+						<a class="collapse-item" href="/territory-battle/stats/">TB Stats</a>
+						<!--
 						<a class="collapse-item" href="/territory-battle/contributions/">TB Contribs</a>
 						<a class="collapse-item" href="/territory-battle/contributions/chart/">TB Contribs (Charts)</a>
+						-->
 					</div>
 				</div>
 			</li>
@@ -92,7 +94,7 @@
 					<i class="fas fa-fw fa-cog"></i>
 					<span>Territory Wars</span>
 				</a>
-				<div id="territoryWarCollapse" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+				<div id="territoryWarCollapse" class="collapse{% if tw_active %} show{% endif %}" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<h6 class="collapse-header">Territory War</h6>
 						<a class="collapse-item" href="/territory-war/history/">TW History</a>
