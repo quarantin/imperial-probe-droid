@@ -704,7 +704,7 @@ class Updater:
 		else:
 			print('Not updating cache (up-to-date)')
 
-		if remote_version != database_version:
+		if remote_version != database_version or forced:
 			print('Updating database with new game assets...')
 			await self.database.update(remote_version)
 			print('OK')
