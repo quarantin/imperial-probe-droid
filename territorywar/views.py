@@ -76,9 +76,10 @@ class TerritoryWarListView(swgoh_views.ListView):
 			kwargs['squad__is_preloaded'] = preloaded
 			context['preloaded'] = preloaded
 
-		category = request.GET.get('category', 'stars')
-		kwargs['category'] = category
-		context['category'] = category
+		if 'category' in request.GET:
+			category = request.GET.get('category', 'stars')
+			kwargs['category'] = category
+			context['category'] = category
 
 		self.object_list = self.get_queryset(*args, **kwargs)
 
@@ -135,6 +136,8 @@ class TerritoryWarListView(swgoh_views.ListView):
 		context['players'] = players
 
 		context['targets'] = players
+
+		context['tw_active'] = True
 
 		return context
 
