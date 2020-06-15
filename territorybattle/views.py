@@ -114,6 +114,8 @@ class TerritoryBattleListView(swgoh_views.ListView):
 
 		context['players'] = players
 
+		context['tb_active'] = True
+
 		return context
 
 class TerritoryBattleHistoryView(TerritoryBattleListView):
