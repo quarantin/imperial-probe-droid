@@ -58,6 +58,9 @@ async def cmd_gregister(ctx):
 	if not selected_players:
 		return bot.errors.no_ally_code_specified(ctx)
 
+	if not hasattr(ctx.channel, 'guild') or not ctx.channel.guild:
+		return bot.errors.invalid_guild_channel(ctx)
+
 	auto_ids = []
 	auto_allycodes = []
 	registered = [ '**Registered Players**' ]
