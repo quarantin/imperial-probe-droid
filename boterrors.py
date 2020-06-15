@@ -189,6 +189,13 @@ class BotErrors:
 			'description': 'Hi <@%s>,\n\nSorry but it appears you\'ve been banned from using my services.\n%s' % (ctx.author.id, extra),
 		}]
 
+	def invalid_guild_channel(self, ctx):
+		return [{
+			'title': 'Not a Guild Channel',
+			'color': 'red',
+			'description': 'This command can only be invoked in a text channel on your guild server.',
+		}]
+
 	def invalid_config_key(self, subcommand, ctx, config_key):
 		return 'The following setting is invalid: `"%s"`.\nPlease type `%stracker %s` to get the list of valid settings.' % (config_key, self.bot.get_bot_prefix(ctx), subcommand)
 
