@@ -179,6 +179,9 @@ async def handle_payout_add(ctx):
 
 	try:
 		data = await bot.client.players(ally_codes=ally_codes)
+		if not data:
+			return bot.errors.ally_codes_not_found(ally_codes)
+
 		data = { x['allyCode']: x for x in data }
 		for ally_code in ally_codes:
 			if ally_code not in data:
@@ -283,6 +286,8 @@ async def handle_payout_rank(ctx):
 
 	ally_codes = list(payout_times)
 	data = await bot.client.players(ally_codes=ally_codes)
+	if not data:
+		return bot.errors.ally_codes_not_found(ally_codes)
 
 	lines = []
 	players = sorted([ p for p in data ], key=lambda x: x['arena'][shard.type]['rank'])
@@ -353,6 +358,8 @@ async def handle_payout_stats(ctx):
 	ally_codes = list(payout_times)
 
 	data = await bot.client.players(ally_codes=ally_codes)
+	if not data:
+		return bot.errors.ally_codes_not_found(ally_codes)
 
 	now = datetime.now(pytz.utc)
 
