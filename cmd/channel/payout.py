@@ -596,16 +596,6 @@ def handle_payout_destroy(ctx):
 		'description': 'This channel is not a shard channel anymore.'
 	}]
 
-
-shard_types = {
-	'c':     'char',
-	'char':  'char',
-	'chars': 'char',
-	's':     'ship',
-	'ship':  'ship',
-	'ships': 'ship',
-}
-
 subcommands = {
 	'new':     handle_payout_create,
 	'init':    handle_payout_create,

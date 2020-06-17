@@ -8,6 +8,15 @@ from utils import basicstrip, get_available_timezones, is_supported_timezone
 import DJANGO
 from swgoh.models import Player, BaseUnit, BaseUnitFaction
 
+shard_types = {
+	'c':     'char',
+	'char':  'char',
+	'chars': 'char',
+	's':     'ship',
+	'ship':  'ship',
+	'ships': 'ship',
+}
+
 MODSET_OPTS = {
 	'he':             'Health',
 	'health':         'Health',
