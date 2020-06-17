@@ -130,7 +130,7 @@ def handle_payout_create(ctx):
 			'description': 'Only a member of the role **%s** can perform this operation.' % config['role'],
 		}]
 
-	shard_type = parse_opts_shard_type(args)
+	shard_type = bot.options.parse_shard_type(args)
 	if not shard_type:
 		return [{
 			'title': 'Missing Shard Type',
