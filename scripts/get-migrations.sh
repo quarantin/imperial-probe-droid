@@ -13,6 +13,8 @@ if [ -z "${USER}" ] | [ -z "${SERVER}" ]; then
 	exit 1
 fi
 
+rm -f */migrations/0*.py
+
 for module in swgoh grandarena territorybattle territorywar; do
 	scp -P "${PORT}" "${USER}@${SERVER}:ipd/${module}/migrations/0*.py" "./${module}/migrations/"
 done
