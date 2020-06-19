@@ -3,6 +3,7 @@ import os
 import json
 import asyncio
 import zipfile
+import traceback
 from datetime import datetime
 
 import discord
@@ -13,12 +14,14 @@ import libswgoh
 from utils import translate, translate_multi
 
 import DJANGO
-from swgoh.models import Player
+from django.db import transaction
+from swgoh.models import Guild, Player
+from territorywar.models import TerritoryWar, TerritoryWarHistory
 
 class TWCog(cog.Cog):
 
 	def __init__(self, bot):
-		self.bot = bot
+		super().__init__(bot)
 
 	def get_squad_orders(self):
 		fin = open('squad-orders.json', 'r')
@@ -55,6 +58,55 @@ class TWCog(cog.Cog):
 			return
 
 		raise error
+
+	@commands.command()
+	async def twhist(self, ctx):
+
+		player = self.options.parse_premium_user(ctx)
+		if not player:
+			return self.errors.not_premium()
+
+		last_event_id = TerritoryWar.objects.first()
+		data = await self.client.get_tw_history(creds_id=player.creds_id, last_event_id=last_event_id)
+		if not data:
+			return self.bot.errors.tb_history_failed()
+
+		guild_id = data['guild_id']
+		guild_name = data['guild_name']
+		history = data['history']
+		event_id = data['event_id']
+
+		print('Parsing history for TW %s' % event_id)
+
+		errors = False
+		with transaction.atomic():
+
+			guild, created = Guild.objects.get_or_create(guild_id=guild_id, guild_name=guild_name)
+			for event in history:
+
+				if event['type'] not in [ 'TERRITORY_WAR_CONFLICT_ACTIVITY' ]:
+					continue
+
+				try:
+					o, created = TerritoryWarHistory.parse(guild, event)
+					print('Parsing %s event %s' % (event['id'], created and 'new' or 'old'))
+
+				except Exception as err:
+					errors = True
+					print('Some error detected!')
+					print(err)
+					print(traceback.format_exc())
+					print(json.dumps(event, indent=4))
+
+
+		await ctx.send(errors and 'KO' or 'OK')
+
+	"""
+
+			'guild_id': guild_id,
+			'guild_name': guild_name,
+			'event_id': event_id,
+			'history': history,
 
 	@commands.group()
 	async def wso(self, ctx, command=''):
@@ -139,3 +191,4 @@ class TWCog(cog.Cog):
 
 		print(json.dumps(defend_orders, indent=4))
 		print(json.dumps(attack_orders, indent=4))
+	"""
