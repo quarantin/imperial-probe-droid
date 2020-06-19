@@ -86,8 +86,8 @@ class BotOptions:
 
 	def parse_premium_user(self, ctx):
 
-		alt = ctx.alt
 		author = ctx.author
+		alt = hasattr(ctx, 'alt') and ctx.alt or 'main'
 
 		try:
 			return Player.objects.get(discord_id=author.id, alt=alt)
