@@ -25,6 +25,13 @@ class BotErrors:
 			'description': 'This command is only available to premium users.',
 		}]
 
+	def tw_history_failed(self):
+		return [{
+			'title': 'Error: Failed Retrieving TW History',
+			'color': 'red',
+			'description': 'Something went wrong and I was not able to retrieve your TW history. Please try again later.',
+		}]
+
 	def no_such_command(self, command):
 		return [{
 			'title': 'Error: No Such Command',
