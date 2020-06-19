@@ -5,7 +5,7 @@
 
 				query = {};
 
-				get_selected_value('tb',       query);
+				get_selected_value('event',    query);
 				get_selected_value('category', query);
 
 				tokens = []
@@ -22,9 +22,9 @@
 
 {% block event %}
 				<div>
-					<label for="tb">Select a Territory Battle Instance</label>
+					<label for="event">Select a Territory Battle Instance</label>
 					<br>
-					<select id="tb" onchange="refresh()">{% if not tbs %}
+					<select id="event" onchange="refresh()">{% if not tbs %}
 						<option value="all">--</option>{% endif %}{% for tb_id, tb_name in tbs.items %}
 						<option value="{{ tb_id }}"{%if tb_id == tb %} selected{% endif %}>{{ tb_name }}</option>{% endfor %}
 					</select>

@@ -5,7 +5,6 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 
-from collections import OrderedDict
 from client import SwgohClient
 
 import swgoh.views as swgoh_views
@@ -16,39 +15,10 @@ from .models import TerritoryBattle, TerritoryBattleHistory, TerritoryBattleStat
 import pytz
 from datetime import datetime
 
-class TerritoryBattleMixin(TerritoryEventMixin):
-
-	def get_event_key(self):
-		return 'tb'
-
-	def get_event(self):
-
-		key = self.get_event_key()
-		if key in self.request.GET:
-			event_id = int(self.request.GET[key])
-			return TerritoryBattle.objects.get(id=event_id)
-
-		else:
-			print('NO TB IN GET')
-			return TerritoryBattle.objects.first()
-
-	def get_events(self):
-		return { x.id: '%s - %s' % (self.event2date(x.event_id), x.get_name()) for x in TerritoryBattle.objects.all() }
-
-	def get_player_list(self, event):
-
-		result = OrderedDict()
-		players = list(self.model.objects.filter(event=event).values('player_id', 'player_name').distinct())
-		for player in sorted(players, key=lambda x: x['player_name'].lower()):
-			id = player['player_id']
-			name = player['player_name']
-			result[id] = name
-
-		return result
-
-class TerritoryBattleHistoryListView(TerritoryBattleMixin, ListView):
+class TerritoryBattleHistoryListView(TerritoryEventMixin, ListView):
 
 	model = TerritoryBattleHistory
+	event_model = TerritoryBattle
 	queryset = TerritoryBattleHistory.objects.all()
 
 	def get_context_data(self, *args, **kwargs):
@@ -83,7 +53,7 @@ class TerritoryBattleHistoryListView(TerritoryBattleMixin, ListView):
 			kwargs['player_id'] = player
 
 		context['object_list'] = context['object_list'].filter(**kwargs)
-		context['event'] = event.id
+		context['event'] = event
 		context['tb_active'] = True
 		context['tb_history_active'] = True
 		context['tb'] = event.id
@@ -99,7 +69,7 @@ class TerritoryBattleHistoryListView(TerritoryBattleMixin, ListView):
 
 		return context
 
-class TerritoryBattleHistoryListViewCsv(ListViewCsvMixin, TerritoryBattleHistoryListView):
+class TerritoryBattleHistoryListViewCsv(TerritoryBattleHistoryListView, ListViewCsvMixin):
 
 	def get_filename(self, tb):
 		tb_date = tb.get_date(dateformat='%Y%m%d')
@@ -107,14 +77,15 @@ class TerritoryBattleHistoryListViewCsv(ListViewCsvMixin, TerritoryBattleHistory
 		return '%s_TerritoryBattle_%s_History.csv' % (tb_date, tb_name)
 
 	def get_headers(self):
-		return ('Timestamp', 'Activity', 'Phase', 'Territory', 'Player', 'Score')
+		return ('Timestamp', 'Activity', 'Territory', 'Player', 'Score')
 
 	def get_rows(self, o, index):
-		return [( o.timestamp, o.activity, o.phase, o.territory, o.player_name, o.score )]
+		return [( o.timestamp, o.get_activity_display(), o.get_territory(), o.player_name, o.score )]
 
-class TerritoryBattleStatListView(TerritoryBattleMixin, ListView):
+class TerritoryBattleStatListView(TerritoryEventMixin, ListView):
 
 	model = TerritoryBattleStat
+	event_model = TerritoryBattle
 	queryset = TerritoryBattleStat.objects.all()
 
 	def get_context_data(self, *args, **kwargs):
@@ -146,7 +117,7 @@ class TerritoryBattleStatListView(TerritoryBattleMixin, ListView):
 
 		return context
 
-class TerritoryBattleStatListViewCsv(ListViewCsvMixin, TerritoryBattleStatListView):
+class TerritoryBattleStatListViewCsv(TerritoryBattleStatListView, ListViewCsvMixin):
 
 	def get_filename(self, tb):
 		tb_date = tb.get_date(dateformat='%Y%m%d')

@@ -6,7 +6,7 @@
 				query = {};
 
 				get_selected_value('timezone',  query);
-				get_selected_value('tb',        query);
+				get_selected_value('event',     query);
 				get_selected_value('territory', query);
 				get_selected_value('activity',  query);
 				get_selected_value('player',    query);
@@ -32,9 +32,9 @@
 					</select>
 				</div>
 				<div>
-					<label for="tb">Select a Territory Battle Instance</label>
+					<label for="event">Select a Territory Battle Instance</label>
 					<br>
-					<select id="tb" onchange="refresh()">{% if not tbs %}
+					<select id="event" onchange="refresh()">{% if not tbs %}
 						<option value="all">--</option>{% endif %}{% for tb_id, tb_name in tbs.items %}
 						<option value="{{ tb_id }}"{% if tb_id == tb %} selected{% endif %}>{{ tb_name }}</option>{% endfor %}
 					</select>
@@ -59,7 +59,7 @@
 					<label for="player">Select a Player</label>
 					<br>
 					<select id="player" onchange="refresh()">
-						<option value="{% block player_default_value %}all{% endblock %}">{% block player_default_label %}All{% endblock %}</option>{% for player_id, player_name in players.items %}
+						<option value="{% block player_default_value %}all{% endblock %}">{% block player_default_label %}All{% endblock %}</option>{% for player_id, player_name in players %}
 						<option value="{{ player_id }}"{% if player_id == player %} selected{% endif %}>{{ player_name }}</option>{% endfor %}
 					</select>
 				</div>

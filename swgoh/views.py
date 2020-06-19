@@ -670,8 +670,8 @@ class CsvResponse(HttpResponse):
 
 class TerritoryEventMixin:
 
-	def event2date(self, tb, dateformat='%Y/%m/%d'):
-		ts = int(str(tb).split(':')[1][1:]) / 1000
+	def event2date(self, event, dateformat='%Y/%m/%d'):
+		ts = int(str(event).split(':')[1][1:]) / 1000
 		return datetime.fromtimestamp(int(ts)).strftime(dateformat)
 
 	def get_activity(self):
@@ -693,12 +693,41 @@ class TerritoryEventMixin:
 	def get_categories(self):
 		return { x: y for x, y in self.model.categories }
 
+	def get_event(self):
+
+		if 'event' in self.request.GET:
+			id = int(self.request.GET['event'])
+			return self.event_model.objects.get(id=id)
+
+		return self.event_model.objects.first()
+
+	def get_events(self):
+		return { x.id: '%s - %s' % (self.event2date(x.event_id), x.get_name()) for x in self.event_model.objects.all() }
+
 	def get_phase(self):
 		if 'phase' in self.request.GET:
 			return int(self.request.GET['phase'])
 
 	def get_phases(self, tb_type):
 		return self.model.get_phase_list(tb_type)
+
+	def get_player(self):
+		if 'player' in self.request.GET:
+			return self.request.GET['player']
+
+	def get_player_list(self, event):
+
+		done = {}
+		result = []
+		players = list(self.model.objects.filter(event=event).values('player_id', 'player_name').distinct())
+		for player in sorted(players, key=lambda x: x['player_name'].lower()):
+			id = player['player_id']
+			name = player['player_name']
+			if id not in done:
+				done[id] = True
+				result.append((id, name))
+
+		return result
 
 	def get_player_object(self):
 
@@ -715,10 +744,6 @@ class TerritoryEventMixin:
 	def get_preloaded(self):
 		if 'preloaded' in self.request.GET:
 			return (self.request.GET['preloaded'].lower() == 'yes') and 1 or 0
-
-	def get_player(self):
-		if 'player' in self.request.GET:
-			return self.request.GET['player']
 
 	def get_target(self):
 		if 'target' in self.request.GET:
@@ -772,7 +797,7 @@ class ListViewCsvMixin(generic_views.ListView):
 		rows.append(self.get_headers())
 
 		index = 0
-		for o in context['object_list']: #.filter(**kwargs):
+		for o in context['object_list']:
 			new_rows = self.get_rows(o, index)
 			rows.extend(new_rows)
 			index += len(new_rows)
