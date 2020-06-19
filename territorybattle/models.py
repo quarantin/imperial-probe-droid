@@ -147,7 +147,6 @@ class TerritoryBattleHistory(models.Model):
 	score = models.IntegerField(null=True)
 	total = models.IntegerField(null=True)
 
-	@property
 	def get_territory(self):
 		tb_type = self.event.tb_type
 		return TerritoryBattleHistory.TERRITORIES[tb_type][self.phase][self.territory]
