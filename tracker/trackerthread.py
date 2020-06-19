@@ -285,6 +285,7 @@ class TrackerThread(asyncio.Future):
 
 		self.bot = bot
 		self.config = bot.config
+		self.embed = bot.embed
 		self.logger = bot.logger
 		self.redis = bot.redis
 
