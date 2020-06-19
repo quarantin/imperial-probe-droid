@@ -13,15 +13,15 @@ class TerritoryWar(models.Model):
 	timestamp = models.DateTimeField()
 
 	def __str__(self):
-		return str(self.event_id)
+		return '%s - %s' % (self.get_name(), self.get_date())
 
 	def get_name(self):
 		return 'Territory War'
 
 	def get_date(self, dateformat='%Y-%m-%d'):
 		ts = int(self.event_id.split(':')[1][1:-3])
-		dt = datetime.fromtimestamp(ts)
-		return pytz.utc.convert(dt).strftime(dateformat)
+		dt = datetime.fromtimestamp(ts, tz=pytz.utc)
+		return dt.strftime(dateformat)
 
 	@staticmethod
 	def parse(event_id):
@@ -118,7 +118,7 @@ class TerritoryWarSquad(models.Model):
 	is_preloaded = models.BooleanField(default=False)
 
 	@staticmethod
-	def parse(event_id, event_type, squad):
+	def parse(event_id, activity, squad):
 
 		if 'squad' not in squad or 'units' not in squad['squad']:
 			raise Exception('Invalid squad with no units!')
@@ -148,7 +148,7 @@ class TerritoryWarSquad(models.Model):
 			if unit.is_preloaded:
 				o.is_preloaded = True
 
-		if event_type in [ TerritoryWarHistory.ACTIVITY_WIN_FLEET[0], TerritoryWarHistory.ACTIVITY_WIN_SQUAD[0] ]:
+		if activity in [ TerritoryWarHistory.ACTIVITY_WIN_FLEET[0], TerritoryWarHistory.ACTIVITY_WIN_SQUAD[0] ]:
 			o.is_preloaded = False
 
 		o.save()
@@ -181,7 +181,7 @@ class TerritoryWarHistory(models.Model):
 		'TERRITORY_CHANNEL_ACTIVITY_CONFLICT_SQUAD_WIN':                               ACTIVITY_WIN_SQUAD,
 	}
 
-	EVENT_TYPE_CHOICES = [
+	ACTIVITY_CHOICES = [
 		ACTIVITY_EMPTY,
 		ACTIVITY_DEPLOY,
 		ACTIVITY_DEPLOY_FLEET,
@@ -212,17 +212,17 @@ class TerritoryWarHistory(models.Model):
 
 	@staticmethod
 	def get_activity_by_num(num_activity):
-		for num, activity in TerritoryWarHistory.EVENT_TYPE_CHOICES:
+		for num, activity in TerritoryWarHistory.ACTIVITY_CHOICES:
 			if num == num_activity:
 				return activity
 
 		return 'Unknown'
 
-	id = models.CharField(max_length=64, primary_key=True)
+	eid = models.CharField(max_length=64)
 	guild = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
-	tw = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
+	event = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
 	timestamp = models.DateTimeField()
-	event_type = models.IntegerField(choices=EVENT_TYPE_CHOICES)
+	activity = models.IntegerField(choices=ACTIVITY_CHOICES)
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
 	phase = models.IntegerField()
@@ -236,7 +236,7 @@ class TerritoryWarHistory(models.Model):
 		return TerritoryWarHistory.TERRITORIES[self.phase][self.territory]
 
 	@staticmethod
-	def get_territory_list():
+	def get_territory_list(tb_type=None):
 
 		territory_list = {}
 		for phase, territories in TerritoryWarHistory.TERRITORIES.items():
@@ -297,7 +297,7 @@ class TerritoryWarHistory(models.Model):
 				activity = data['activity']
 
 				if 'eventId' in activity:
-					o.tw = TerritoryWar.parse(activity['eventId'])
+					o.event = TerritoryWar.parse(activity['eventId'])
 
 				if 'territoryName' in activity:
 					phase, territory = TerritoryWarHistory.parse_territory(activity['territoryName'])
@@ -315,16 +315,17 @@ class TerritoryWarHistory(models.Model):
 
 					if 'activityType' in details:
 						activity_type = details['activityType']
-						o.event_type = TerritoryWarHistory.ACTIVITY_TYPES[activity_type][0]
+						o.activity = TerritoryWarHistory.ACTIVITY_TYPES[activity_type][0]
 
 			if 'squad' in data and 'squad' in data['squad']:
-				o.squad = TerritoryWarSquad.parse(event_id, o.event_type, data['squad'])
+				o.squad = TerritoryWarSquad.parse(event_id, o.activity, data['squad'])
 
 		o.save()
 		return o, created
 
 	class Meta:
 		ordering = ('timestamp',)
+		unique_together = (('eid', 'event'),)
 
 class TerritoryWarStat(models.Model):
 
@@ -335,39 +336,43 @@ class TerritoryWarStat(models.Model):
 		('disobey',           'Rogue Actions')
 	)
 
-	tw = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
+	event = models.ForeignKey(TerritoryWar, on_delete=models.CASCADE)
 	guild = models.ForeignKey(Guild, on_delete=models.CASCADE)
-	category = models.CharField(max_length=32, choices=categories)
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
-	player_score = models.IntegerField()
+	stars = models.IntegerField(default=0)
+	set_defense_stars = models.IntegerField(default=0)
+	attack_stars = models.IntegerField(default=0)
+	disobey = models.IntegerField(default=0)
+
+	def get_score(self, category):
+		return hasattr(self, category) and getattr(self, category) or 0
 
 	@staticmethod
 	def parse(guild, stats):
 
+		players = {}
+
+		event = TerritoryWar.parse(stats['eventId'])
+
+		for stat in stats['stats']:
+
+			for category, values in stat.items():
+
+				for value in values:
+
+					player_id = value['playerId']
+					player_name = value['playerName']
+					if player_id not in players:
+						players[player_id] = {}
+						players[player_id]['player_name'] = player_name
+
+					players[player_id][category] = value['playerScore']
+
 		with transaction.atomic():
-
-			tw = TerritoryWar.parse(stats['eventId'])
-
-			for stat in stats['stats']:
-
-				for category, values in stat.items():
-
-					for value in values:
-
-						player_id = value['playerId']
-
-						try:
-							o = TerritoryWarStat.objects.get(tw=tw, guild=guild, category=category, player_id=player_id)
-
-						except TerritoryWarStat.DoesNotExist:
-
-							o = TerritoryWarStat(tw=tw, guild=guild, category=category, player_id=player_id)
-
-						o.player_name = value['playerName']
-						o.player_score = value['playerScore']
-
-						o.save()
+			for player_id, defaults in players.items():
+				o, created = TerritoryWarStat.objects.update_or_create(event=event, guild=guild, player_id=player_id, defaults=defaults)
+				print('TW Stats object %s' % (created and 'created' or 'updated'))
 
 	class Meta:
-		ordering = [ '-player_score', 'player_name' ]
+		ordering = [ '-stars', 'player_name' ]

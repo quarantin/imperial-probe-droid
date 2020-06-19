@@ -6,7 +6,7 @@
 				query = {};
 
 				get_selected_value('timezone',  query);
-				get_selected_value('tw',        query);
+				get_selected_value('event',     query);
 				get_selected_value('activity',  query);
 				get_selected_value('territory', query);
 				get_selected_value('player',    query);
@@ -34,11 +34,11 @@
 					</select>
 				</div>
 				<div>
-					<label for="tw">Select a Territory War Instance</label>
+					<label for="event">Select a Territory War Instance</label>
 					<br>
-					<select id="tw" onchange="refresh()">{% if not tws %}
+					<select id="event" onchange="refresh()">{% if not tws %}
 						<option value="all">--</option>{% endif %}{% for tw_id, tw_name in tws.items %}
-						<option value="{{ tw_id }}"{%if tw_id == tw %} selected{% endif %}>{{ tw_name }}</option>{% endfor %}
+						<option value="{{ tw_id }}"{%if tw_id == event %} selected{% endif %}>{{ tw_name }}</option>{% endfor %}
 					</select>
 				</div>
 				<div>

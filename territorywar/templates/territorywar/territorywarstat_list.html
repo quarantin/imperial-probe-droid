@@ -37,12 +37,11 @@
 								<th>Banners</th>
 							</tr>
 							</tfoot>
-							<tbody>{% for event in events %}
+							<tbody>{% for o in object_list %}
 								<tr>
-								<td>{{ event.player_name }}</td>
-								<td>{{ event.player_score }}</td>
-							</tr>
-							{% endfor %}
+								<td>{{ o.player_name }}</td>
+								<td>{{ o.player_score }}</td>
+							</tr>{% endfor %}
 							</tbody>
 						</table>
 						</div>

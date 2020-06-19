@@ -49,18 +49,19 @@
 								<th>Preloaded</th>
 							</tr>
 							</tfoot>
-							<tbody>{% for event in events %}
+							<tbody>{% for o in object_list %}
 								<tr>
-								<td>{{ event.timestamp }}</td>
-								<td>{{ event.event_type }}</td>
-								<td>{{ event.get_territory }}</td>
-								<td>{{ event.player_name }}</td>
-								<td>{{ event.score }}</td>
-								<td value="{{ event.target_id }}">{{ event.target_name }}</td>
-								<td>{% for unit in event.units %}
+								<td>{{ o.timestamp }}</td>
+								<td>{{ o.get_activity_display }}</td>
+								<td>{{ o.get_territory }}</td>
+								<td>{{ o.player_name }}</td>
+								<td>{{ o.score }}</td>
+								<td value="{{ o.target_id }}">{{ o.target_name }}</td>
+								<td>{% for unit in o.units %}
 									{{ unit}}<br>{% endfor %}
 								</td>
-								<td>{% if event.preloaded %}Yes{% else %}No{% endif %}</td>
+								<!-- {{ o.preloaded }} -->
+								<td>{% if o.preloaded %}Yes{% else %}No{% endif %}</td>
 							</tr>
 							{% endfor %}
 							</tbody>
