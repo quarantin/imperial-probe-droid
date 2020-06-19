@@ -12,8 +12,8 @@ class GrandArena(models.Model):
 
 	def get_date(self, dateformat='%Y-%m-%d'):
 		ts = int(self.event_id.split(':')[1][1:-3])
-		dt = datetime.fromtimestamp(ts)
-		return pytz.utc.convert(dt).strftime(dateformat)
+		dt = datetime.fromtimestamp(ts, tz=pytz.utc)
+		return dt.strftime(dateformat)
 
 	@staticmethod
 	def parse(event_id):
