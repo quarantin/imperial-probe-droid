@@ -17,6 +17,7 @@ import io
 import os
 import csv
 import requests
+from datetime import datetime
 
 from client import SwgohClient
 from .models import Gear, BaseUnit, BaseUnitSkill, Player, PlayerActivity, User
@@ -667,11 +668,41 @@ class CsvResponse(HttpResponse):
 		for row in rows:
 			writer.writerow(row)
 
-class ListView(generic_views.ListView):
+class TerritoryEventMixin:
 
-	def get_player(self, request):
+	def event2date(self, tb, dateformat='%Y/%m/%d'):
+		ts = int(str(tb).split(':')[1][1:]) / 1000
+		return datetime.fromtimestamp(int(ts)).strftime(dateformat)
 
-		user = request.user
+	def get_activity(self):
+		if 'activity' in self.request.GET:
+			return int(self.request.GET['activity'])
+
+	def get_activities(self):
+		return { x: y for x, y in self.model.ACTIVITY_CHOICES }
+
+	def get_category(self, default):
+
+		category = default
+
+		if 'category' in self.request.GET:
+			category = self.request.GET['category']
+
+		return category
+
+	def get_categories(self):
+		return { x: y for x, y in self.model.categories }
+
+	def get_phase(self):
+		if 'phase' in self.request.GET:
+			return int(self.request.GET['phase'])
+
+	def get_phases(self, tb_type):
+		return self.model.get_phase_list(tb_type)
+
+	def get_player_object(self):
+
+		user = self.request.user
 		if not user.is_authenticated:
 			user = User.objects.get(id=2)
 
@@ -681,29 +712,69 @@ class ListView(generic_views.ListView):
 		except Player.DoesNotExist:
 			return None
 
-	def get_queryset(self, *args, **kwargs):
-		return self.queryset.filter(**kwargs)
+	def get_preloaded(self):
+		if 'preloaded' in self.request.GET:
+			return (self.request.GET['preloaded'].lower() == 'yes') and 1 or 0
+
+	def get_player(self):
+		if 'player' in self.request.GET:
+			return self.request.GET['player']
+
+	def get_target(self):
+		if 'target' in self.request.GET:
+			return self.request.GET['target']
+
+	def get_territory(self):
+		if 'territory' in self.request.GET:
+			return self.request.GET['territory']
+
+	def get_territories(self, tb_type=None):
+		return self.model.get_territory_list(tb_type=tb_type)
+
+	def get_timezone(self):
+
+		timezone = 'UTC'
+
+		if 'timezone' in self.request.GET:
+			timezone = self.request.GET['timezone']
+
+		return timezone
+
+	def get_timezones(self):
+
+		timezones = pytz.common_timezones
+
+		if 'UTC' in timezones:
+			timezones.remove('UTC')
+
+		timezones.insert(0, 'UTC')
+
+		return { x: x for x in timezones }
+
+	def get_categories(self):
+		return { x: y for x, y in self.model.categories }
 
 	def convert_date(self, utc_date, timezone):
-
 		local_tz = pytz.timezone(timezone)
 		local_dt = utc_date.astimezone(local_tz)
-
 		return local_tz.normalize(local_dt).strftime('%Y-%m-%d %H:%M:%S')
 
-	def dispatch(self, request, *args, **kwargs):
-		return super().dispatch(request, *args, **kwargs)
-
-class ListViewCsv(generic_views.ListView):
+class ListViewCsvMixin(generic_views.ListView):
 
 	def get(self, request, *args, **kwargs):
 
-		self.object_list = self.get_queryset(*args, **kwargs)
+		self.object_list = self.get_queryset()
+		context = self.get_context_data(*args, **kwargs)
+
+		event = context['event']
 
 		rows = []
 		rows.append(self.get_headers())
 
-		for o in self.object_list:
-			rows.append(self.get_object_as_row(o))
+		index = 0
+		for o in context['object_list']: #.filter(**kwargs):
+			new_rows = self.get_rows(o, index)
+			rows.extend(new_rows)
+			index += len(new_rows)
 
-		return CsvResponse(rows=rows)
+		return CsvResponse(filename=self.get_filename(event), rows=rows)
