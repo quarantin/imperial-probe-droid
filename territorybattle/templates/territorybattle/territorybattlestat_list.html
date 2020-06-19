@@ -37,12 +37,11 @@
 								<th>Score</th>
 							</tr>
 							</tfoot>
-							<tbody>{% for stat in stats %}
+							<tbody>{% for o in object_list %}
 								<tr>
-								<td>{{ stat.player_name }}</td>
-								<td>{{ stat.player_score }}</td>
-							</tr>
-							{% endfor %}
+									<td>{{ o.player_name }}</td>
+									<td>{{ o.player_score }}</td>
+								</tr>{% endfor %}
 							</tbody>
 						</table>
 						</div>
