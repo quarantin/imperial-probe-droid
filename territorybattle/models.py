@@ -8,10 +8,10 @@ from datetime import datetime
 class TerritoryBattle(models.Model):
 
 	TB_TYPE_CHOICES = [
-		('TB_EVENT_HOTH_REBEL',          'Hoth Rebel - Light Side'),
-		('TB_EVENT_HOTH_EMPIRE',         'Hoth Empire - Dark Side'),
-		('TB_EVENT_GEONOSIS_REPUBLIC',   'Genonosis - Republic (Light Side)'),
-		('TB_EVENT_GEONOSIS_SEPARATIST', 'Genonosis - Separatist (Dark Side)'),
+		('TB_EVENT_HOTH_REBEL',          'Hoth - Rebel'),
+		('TB_EVENT_HOTH_EMPIRE',         'Hoth - Empire'),
+		('TB_EVENT_GEONOSIS_REPUBLIC',   'Genonosis - Republic'),
+		('TB_EVENT_GEONOSIS_SEPARATIST', 'Genonosis - Separatist'),
 	]
 
 	event_id = models.CharField(max_length=64)
@@ -19,7 +19,7 @@ class TerritoryBattle(models.Model):
 	timestamp = models.DateTimeField()
 
 	def __str__(self):
-		return str(self.event_id)
+		return '%s - %s' % (self.get_name(), self.get_date())
 
 	def get_name(self):
 
@@ -31,8 +31,8 @@ class TerritoryBattle(models.Model):
 
 	def get_date(self, dateformat='%Y-%m-%d'):
 		ts = int(self.event_id.split(':')[1][1:-3])
-		dt = datetime.fromtimestamp(ts)
-		return pytz.utc.convert(dt).strftime(dateformat)
+		dt = datetime.fromtimestamp(ts, tz=pytz.utc)
+		return dt.strftime(dateformat)
 
 	@staticmethod
 	def parse(event_id):
@@ -69,7 +69,7 @@ class TerritoryBattleHistory(models.Model):
 	# TODO TW:
 	# TERRITORY_CHANNEL_ACTIVITY_RECON_CONTRIBUTION
 	# TERRITORY_CHANNEL_ACTIVITY_RECON_CONTRIBUTION_ALL_COMPLETE
-	EVENT_TYPE_CHOICES = [
+	ACTIVITY_CHOICES = [
 		ACTIVITY_DEPLOY,
 		ACTIVITY_SPECIAL,
 		ACTIVITY_STAR,
@@ -129,7 +129,7 @@ class TerritoryBattleHistory(models.Model):
 	@staticmethod
 	def get_activity_by_num(num_activity):
 		num_activity = int(num_activity)
-		for num, activity in TerritoryBattleHistory.EVENT_TYPE_CHOICES:
+		for num, activity in TerritoryBattleHistory.ACTIVITY_CHOICES:
 			if num == num_activity:
 				return activity
 
@@ -137,9 +137,9 @@ class TerritoryBattleHistory(models.Model):
 
 	id = models.CharField(max_length=64, primary_key=True)
 	guild = models.ForeignKey(Guild, on_delete=models.CASCADE, null=True)
-	tb = models.ForeignKey(TerritoryBattle, on_delete=models.CASCADE)
+	event = models.ForeignKey(TerritoryBattle, on_delete=models.CASCADE)
 	timestamp = models.DateTimeField()
-	event_type = models.IntegerField(choices=EVENT_TYPE_CHOICES)
+	activity = models.IntegerField(choices=ACTIVITY_CHOICES)
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
 	phase = models.IntegerField()
@@ -149,7 +149,7 @@ class TerritoryBattleHistory(models.Model):
 
 	@property
 	def get_territory(self):
-		tb_type = self.tb.tb_type
+		tb_type = self.event.tb_type
 		return TerritoryBattleHistory.TERRITORIES[tb_type][self.phase][self.territory]
 
 	@staticmethod
@@ -157,7 +157,7 @@ class TerritoryBattleHistory(models.Model):
 
 		phase_list = {}
 		for phase in list(TerritoryBattleHistory.TERRITORIES[tb_type]):
-			phase_list[phase] = phase
+			phase_list[phase] = 'Phase %d' % phase
 
 		return phase_list
 
@@ -167,7 +167,8 @@ class TerritoryBattleHistory(models.Model):
 		territory_list = {}
 		for phase, territories in TerritoryBattleHistory.TERRITORIES[tb_type].items():
 			for territory, name in territories.items():
-				territory_list[territory] = name
+				key = '%d-%d' % (phase, territory)
+				territory_list[key] = 'Phase %d - %s' % (phase, name)
 
 		return territory_list
 
@@ -189,8 +190,8 @@ class TerritoryBattleHistory(models.Model):
 		accu = {}
 		for event in events:
 			score = event.score
-			event_type = event.event_type
-			if event_type in [ TerritoryBattleHistory.ACTIVITY_RECON[1], TerritoryBattleHistory.ACTIVITY_RECON_FULL[1] ]:
+			activity = event.activity
+			if activity in [ TerritoryBattleHistory.ACTIVITY_RECON[1], TerritoryBattleHistory.ACTIVITY_RECON_FULL[1] ]:
 				continue
 
 			player_name = event.player_name
@@ -236,7 +237,7 @@ class TerritoryBattleHistory(models.Model):
 
 		o.player_name = event['playerName']
 
-		o.tb = TerritoryBattle.parse(event['eventId'])
+		o.event = TerritoryBattle.parse(event['eventId'])
 
 		o.phase = event['phase']
 		o.territory = event['territory']
@@ -244,7 +245,7 @@ class TerritoryBattleHistory(models.Model):
 		o.score = event['score']
 		o.total = event['total']
 
-		o.event_type = event['eventType']
+		o.activity = event['eventType']
 
 		o.save()
 		return o, created
@@ -277,39 +278,59 @@ class TerritoryBattleStat(models.Model):
 		('covert_attempt_round_4', 'Phase 4 - Special Missions'),
 	)
 
-	tb = models.ForeignKey(TerritoryBattle, on_delete=models.CASCADE)
+	event = models.ForeignKey(TerritoryBattle, on_delete=models.CASCADE)
 	guild = models.ForeignKey(Guild, on_delete=models.CASCADE)
-	category = models.CharField(max_length=32, choices=categories)
 	player_id = models.CharField(max_length=22)
 	player_name = models.CharField(max_length=64)
-	player_score = models.IntegerField()
+	summary = models.IntegerField(default=0)
+	unit_donated = models.IntegerField(default=0)
+	strike_encounter = models.IntegerField(default=0)
+	disobey = models.IntegerField(default=0)
+	score_round_1 = models.IntegerField(default=0)
+	power_round_1 = models.IntegerField(default=0)
+	strike_attempt_round_1 = models.IntegerField(default=0)
+	covert_attempt_round_1 = models.IntegerField(default=0)
+	score_round_2 = models.IntegerField(default=0)
+	power_round_2 = models.IntegerField(default=0)
+	strike_attempt_round_2 = models.IntegerField(default=0)
+	covert_attempt_round_2 = models.IntegerField(default=0)
+	score_round_3 = models.IntegerField(default=0)
+	power_round_3 = models.IntegerField(default=0)
+	strike_attempt_round_3 = models.IntegerField(default=0)
+	covert_attempt_round_3 = models.IntegerField(default=0)
+	score_round_4 = models.IntegerField(default=0)
+	power_round_4 = models.IntegerField(default=0)
+	strike_attempt_round_4 = models.IntegerField(default=0)
+	covert_attempt_round_4 = models.IntegerField(default=0)
+
+	def get_score(self, category):
+		return hasattr(self, category) and getattr(self, category) or 0
 
 	@staticmethod
 	def parse(guild, stats):
 
+		players = {}
+
+		event = TerritoryBattle.parse(stats['eventId'])
+
+		for stat in stats['stats']:
+
+			for category, values in stat.items():
+
+				for value in values:
+
+					player_id = value['playerId']
+					player_name = value['playerName']
+					if player_id not in players:
+						players[player_id] = {}
+						players[player_id]['player_name'] = player_name
+
+					players[player_id][category] = value['playerScore']
+
 		with transaction.atomic():
-
-			tb = TerritoryBattle.parse(stats['eventId'])
-
-			for stat in stats['stats']:
-
-				for category, values in stat.items():
-
-					for value in values:
-
-						player_id = value['playerId']
-
-						try:
-							o = TerritoryBattleStat.objects.get(tb=tb, guild=guild, category=category, player_id=player_id)
-
-						except TerritoryBattleStat.DoesNotExist:
-
-							o = TerritoryBattleStat(tb=tb, guild=guild, category=category, player_id=player_id)
-
-						o.player_name = value['playerName']
-						o.player_score = value['playerScore']
-
-						o.save()
+			for player_id, defaults, in players.items():
+				o, created = TerritoryBattleStat.objects.update_or_create(event=event, guild=guild, player_id=player_id, defaults=defaults)
+				print('TB Stats object %s' % (created and 'created' or 'updated'))
 
 	class Meta:
-		ordering = [ '-player_score', 'player_name' ]
+		ordering = [ '-summary', 'player_name' ]
