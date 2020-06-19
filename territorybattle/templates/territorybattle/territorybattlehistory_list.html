@@ -18,7 +18,7 @@
 								<i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
 							</a>
 							<div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
-								<a class="dropdown-item" href="/territory-battle/history/csv/" download>Export to CSV</a>
+								<a class="dropdown-item" href="/territory-battle/history/csv/?{{ request.GET.urlencode }}" download>Export to CSV</a>
 							</div>
 						</div>
 					</div>
@@ -45,14 +45,14 @@
 								<th>Score</th>
 							</tr>
 							</tfoot>
-							<tbody>{% for event in events %}
+							<tbody>{% for o in object_list %}
 								<tr>
-								<td>{{ event.timestamp }}</td>
-								<td>{{ event.event_type }}</td>
-								<td>{{ event.phase }}</td>
-								<td>{{ event.get_territory }}</td>
-								<td>{{ event.player_name }}</td>
-								<td>{{ event.score }}</td>
+								<td>{{ o.timestamp }}</td>
+								<td>{{ o.get_activity_display }}</td>
+								<td>{{ o.phase }}</td>
+								<td>{{ o.get_territory }}</td>
+								<td>{{ o.player_name }}</td>
+								<td>{{ o.score }}</td>
 							</tr>
 							{% endfor %}
 							</tbody>
