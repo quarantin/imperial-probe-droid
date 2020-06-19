@@ -439,6 +439,9 @@ async def __main__():
 		from ticketscog import TicketsCog
 		bot.add_cog(TicketsCog(bot))
 
+		from twcog import TWCog
+		bot.add_cog(TWCog(bot))
+
 		token = config['token']
 		if 'env' in config:
 			env = config['env']
