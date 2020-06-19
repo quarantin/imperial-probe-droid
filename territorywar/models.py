@@ -231,7 +231,6 @@ class TerritoryWarHistory(models.Model):
 	total = models.IntegerField(null=True)
 	squad = models.ForeignKey(TerritoryWarSquad, null=True, on_delete=models.CASCADE)
 
-	@property
 	def get_territory(self):
 		return TerritoryWarHistory.TERRITORIES[self.phase][self.territory]
 
