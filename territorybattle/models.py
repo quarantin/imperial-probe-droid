@@ -226,7 +226,7 @@ class TerritoryBattleHistory(models.Model):
 
 		if 'type' in event:
 			if event['type'] != 'TERRITORY_CONFLICT_ACTIVITY':
-				print('Invalid event type: %s' % event['type'])
+				#print('Invalid event type: %s' % event['type'])
 				return None, False
 
 		o.timestamp = event['timestamp']
