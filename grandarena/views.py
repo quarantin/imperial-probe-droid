@@ -45,7 +45,7 @@ class GrandArenaHistoryView(ListView):
 			filter_kwargs['territory'] = kwargs['territory']
 
 		if 'activity' in kwargs:
-			filter_kwargs['event_type'] = kwargs['activity']
+			filter_kwargs['activity'] = kwargs['activity']
 
 		if 'player' in kwargs:
 			filter_kwargs['player_id'] = kwargs['player']
@@ -60,7 +60,7 @@ class GrandArenaHistoryView(ListView):
 		context['events'] = queryset
 		for event in context['events']:
 			event.ga = GrandArena.objects.get(id=event.ga_id)
-			event.event_type = GrandArenaHistory.get_activity_by_num(event.event_type)
+			event.activity = GrandArenaHistory.get_activity_by_num(event.activity)
 			event.timestamp = self.convert_date(event.timestamp, timezone)
 			"""
 			try:
@@ -139,7 +139,7 @@ class GrandArenaHistoryView(ListView):
 
 		context['timezones'] = { x: x for x in timezones }
 
-		#context['activities'] = { x: y for x, y in GrandArenaHistory.EVENT_TYPE_CHOICES }
+		#context['activities'] = { x: y for x, y in GrandArenaHistory.ACTIVITY_CHOICES }
 
 		#context['territories'] = GrandArenaHistory.get_territory_list()
 
