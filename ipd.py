@@ -442,6 +442,9 @@ async def __main__():
 		from twcog import TWCog
 		bot.add_cog(TWCog(bot))
 
+		from tbcog import TBCog
+		bot.add_cog(TBCog(bot))
+
 		token = config['token']
 		if 'env' in config:
 			env = config['env']
