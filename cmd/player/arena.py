@@ -103,7 +103,7 @@ async def cmd_arena(ctx):
 		last_sync = last_sync_date.strftime('%Y-%m-%d at %H:%M:%S')
 		profile_url = await get_swgohgg_profile_url(jplayer['allyCode'])
 		if not profile_url:
-			profile_url = 'No profile found on swgoh.gg for ally code: %s' % ally_code_str
+			profile_url = 'No profile found on swgoh.gg for ally code: %s' % ally_code
 
 		if 'chars' == selected_opts:
 			rank = jplayer['arena']['char']['rank']
