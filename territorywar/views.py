@@ -6,7 +6,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 
 from collections import OrderedDict
-from client import SwgohClient
 
 import swgoh.views as swgoh_views
 from swgoh.models import Player
