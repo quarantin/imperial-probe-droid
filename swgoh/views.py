@@ -16,11 +16,15 @@ from cairosvg import svg2png
 import io
 import os
 import csv
+import json
+import redis
 import requests
 from datetime import datetime
 
 from client import SwgohClient
 from .models import Gear, BaseUnit, BaseUnitSkill, Player, PlayerActivity, User
+
+redis_cli = redis.Redis()
 
 def index(request):
 
@@ -803,3 +807,53 @@ class ListViewCsvMixin(generic_views.ListView):
 			index += len(new_rows)
 
 		return CsvResponse(filename=self.get_filename(event), rows=rows)
+
+class GuildTicketsAveragePerUser(generic_views.ListView, TerritoryEventMixin):
+
+	model = PlayerActivity
+	queryset = PlayerActivity.objects.all()
+
+	def get_context_data(self, *args, **kwargs):
+
+		context = super().get_context_data(*args, **kwargs)
+
+		player = self.get_player_object()
+		guild = redis_cli.get('guild|%s' % player.guild.guild_id)
+		if not guild:
+			print('Guild not found in redis cache!')
+			# TODO better handling in case of guild not found
+			return context
+
+		guild = json.loads(guild.decode('utf-8'))
+		player_ids = [ x['playerId'] for x in guild['roster'] ]
+
+		kwargs['player__player_id__in'] = player_ids
+
+		activity_list = context['object_list'].filter(**kwargs)
+
+		tickets = {}
+		for activity in activity_list:
+			player_name = activity.player.player_name
+			if player_name not in tickets:
+				tickets[player_name] = []
+
+			tickets[player_name].append(activity.raid_tickets)
+
+		result = {}
+		for player_name, activity_list in tickets.items():
+			average = sum(activity_list) / len(activity_list)
+			result[player_name] = int(average)
+
+		context['averageTickets'] = sorted(result.items(), key=lambda x: (-x[1], x[0]))
+		context['guild_active'] = True
+		context['guild_tickets_average'] = True
+
+		return context
+
+	def get(self, request, *args, **kwargs):
+
+		self.object_list = self.get_queryset()
+
+		context = self.get_context_data(*args, **kwargs)
+
+		return self.render_to_response(context)

@@ -33,6 +33,7 @@ urlpatterns = [
 	path('guild/tickets/global-per-user/', views.guild_tickets_global_per_user),
 	path('guild/tickets/detail/json/', views.guild_tickets_detail_json),
 	path('guild/tickets/detail/', views.guild_tickets_detail),
+	path('guild/tickets/average/', views.GuildTicketsAveragePerUser.as_view()),
 	path('guild/', views.guild),
 	path('ga/', include('grandarena.urls')),
 	path('grand-arena/', include('grandarena.urls')),
