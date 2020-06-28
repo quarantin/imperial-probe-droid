@@ -5,8 +5,6 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 
-from client import SwgohClient
-
 import swgoh.views as swgoh_views
 from swgoh.models import Player
 from swgoh.views import CsvResponse, ListViewCsvMixin, TerritoryEventMixin
