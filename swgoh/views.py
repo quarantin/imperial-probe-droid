@@ -7,7 +7,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, HttpResponse, HttpResponseServerError, Http404, JsonResponse
-from asgiref.sync import async_to_sync
+
+from django_redis import get_redis_connection
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -21,10 +22,9 @@ import redis
 import requests
 from datetime import datetime
 
-from client import SwgohClient
 from .models import Gear, BaseUnit, BaseUnitSkill, Player, PlayerActivity, User
 
-redis_cli = redis.Redis()
+redis_cli = get_redis_connection("default")
 
 def index(request):
 
@@ -89,16 +89,15 @@ def get_player(request):
 	except Player.DoesNotExist:
 		return None
 
-@async_to_sync
-async def guild_tickets_global_daily_json(request):
+def guild_tickets_global_daily_json(request):
 
-	client = SwgohClient()
 	player = get_player(request)
-	guild = await client.guild(guild_id=player.guild.guild_id)
+	guild = redis_cli.get('guild|%s' % player.guild.guild_id)
 	if not guild:
 		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
 
 	player_ids = []
+	guild = json.loads(guild.decode('utf-8'))
 	for member in guild['roster']:
 		player_id = member['playerId']
 		if player_id not in player_ids:
@@ -137,16 +136,15 @@ def guild_tickets_global_daily(request):
 	context['guild_tickets_global_daily'] = True
 	return render(request, 'swgoh/guild-tickets-global-daily.html', context)
 
-@async_to_sync
-async def guild_tickets_global_per_user_json(request):
+def guild_tickets_global_per_user_json(request):
 
-	client = SwgohClient()
 	player = get_player(request)
-	guild = await client.guild(guild_id=player.guild.guild_id)
+	guild = redis_cli.get('guild|%s' % player.guild.guild_id)
 	if not guild:
 		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
 
 	player_ids = []
+	guild = json.loads(guild.decode('utf-8'))
 	for member in guild['roster']:
 		player_id = member['playerId']
 		if player_id not in player_ids:
@@ -185,16 +183,15 @@ def guild_tickets_global_per_user(request):
 	context['guild_tickets_global_per_user'] = True
 	return render(request, 'swgoh/guild-tickets-global-per-user.html', context)
 
-@async_to_sync
-async def guild_tickets_detail_json(request):
+def guild_tickets_detail_json(request):
 
-	client = SwgohClient()
 	player = get_player(request)
-	guild = await client.guild(guild_id=player.guild.guild_id)
+	guild = redis_cli.get('guild|%s' % player.guild.guild_id)
 	if not guild:
 		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
 
 	player_ids = []
+	guild = json.loads(guild.decode('utf-8'))
 	for member in guild['roster']:
 		player_ids.append(member['playerId'])
 	players = Player.objects.filter(player_id__in=player_ids)
@@ -226,16 +223,15 @@ async def guild_tickets_detail_json(request):
 
 	return JsonResponse({ 'events': events })
 
-@async_to_sync
-async def guild_tickets_detail(request):
+def guild_tickets_detail(request):
 
-	client = SwgohClient()
 	player = get_player(request)
-	guild = await client.guild(guild_id=player.guild.guild_id)
+	guild = redis_cli.get('guild|%s' % player.guild.guild_id)
 	if not guild:
 		return HttpResponseServerError('Something went wrong! Please notify the developer about this.')
 
 	player_ids = []
+	guild = json.loads(guild.decode('utf-8'))
 	for member in guild['roster']:
 		player_ids.append(member['playerId'])
 	players = Player.objects.filter(player_id__in=player_ids)
