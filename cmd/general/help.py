@@ -21,6 +21,8 @@ help_help = {
 **`gc`**: Guild comparison by roster.
 **`gs`**: Guild comparison by stats.
 **`glist`**: List guild members by unit GP, gear, level, rarity.
+**`rtc`**: Raid Tickets Check (**PREMIUM**)
+**`gtc`**: Guild Tokens Check (**PREMIUM**)
 
 **Player Commands**
 **`arena`**: Show arena squad details.

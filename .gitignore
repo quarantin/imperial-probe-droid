@@ -13,3 +13,8 @@ jsonfixer.py
 logs
 protobuf
 protos
+libswgoh.py
+client.py
+libprotobuf.py
+credentials.py
+RPC
