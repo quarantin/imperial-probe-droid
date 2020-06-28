@@ -1,7 +1,7 @@
 {% extends "swgoh/base.html" %}
 {% load static %}
 
-{% block title %}Raid Tickets (Global Daily){% endblock%}
+{% block title %}Raid Tickets - Total per User{% endblock%}
 
 {% block sidebar %}{% include "swgoh/guild_sidebar.html" %}{% endblock %}
 
@@ -11,7 +11,10 @@
 			<div id="content">
 				<div class="container-fluid">
 
-{% include "swgoh/guild-tickets-global-daily-card.html" %}
+					<!-- Page Heading -->
+					<h1 class="h3 mb-2 text-gray-800">Raid Tickets - Total per User</h1>
+
+{% include "swgoh/guild-tickets-total-per-user-card.html" %}
 
 				</div>
 			</div>

@@ -89,7 +89,7 @@ def get_player(request):
 	except Player.DoesNotExist:
 		return None
 
-def guild_tickets_global_daily_json(request):
+def guild_tickets_guild_daily_json(request):
 
 	player = get_player(request)
 	guild = redis_cli.get('guild|%s' % player.guild.guild_id)
@@ -130,13 +130,13 @@ def guild_tickets_global_daily_json(request):
 
 	return JsonResponse({ 'events': events })
 
-def guild_tickets_global_daily(request):
+def guild_tickets_guild_daily(request):
 	context = {}
 	context['guild_active'] = True
-	context['guild_tickets_global_daily'] = True
-	return render(request, 'swgoh/guild-tickets-global-daily.html', context)
+	context['guild_tickets_guild_daily'] = True
+	return render(request, 'swgoh/guild-tickets-guild-daily.html', context)
 
-def guild_tickets_global_per_user_json(request):
+def guild_tickets_total_per_user_json(request):
 
 	player = get_player(request)
 	guild = redis_cli.get('guild|%s' % player.guild.guild_id)
@@ -177,11 +177,11 @@ def guild_tickets_global_per_user_json(request):
 
 	return JsonResponse({ 'events': events })
 
-def guild_tickets_global_per_user(request):
+def guild_tickets_total_per_user(request):
 	context = {}
 	context['guild_active'] = True
-	context['guild_tickets_global_per_user'] = True
-	return render(request, 'swgoh/guild-tickets-global-per-user.html', context)
+	context['guild_tickets_total_per_user'] = True
+	return render(request, 'swgoh/guild-tickets-total-per-user.html', context)
 
 def guild_tickets_detail_json(request):
 

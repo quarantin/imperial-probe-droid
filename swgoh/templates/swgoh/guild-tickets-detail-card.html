@@ -1,6 +1,6 @@
 {% extends "swgoh/card.html" %}
 {% load i18n %}
-{% block cardtitle %}Raid Tickets (Detail){% endblock %}
+{% block cardtitle %}Raid Tickets Detail per User{% endblock %}
 {% block cardbody %}
 					<div class="chart-area" style="height: 100%;">
 						<canvas id="myAreaChart"></canvas>
@@ -9,7 +9,7 @@
 						var urlParams = new URLSearchParams(window.location.search);
 						var player_id = urlParams.get('player');
 						$.getJSON('/guild/tickets/detail/json/?player=' + player_id, '', function(data) {
-							draw_charts('myAreaChart', 'Number of Raid Tickets', data);
+							draw_charts('myAreaChart', 'Raid Tickets', data);
 						});
 					</script>
 {% endblock %}

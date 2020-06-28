@@ -1,13 +1,13 @@
 {% extends "swgoh/card.html" %}
 {% load i18n %}
-{% block cardtitle %}Raid Tickets (Global per User){% endblock %}
+{% block cardtitle %}Daily Raid Tickets for Guild{% endblock %}
 {% block cardbody %}
 					<div class="chart-area" style="height: 100%;">
 						<canvas id="myAreaChart"></canvas>
 					</div>
 					<script>
-						$.getJSON('/guild/tickets/global-per-user/json/', '', function(data) {
-							draw_charts('myAreaChart', 'Number of Raid Tickets', data);
+						$.getJSON('/guild/tickets/guild-daily/json/', '', function(data) {
+							draw_charts('myAreaChart', 'Raid Tickets', data);
 						});
 					</script>
 {% endblock %}
