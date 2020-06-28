@@ -8,7 +8,6 @@ from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
 
 from collections import OrderedDict
-from client import SwgohClient
 
 from .models import GrandArena, GrandArenaHistory
 
