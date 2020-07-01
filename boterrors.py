@@ -25,6 +25,13 @@ class BotErrors:
 			'description': 'This command is only available to premium users.',
 		}]
 
+	def tb_history_failed(self):
+		return [{
+			'title': 'Error: Failed Retrieving TB History',
+			'color': 'red',
+			'description': 'Something went wrong and I was not able to retrieve your TB history. Please try again later.',
+		}]
+
 	def tw_history_failed(self):
 		return [{
 			'title': 'Error: Failed Retrieving TW History',
