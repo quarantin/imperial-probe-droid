@@ -16,7 +16,7 @@ from utils import translate, translate_multi
 import DJANGO
 from django.db import transaction
 from swgoh.models import Guild, Player
-from territorybattle.models import TerritoryBattle, TerritoryBattleHistory
+from territorybattle.models import TerritoryBattle, TerritoryBattleHistory, TerritoryBattleStat
 
 class TBCog(cog.Cog):
 
@@ -35,8 +35,8 @@ class TBCog(cog.Cog):
 		if not player:
 			return self.errors.not_premium()
 
-		last_event = TerritoryBattle.objects.first()
-		data = await self.client.get_tb_history(creds_id=player.creds_id, last_event_id=last_event.event_id)
+		last_event_id = TerritoryBattle.objects.first().event_id
+		data = await self.client.get_tb_history(creds_id=player.creds_id, last_event_id=last_event_id)
 		if not data:
 			return self.bot.errors.tb_history_failed()
 
@@ -70,6 +70,33 @@ class TBCog(cog.Cog):
 
 		await ctx.send(errors and 'KO' or 'OK')
 
+	@commands.command()
+	async def tbstat(self, ctx):
+
+		player = self.options.parse_premium_user(ctx)
+		if not player:
+			return self.errors.not_premium()
+
+		last_event_id = TerritoryBattle.objects.first().event_id
+		map_stats, guild = await self.client.get_map_stats(creds_id=player.creds_id, last_event_id=last_event_id, tb=True)
+
+		guild_id = guild['id']
+		guild_name = guild['name']
+
+		guild, created = Guild.objects.get_or_create(guild_id=guild_id, guild_name=guild_name)
+
+		try:
+			TerritoryBattleStat.parse(guild, map_stats)
+			status = 'OK'
+
+		except Exception as err:
+			status = 'ERROR'
+			print(err)
+			print(traceback.format_exc())
+
+		await ctx.send(status)
+
+	"""
 	async def history(self, ctx, creds_id='anraeth'):
 		
 		event_id = 'TB_EVENT_GEONOSIS_SEPARATIST:O1588352400000'
@@ -101,3 +128,4 @@ class TBCog(cog.Cog):
 
 		print(json.dumps(defend_orders, indent=4))
 		print(json.dumps(attack_orders, indent=4))
+	"""
