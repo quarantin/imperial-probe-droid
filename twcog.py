@@ -66,10 +66,10 @@ class TWCog(cog.Cog):
 		if not player:
 			return self.errors.not_premium()
 
-		last_event_id = TerritoryWar.objects.first()
+		last_event_id = TerritoryWar.objects.first().event_id
 		data = await self.client.get_tw_history(creds_id=player.creds_id, last_event_id=last_event_id)
 		if not data:
-			return self.bot.errors.tb_history_failed()
+			return self.bot.errors.tw_history_failed()
 
 		guild_id = data['guild_id']
 		guild_name = data['guild_name']
@@ -101,6 +101,31 @@ class TWCog(cog.Cog):
 
 		await ctx.send(errors and 'KO' or 'OK')
 
+	@commands.command()
+	async def twstat(self, ctx):
+
+		player = self.options.parse_premium_user(ctx)
+		if not player:
+			return self.errors.not_premium()
+
+		last_event_id = TerritoryWar.objects.first().event_id
+		map_stats, guild = await self.client.get_map_stats(creds_id=player.creds_id, last_event_id=last_event_id)
+
+		guild_id = guild['id']
+		guild_name = guild['name']
+
+		guild, created = Guild.objects.get_or_create(guild_id=guild_id, guild_name=guild_name)
+
+		try:
+			TerritoryWarStat.parse(guild, map_stats)
+			status = 'OK'
+
+		except Exception as err:
+			status = 'ERROR'
+			print(err)
+			print(traceback.format_exc())
+
+		await ctx.send(status)
 	"""
 
 			'guild_id': guild_id,
