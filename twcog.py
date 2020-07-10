@@ -16,7 +16,7 @@ from utils import translate, translate_multi
 import DJANGO
 from django.db import transaction
 from swgoh.models import Guild, Player
-from territorywar.models import TerritoryWar, TerritoryWarHistory
+from territorywar.models import TerritoryWar, TerritoryWarHistory, TerritoryWarStat
 
 class TWCog(cog.Cog):
 
