@@ -104,8 +104,7 @@ def player_to_embedfield(config, player, roster, lang):
 
 	stats = get_player_stats(config, roster, lang)
 
-	guild_name = player['guildName'].strip()
-	guild_name = guild_name and '%s' % guild_name or '**No guild**'
+	guild_name = 'guildName' in player and player['guildName'].strip() or '**No Guild**'
 
 	res = OrderedDict()
 
