@@ -107,7 +107,7 @@ async def cmd_recos(ctx):
 
 		ally_code = player.ally_code
 		player_data = players[ally_code]
-		guild_banner = get_banner_emoji(player_data['guildBannerLogo'])
+		guild_banner = get_banner_emoji(player_data.get('guildBannerLogo'))
 		discord_id = player.discord_id and '<@%s>' % player.discord_id or player.player_name
 
 		lines  = []
