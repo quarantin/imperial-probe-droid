@@ -19,6 +19,7 @@ class TrackerCog(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.embed = bot.embed
 		self.errors = bot.errors
 		self.config = bot.config
 		self.logger = bot.logger
@@ -161,7 +162,7 @@ For example to disable `arena.rank.up` events, just type:
 			cmdhelp = self.get_config_help.replace('%prefix', prefix)
 			description = self.get_header(count=3) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		await send_embed(self.bot, ctx, {
+		await self.embed.send(ctx, {
 			'title': 'Tracker Configuration',
 			'description': description,
 		})
@@ -196,7 +197,7 @@ For example to redirect `arena.rank.down` events to **#arena-tracker** channel, 
 			cmdhelp = self.get_channels_help.replace('%prefix', prefix)
 			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		await send_embed(self.bot, ctx, {
+		await self.embed.send(ctx, {
 			'title': 'Tracker Channels',
 			'description': description,
 		})
@@ -239,7 +240,7 @@ For example to configure formats for `arena.rank.down` events, just type:
 			cmdhelp = self.get_formats_help.replace('%prefix', prefix)
 			description = EMOJIS[''] + '**Keys**' + '\n' + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		await send_embed(self.bot, ctx, {
+		await self.embed.send(ctx, {
 			'title': 'Tracker Formats',
 			'description': description,
 		})
@@ -295,7 +296,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 			cmdhelp = self.get_mentions_help.replace('%prefix', prefix)
 			description = self.get_header(count=2) + sep + '\n' + '\n'.join(lines) + '\n' + sep + '\n' + cmdhelp
 
-		await send_embed(self.bot, ctx, {
+		await self.embed.send(ctx, {
 			'title': 'Tracker Mentions',
 			'description': description,
 		})
