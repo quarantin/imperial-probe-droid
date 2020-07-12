@@ -310,9 +310,10 @@ class Bot(commands.Bot):
 
 		if 'role' in self.config:
 			ipd_role = self.config['role'].lower()
-			for role in author.roles:
-				if role.name.lower() == ipd_role:
-					return True
+			if hasattr(author, 'roles')
+				for role in author.roles:
+					if role.name.lower() == ipd_role:
+						return True
 
 		if 'admins' in self.config:
 			if author.id in self.config['admins']:
