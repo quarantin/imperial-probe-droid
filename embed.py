@@ -172,7 +172,7 @@ https://www.change.org/p/capital-games-capital-games-unban-ahnaldt101-kracken-ac
 					embed.add_field(name=field['name'], value=field['value'], inline=field['inline'])
 
 			if msg == last_msg:
-				embed.set_footer(text=self.FOOTER)
+				#embed.set_footer(text=self.FOOTER)
 				if footer:
 					embed.timestamp = timestamp
 				if 'image' in msg and 'url' in msg['image']:
