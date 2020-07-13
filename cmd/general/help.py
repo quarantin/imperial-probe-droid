@@ -13,10 +13,6 @@ help_help = {
 **`gregister`**: Register your guild mates (**NEW**).
 **`invite`**: Invite this bot to your server.
 
-**Channel Commands**
-**`news`**: Keep track of official news from the game developers.
-**`payout`**: Keep track of time left to payout for your shard members in arena.
-
 **Guild Commands**
 **`gc`**: Guild comparison by roster.
 **`gs`**: Guild comparison by stats.
@@ -42,6 +38,10 @@ help_help = {
 **`zetas`**: List most popular zetas you don't have."""
 #NOT WORKING **`mods`**: Show information about mods.
 #NOT WORKING **`stats`**: Show statistics about equipped mods."""
+#NOT WORKING **Channel Commands**
+#NOT WORKING **`news`**: Keep track of official news from the game developers.
+#NOT WORKING **`payout`**: Keep track of time left to payout for your shard members in arena.
+
 }
 
 def substitute_tokens(bot, text):
