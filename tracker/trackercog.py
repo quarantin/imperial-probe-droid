@@ -560,7 +560,7 @@ For example to enable notifications for `arena.rank.down` events, just type:
 				await ctx.send(msg)
 			elif type(msg) is dict:
 				content = 'mention' in msgdict and msgdict['mention'].startswith('<@') and msgdict['mention'] or ''
-				embeds = self.bot.create(msg, add_sep=False, footer=False)
+				embeds = self.embed.create(msg, add_sep=False, footer=False)
 				for embed in embeds:
 					try:
 						await ctx.send(content=content, embed=embed)
