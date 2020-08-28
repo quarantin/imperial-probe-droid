@@ -203,6 +203,8 @@ class Bot(commands.Bot):
 	async def get_webhook(self, name, channel):
 
 		error_message = None
+		if not channel:
+			return None, 'Invalid channel (None)'
 
 		max_retries = self.max_retries
 		while max_retries > 0:
