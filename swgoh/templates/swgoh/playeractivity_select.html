@@ -1,0 +1,31 @@
+{% extends "swgoh/select.html" %}
+{% block refresh %}
+		<script>
+			function refresh() {
+
+				query = {};
+
+				get_selected_value('display', query);
+
+				tokens = []
+				for (key in query) {
+					tokens.push(key + '=' + query[key]);
+				}
+
+				redirect_params = tokens.join('&');
+				base_url = get_base_url();
+				window.location = base_url + '?' + redirect_params;
+			}
+		</script>
+{% endblock %}
+
+{% block event %}
+				<div>
+					<label for="display">Select a Display</label>
+					<br>
+					<select id="display" onchange="refresh()">{% if not displays %}
+						<option value="all">--</option>{% endif %}{% for display_id, display_name in displays.items %}
+						<option value="{{ display_id }}"{% if display_id == display %} selected{% endif %}>{{ display_name }}</option>{% endfor %}
+					</select>
+				</div>
+{% endblock %}

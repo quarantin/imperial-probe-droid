@@ -20,7 +20,7 @@ import csv
 import json
 import redis
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from .models import Gear, BaseUnit, BaseUnitSkill, Player, PlayerActivity, User
 
@@ -804,10 +804,52 @@ class ListViewCsvMixin(generic_views.ListView):
 
 		return CsvResponse(filename=self.get_filename(event), rows=rows)
 
-class GuildTicketsAveragePerUser(generic_views.ListView, TerritoryEventMixin):
+class GuildTicketsPerUser(generic_views.ListView, TerritoryEventMixin):
 
 	model = PlayerActivity
 	queryset = PlayerActivity.objects.all()
+
+	def get_date_filters(self, display='0'):
+
+		display = int(display)
+		dt = datetime.now(tz=pytz.utc)
+
+		if display == 1: # Yesterday
+
+			yesterday = (dt - timedelta(days=1))
+
+			begin = yesterday.replace(hour=0, minute=0, second=0, microsecond=0)
+			end = yesterday.replace(hour=23, minute=23, second=59, microsecond=999999)
+
+		elif display == 2: # This Month
+
+			begin = dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+			end = dt.replace(hour=23, minute=23, second=59, microsecond=999999)
+
+		elif display == 3: # Last 30 Days
+
+			begin = (dt - timedelta(days=30))
+			end = dt.replace(hour=23, minute=23, second=59, microsecond=999999)
+
+		elif display == 4: # Last Month
+
+			last_month = dt.month == 1 and 12 or dt.month - 1
+
+			begin = dt.replace(month=last_month, day=1, hour=0, minute=0, second=0, microsecond=0)
+			end = dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
+
+		elif display == 5: # Average
+
+			begin = datetime(1970, 1, 1, hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc)
+			end = dt
+
+		else: # Today
+
+			begin = dt.replace(hour=0, minute=0, second=0, microsecond=0)
+			end = dt.replace(hour=23, minute=23, second=59, microsecond=999999)
+
+		return begin, end
+
 
 	def get_context_data(self, *args, **kwargs):
 
@@ -822,8 +864,12 @@ class GuildTicketsAveragePerUser(generic_views.ListView, TerritoryEventMixin):
 
 		guild = json.loads(guild.decode('utf-8'))
 		player_ids = [ x['playerId'] for x in guild['roster'] ]
-
 		kwargs['player__player_id__in'] = player_ids
+
+		display = kwargs.pop('display')
+		begin, end = self.get_date_filters(display)
+		kwargs['timestamp__gte'] = begin
+		kwargs['timestamp__lte'] = end
 
 		activity_list = context['object_list'].filter(**kwargs)
 
@@ -837,18 +883,31 @@ class GuildTicketsAveragePerUser(generic_views.ListView, TerritoryEventMixin):
 
 		result = {}
 		for player_name, activity_list in tickets.items():
-			average = sum(activity_list) / len(activity_list)
-			result[player_name] = int(average)
+			result[player_name] = sum(activity_list)
+			#if display == 5:
+			#	result[player_name] /= float(len(activity_list))
 
-		context['averageTickets'] = sorted(result.items(), key=lambda x: (-x[1], x[0]))
+		context['tickets'] = sorted(result.items(), key=lambda x: (-x[1], x[0]))
 		context['guild_active'] = True
 		context['guild_tickets_average'] = True
+
+		context['displays'] = {
+			'0': 'Today',
+			'1': 'Yesterday',
+			'2': 'This Month',
+			'3': 'Last 30 Days',
+			'4': 'Last Month',
+		}
+
+		context['display'] = display
 
 		return context
 
 	def get(self, request, *args, **kwargs):
 
 		self.object_list = self.get_queryset()
+
+		kwargs['display'] = request.GET.get('display', '0');
 
 		context = self.get_context_data(*args, **kwargs)
 
