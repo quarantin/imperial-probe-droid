@@ -93,7 +93,7 @@ async def cmd_guild_list(ctx):
 		for player_id, player in members.items():
 
 			player_name = player['name']
-			guild_name = player['guildName']
+			guild_name = player.get('guildName', 'No Guild')
 			roster = { x['defId']: x for x in player['roster'] }
 			for ref_unit in selected_units:
 
