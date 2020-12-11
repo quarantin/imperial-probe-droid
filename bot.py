@@ -305,7 +305,8 @@ class Bot(commands.Bot):
 		except Player.DoesNotExist:
 			print(traceback.format_exc())
 
-		self.logger_unreg.info('Unregistered allycode: %s (%s)' % (ally_code, server.name))
+		server_name = hasattr(server, 'name') and server.name or 'Missing Server'
+		self.logger_unreg.info('Unregistered allycode: %s (%s)' % (ally_code, server_name))
 		return None, str(self.user.default_avatar_url)
 
 	def is_ipd_admin(self, author):
