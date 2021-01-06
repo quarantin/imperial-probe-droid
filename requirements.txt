@@ -5,7 +5,7 @@ attrs==19.1.0
 beautifulsoup4==4.7.1
 bs4==0.0.1
 cairocffi==1.0.2
-CairoSVG==2.4.0
+CairoSVG==2.5.1
 certifi==2019.3.9
 cffi==1.12.3
 chardet==3.0.4
