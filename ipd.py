@@ -91,9 +91,9 @@ class UserRequest:
 	command = None
 	args = None
 
-	def __init__(self, config, message, from_user=True, bot_prefix=None):
-		self.bot = config['bot']
-		self.logger = config['bot'].logger
+	def __init__(self, config, message, from_user=True, bot_prefix=None, bot=None):
+		self.bot = bot
+		self.logger = self.bot.logger
 		self.config = config
 		self.author = hasattr(message, 'author') and message.author or self.bot.user
 		self.from_user = from_user
@@ -298,7 +298,7 @@ class ImperialProbeDroid(bot.Bot):
 						server = hasattr(channel, 'guild') and channel.guild or None
 						bot_prefix = self.get_bot_prefix(channel=channel)
 						message = MessageStub(self.user, server, channel, '%spayout' % bot_prefix)
-						request = UserRequest(config, message, from_user=False, bot_prefix=bot_prefix)
+						request = UserRequest(config, message, from_user=False, bot_prefix=bot_prefix, bot=self)
 						await self.on_message_handler(request)
 
 	async def on_ready(self):
@@ -332,7 +332,7 @@ class ImperialProbeDroid(bot.Bot):
 
 	async def on_message(self, message):
 
-		request = UserRequest(self.config, message)
+		request = UserRequest(self.config, message, bot=self)
 		if request.is_ipd_message is False:
 			return
 
@@ -413,45 +413,52 @@ async def __main__():
 
 		config = load_config()
 
-		bot = config['bot'] = ImperialProbeDroid(command_prefix=config['prefix'])
-		bot.config = config
-		bot.logger = ipd_logger
-		bot.redis = config.redis
+		loop = asyncio.get_event_loop()
 
-		from embed import EmbedManager
-		bot.embed = EmbedManager(bot)
+		env = config.get('env')
+		tokens = config['tokens'][env]
+		if type(tokens) is str:
+			tokens = [ tokens ]
 
-		from crinolo import CrinoloStats
-		bot.stats = CrinoloStats(BaseUnit.get_ship_crews())
+		for token in tokens:
 
-		from boterrors import BotErrors
-		bot.errors = BotErrors(bot)
+			bot = ImperialProbeDroid(command_prefix=config['prefix'])
 
-		from botoptions import BotOptions
-		bot.options = BotOptions(bot)
+			bot.config = config
+			bot.logger = ipd_logger
+			bot.redis = config.redis
 
-		import client
-		bot.client = client.SwgohClient(bot)
+			from embed import EmbedManager
+			bot.embed = EmbedManager(bot)
 
-		from chatcog import ChatCog
-		bot.add_cog(ChatCog(bot))
+			from crinolo import CrinoloStats
+			bot.stats = CrinoloStats(BaseUnit.get_ship_crews())
 
-		from ticketscog import TicketsCog
-		bot.add_cog(TicketsCog(bot))
+			from boterrors import BotErrors
+			bot.errors = BotErrors(bot)
 
-		from twcog import TWCog
-		bot.add_cog(TWCog(bot))
+			from botoptions import BotOptions
+			bot.options = BotOptions(bot)
 
-		from tbcog import TBCog
-		bot.add_cog(TBCog(bot))
+			import client
+			bot.client = client.SwgohClient(bot)
 
-		token = config['token']
-		if 'env' in config:
-			env = config['env']
-			token = config['tokens'][env]
+			from chatcog import ChatCog
+			bot.add_cog(ChatCog(bot))
+
+			#from ticketscog import TicketsCog
+			#bot.add_cog(TicketsCog(bot))
+
+			from twcog import TWCog
+			bot.add_cog(TWCog(bot))
+
+			from tbcog import TBCog
+			bot.add_cog(TBCog(bot))
+
+			loop.create_task(bot.start(token))
 
 		try:
-			bot.run(token)
+			loop.run_forever()
 
 		except Exception as err:
 			print('Run was interrupted!')
@@ -462,7 +469,7 @@ async def __main__():
 		print('Bot quitting!')
 
 	except Exception as err:
-		print('bot initialization interrupted!')
+		print('Bot initialization interrupted!')
 		print(err)
 		print(traceback.format_exc())
 
