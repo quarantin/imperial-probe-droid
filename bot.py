@@ -74,20 +74,21 @@ class Bot(commands.Bot):
 
 		return perms.value
 
-	def get_invite_url(self, user=None):
+	def get_invite_url(self):
+
+		client_id = self.config.get('invite_client_id', None)
+		if not client_id:
+			client_id = self.user.id
 
 		from urllib.parse import urlencode
-
-		client_id = user is None and self.user.id or user.id
-
 		return 'https://discordapp.com/api/oauth2/authorize?' + urlencode({
 			'client_id': client_id,
 			'perms': self.get_perms(),
 			'scope': 'bot',
 		})
 
-	def get_invite_link(self, user=None, invite_msg='Click here to invite this bot to your server'):
-		return '[%s](%s)' % (invite_msg, self.get_invite_url(user=user))
+	def get_invite_link(self, invite_msg='Click here to invite this bot to your server'):
+		return '[%s](%s)' % (invite_msg, self.get_invite_url())
 
 	def get_percentage(self, amount, total):
 		return '%.2f%%' % (amount / total * 100)
