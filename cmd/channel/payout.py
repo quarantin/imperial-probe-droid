@@ -78,6 +78,7 @@ def get_payout_times(shard):
 
 def get_shard(ctx):
 
+	bot = ctx.bot
 	alt = ctx.alt
 	author = ctx.author
 	channel = ctx.channel
@@ -101,7 +102,7 @@ def get_shard(ctx):
 				shards.append(member.shard)
 
 		for shard in shards:
-			shard_channel = config['bot'].get_channel(shard.channel_id)
+			shard_channel = bot.get_channel(shard.channel_id)
 			if shard_channel:
 
 				if channel.id == shard_channel.guild.id:
@@ -353,7 +354,7 @@ async def handle_payout_stats(ctx):
 	if not shard:
 		return bot.errors.no_shard_found(ctx)
 
-	shard_channel = config['bot'].get_channel(shard.channel_id)
+	shard_channel = bot.get_channel(shard.channel_id)
 	payout_times = get_payout_times(shard)
 	ally_codes = list(payout_times)
 
@@ -436,7 +437,7 @@ async def handle_payout_stats(ctx):
 		pass
 
 	for embed in embeds:
-		status, error = await config['bot'].sendmsg(channel, message='', embed=embed)
+		status, error = await bot.sendmsg(channel, message='', embed=embed)
 		if not status:
 			if '403 FORBIDDEN' in str(error):
 				Shard.objects.get(channel_id=shard.channel_id).delete()

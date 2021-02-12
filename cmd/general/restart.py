@@ -24,7 +24,7 @@ def cmd_restart(ctx):
 	config = ctx.config
 
 	if 'admins' in config and author.id in config['admins']:
-		config['bot'].exit()
+		bot.exit()
 		return []
 
 	return bot.errors.permission_denied()

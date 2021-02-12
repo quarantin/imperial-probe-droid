@@ -67,9 +67,9 @@ def cmd_me(ctx):
 		'description': 'Hello <@%s>,\n\n%s\n' % (author.id, lines_str),
 	}]
 
-async def fill_user_info(config, player):
+async def fill_user_info(config, bot, player):
 
-	user = await config['bot'].fetch_user(player.discord_id)
+	user = await bot.fetch_user(player.discord_id)
 	for key, real_key in [ ('nick', 'discord_nick'), ('name', 'discord_name'), ('display_name', 'discord_display_name') ]:
 		if hasattr(user, key):
 			value = getattr(user, key)
@@ -111,7 +111,7 @@ async def register_users(ctx, discord_ids, ally_codes):
 		db_player.timezone    = 'Europe/London'
 		db_player.player_id   = jplayer['id']
 		db_player.player_name = jplayer['name']
-		await fill_user_info(config, db_player)
+		await fill_user_info(config, bot, db_player)
 
 		db_player.save()
 

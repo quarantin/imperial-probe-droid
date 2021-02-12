@@ -19,7 +19,7 @@ def cmd_servers(ctx):
 		return bot.errors.permission_denied()
 
 	servers = []
-	for server in config['bot'].guilds:
+	for server in bot.guilds:
 		servers.append(server.name)
 
 	return [{

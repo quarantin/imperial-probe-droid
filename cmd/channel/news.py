@@ -54,7 +54,7 @@ async def handle_news_enable(ctx):
 			break
 	else:
 		try:
-			webhook = await channel.create_webhook(name=WEBHOOK, avatar=config['bot'].get_avatar())
+			webhook = await channel.create_webhook(name=WEBHOOK, avatar=bot.get_avatar())
 
 		except HTTPException:
 			return [{

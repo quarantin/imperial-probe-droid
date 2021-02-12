@@ -19,7 +19,7 @@ def cmd_lookup(ctx):
 	if 'admins' not in config or author.id not in config['admins']:
 		return bot.errors.permission_denied()
 
-	for server in config['bot'].guilds:
+	for server in bot.guilds:
 		for member in server.members:
 
 			display_name = ''
