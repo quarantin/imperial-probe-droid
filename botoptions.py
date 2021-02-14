@@ -589,8 +589,10 @@ class BotOptions:
 		for arg in args_cpy:
 			try:
 				limit = int(arg)
-				args.remove(arg)
-				return limit
+				# We have to handle allycodes too, they always have 9 digits
+				if limit < 100000000:
+					args.remove(arg)
+					return limit
 
 			except:
 				pass
