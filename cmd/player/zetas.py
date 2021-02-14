@@ -91,7 +91,7 @@ async def cmd_zetas(ctx):
 				if 'tier' not in skill:
 					continue
 
-				if skill['tier'] == 8:
+				if skill['tier'] == skill['tiers']:
 					del zetas[skill_id]
 					continue
 
