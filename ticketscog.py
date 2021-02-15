@@ -50,6 +50,10 @@ class TicketsCog(cog.Cog):
 		except Player.DoesNotExist:
 			return None, None
 
+		except Player.MultipleObjectsReturned:
+			for player in Player.objects.filter(player_id=player_id):
+				print('DUPLICATE PLAYER: %s' % player_id)
+
 	def store_player_activity(self, player_id, timestamp, raid_tickets, guild_tokens):
 
 		try:
