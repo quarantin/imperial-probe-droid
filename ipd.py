@@ -446,8 +446,8 @@ async def __main__():
 			from chatcog import ChatCog
 			bot.add_cog(ChatCog(bot))
 
-			#from ticketscog import TicketsCog
-			#bot.add_cog(TicketsCog(bot))
+			from ticketscog import TicketsCog
+			bot.add_cog(TicketsCog(bot))
 
 			from twcog import TWCog
 			bot.add_cog(TWCog(bot))
