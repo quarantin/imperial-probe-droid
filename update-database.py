@@ -288,7 +288,7 @@ class DatabaseUpdater:
 
 					base_id = unit['baseId']
 
-					if base_id in self.UNITS_TO_IGNORE:
+					if base_id in self.UNITS_TO_IGNORE or 'JOURNEY_EVENT' in base_id:
 						continue
 
 					if base_id in self.units:
