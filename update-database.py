@@ -144,32 +144,17 @@ class CacheUpdater:
 class DatabaseUpdater:
 
 	UNITS_TO_IGNORE = [
-		'ADMINISTRATORLANDO_GL_EVENT',
-		'ADMINISTRATORLANDO_JKL_EVENT',
 		'AMILYNHOLDO_RADDUS',
 		'AWAKENEDREY',
-		'C3POLEGENDARY_JKL_EVENT',
-		'CAPITALFINALIZER_EVENT',
-		'CAPITALRADDUS_EVENT',
-		'COMMANDERLUKESKYWALKER_JKL_EVENT',
-		'COMMANDERLUKESKYWALKER_HOTH_JKL_EVENT',
-		'CHEWBACCALEGENDARY_JKL_EVENT',
 		'FOTF_DEVASTATOR',
 		'FOTF_VADER',
-		'GENERALHUX_EVENT',
-		'GRANDMASTERLUKE_GL_EVENT',
 		'GRIEVOUS_MARQUEE',
-		'HANSOLO_GL_EVENT',
-		'HOTHLEIA_JKL_EVENT',
 		'JKL_GR75',
 		'JKL_PILOT',
 		'KYLOREN_DUEL',
 		'KYLORENUNMASKED_GLEVENT',
-		'PRINCESSLEIA_GL_EVENT',
 		'REY_DUEL',
 		'REYJEDITRAINING_GLEVENT',
-		'SITHPALPATINE_GL_EVENT',
-		'VADER_JKL_EVENT',
 		'VULTUREDROID_tb',
 	]
 
@@ -288,7 +273,7 @@ class DatabaseUpdater:
 
 					base_id = unit['baseId']
 
-					if base_id in self.UNITS_TO_IGNORE or 'JOURNEY_EVENT' in base_id:
+					if base_id in self.UNITS_TO_IGNORE or '_EVENT' in base_id:
 						continue
 
 					if base_id in self.units:
@@ -357,7 +342,7 @@ class DatabaseUpdater:
 				base_id = character['base_id']
 				base_unit = self.units[base_id]
 
-				if base_id in self.UNITS_TO_IGNORE:
+				if base_id in self.UNITS_TO_IGNORE or '_EVENT' in base_id:
 					continue
 
 				if 'gear_levels' not in character:
@@ -411,7 +396,7 @@ class DatabaseUpdater:
 			for unit in units:
 				base_id = unit['baseId']
 
-				if base_id.startswith('PVE_') or base_id in self.UNITS_TO_IGNORE:
+				if base_id.startswith('PVE_') or base_id in self.UNITS_TO_IGNORE or '_EVENT' in base_id:
 					continue
 
 				try:
