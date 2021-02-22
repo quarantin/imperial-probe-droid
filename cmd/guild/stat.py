@@ -49,6 +49,7 @@ def get_guild_stats(guild, players):
 		'r5-units': 0,
 		'r6-units': 0,
 		'r7-units': 0,
+		'r8-units': 0,
 		'6-pips-mods': 0,
 		'speed-arrows': 0,
 		'speed-mods+20': 0,
