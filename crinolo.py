@@ -25,7 +25,7 @@ class CrinoloStats:
 		base_ids = [ unit.base_id for unit in units ]
 		for ship_id in list(base_ids):
 			if ship_id in self.crews:
-				for pilot in self.crews[ship_id]:
+				for pilot, seat in self.crews[ship_id]:
 					if pilot not in base_ids:
 						base_ids.append(pilot)
 						pilots.append(pilot)
