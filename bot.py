@@ -133,8 +133,8 @@ class Bot(commands.Bot):
 			return None, Bot.ERROR_FORBIDDEN
 
 		except discord.HTTPException:
-			print('HTTP error occured while retrieving channel %s' % channel_id)
-			self.logger.error('HTTP error occured while retrieving channel %s' % channel_id)
+			print('HTTP error occurred while retrieving channel %s' % channel_id)
+			self.logger.error('HTTP error occurred while retrieving channel %s' % channel_id)
 			return None, Bot.ERROR_HTTP
 
 		except discord.InvalidData:
@@ -166,8 +166,8 @@ class Bot(commands.Bot):
 			return None, Bot.ERROR_FORBIDDEN
 
 		except discord.HTTPException:
-			print('HTTP error occured while retrieving webhook %s' % webhook_id)
-			self.logger.error('HTTP error occured while retrieving webhook %s' % webhook_id)
+			print('HTTP error occurred while retrieving webhook %s' % webhook_id)
+			self.logger.error('HTTP error occurred while retrieving webhook %s' % webhook_id)
 			return None, Bot.ERROR_HTTP
 
 		except Exception as err:
