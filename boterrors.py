@@ -15,7 +15,7 @@ class BotErrors:
 		return [{
 			'title': title or 'Error: Unknown',
 			'color': 'red',
-			'description': message or 'An unknown error occured. Please report this to the developer.',
+			'description': message or 'An unknown error occurred. Please report this to the developer.',
 		}]
 
 	def not_premium(self):
